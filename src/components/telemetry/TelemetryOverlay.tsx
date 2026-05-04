@@ -251,7 +251,7 @@ export function TelemetryContent({ onClose }: { onClose: () => void }) {
                                 <div className="absolute inset-[-20px] rounded-full bg-indigo-500/10 blur-3xl opacity-30 group-hover:opacity-50 transition-opacity duration-1000" />
 
                                 <svg className="w-full h-full transform -rotate-90 drop-shadow-sm dark:drop-shadow-[0_0_15px_rgba(0,0,0,0.4)]" viewBox="0 0 100 100">
-                                    <circle cx="50" cy="50" r="44" fill="none" stroke="currentColor" className="text-muted dark:text-white/5" strokeWidth="6" />
+                                    <circle cx="50" cy="50" r="44" fill="none" stroke="currentColor" className="text-muted dark:text-white/10" strokeWidth="6" />
                                     <circle
                                         cx="50" cy="50" r="44" fill="none"
                                         stroke={status.fill}
@@ -260,10 +260,10 @@ export function TelemetryContent({ onClose }: { onClose: () => void }) {
                                         strokeDasharray={276}
                                         strokeDashoffset={276 - (276 * score) / 100}
                                         style={{ transition: 'stroke-dashoffset 2.5s cubic-bezier(0.19, 1, 0.22, 1)' }}
-                                        className="drop-shadow-[0_0_12px_currentColor]"
+                                        className="drop-shadow-[0_0_8px_currentColor] dark:drop-shadow-[0_0_12px_currentColor]"
                                     />
                                     {[...Array(24)].map((_, i) => (
-                                        <line key={i} x1="50" y1="6" x2="50" y2="9" transform={`rotate(${i * 15} 50 50)`} stroke="currentColor" className="text-muted/50 dark:text-white/15" strokeWidth="1" />
+                                        <line key={i} x1="50" y1="6" x2="50" y2="9" transform={`rotate(${i * 15} 50 50)`} stroke="currentColor" className="text-muted/30 dark:text-white/15" strokeWidth="1" />
                                     ))}
                                 </svg>
 
@@ -369,8 +369,8 @@ export function TelemetryContent({ onClose }: { onClose: () => void }) {
                     <div className="h-48">
                         <ResponsiveContainer width="100%" height="100%">
                             <RadarChart data={radarData}>
-                                <PolarGrid stroke="rgba(255,255,255,0.05)" />
-                                <PolarAngleAxis dataKey="subject" tick={{ fill: '#64748b', fontSize: 9, fontWeight: 700 }} />
+                                <PolarGrid stroke="currentColor" className="text-muted-foreground/10 dark:text-white/5" />
+                                <PolarAngleAxis dataKey="subject" tick={{ fill: 'currentColor', fontSize: 9, fontWeight: 700 }} className="text-muted-foreground/70" />
                                 <Radar name="Score" dataKey="accuracy" stroke="#8b5cf6" fill="#8b5cf6" fillOpacity={0.2} dot={{ r: 2, fill: '#8b5cf6' }} />
                             </RadarChart>
                         </ResponsiveContainer>

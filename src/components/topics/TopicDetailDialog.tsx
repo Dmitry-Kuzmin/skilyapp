@@ -1,35 +1,12 @@
-import { useState, useMemo } from 'react';
+import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from '@/components/ui/drawer';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import {
-    Play,
-    CheckCircle2,
-    AlertCircle,
-    Lock,
-    Trophy,
-    FileText,
-    ChevronRight,
-    RefreshCcw
-} from 'lucide-react';
-import { motion } from '@/components/optimized/Motion';
+import { Lock, Play, CheckCircle2, AlertCircle, Layers } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
-
-interface TopicLevel {
-    id: string;
-    level: number;
-    label: string;
-    questionRange: string;
-    questionIds: string[];
-    status: 'locked' | 'available' | 'in-progress' | 'completed' | 'has-errors';
-    progress?: number;
-    errorCount?: number;
-    accuracy?: number;
-}
+import { useModalStore } from '@/store/modalStore';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface TopicDetailDialogProps {
     open: boolean;
@@ -37,15 +14,20 @@ interface TopicDetailDialogProps {
     topicId: string;
     topicName: string;
     topicCount: number;
-    allQuestionIds: string[];
-    userProgress?: {
-        completedQuestionIds: string[];
-        errorQuestionIds: string[];
-    };
+    freeQuestionIds: string[];
     country: string;
+    isPremium: boolean;
 }
 
-const QUESTIONS_PER_TICKET = 30; // Билеты по 30 вопросов
+const QUESTIONS_PER_TICKET = 30;
+
+interface Ticket {
+    index: number;
+    start: number;
+    end: number;
+    locked: boolean;
+    questionIds: string[];
+}
 
 export function TopicDetailDialog({
     open,
@@ -53,286 +35,143 @@ export function TopicDetailDialog({
     topicId,
     topicName,
     topicCount,
-    allQuestionIds,
-    userProgress,
-    country
+    freeQuestionIds,
+    country,
+    isPremium,
 }: TopicDetailDialogProps) {
     const navigate = useNavigate();
     const isDesktop = useMediaQuery('(min-width: 768px)');
+    const openModal = useModalStore((s) => s.openModal);
+    const { language } = useLanguage();
 
-    // Генерируем виртуальные билеты по 30 вопросов
-    const tickets = useMemo((): TopicLevel[] => {
-        const totalTickets = Math.ceil(topicCount / QUESTIONS_PER_TICKET);
+    const isSpain = country === 'spain';
 
-        return Array.from({ length: totalTickets }).map((_, index) => {
-            const start = index * QUESTIONS_PER_TICKET;
-            const end = Math.min(start + QUESTIONS_PER_TICKET, topicCount);
-            const ticketQuestionIds = allQuestionIds.slice(start, end);
-
-            // Вычисляем статус билета
-            const completedCount = ticketQuestionIds.filter(qId =>
-                userProgress?.completedQuestionIds.includes(qId)
-            ).length;
-            const errorCount = ticketQuestionIds.filter(qId =>
-                userProgress?.errorQuestionIds.includes(qId)
-            ).length;
-
-            const progress = (completedCount / ticketQuestionIds.length) * 100;
-            const accuracy = completedCount > 0 ? ((completedCount - errorCount) / completedCount) * 100 : 0;
-
-            let status: TopicLevel['status'] = 'available';
-            // НЕ блокируем билеты - все доступны сразу
-
-            if (progress === 100) {
-                status = errorCount > 0 ? 'has-errors' : 'completed';
-            } else if (progress > 0) {
-                status = 'in-progress';
-            }
-
-            return {
-                id: `${topicId}-ticket-${index + 1}`,
-                level: index + 1,
-                label: `Билет ${index + 1}`,
-                questionRange: `${start + 1}—${end}`,
-                questionIds: ticketQuestionIds,
-                status,
-                progress,
-                errorCount,
-                accuracy
-            };
+    const tickets = useMemo((): Ticket[] => {
+        const total = Math.max(topicCount, 1);
+        const count = Math.ceil(total / QUESTIONS_PER_TICKET);
+        return Array.from({ length: count }, (_, i) => {
+            const start = i * QUESTIONS_PER_TICKET;
+            const end = Math.min(start + QUESTIONS_PER_TICKET, total);
+            const locked = isSpain && !isPremium && i > 0;
+            const questionIds = locked ? [] : freeQuestionIds.slice(start, end);
+            return { index: i, start, end, locked, questionIds };
         });
-    }, [topicCount, allQuestionIds, userProgress, topicId]);
+    }, [topicCount, freeQuestionIds, isSpain, isPremium]);
 
-    // Общий прогресс
-    const overallProgress = useMemo(() => {
-        const totalQuestions = topicCount;
-        const completedQuestions = userProgress?.completedQuestionIds.length || 0;
-        return (completedQuestions / totalQuestions) * 100;
-    }, [topicCount, userProgress]);
-
-    const handleStartTicket = (ticket: TopicLevel) => {
-        // Переходим к тесту с UUID темы (как в Dashboard)
+    const handleTicketClick = (ticket: Ticket) => {
+        if (ticket.locked) {
+            openModal('PAYWALL');
+            return;
+        }
         navigate(`/test/practice?topic=${topicId}&count=${QUESTIONS_PER_TICKET}&country=${country}`);
         onOpenChange(false);
     };
 
-    const getLevelIcon = (status: TopicLevel['status']) => {
-        switch (status) {
-            case 'completed':
-                return <CheckCircle2 className="w-5 h-5 text-green-500" />;
-            case 'has-errors':
-                return <AlertCircle className="w-5 h-5 text-yellow-500" />;
-            case 'in-progress':
-                return <Play className="w-5 h-5 text-blue-500" />;
-            case 'locked':
-                return <Lock className="w-5 h-5 text-zinc-400" />;
-            default:
-                return <FileText className="w-5 h-5 text-zinc-400" />;
-        }
-    };
+    const freeCount = tickets.filter(t => !t.locked).length;
+    const lockedCount = tickets.filter(t => t.locked).length;
 
-    const getLevelBadgeText = (level: TopicLevel) => {
-        switch (level.status) {
-            case 'completed':
-                return level.errorCount === 0 ? '✓ Идеально' : `${level.errorCount} ошибок`;
-            case 'has-errors':
-                return `${level.errorCount} ошибок`;
-            case 'in-progress':
-                return `${Math.round(level.progress || 0)}%`;
-            case 'locked':
-                return 'Заблокирован';
-            default:
-                return 'Доступен';
-        }
-    };
-
-    const getLevelButtonText = (level: TopicLevel) => {
-        switch (level.status) {
-            case 'completed':
-                return level.errorCount === 0 ? 'Повторить' : 'Улучшить результат';
-            case 'has-errors':
-                return 'Улучшить результат';
-            case 'in-progress':
-                return 'Продолжить';
-            default:
-                return 'Начать';
-        }
+    const label = (key: string) => {
+        const labels: Record<string, Record<string, string>> = {
+            ticket: { ru: 'Билет', es: 'Test', en: 'Ticket' },
+            questions: { ru: 'вопросов', es: 'preguntas', en: 'questions' },
+            tickets: { ru: 'билетов', es: 'tests', en: 'tickets' },
+            free: { ru: 'бесплатно', es: 'gratis', en: 'free' },
+            locked: { ru: 'заблокировано', es: 'bloqueado', en: 'locked' },
+            start: { ru: 'Начать', es: 'Empezar', en: 'Start' },
+            premium: { ru: 'Премиум', es: 'Premium', en: 'Premium' },
+            unlockAll: { ru: 'Разблокировать всё', es: 'Desbloquear todo', en: 'Unlock all' },
+        };
+        return labels[key]?.[language] ?? labels[key]?.['en'] ?? key;
     };
 
     const content = (
-        <div className="space-y-6">
-            {/* Прогресс темы */}
-            <Card className="p-4 bg-gradient-to-br from-blue-500/10 to-purple-500/10 border-blue-500/20">
-                <div className="flex items-center justify-between mb-3">
-                    <div>
-                        <p className="text-sm font-medium text-zinc-600 dark:text-zinc-400">Общий прогресс</p>
-                        <p className="text-2xl font-bold">{Math.round(overallProgress)}%</p>
-                    </div>
-                    <div className="p-3 rounded-full bg-blue-500/10">
-                        <Trophy className="w-6 h-6 text-blue-500" />
-                    </div>
+        <div className="flex flex-col gap-5">
+            {/* Stats row */}
+            <div className="flex items-center gap-4 text-sm">
+                <div className="flex items-center gap-1.5 text-muted-foreground">
+                    <Layers className="w-4 h-4" />
+                    <span className="font-semibold">{topicCount} {label('questions')}</span>
                 </div>
-                <div className="h-2 bg-zinc-200 dark:bg-zinc-800 rounded-full overflow-hidden">
-                    <motion.div
-                        className="h-full bg-gradient-to-r from-blue-500 to-purple-500 rounded-full"
-                        initial={{ width: 0 }}
-                        animate={{ width: `${overallProgress}%` }}
-                        transition={{ duration: 0.5, ease: 'easeOut' }}
-                    />
+                <div className="w-px h-4 bg-border" />
+                <div className="flex items-center gap-1.5 text-muted-foreground">
+                    <span className="font-semibold">{tickets.length} {label('tickets')}</span>
                 </div>
-            </Card>
-
-            {/* GRID билетов (как в РФ версии) */}
-            <div className="space-y-2 sm:space-y-4">
-                <div className="relative py-1.5 sm:py-2">
-                    <div className="absolute inset-0 flex items-center" aria-hidden="true">
-                        <div className="w-full border-t border-slate-200 dark:border-white/10"></div>
-                    </div>
-                    <div className="relative flex justify-center">
-                        <span className="bg-background px-3 sm:px-4 text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] sm:tracking-[0.3em] text-slate-400 dark:text-slate-500">
-                            Выбор билета
-                        </span>
-                    </div>
-                </div>
-
-                <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-2 sm:gap-3 md:gap-4">
-                    {tickets.map((ticket, i) => {
-                        const isCompleted = ticket.status === 'completed';
-                        const hasErrors = ticket.status === 'has-errors';
-                        const isInProgress = ticket.status === 'in-progress';
-
-                        let status: 'idle' | 'charging' | 'charged' | 'damaged' = 'idle';
-                        const progress = ticket.progress || 0;
-
-                        if (isCompleted) {
-                            status = 'charged';
-                        } else if (hasErrors && isInProgress) {
-                            status = 'damaged';
-                        } else if (isInProgress || progress > 0) {
-                            status = 'charging';
-                        }
-
-                        const radius = 28; // Уменьшен для мобильных
-                        const circumference = 2 * Math.PI * radius;
-                        const offset = circumference - (progress / 100) * circumference;
-
-                        return (
-                            <motion.div
-                                key={ticket.id}
-                                layout
-                                whileHover={{ y: -5, scale: 1.02 }}
-                                whileTap={{ scale: 0.95 }}
-                                onClick={() => handleStartTicket(ticket)}
-                                initial={{ opacity: 0, scale: 0.9 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                transition={{ delay: i * 0.03 }}
-                                className={cn(
-                                    "relative aspect-square rounded-xl sm:rounded-[1.5rem] overflow-hidden cursor-pointer group transition-all duration-500",
-                                    "border shadow-md sm:shadow-lg",
-                                    status === 'idle' && "bg-slate-100 dark:bg-slate-800 border-slate-300 dark:border-slate-600",
-                                    status === 'charging' && "bg-orange-100 dark:bg-orange-900/40 border-orange-400 dark:border-orange-500 shadow-orange-500/30",
-                                    status === 'charged' && "bg-emerald-100 dark:bg-emerald-900/40 border-emerald-400 dark:border-emerald-500 shadow-emerald-500/30",
-                                    status === 'damaged' && "bg-red-100 dark:bg-red-900/40 border-red-400 dark:border-red-500 shadow-red-500/30"
-                                )}
-                            >
-                                {/* Cyber pattern */}
-                                <div className="absolute inset-0 opacity-[0.03] dark:opacity-[0.08] pointer-events-none"
-                                    style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, currentColor 1px, transparent 0)', backgroundSize: '16px 16px' }} />
-
-                                <div className="absolute inset-0 flex flex-col items-center justify-center p-2 sm:p-3">
-                                    {/* Top Label */}
-                                    <span className={cn(
-                                        "text-[8px] sm:text-[10px] font-black tracking-[0.15em] sm:tracking-[0.2em] uppercase transition-colors duration-500 mb-1 sm:mb-2",
-                                        status === 'idle' ? "text-slate-500 dark:text-slate-400" : "text-slate-600 dark:text-slate-300"
-                                    )}>
-                                        Билет
-                                    </span>
-
-                                    <div className="relative flex items-center justify-center">
-                                        {/* Progress Ring */}
-                                        {status !== 'idle' && progress > 0 && (
-                                            <svg className="absolute w-16 h-16 sm:w-20 sm:h-20 -rotate-90 pointer-events-none">
-                                                <circle
-                                                    cx="50%"
-                                                    cy="50%"
-                                                    r={radius}
-                                                    fill="transparent"
-                                                    stroke="currentColor"
-                                                    strokeWidth="2"
-                                                    className="text-slate-200/20 dark:text-white/5"
-                                                />
-                                                <motion.circle
-                                                    cx="50%"
-                                                    cy="50%"
-                                                    r={radius}
-                                                    fill="transparent"
-                                                    stroke="currentColor"
-                                                    strokeWidth="4"
-                                                    strokeDasharray={circumference}
-                                                    initial={{ strokeDashoffset: circumference }}
-                                                    animate={{ strokeDashoffset: offset }}
-                                                    transition={{ duration: 1.5, ease: "easeOut" }}
-                                                    strokeLinecap="round"
-                                                    className={cn(
-                                                        status === 'charged' ? "text-emerald-500" :
-                                                            status === 'damaged' ? "text-red-500" :
-                                                                "text-orange-500",
-                                                        "drop-shadow-[0_0_8px_currentColor]"
-                                                    )}
-                                                />
-                                            </svg>
-                                        )}
-
-                                        <span className={cn(
-                                            "text-2xl sm:text-3xl md:text-4xl font-black transition-all duration-500 font-display",
-                                            status === 'idle'
-                                                ? "text-slate-300 dark:text-slate-700 group-hover:text-slate-900 dark:group-hover:text-slate-400"
-                                                : "text-slate-900 dark:text-white drop-shadow-sm",
-                                            status === 'charged' && "text-emerald-500 dark:text-emerald-400",
-                                            status === 'damaged' && "text-red-500 dark:text-red-400"
-                                        )}>
-                                            {ticket.level}
-                                        </span>
-                                    </div>
-
-                                    {/* Status Indicator */}
-                                    <div className="mt-2 sm:mt-3 md:mt-4 flex flex-col items-center justify-center gap-0.5 sm:gap-1">
-                                        {status === 'charged' && (
-                                            <motion.div
-                                                initial={{ opacity: 0, scale: 0 }}
-                                                animate={{ opacity: 1, scale: 1 }}
-                                                className="flex items-center gap-0.5 sm:gap-1 text-[9px] sm:text-[10px] font-black uppercase text-emerald-500 tracking-wide sm:tracking-wider"
-                                            >
-                                                <CheckCircle2 className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
-                                                Пройден
-                                            </motion.div>
-                                        )}
-                                        {ticket.errorCount > 0 && status !== 'idle' && (
-                                            <div className="text-[9px] sm:text-[10px] font-black text-red-500/80 tracking-wide">
-                                                {ticket.errorCount} ош.
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-                            </motion.div>
-                        );
-                    })}
-                </div>
+                {lockedCount > 0 && (
+                    <>
+                        <div className="w-px h-4 bg-border" />
+                        <div className="flex items-center gap-1.5 text-amber-500">
+                            <Lock className="w-3.5 h-3.5" />
+                            <span className="font-semibold text-xs">{lockedCount} {label('locked')}</span>
+                        </div>
+                    </>
+                )}
             </div>
+
+            {/* Ticket grid */}
+            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
+                {tickets.map((ticket) => (
+                    <button
+                        key={ticket.index}
+                        onClick={() => handleTicketClick(ticket)}
+                        className={cn(
+                            "relative aspect-square rounded-2xl border flex flex-col items-center justify-center gap-1",
+                            "transition-all duration-150 active:scale-95",
+                            ticket.locked
+                                ? "bg-muted/30 border-border/50 opacity-60 hover:opacity-80"
+                                : "bg-card border-border hover:border-primary/40 hover:shadow-md hover:-translate-y-0.5"
+                        )}
+                    >
+                        {ticket.locked ? (
+                            <>
+                                <Lock className="w-4 h-4 text-muted-foreground" />
+                                <span className="text-xs font-bold text-muted-foreground">{ticket.index + 1}</span>
+                            </>
+                        ) : (
+                            <>
+                                <span className="text-2xl font-black text-foreground">{ticket.index + 1}</span>
+                                <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+                                    {label('ticket')}
+                                </span>
+                            </>
+                        )}
+                        {ticket.index === 0 && !isPremium && isSpain && (
+                            <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                        )}
+                    </button>
+                ))}
+            </div>
+
+            {/* Upsell banner for free users */}
+            {lockedCount > 0 && (
+                <button
+                    onClick={() => openModal('PAYWALL')}
+                    className="w-full flex items-center justify-between gap-3 p-4 rounded-2xl bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/25 hover:from-amber-500/15 hover:to-orange-500/15 transition-colors"
+                >
+                    <div className="flex items-center gap-3">
+                        <div className="p-2 rounded-xl bg-amber-500/15">
+                            <Lock className="w-4 h-4 text-amber-500" />
+                        </div>
+                        <div className="text-left">
+                            <p className="font-bold text-foreground text-sm">{lockedCount} {label('tickets')} {label('locked')}</p>
+                            <p className="text-xs text-muted-foreground">{label('unlockAll')}</p>
+                        </div>
+                    </div>
+                    <span className="text-sm font-bold text-amber-500 shrink-0">{label('premium')} →</span>
+                </button>
+            )}
         </div>
     );
 
     if (isDesktop) {
         return (
             <Dialog open={open} onOpenChange={onOpenChange}>
-                <DialogContent className="max-w-2xl max-h-[85vh] overflow-hidden bg-background">
-                    <DialogHeader>
-                        <DialogTitle className="text-2xl font-bold">{topicName}</DialogTitle>
-                        <p className="text-sm text-muted-foreground">
-                            {topicCount} вопросов · {tickets.length} билетов
-                        </p>
+                <DialogContent className="max-w-lg max-h-[80vh] flex flex-col gap-0 p-0 overflow-hidden bg-background">
+                    <DialogHeader className="px-6 pt-6 pb-4 border-b border-border shrink-0">
+                        <DialogTitle className="text-xl font-black text-foreground leading-snug">
+                            {topicName}
+                        </DialogTitle>
                     </DialogHeader>
-                    <div className="overflow-y-auto pr-2 bg-background">
+                    <div className="overflow-y-auto px-6 py-5">
                         {content}
                     </div>
                 </DialogContent>
@@ -342,14 +181,13 @@ export function TopicDetailDialog({
 
     return (
         <Drawer open={open} onOpenChange={onOpenChange}>
-            <DrawerContent className="max-h-[90vh] bg-background">
-                <DrawerHeader className="border-b border-border">
-                    <DrawerTitle className="text-xl font-bold">{topicName}</DrawerTitle>
-                    <p className="text-sm text-muted-foreground">
-                        {topicCount} вопросов · {tickets.length} билетов
-                    </p>
+            <DrawerContent className="bg-background max-h-[85vh]">
+                <DrawerHeader className="px-5 pt-5 pb-4 border-b border-border shrink-0">
+                    <DrawerTitle className="text-xl font-black text-foreground leading-snug text-left">
+                        {topicName}
+                    </DrawerTitle>
                 </DrawerHeader>
-                <div className="px-4 pb-6 overflow-y-auto bg-background">
+                <div className="overflow-y-auto px-5 py-5 pb-8">
                     {content}
                 </div>
             </DrawerContent>
