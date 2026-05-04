@@ -156,7 +156,7 @@ export class SpainUnifiedStrategy implements PDDDataStrategy {
         // 1. Get ALL IDs (cached or fresh)
         let allIds: string[] = [];
 
-        const premium = isPremiumForStrategy();
+        const premium = hasFullQuestionPoolForStrategy();
         const cacheKey = premium ? 'all' : 'free';
 
         if (this.cachedIds && this.cachedIdsTier === cacheKey) {
