@@ -408,7 +408,7 @@ export function AIChatWidget() {
             const { data: { session } } = await supabase.auth.getSession();
             if (!session?.access_token) {
                 setLoading(false);
-                openPaywall?.();
+                openModal('PAYWALL', { trigger: 'ai_guest' });
                 return;
             }
             const authToken = session.access_token;
