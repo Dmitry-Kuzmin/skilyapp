@@ -682,6 +682,38 @@ export function AIChatWidget() {
                     paddingBottom: 'max(env(safe-area-inset-bottom, 8px), 12px)',
                 }}
             >
+                {/* Индикатор сообщений */}
+                <div className="flex justify-center mb-2">
+                    {isPremium ? (
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-violet-500/10 to-indigo-500/10 border border-violet-500/20 text-[11px] font-bold text-violet-600 dark:text-violet-400"
+                        >
+                            <motion.span
+                                animate={{ rotate: [0, 15, -10, 0] }}
+                                transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
+                            >✨</motion.span>
+                            <span>Безлимит · Premium</span>
+                        </motion.div>
+                    ) : aiUsage !== null && (
+                        <div className={cn(
+                            "flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold transition-colors",
+                            aiRemaining <= 1
+                                ? "bg-red-500/10 border border-red-500/20 text-red-500"
+                                : aiRemaining <= 2
+                                    ? "bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400"
+                                    : "bg-slate-100 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400"
+                        )}>
+                            <Zap className="w-3 h-3" />
+                            <span>
+                                {aiRemaining === 0
+                                    ? 'Лимит исчерпан'
+                                    : `${aiRemaining} из ${aiLimit} сообщений`}
+                            </span>
+                        </div>
+                    )}
+                </div>
                 <form onSubmit={handleSubmit} className="flex gap-2 items-end max-w-2xl mx-auto w-full">
                     <div className="flex-1 relative">
                         <input
