@@ -3,8 +3,8 @@ import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from "@/components/optimized/Motion";
 import { Zap, Battery, Clock, Crown, Sparkles, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useNavigate } from 'react-router-dom';
 import { triggerHapticFeedback } from '@/lib/telegram';
+import { useModalStore } from '@/store/modalStore';
 import { useIsMobile } from '@/hooks/use-mobile';
 import {
     Drawer,
