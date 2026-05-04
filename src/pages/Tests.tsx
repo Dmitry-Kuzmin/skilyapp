@@ -838,6 +838,28 @@ const Tests = () => {
                 <AIInsightsLibrary isPremium={isPremium} />
               </div>
 
+              {/* Free question limit banner */}
+              {!isPremium && !isGuest && selectedCountry === 'spain' && (
+                <button
+                  onClick={() => openModal(ModalType.PAYWALL)}
+                  className="w-full flex items-center justify-between gap-3 px-4 py-3 rounded-2xl bg-amber-500/10 border border-amber-500/30 hover:bg-amber-500/15 transition-colors text-left"
+                >
+                  <div className="flex items-center gap-3">
+                    <Lock className="w-4 h-4 text-amber-500 shrink-0" />
+                    <span className="text-sm font-medium text-amber-600 dark:text-amber-400">
+                      {localeText(
+                        `Доступно ${FREE_QUESTION_LIMIT} из 2157 вопросов`,
+                        `Acceso a ${FREE_QUESTION_LIMIT} de 2157 preguntas`,
+                        `Access to ${FREE_QUESTION_LIMIT} of 2157 questions`
+                      )}
+                    </span>
+                  </div>
+                  <span className="text-xs font-bold text-amber-500 shrink-0">
+                    {localeText('Открыть всё', 'Desbloquear todo', 'Unlock all')} →
+                  </span>
+                </button>
+              )}
+
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {testModes.filter(m => m.id !== 1).map((mode, index) => {
                   // Логирование для отладки экзамена
