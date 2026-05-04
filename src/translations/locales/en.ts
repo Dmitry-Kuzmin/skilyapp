@@ -74,8 +74,8 @@ export const en = {
   duelHistory: "Duel history",
   support: "Support",
   favoritesGym: {
-    title: "Memory Gym",
-    subtitle: "Smart spaced repetition system. Train only what your brain is starting to forget.",
+    title: "Challenge Bank™",
+    subtitle: "Memory Gym — train only what your brain is starting to forget.",
     trainingLabel: "Training",
     chargeMemory: "Charge Memory",
     totalCards: "Total cards",
