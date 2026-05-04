@@ -820,177 +820,75 @@ const Tests = () => {
               <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'url("/noise.svg")' }}></div>
 
               <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-8 p-8 md:p-12 items-center">
-                {/* Left Content */}
+                {/* Left Content — Russia Smart Mentor */}
                 <div className="space-y-8">
-                  {selectedCountry === 'russia' ? (
-                    /* Smart Mentor Mode (Russia) */
-                    <div className="space-y-6">
-                      <div className="space-y-4">
-                        <div className={cn(
-                          "inline-flex items-center gap-2 px-4 py-2 rounded-2xl backdrop-blur-md border shadow-lg",
-                          recommendation.theme === 'warning' ? "bg-white/20 border-white/30" : "bg-white/10 border-white/20"
-                        )}>
-                          <recommendation.icon className={cn(
-                            "w-4 h-4",
-                            recommendation.theme === 'warning' ? "text-white" : "text-amber-300 fill-amber-300"
-                          )} />
-                          <span className="text-sm font-bold text-white uppercase tracking-wider">
-                            {recommendation.type === 'correction' ? 'Требуется внимание' :
-                              recommendation.type === 'resume' ? 'Рекомендуем продолжить' :
-                                recommendation.type === 'progress' ? 'Твой следующий шаг' : 'Твой первый шаг'}
-                          </span>
-                        </div>
-
-                        <h2 className="text-5xl md:text-7xl font-black text-white tracking-tighter leading-[0.9] drop-shadow-2xl">
-                          {recommendation.title.toUpperCase()}
-                        </h2>
-
-                        <p className="text-lg md:text-xl text-white/90 font-medium max-w-md leading-relaxed drop-shadow-md">
-                          {recommendation.subtitle}
-                        </p>
+                  <div className="space-y-6">
+                    <div className="space-y-4">
+                      <div className={cn(
+                        "inline-flex items-center gap-2 px-4 py-2 rounded-2xl backdrop-blur-md border shadow-lg",
+                        recommendation.theme === 'warning' ? "bg-white/20 border-white/30" : "bg-white/10 border-white/20"
+                      )}>
+                        <recommendation.icon className={cn(
+                          "w-4 h-4",
+                          recommendation.theme === 'warning' ? "text-white" : "text-amber-300 fill-amber-300"
+                        )} />
+                        <span className="text-sm font-bold text-white uppercase tracking-wider">
+                          {recommendation.type === 'correction' ? 'Требуется внимание' :
+                            recommendation.type === 'resume' ? 'Рекомендуем продолжить' :
+                              recommendation.type === 'progress' ? 'Твой следующий шаг' : 'Твой первый шаг'}
+                        </span>
                       </div>
 
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleBannerClick();
-                        }}
-                        className={cn(
-                          "group relative h-16 px-10 rounded-full font-black text-lg transition-all duration-300 flex items-center gap-3 overflow-hidden w-fit shadow-xl hover:scale-105 active:scale-95",
-                          recommendation.theme === 'warning'
-                            ? "bg-white text-orange-600 shadow-[0_0_15px_-3px_rgba(255,255,255,0.5)] hover:shadow-[0_0_25px_-3px_rgba(255,255,255,0.6)]"
-                            : recommendation.theme === 'info'
-                              ? "bg-white text-cyan-700 shadow-[0_0_15px_-3px_rgba(255,255,255,0.5)] hover:shadow-[0_0_25px_-3px_rgba(255,255,255,0.6)]"
-                              : "bg-white text-blue-600 shadow-[0_0_15px_-3px_rgba(255,255,255,0.5)] hover:shadow-[0_0_25px_-3px_rgba(255,255,255,0.6)]"
-                        )}
-                      >
-                        {recommendation.theme === 'warning' ? <RotateCcw className="w-6 h-6" /> : <Play className="w-6 h-6 fill-current" />}
-                        <span>{recommendation.buttonText}</span>
-                        <ArrowRight className="w-6 h-6" />
-                        <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/40 to-transparent" />
-                      </button>
-                    </div>
-                  ) : (
-                    /* Random Test Configurator (Default for Other Countries) */
-                    <div className="space-y-6">
-                      <div className="space-y-4">
-                        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 shadow-lg">
-                          <Crown className="w-4 h-4 text-yellow-300 fill-yellow-300" />
-                          <span className="text-sm font-bold text-white">{localeText('Рекомендуется', 'Recomendado', 'Recommended')}</span>
-                        </div>
-                        <h2 className="text-4xl sm:text-5xl md:text-7xl font-black text-white tracking-tighter leading-[0.9] drop-shadow-2xl">
-                          {t('testsPage.randomTest').toUpperCase()}
-                        </h2>
-                        <p className="text-lg md:text-xl text-white/90 font-medium max-w-md leading-relaxed drop-shadow-md">
-                          {isGuest
-                            ? localeText(
-                              'Гости могут попробовать режимы на демо-базе из 30 вопросов.',
-                              'Como invitado puedes probar los modos con una base demo de 30 preguntas.',
-                              'As a guest you can try the modes with a 30-question demo base.'
-                            )
-                            : t('testsPage.randomTestDesc')
-                          }
-                        </p>
+                      <h2 className="text-5xl md:text-7xl font-black text-white tracking-tighter leading-[0.9] drop-shadow-2xl">
+                        {recommendation.title.toUpperCase()}
+                      </h2>
 
-                        <div className="space-y-4">
-                          <div>
-                            <p className="text-sm text-white/80 font-semibold mb-3">
-                              {t('testsPage.questionCount')}
-                            </p>
-                            <div className="flex gap-3">
-                              {[10, 20, 30].map((count) => (
-                                <motion.button
-                                  key={count}
-                                  whileHover={{ scale: 1.05 }}
-                                  whileTap={{ scale: 0.95 }}
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleCountSelect(count);
-                                  }}
-                                  className={cn(
-                                    "flex-1 px-6 py-3 rounded-xl font-bold text-base transition-all",
-                                    randomQuestionCount === count
-                                      ? "bg-white text-blue-600 shadow-lg shadow-white/30"
-                                      : "bg-white/10 text-white hover:bg-white/20 border border-white/20"
-                                  )}
-                                >
-                                  {count}
-                                </motion.button>
-                              ))}
-                            </div>
-                            {isGuest && (
-                              <p className="mt-3 text-xs font-semibold text-white/70">
-                                {localeText(
-                                  'После регистрации откроются полная база, сохранение ошибок, избранное и личная статистика.',
-                                  'Al registrarte se desbloquean la base completa, errores guardados, favoritos y estadísticas personales.',
-                                  'Sign in to unlock the full bank, saved mistakes, favorites and personal stats.'
-                                )}
-                              </p>
-                            )}
-                          </div>
-                        </div>
-
-                        {(hasSelectedCount || isGuest) && (
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleBannerClick();
-                            }}
-                            className="group relative h-16 px-10 rounded-full bg-white text-blue-600 font-black text-lg shadow-[0_0_15px_-3px_rgba(255,255,255,0.5)] hover:shadow-[0_0_25px_-3px_rgba(255,255,255,0.6)] hover:scale-105 active:scale-95 transition-all duration-300 flex items-center gap-3 overflow-hidden w-fit"
-                          >
-                            <Play className="w-6 h-6 fill-blue-600 font-black" />
-                            <span>{t('testsPage.startButton')}</span>
-                            <ArrowRight className="w-6 h-6" />
-                            <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-indigo-100/50 to-transparent" />
-                          </button>
-                        )}
-                      </div>
+                      <p className="text-lg md:text-xl text-white/90 font-medium max-w-md leading-relaxed drop-shadow-md">
+                        {recommendation.subtitle}
+                      </p>
                     </div>
-                  )}
+
+                    <button
+                      onClick={(e) => { e.stopPropagation(); handleBannerClick(); }}
+                      className={cn(
+                        "group relative h-16 px-10 rounded-full font-black text-lg transition-all duration-300 flex items-center gap-3 overflow-hidden w-fit shadow-xl hover:scale-105 active:scale-95",
+                        recommendation.theme === 'warning'
+                          ? "bg-white text-orange-600 shadow-[0_0_15px_-3px_rgba(255,255,255,0.5)] hover:shadow-[0_0_25px_-3px_rgba(255,255,255,0.6)]"
+                          : recommendation.theme === 'info'
+                            ? "bg-white text-cyan-700 shadow-[0_0_15px_-3px_rgba(255,255,255,0.5)] hover:shadow-[0_0_25px_-3px_rgba(255,255,255,0.6)]"
+                            : "bg-white text-blue-600 shadow-[0_0_15px_-3px_rgba(255,255,255,0.5)] hover:shadow-[0_0_25px_-3px_rgba(255,255,255,0.6)]"
+                      )}
+                    >
+                      {recommendation.theme === 'warning' ? <RotateCcw className="w-6 h-6" /> : <Play className="w-6 h-6 fill-current" />}
+                      <span>{recommendation.buttonText}</span>
+                      <ArrowRight className="w-6 h-6" />
+                      <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/40 to-transparent" />
+                    </button>
+                  </div>
                 </div>
 
-                {/* Right Illustration - Abstract Cyber-Core Shape */}
+                {/* Right Illustration */}
                 <div className="hidden lg:flex justify-center items-center relative">
                   <motion.div
-                    animate={{
-                      y: [0, -20, 0],
-                      rotate: [0, 5, 0]
-                    }}
-                    transition={{
-                      duration: 6,
-                      repeat: Infinity,
-                      ease: "easeInOut"
-                    }}
+                    animate={{ y: [0, -20, 0], rotate: [0, 5, 0] }}
+                    transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
                     className="relative w-80 h-80"
                   >
-                    {/* Glowing Orbs based on theme */}
                     <div className={cn(
                       "absolute inset-0 blur-3xl opacity-60",
-                      selectedCountry === 'russia'
-                        ? (recommendation.theme === 'warning' ? "bg-orange-400" :
-                          recommendation.theme === 'info' ? "bg-cyan-400" : "bg-blue-400")
-                        : "bg-blue-400"
+                      recommendation.theme === 'warning' ? "bg-orange-400" :
+                        recommendation.theme === 'info' ? "bg-cyan-400" : "bg-blue-400"
                     )} />
-
-                    {/* Glass Shape */}
                     <div className="absolute inset-0 bg-white/10 backdrop-blur-2xl rounded-[4rem] border border-white/20 shadow-[inset_0_0_30px_rgba(255,255,255,0.2),0_20px_40px_rgba(0,0,0,0.2)] flex items-center justify-center overflow-hidden">
                       <div className="absolute inset-0 bg-gradient-to-br from-white/30 to-transparent pointer-events-none" />
-
-                      {/* Icon based on state */}
-                      {selectedCountry === 'russia' ? (
-                        recommendation.type === 'correction' ? (
-                          <AlertTriangle className="w-40 h-40 text-white opacity-90 drop-shadow-2xl" />
-                        ) : recommendation.type === 'resume' ? (
-                          <Clock className="w-40 h-40 text-white opacity-90 drop-shadow-2xl" />
-                        ) : (
-                          <CarFront className="w-40 h-40 text-white opacity-90 drop-shadow-2xl" />
-                        )
+                      {recommendation.type === 'correction' ? (
+                        <AlertTriangle className="w-40 h-40 text-white opacity-90 drop-shadow-2xl" />
+                      ) : recommendation.type === 'resume' ? (
+                        <Clock className="w-40 h-40 text-white opacity-90 drop-shadow-2xl" />
                       ) : (
-                        <Shuffle className="w-40 h-40 text-white opacity-90 drop-shadow-2xl" />
+                        <CarFront className="w-40 h-40 text-white opacity-90 drop-shadow-2xl" />
                       )}
                     </div>
-
-                    {/* Smaller Floating Elements */}
                     <div className="absolute -top-10 -right-10 w-24 h-24 bg-white/20 backdrop-blur-lg rounded-3xl border border-white/30 flex items-center justify-center shadow-xl">
                       <Target className="w-12 h-12 text-white" />
                     </div>
