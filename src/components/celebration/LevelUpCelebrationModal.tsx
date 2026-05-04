@@ -379,6 +379,20 @@ export const LevelUpCelebrationModal: React.FC = () => {
                     <div className="h-32 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center">
                       <Loader2 className="w-6 h-6 animate-spin text-white/40" />
                     </div>
+                  ) : isMissedOpportunity ? (
+                    /* Упущенная выгода — только Premium награда, юзер не Premium */
+                    <div className="rounded-2xl border border-amber-400/20 bg-gradient-to-br from-amber-500/10 to-orange-500/5 p-5 space-y-3">
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 rounded-xl bg-amber-500/15 border border-amber-400/20 flex items-center justify-center shrink-0">
+                          <Lock className="w-6 h-6 text-amber-400" />
+                        </div>
+                        <div>
+                          <p className="text-amber-300 font-black text-sm uppercase tracking-wider">Упущенная выгода</p>
+                          <p className="text-white/60 text-xs mt-0.5">Эта награда доступна только с Elite Pass</p>
+                        </div>
+                      </div>
+                      <RewardCard reward={lockedPremiumReward!} locked />
+                    </div>
                   ) : primaryReward ? (
                     <RewardCard reward={primaryReward} primary />
                   ) : (
@@ -387,8 +401,8 @@ export const LevelUpCelebrationModal: React.FC = () => {
                     </div>
                   )}
 
-                  {/* Премиум-награда (если юзер не премиум — показываем locked) */}
-                  {lockedPremiumReward && (
+                  {/* Премиум-награда (если юзер не премиум, но есть и свободная) */}
+                  {lockedPremiumReward && !isMissedOpportunity && (
                     <div className="mt-3">
                       <RewardCard reward={lockedPremiumReward} locked />
                     </div>
