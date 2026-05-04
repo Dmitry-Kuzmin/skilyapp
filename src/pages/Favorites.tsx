@@ -15,7 +15,7 @@ import { usePDDContext } from "@/contexts/PDDContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { QuestionImage } from "@/components/test/QuestionImage";
+import { getImageUrl } from "@/utils/imageUtils";
 import { motion, AnimatePresence } from "framer-motion";
 
 // --- TYPES ---
