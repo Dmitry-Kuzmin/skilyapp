@@ -843,9 +843,9 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
                               <div className="flex items-center gap-2">
                                 <div className={cn(
                                   "w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0",
-                                  `bg-${row.accent}-500/10`
+                                  { amber: 'bg-amber-500/10', violet: 'bg-violet-500/10', emerald: 'bg-emerald-500/10', indigo: 'bg-indigo-500/10', rose: 'bg-rose-500/10' }[row.accent]
                                 )}>
-                                  <row.icon className={cn("w-3 h-3", `text-${row.accent}-500`)} />
+                                  <row.icon className={cn("w-3 h-3", { amber: 'text-amber-500', violet: 'text-violet-500', emerald: 'text-emerald-500', indigo: 'text-indigo-500', rose: 'text-rose-500' }[row.accent])} />
                                 </div>
                                 <span className={cn(
                                   "text-[12px] font-medium leading-tight",
