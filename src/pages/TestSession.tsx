@@ -1195,6 +1195,11 @@ const TestSession = () => {
     return <PageLoader />;
   }
 
+  // Daily test limit reached: paywall is open, redirecting — show loader to avoid flash of test
+  if (testLimitBlocked) {
+    return <PageLoader />;
+  }
+
   if (questions.length === 0 && questionsState.length === 0) {
     return (
       <Layout>
