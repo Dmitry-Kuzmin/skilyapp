@@ -1962,180 +1962,140 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
               </div>
             </div>
 
-                {/* Clean Reward Track (Vertical Path Style) */}
-                <div className="px-4 sm:px-6">
-                  <table className="w-full border-separate border-spacing-y-4">
-                    <thead>
-                      <tr className="text-muted-foreground/30">
-                        <th className="w-14 text-center pb-2">
-                          <span className="text-[9px] font-black uppercase tracking-[0.2em]">{dp("table.headers.level") || "LV"}</span>
-                        </th>
-                        <th className="text-left px-4 pb-2">
-                          <div className="flex items-center gap-2">
-                            <div className="w-1.5 h-1.5 rounded-full bg-primary" />
-                            <span className="text-[9px] font-black uppercase tracking-[0.2em]">{dp("table.headers.free") || "Gratis"}</span>
-                          </div>
-                        </th>
-                        <th className="text-left px-4 pb-2">
-                          <div className="flex items-center gap-2">
-                            <Crown className="w-3.5 h-3.5 text-yellow-500" />
-                            <span className="text-[9px] font-black uppercase tracking-[0.2em]">{dp("table.headers.premium") || "Premium"}</span>
-                          </div>
-                        </th>
-                      </tr>
-                    </thead>
-                  <tbody>
-                    {filteredRewards.map((reward) => {
-                      const unlocked = currentLevel >= reward.level;
-                      const isCurrent = currentLevel === reward.level;
+                {/* Responsive Reward Track */}
+                <div className="space-y-1">
+                  {/* Header row */}
+                  <div className="flex items-center gap-2 px-1 pb-1">
+                    <div className="w-10 shrink-0 text-center">
+                      <span className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">
+                        {dp("table.headers.level") || "LV"}
+                      </span>
+                    </div>
+                    <div className="flex-1 grid grid-cols-2 gap-2 min-w-0">
+                      <div className="flex items-center gap-1.5">
+                        <div className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
+                        <span className="text-[9px] font-black uppercase tracking-[0.15em] text-muted-foreground/40">
+                          {dp("table.headers.free") || "Gratis"}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <Crown className="w-3 h-3 text-yellow-500 shrink-0" />
+                        <span className="text-[9px] font-black uppercase tracking-[0.15em] text-muted-foreground/40">
+                          {dp("table.headers.premium") || "Premium"}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
 
-                      const hasFreeReward = !!reward.free_reward;
+                  {filteredRewards.map((reward) => {
+                    const unlocked = currentLevel >= reward.level;
+                    const isCurrent = currentLevel === reward.level;
+                    const hasFreeReward = !!reward.free_reward;
+                    const freeClaimed = claimedFreeRewards.has(reward.level);
+                    const premiumClaimed = claimedPremiumRewards.has(reward.level);
 
-                      // Проверяем, какие награды получены
-                      const freeClaimed = claimedFreeRewards.has(reward.level);
-                      const premiumClaimed = claimedPremiumRewards.has(reward.level);
-
-                      // Правильная логика: allClaimed только если уровень разблокирован И все доступные награды получены
-                      let allClaimed = false;
-                      if (unlocked) {
-                        // Проверяем бесплатную награду
-                        // Если есть бесплатная награда - она должна быть получена
-                        // Если нет бесплатной награды - не учитываем её (считаем "полученной" условно)
-                        const freeRewardClaimed = hasFreeReward ? freeClaimed : true;
-
-                        // Проверяем Premium награду
-                        let premiumRewardClaimed = true; // По умолчанию true (если нет Premium награды)
-                        if (reward.premium_reward) {
-                          if (isPremium) {
-                            // Если пользователь Premium - Premium награда должна быть получена
-                            premiumRewardClaimed = premiumClaimed;
-                          } else {
-                            // Если пользователь НЕ Premium - Premium награда недоступна
-                            // НО! Если у уровня ТОЛЬКО Premium награда (нет бесплатной), то уровень НЕ может быть "получен"
-                            // для не-Premium пользователя, пока он не станет Premium
-                            // Если есть бесплатная награда - Premium не учитываем (она недоступна)
-                            premiumRewardClaimed = hasFreeReward ? true : false; // Если нет бесплатной - Premium обязательна
-                          }
-                        }
-
-                        // КРИТИЧНО: Если у уровня ТОЛЬКО Premium награда (нет бесплатной) и пользователь НЕ Premium,
-                        // то награда НЕ может быть получена (она недоступна)
-                        if (!hasFreeReward && reward.premium_reward && !isPremium) {
-                          allClaimed = false; // Premium награда недоступна для не-Premium пользователей
+                    let allClaimed = false;
+                    if (unlocked) {
+                      const freeRewardClaimed = hasFreeReward ? freeClaimed : true;
+                      let premiumRewardClaimed = true;
+                      if (reward.premium_reward) {
+                        if (isPremium) {
+                          premiumRewardClaimed = premiumClaimed;
                         } else {
-                          allClaimed = freeRewardClaimed && premiumRewardClaimed;
+                          premiumRewardClaimed = hasFreeReward ? true : false;
                         }
-
-                        // Логирование для отладки - ОТКЛЮЧЕНО для продакшена (было в цикле для каждого уровня)
-                        // if (reward.level % 2 === 1) {
-                        //   console.log(`[DuelPassSeasonModal] Уровень ${reward.level}:`, {
-                        //     unlocked,
-                        //     hasFreeReward,
-                        //     freeClaimed,
-                        //     freeRewardClaimed,
-                        //     hasPremiumReward: !!reward.premium_reward,
-                        //     isPremium,
-                        //     premiumClaimed,
-                        //     premiumRewardClaimed,
-                        //     allClaimed
-                        //   });
-                        // }
-                      } else {
-                        // Уровень не разблокирован - не может быть "получен"
-                        allClaimed = false;
                       }
+                      if (!hasFreeReward && reward.premium_reward && !isPremium) {
+                        allClaimed = false;
+                      } else {
+                        allClaimed = freeRewardClaimed && premiumRewardClaimed;
+                      }
+                    }
 
-                      return (
-                        <tr
-                          key={reward.level}
-                          className={cn(
-                            "group transition-all duration-300",
-                            isCurrent && "scale-[1.02] z-10",
-                            !unlocked && "opacity-40 grayscale-[0.5]"
+                    return (
+                      <div
+                        key={reward.level}
+                        className={cn(
+                          "relative flex items-stretch gap-2 group transition-all duration-300",
+                          isCurrent && "z-10",
+                          !unlocked && "opacity-40 grayscale-[0.5]"
+                        )}
+                      >
+                        {/* Level badge + connector */}
+                        <div className="w-10 shrink-0 flex flex-col items-center py-1.5">
+                          <div className={cn(
+                            "w-10 h-10 rounded-full flex items-center justify-center text-[10px] font-black transition-all shadow-sm relative z-10 shrink-0",
+                            isCurrent
+                              ? "bg-primary text-primary-foreground ring-4 ring-primary/20 shadow-lg"
+                              : allClaimed
+                                ? "bg-green-500/10 text-green-600 border border-green-500/20"
+                                : "bg-muted/50 text-muted-foreground/60 border border-border/40"
+                          )}>
+                            {isCurrent && !allClaimed ? (
+                              <Zap className="w-4 h-4" />
+                            ) : allClaimed ? (
+                              <CheckCircle2 className="w-4 h-4" />
+                            ) : reward.level}
+                          </div>
+                          {reward.level < rewards.length && (
+                            <div className="w-0.5 flex-1 mt-1 bg-border/20 rounded-full" />
                           )}
-                          onClick={() => {
-                            if (unlocked && !allClaimed) {
-                              handleRewardClick(reward);
-                            }
-                          }}
-                        >
-                          {/* Level Badge Column with Vertical Connector */}
-                          <td className="relative py-2 text-center">
-                            <div className={cn(
-                              "w-10 h-10 mx-auto rounded-full flex items-center justify-center text-[10px] font-black transition-all shadow-sm relative z-10",
-                              isCurrent
-                                ? "bg-primary text-white ring-4 ring-primary/20 shadow-lg"
-                                : allClaimed
-                                  ? "bg-green-500/10 text-green-600 border border-green-500/20"
-                                  : "bg-muted/50 text-muted-foreground/60 border border-border/40"
-                            )}>
-                              {reward.level}
-                            </div>
-                            {/* Vertical Line Connector */}
-                            {reward.level < rewards.length && (
-                              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 w-0.5 h-full bg-border/20 -z-0" />
-                            )}
-                          </td>
+                        </div>
 
-                          {/* Free Reward Preview */}
-                          <td className="px-2 py-1">
-                            <div className={cn(
-                              "h-20 flex items-center justify-center p-2 rounded-3xl border transition-all",
-                              freeClaimed
-                                ? "bg-green-500/5 border-green-500/20"
-                                : isCurrent
-                                  ? "bg-background border-primary/30 shadow-md"
-                                  : "bg-background/40 border-border/40 group-hover:bg-background/60"
-                            )}>
-                              {renderTableRewardCell(reward.free_reward, 'free', {
-                                claimed: freeClaimed,
-                                unlocked,
-                                level: reward.level,
-                                onClick: () => {
-                                  if (unlocked && !freeClaimed) {
-                                    claimReward(reward.level, false);
-                                  }
+                        {/* Reward cards — always 2-col grid, no overflow */}
+                        <div className="flex-1 grid grid-cols-2 gap-2 min-w-0 py-1.5">
+                          {/* Free reward */}
+                          <div className={cn(
+                            "rounded-2xl border p-2 transition-all overflow-hidden",
+                            freeClaimed
+                              ? "bg-green-500/5 border-green-500/20"
+                              : isCurrent
+                                ? "bg-background border-primary/30 shadow-md"
+                                : "bg-background/40 border-border/40"
+                          )}>
+                            {renderTableRewardCell(reward.free_reward, 'free', {
+                              claimed: freeClaimed,
+                              unlocked,
+                              level: reward.level,
+                              onClick: () => {
+                                if (unlocked && !freeClaimed) {
+                                  claimReward(reward.level, false);
                                 }
-                              })}
-                            </div>
-                          </td>
+                              }
+                            })}
+                          </div>
 
-                          {/* Premium Reward Preview */}
-                          <td className="px-2 py-1">
-                            <div className={cn(
-                              "h-20 flex items-center justify-center p-2 rounded-3xl border transition-all relative overflow-hidden",
-                              premiumClaimed
-                                ? "bg-green-500/5 border-green-500/20"
-                                : isPremium
-                                  ? isCurrent ? "bg-amber-500/5 border-amber-500/30 shadow-md" : "bg-amber-500/5 border-amber-500/10"
-                                  : "bg-black/40 border-white/5"
-                            )}>
-                              {/* Background Glow for Premium */}
-                              {isPremium && <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-transparent pointer-events-none" />}
-                              
-                              {renderTableRewardCell(reward.premium_reward, 'premium', {
-                                claimed: premiumClaimed,
-                                unlocked,
-                                level: reward.level,
-                                onClick: () => {
-                                  if (!isPremium) {
-                                    setPremiumRewardPreview({
-                                      level: reward.level,
-                                      premium_reward: reward.premium_reward,
-                                    });
-                                  } else if (unlocked && !premiumClaimed) {
-                                    claimReward(reward.level, true);
-                                  }
+                          {/* Premium reward */}
+                          <div className={cn(
+                            "rounded-2xl border p-2 transition-all relative overflow-hidden",
+                            premiumClaimed
+                              ? "bg-green-500/5 border-green-500/20"
+                              : isPremium
+                                ? isCurrent ? "bg-amber-500/5 border-amber-500/30 shadow-md" : "bg-amber-500/5 border-amber-500/10"
+                                : "bg-black/20 border-white/5"
+                          )}>
+                            {isPremium && <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-transparent pointer-events-none" />}
+                            {renderTableRewardCell(reward.premium_reward, 'premium', {
+                              claimed: premiumClaimed,
+                              unlocked,
+                              level: reward.level,
+                              onClick: () => {
+                                if (!isPremium) {
+                                  setPremiumRewardPreview({
+                                    level: reward.level,
+                                    premium_reward: reward.premium_reward,
+                                  });
+                                } else if (unlocked && !premiumClaimed) {
+                                  claimReward(reward.level, true);
                                 }
-                              })}
-                            </div>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
+                              }
+                            })}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
             </div>
 
           {/* Elite Pass CTA (Floating / Sticky Bottom) */}
