@@ -81,7 +81,7 @@ const ASSERT_CORE_PAGES = [
   { route: "/tests", outputPath: "tests.html", canonical: `${SITE_URL}/tests`, minBodyChars: 100 },
   { route: "/curso", outputPath: "curso.html", canonical: `${SITE_URL}/curso` },
   { route: "/blog", outputPath: "blog.html", canonical: `${SITE_URL}/blog` },
-  { route: "/legal/privacy", outputPath: "legal/privacy.html", canonical: `${SITE_URL}/legal/privacy` },
+  { route: "/legal/privacy", outputPath: "legal/privacy.html", canonical: `${SITE_URL}/legal/privacy`, minBodyChars: 600 },
 ];
 
 function getArticles() {
