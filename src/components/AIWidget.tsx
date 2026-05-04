@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { SkilyAICharacter } from "@/components/skily-ai/SkilyAICharacter";
+import { useAIRequest } from "@/hooks/useAIRequest";
 import { supabase } from "@/integrations/supabase/client";
 import ReactMarkdown from 'react-markdown';
 import { useLanguage } from "@/contexts/LanguageContext";
