@@ -19,6 +19,8 @@ import { usePremium } from "@/hooks/usePremium";
 import { useQuery } from "@tanstack/react-query";
 import { useUserContext } from "@/contexts/UserContext";
 import { motion, AnimatePresence } from "framer-motion";
+import { useDashboardData } from "@/hooks/useDashboardData";
+import { useDuelPassData } from "@/hooks/useDuelPassData";
 // TON_DISABLED: import { TonPaymentWidget } from "@/components/monetization/LazyTonPaymentWidget";
 
 type Message = {
