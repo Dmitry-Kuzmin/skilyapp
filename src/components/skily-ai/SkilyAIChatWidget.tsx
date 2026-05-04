@@ -274,8 +274,16 @@ export const SkilyAIChatWidget = ({
             ))}
 
             {error && (
-              <div className="bg-destructive/10 text-destructive rounded-lg px-4 py-2 text-sm">
-                {error}
+              <div className={cn(
+                "rounded-xl px-4 py-3 text-sm",
+                error === 'auth_required'
+                  ? "bg-amber-500/10 text-amber-700 dark:text-amber-400"
+                  : "bg-destructive/10 text-destructive"
+              )}>
+                {error === 'auth_required'
+                  ? (language === 'ru' ? '🔒 Войди в аккаунт чтобы использовать AI-тьютора' : language === 'es' ? '🔒 Inicia sesión para usar el tutor AI' : '🔒 Sign in to use the AI tutor')
+                  : error
+                }
               </div>
             )}
 

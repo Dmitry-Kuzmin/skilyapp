@@ -1,58 +1,106 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from '@/components/optimized/Motion';
-import {
-    Bot,
-    Send,
-    X,
-    MessageSquare,
-    Sparkles,
-    Loader2,
-    Mic,
-    MicOff,
-    Languages,
-    ThumbsUp,
+import { 
+    Send, 
+    X, 
+    Bot, 
+    Crown, 
+    Zap, 
+    Mic, 
+    MicOff, 
+    Loader2, 
+    ThumbsUp, 
     ThumbsDown,
-    Zap,
-    Crown,
+    Languages,
+    Sparkles
 } from 'lucide-react';
+import { useAIChatStore, selectIsOpen, selectMessages, selectIsLoading, selectQuestionContext } from '@/stores/useAIChatStore';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { useProfileData } from '@/hooks/useProfileData';
+import { usePDDContext } from '@/contexts/PDDContext';
+import { usePremium } from '@/hooks/usePremium';
+import { useUserContext } from '@/contexts/UserContext';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { isTelegramMiniApp, triggerHapticFeedback } from '@/lib/telegram';
+import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { useAIChatStore } from '@/stores/useAIChatStore';
-import { useProfileData } from '@/hooks/useProfileData';
-import { useUserContext } from '@/contexts/UserContext';
-import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
-import { triggerHapticFeedback } from '@/lib/telegram';
-import { useIsMobile } from '@/hooks/use-mobile';
-import { useStableViewportHeight } from '@/hooks/useStableViewportHeight';
-import { cn } from '@/lib/utils';
-import { generateAIChatPrompt } from '@/lib/ai-prompts';
-import {
-    Drawer,
-    DrawerContent,
-} from '@/components/ui/drawer';
-import {
-    Dialog,
-    DialogContent,
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { 
+    Dialog, 
+    DialogContent 
 } from '@/components/ui/dialog';
-import { toast } from 'sonner';
-import { useModalStore } from '@/store/modalStore';
+import { 
+    Drawer, 
+    DrawerContent 
+} from '@/components/ui/drawer';
 import { SkilyAICharacter } from '@/components/skily-ai/SkilyAICharacter';
-import AIChatMessage from './AIChatMessage';
+import { supabase } from '@/integrations/supabase/client';
+import { useQuery } from '@tanstack/react-query';
+import { toast } from 'sonner';
+import { AILimitReachedModal } from '@/components/ai/AILimitReachedModal';
+import { generateAIChatPrompt } from '@/lib/ai-prompts';
+import ReactMarkdown from 'react-markdown';
+import { useModalStore } from '@/store/modalStore';
+
+// Реактивный хук для стабильной высоты viewport
+function useStableViewportHeight(isOpen: boolean) {
+    const [height, setHeight] = useState(() => window.visualViewport?.height ?? window.innerHeight);
+    const isTelegram = isTelegramMiniApp();
+
+    useEffect(() => {
+        if (!isOpen) return;
+
+        const update = () => {
+            if (isTelegram && window.Telegram?.WebApp?.viewportHeight) {
+                setHeight(window.Telegram.WebApp.viewportHeight);
+            } else {
+                setHeight(window.visualViewport?.height ?? window.innerHeight);
+            }
+        };
+
+        update();
+
+        const tg = isTelegram ? window.Telegram?.WebApp : null;
+        if (tg) {
+            tg.onEvent('viewportChanged', update);
+            return () => tg.offEvent('viewportChanged', update);
+        }
+
+        const vv = window.visualViewport;
+        if (vv) {
+            vv.addEventListener('resize', update);
+            return () => vv.removeEventListener('resize', update);
+        }
+
+        window.addEventListener('resize', update);
+        return () => window.removeEventListener('resize', update);
+    }, [isOpen, isTelegram]);
+
+    return height;
+}
 
 export function AIChatWidget() {
     const isMobile = useIsMobile();
-    const isOpen = useAIChatStore((state) => state.isOpen);
-    const messages = useAIChatStore((state) => state.messages);
-    const isLoading = useAIChatStore((state) => state.isLoading);
-    const selectedCountry = useAIChatStore((state) => state.selectedCountry);
-    const profileData = useProfileData().profileData;
+    const isTelegram = isTelegramMiniApp();
+    const { t } = useLanguage();
+    const { profileData } = useProfileData();
+    const { selectedCountry } = usePDDContext();
+    const { isPremium } = usePremium();
     const { profileId } = useUserContext();
-    const isPremium = profileData?.is_premium;
     const openModal = useModalStore((s) => s.openModal);
 
-    const [limitReached, setLimitReached] = useState(false);
+    // Zustand Store
+    const isOpen = useAIChatStore(selectIsOpen);
+    const messages = useAIChatStore(selectMessages);
+    const isLoading = useAIChatStore(selectIsLoading);
+    const questionContext = useAIChatStore(selectQuestionContext);
+    const showTranslation = useAIChatStore((s) => s.showTranslation);
+    
+    const [limitModalOpen, setLimitModal] = useState(false);
+    const [limitData, setLimitData] = useState({ currentCount: 0, limit: 5, message: '' });
 
+    // Счётчик оставшихся AI-сообщений
     const { data: aiUsage, refetch: refetchUsage } = useQuery({
         queryKey: ['ai-usage-limit', profileId],
         queryFn: async () => {
@@ -76,18 +124,16 @@ export function AIChatWidget() {
         setMessageRating,
         setLoading,
         conversationId,
-        showTranslation,
-        smartSuggestions,
-        questionContext
     } = useAIChatStore();
 
     const [input, setInput] = useState('');
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
-    const scrollContainerRef = useRef<HTMLDivElement>(null);
 
+    // Стабильная высота viewport
     const viewportHeight = useStableViewportHeight(isOpen);
 
+    // Voice Input State
     const [isRecording, setIsRecording] = useState(false);
     const [isProcessingVoice, setIsProcessingVoice] = useState(false);
     const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -101,11 +147,14 @@ export function AIChatWidget() {
             audioChunksRef.current = [];
 
             mediaRecorder.ondataavailable = (event) => {
-                if (event.data.size > 0) audioChunksRef.current.push(event.data);
+                if (event.data.size > 0) {
+                    audioChunksRef.current.push(event.data);
+                }
             };
 
             mediaRecorder.onstop = async () => {
-                const audioBlob = new Blob(audioChunksRef.current, { type: mediaRecorder.mimeType });
+                const mimeType = mediaRecorder.mimeType;
+                const audioBlob = new Blob(audioChunksRef.current, { type: mimeType });
                 setIsRecording(false);
                 setIsProcessingVoice(true);
 
@@ -120,13 +169,11 @@ export function AIChatWidget() {
 
                     if (error) throw error;
                     if (data?.text) {
-                        setInput(prev => (prev.trim() ? `${prev.trim()} ${data.text.trim()}` : data.text.trim()));
+                        setInput(prev => prev ? `${prev} ${data.text.trim()}` : data.text.trim());
                         triggerHapticFeedback('success');
-                        setTimeout(() => inputRef.current?.focus(), 150);
                     }
                 } catch (err) {
                     toast.error('Не удалось распознать речь');
-                    triggerHapticFeedback('error');
                 } finally {
                     setIsProcessingVoice(false);
                     stream.getTracks().forEach(track => track.stop());
@@ -153,12 +200,14 @@ export function AIChatWidget() {
         else startRecording();
     };
 
+    // Фокус на input
     useEffect(() => {
         if (isOpen && inputRef.current) {
             setTimeout(() => inputRef.current?.focus(), 400);
         }
     }, [isOpen]);
 
+    // Автоскролл
     useEffect(() => {
         if (!messagesEndRef.current) return;
         requestAnimationFrame(() => {
@@ -199,44 +248,44 @@ export function AIChatWidget() {
 
         try {
             const { data: { session } } = await supabase.auth.getSession();
-            const authToken = session?.access_token || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
-
-            const allMessages = messages.map(m => ({ role: m.role, content: m.content }));
-            allMessages.push({
-                role: 'user' as const,
-                content: messages.length === 0 ? aiPrompt + '\n\n' + userMessage : userMessage
-            });
-
             const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-chat`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    Authorization: `Bearer ${authToken}`,
+                    Authorization: `Bearer ${session?.access_token}`,
                 },
                 body: JSON.stringify({
-                    messages: allMessages,
-                    country: selectedCountry,
-                    mode: 'chat',
-                    language: interfaceLanguage,
+                    messages: [
+                        { role: 'system', content: aiPrompt },
+                        ...messages.map(m => ({ role: m.role, content: m.content })),
+                        { role: 'user', content: userMessage }
+                    ],
+                    conversationId,
+                    profileId,
                 }),
             });
 
             if (response.status === 429) {
                 const errorData = await response.json();
-                if (errorData.error === 'daily_limit_reached') {
-                    triggerHapticFeedback('warning');
-                    setLimitReached(true);
-                    return;
-                }
+                setLimitData({
+                    currentCount: errorData.current_count || 5,
+                    limit: errorData.limit || 5,
+                    message: errorData.message || ''
+                });
+                setLimitModal(true);
+                setLoading(false);
+                return;
             }
 
-            if (!response.ok) throw new Error('API Error');
+            if (!response.ok || !response.body) throw new Error('Failed to fetch');
 
-            const reader = response.body?.getReader();
+            const reader = response.body.getReader();
             const decoder = new TextDecoder();
+            let assistantMessage = '';
+
             addMessage({ role: 'assistant', content: '' });
 
-            while (reader) {
+            while (true) {
                 const { done, value } = await reader.read();
                 if (done) break;
 
@@ -250,156 +299,228 @@ export function AIChatWidget() {
                         try {
                             const parsed = JSON.parse(data);
                             const content = parsed.choices?.[0]?.delta?.content;
-                            if (content) updateLastMessage(content);
-                        } catch {}
+                            if (content) {
+                                assistantMessage += content;
+                                updateLastMessage(assistantMessage);
+                            }
+                        } catch (e) {}
                     }
                 }
             }
-            triggerHapticFeedback('success');
-        } catch (error) {
-            toast.error('Ошибка при получении ответа');
+        } catch (err) {
+            toast.error('Ошибка при обращении к ИИ');
         } finally {
             setLoading(false);
             if (!isPremium) refetchUsage();
         }
-    }, [messages, questionContext, interfaceLanguage, isLoading, isPremium, refetchUsage, addMessage, updateLastMessage, setLoading, selectedCountry, profileData]);
+    }, [messages, conversationId, profileId, questionContext, selectedCountry, profileData, interfaceLanguage, isLoading, addMessage, setLoading, updateLastMessage, isPremium, refetchUsage]);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         if (!input.trim() || isLoading) return;
-        const userMessage = input.trim();
+        const msg = input.trim();
         setInput('');
-        askAI(userMessage);
+        askAI(msg);
     };
 
     const chatContent = (
-        <div className="flex flex-col h-full bg-white dark:bg-slate-950">
-            <div className="flex items-center justify-between px-5 py-3 border-b border-border/10 shrink-0 bg-white/50 dark:bg-zinc-900/50 backdrop-blur-md z-10">
+        <div className="flex-1 flex flex-col min-h-0 bg-white dark:bg-zinc-950 relative overflow-hidden">
+            {/* Header */}
+            <div className="px-4 py-3 border-b border-border/10 flex items-center justify-between shrink-0 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl z-20">
                 <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-full bg-blue-500/10 flex items-center justify-center shrink-0 border border-blue-500/20">
-                        <Bot className="w-5 h-5 text-blue-500" />
+                    <div className="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center border border-blue-500/20">
+                        <Bot className="w-6 h-6 text-blue-600 dark:text-blue-400" />
                     </div>
-                    <div className="flex flex-col justify-center">
-                        <span className="font-bold text-[15px] tracking-tight leading-tight">AI Помощник</span>
+                    <div className="flex flex-col">
+                        <h2 className="text-sm font-bold leading-none tracking-tight flex items-center gap-2">
+                            Skily AI
+                        </h2>
                         {isPremium ? (
-                            <div className="flex items-center gap-1 text-[10px] font-black text-amber-600 dark:text-amber-400 uppercase tracking-[0.05em] mt-0.5">
+                            <div className="flex items-center gap-1 text-[10px] font-black text-amber-600 dark:text-amber-400 uppercase tracking-wider mt-1">
                                 <Crown className="w-2.5 h-2.5 fill-current" />
                                 <span>Premium Ilimitado</span>
                             </div>
                         ) : aiUsage !== null ? (
                             <span className={cn(
-                                "text-[10px] font-bold mt-0.5 transition-colors",
+                                "text-[10px] font-bold mt-1 transition-colors",
                                 aiRemaining <= 1 ? "text-red-500 animate-pulse" : "text-slate-500 dark:text-slate-400"
                             )}>
-                                {aiRemaining} / {aiLimit} {interfaceLanguage === 'ru' ? 'запросов' : 'mensajes'}
+                                {aiRemaining} / {aiLimit} {interfaceLanguage === 'ru' ? 'сообщений' : 'mensajes'}
                             </span>
-                        ) : null}
+                        ) : (
+                            <p className="text-[10px] text-muted-foreground mt-1">AI Instructor</p>
+                        )}
                     </div>
                 </div>
                 <div className="flex items-center gap-2">
-                    {questionContext?.explanationRu && (
-                        <Button variant="ghost" size="sm" onClick={toggleTranslation} className="h-9 px-3 hover:bg-slate-100 dark:hover:bg-white/5 text-slate-600 dark:text-slate-400">
-                            <Languages className="w-4 h-4 mr-2" />
-                            <span className="text-xs font-bold">{showTranslation ? 'ES' : 'RU'}</span>
-                        </Button>
-                    )}
-                    <Button variant="ghost" size="icon" onClick={closeChat} className="h-9 w-9 text-muted-foreground hover:text-foreground hover:bg-muted">
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="rounded-full h-8 w-8 hover:bg-slate-100 dark:hover:bg-slate-800"
+                        onClick={toggleTranslation}
+                    >
+                        <Languages className="w-4 h-4" />
+                    </Button>
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="rounded-full h-8 w-8 hover:bg-red-50 dark:hover:bg-red-950/20 text-muted-foreground hover:text-red-500"
+                        onClick={closeChat}
+                    >
                         <X className="w-5 h-5" />
                     </Button>
                 </div>
             </div>
 
-            <div ref={scrollContainerRef} className="flex-1 overflow-y-auto px-4 py-4 space-y-4 relative bg-[#F5F8FF]/80 dark:bg-slate-900/40" style={{ WebkitOverflowScrolling: 'touch' }}>
-                {messages.length === 0 && questionContext && (
-                    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col items-center text-center py-8 px-4">
-                        <SkilyAICharacter size="lg" />
-                        <h3 className="text-xl font-bold mt-4 mb-2">{interfaceLanguage === 'ru' ? 'Привет! Я Skily' : '¡Hola! Soy Skily'}</h3>
-                        <p className="text-muted-foreground text-sm max-w-[85%] mb-6 px-2">
-                            {interfaceLanguage === 'ru' ? 'Нужна подсказка или объяснение?' : '¿Necesitas una pista o una explicación rápida?'}
-                        </p>
-                        <div className="flex flex-col w-full max-w-sm gap-3 px-2">
-                            <Button variant="outline" className="w-full h-auto py-3 text-primary border-primary/20 hover:bg-primary/5 text-sm font-medium" onClick={() => askAI(interfaceLanguage === 'ru' ? 'Дай подсказку' : 'Dame una pista')}>
-                                {interfaceLanguage === 'ru' ? 'Дай подсказку' : 'Dame una pista'}
-                            </Button>
-                            <Button variant="outline" className="w-full h-auto py-3 text-primary border-primary/20 hover:bg-primary/5 text-sm font-medium" onClick={() => askAI(interfaceLanguage === 'ru' ? 'Объясни это' : 'Ayúdame a entender esto')}>
-                                {interfaceLanguage === 'ru' ? 'Объясни это' : 'Ayúdame a entender esto'}
-                            </Button>
+            {/* Messages Area */}
+            <ScrollArea className="flex-1 px-4 py-4 z-10">
+                <div className="max-w-2xl mx-auto space-y-6 pb-20">
+                    {messages.length === 0 && !questionContext && (
+                        <div className="flex flex-col items-center justify-center h-64 text-center">
+                            <SkilyAICharacter size="lg" mood="happy" />
+                            <p className="text-muted-foreground mt-4 font-medium italic">
+                                {interfaceLanguage === 'ru' ? 'Задай мне любой вопрос по ПДД!' : '¡Pregúntame cualquier cosa sobre el reglamento!'}
+                            </p>
                         </div>
-                    </motion.div>
-                )}
-                {messages.map((message, index) => (
-                    <AIChatMessage key={index} message={message} isLast={index === messages.length - 1} onRating={(rating) => setMessageRating(index, rating)} />
-                ))}
-                {isLoading && <AIChatMessage message={{ role: 'assistant', content: '...' }} isLoading />}
-                <div ref={messagesEndRef} className="h-4" />
-            </div>
-
-            {!limitReached && !isLoading && smartSuggestions.length > 0 && (
-                <div className="px-4 py-3 bg-white/50 dark:bg-zinc-900/50 backdrop-blur-sm border-t border-border/5">
-                    <div className="flex flex-wrap gap-2 max-w-2xl mx-auto">
-                        {smartSuggestions.map((suggestion, i) => (
-                            <Button key={i} variant="outline" size="sm" onClick={() => askAI(suggestion)} className="rounded-full text-[13px] bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:border-blue-500/50 hover:bg-blue-50 dark:hover:bg-blue-500/10 transition-all h-9">
-                                {suggestion}
-                            </Button>
-                        ))}
-                    </div>
-                </div>
-            )}
-
-            <div className="px-3 pt-3 pb-6 border-t border-border/10 shrink-0 bg-white/90 dark:bg-zinc-900/90 backdrop-blur-xl z-20" style={{ paddingBottom: 'max(env(safe-area-inset-bottom, 8px), 16px)' }}>
-                <AnimatePresence mode="wait">
-                    {limitReached && !isPremium ? (
-                        <motion.div key="limit-cta" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bg-slate-50 dark:bg-slate-800/40 rounded-[24px] p-5 border border-slate-200 dark:border-slate-700 max-w-2xl mx-auto w-full mb-2">
-                            <div className="flex flex-col items-center text-center gap-3">
-                                <div className="flex items-center gap-2 text-red-500 dark:text-red-400 font-bold">
-                                    <Zap className="w-5 h-5 fill-current animate-pulse" />
-                                    <span>{interfaceLanguage === 'ru' ? 'Лимит сообщений исчерпан' : 'Límite agotado'}</span>
-                                </div>
-                                <p className="text-sm text-slate-500 dark:text-slate-400">
-                                    {interfaceLanguage === 'ru' ? 'Для безлимитного общения со Skily перейди на Premium!' : '¡Para hablar con Skily sin límites, pásate a Premium!'}
-                                </p>
-                                <Button onClick={() => openModal('PAYWALL', { trigger: 'ai_chat_limit_inline' })} className="w-full bg-gradient-to-r from-amber-500 via-orange-500 to-amber-500 hover:from-amber-400 hover:via-orange-400 hover:to-amber-400 text-white font-black h-12 rounded-xl shadow-lg shadow-orange-500/20 border-0">
-                                    <Crown className="w-5 h-5 mr-2" />
-                                    {interfaceLanguage === 'ru' ? 'РАЗБЛОКИРОВАТЬ PREMIUM' : 'DESBLOQUEAR PREMIUM'}
-                                </Button>
-                            </div>
-                        </motion.div>
-                    ) : (
-                        <motion.form key="chat-form" onSubmit={handleSubmit} className="flex gap-2 items-end max-w-2xl mx-auto w-full">
-                            <div className="flex-1 relative">
-                                <input ref={inputRef} value={input} onChange={(e) => setInput(e.target.value)} placeholder={interfaceLanguage === 'ru' ? 'Напиши свой вопрос...' : 'Escribe tu pregunta...'} disabled={isLoading} className="w-full min-h-[48px] py-3 rounded-[24px] px-5 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500/50 transition-all text-base" style={{ fontSize: '16px' }} />
-                            </div>
-                            <Button type="button" onClick={toggleVoiceInput} disabled={isLoading || isProcessingVoice} size="icon" variant="ghost" className={cn("h-12 w-12 shrink-0 rounded-full transition-all active:scale-90 relative overflow-hidden", isRecording ? "bg-red-500 text-white shadow-lg shadow-red-500/30" : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300")}>
-                                {isProcessingVoice ? <Loader2 className="w-5 h-5 animate-spin" /> : isRecording ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
-                            </Button>
-                            <Button type="submit" disabled={!input.trim() || isLoading} size="icon" className={cn("h-12 w-12 shrink-0 rounded-full shadow-lg transition-all active:scale-90", !input.trim() ? "bg-blue-500/50 text-white shadow-none" : "bg-blue-500 hover:bg-blue-600 text-white shadow-blue-500/30")}>
-                                {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
-                            </Button>
-                        </motion.form>
                     )}
-                </AnimatePresence>
+                    
+                    {messages.map((message, idx) => (
+                        <motion.div
+                            key={idx}
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className={cn(
+                                "flex w-full",
+                                message.role === 'user' ? 'justify-end' : 'justify-start'
+                            )}
+                        >
+                            <Card className={cn(
+                                "max-w-[85%] p-4 shadow-sm",
+                                message.role === 'user'
+                                    ? 'bg-blue-600 text-white rounded-2xl rounded-tr-none border-none'
+                                    : 'bg-slate-100 dark:bg-slate-900 border-none rounded-2xl rounded-tl-none'
+                            )}>
+                                <MarkdownContent className={cn(
+                                    "text-sm leading-relaxed",
+                                    message.role === 'user' ? "text-white" : "text-slate-800 dark:text-slate-200"
+                                )}>
+                                    {message.content}
+                                </MarkdownContent>
+                                {message.role === 'assistant' && message.content && (
+                                    <div className="flex items-center gap-1 mt-2 pt-2 border-t border-black/5 dark:border-white/5">
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className="h-6 w-6 hover:bg-black/5 dark:hover:bg-white/10"
+                                            onClick={() => setMessageRating(idx, 1)}
+                                        >
+                                            <ThumbsUp className="w-3.5 h-3.5" />
+                                        </Button>
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className="h-6 w-6 hover:bg-black/5 dark:hover:bg-white/10"
+                                            onClick={() => setMessageRating(idx, -1)}
+                                        >
+                                            <ThumbsDown className="w-3.5 h-3.5" />
+                                        </Button>
+                                    </div>
+                                )}
+                            </Card>
+                        </motion.div>
+                    ))}
+                    {isLoading && (
+                        <div className="flex justify-start">
+                            <div className="bg-slate-100 dark:bg-slate-900 p-4 rounded-2xl rounded-tl-none flex gap-1">
+                                <span className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-bounce [animation-delay:-0.3s]" />
+                                <span className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-bounce [animation-delay:-0.15s]" />
+                                <span className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-bounce" />
+                            </div>
+                        </div>
+                    )}
+                    <div ref={messagesEndRef} />
+                </div>
+            </ScrollArea>
+
+            {/* Input Area */}
+            <div className="px-4 pb-8 pt-4 border-t border-border/10 shrink-0 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-xl z-20">
+                <form onSubmit={handleSubmit} className="flex gap-2 items-end max-w-2xl mx-auto w-full">
+                    <div className="flex-1 relative">
+                        <input
+                            ref={inputRef}
+                            value={input}
+                            onChange={(e) => setInput(e.target.value)}
+                            placeholder={interfaceLanguage === 'ru' ? 'Спроси Skily...' : 'Pregunta a Skily...'}
+                            className="w-full h-12 py-3 rounded-2xl px-5 border border-border bg-white dark:bg-slate-900 text-sm focus:ring-2 focus:ring-blue-500/20 outline-none transition-all pr-12"
+                        />
+                        <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            className={cn(
+                                "absolute right-1 top-1 h-10 w-10 rounded-xl transition-colors",
+                                isRecording ? "text-red-500 bg-red-50 dark:bg-red-950/30" : "text-slate-400 hover:text-blue-500"
+                            )}
+                            onClick={toggleVoiceInput}
+                        >
+                            {isRecording ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
+                        </Button>
+                    </div>
+                    <Button
+                        type="submit"
+                        disabled={!input.trim() || isLoading}
+                        size="icon"
+                        className="h-12 w-12 rounded-2xl bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-600/20 transition-transform active:scale-95"
+                    >
+                        {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
+                    </Button>
+                </form>
             </div>
         </div>
     );
 
-    if (isMobile) {
-        return (
-            <Drawer open={isOpen} onOpenChange={(open) => !open && closeChat()} shouldScaleBackground={false}>
-                <DrawerContent className="overflow-hidden flex flex-col focus:outline-none" style={{ height: viewportHeight > 0 ? `${viewportHeight}px` : '92dvh' }}>
-                    {chatContent}
-                </DrawerContent>
-            </Drawer>
-        );
-    }
+    const drawerHeight = viewportHeight > 0 ? viewportHeight : undefined;
 
     return (
-        <Dialog open={isOpen} onOpenChange={(open) => !open && closeChat()}>
-            <DialogContent hideCloseButton className="w-screen h-screen max-w-none max-h-none m-0 p-0 flex flex-col bg-white/95 dark:bg-zinc-950/98 backdrop-blur-2xl border-none rounded-none">
-                <div className="flex-1 flex flex-col max-w-4xl mx-auto w-full shadow-2xl bg-white/50 dark:bg-zinc-900/50 backdrop-blur-md overflow-hidden my-0 sm:my-8 sm:rounded-2xl sm:border border-border/10">
-                    {chatContent}
-                </div>
-            </DialogContent>
-        </Dialog>
+        <>
+            {isMobile ? (
+                <Drawer
+                    open={isOpen}
+                    onOpenChange={(open) => !open && closeChat()}
+                    shouldScaleBackground={false}
+                >
+                    <DrawerContent
+                        className="overflow-hidden flex flex-col focus:outline-none"
+                        style={{
+                            height: drawerHeight ? `${drawerHeight}px` : '92dvh',
+                            maxHeight: drawerHeight ? `${drawerHeight}px` : '92dvh',
+                            transition: 'height 0.2s ease',
+                        }}
+                    >
+                        {chatContent}
+                    </DrawerContent>
+                </Drawer>
+            ) : (
+                <Dialog open={isOpen} onOpenChange={(open) => !open && closeChat()}>
+                    <DialogContent
+                        hideCloseButton
+                        className="w-screen h-screen max-w-none max-h-none m-0 p-0 flex flex-col rounded-none border-none bg-white/95 dark:bg-zinc-950/98 backdrop-blur-2xl"
+                    >
+                        <div className="flex-1 flex flex-col max-w-4xl mx-auto w-full shadow-2xl bg-white/50 dark:bg-zinc-900/50 backdrop-blur-md overflow-hidden my-0 sm:my-8 sm:rounded-2xl sm:border sm:border-border/10">
+                            {chatContent}
+                        </div>
+                    </DialogContent>
+                </Dialog>
+            )}
+
+            <AILimitReachedModal
+                isOpen={limitModalOpen}
+                onClose={() => setLimitModal(false)}
+                currentCount={limitData.currentCount}
+                limit={limitData.limit}
+                message={limitData.message}
+            />
+        </>
     );
 }
 
