@@ -564,26 +564,44 @@ ${explanation ? `\n${interfaceLanguage === 'ru' ? 'Официальное объ
       >
         {/* Header */}
         <div className="p-3 xl:p-4 border-b flex items-center shrink-0 gap-3 bg-muted/30 dark:bg-slate-900/50 dark:border-white/5">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-7 w-7 xl:h-8 xl:w-8 shrink-0 text-muted-foreground hover:text-foreground order-first"
-            onClick={() => setIsExpanded(!isExpanded)}
-            title={isExpanded ? (interfaceLanguage === 'ru' ? t('lumiCollapse') : interfaceLanguage === 'en' ? 'Collapse' : 'Contraer') : (interfaceLanguage === 'ru' ? t('lumiExpand') : interfaceLanguage === 'en' ? 'Expand' : 'Expandir')}
-          >
-            {isExpanded ? <Minimize2 className="h-3.5 w-3.5 xl:h-4 xl:w-4" /> : <Maximize2 className="h-3.5 w-3.5 xl:h-4 xl:w-4" />}
-          </Button>
           <div className="flex items-center gap-2 xl:gap-3 min-w-0 flex-1">
             <div className="w-8 h-8 xl:w-10 xl:h-10 flex items-center justify-center shrink-0 transition-transform duration-500 group-hover:scale-105">
               <SkilyAICharacter size="sm" mood="happy" className="scale-75" />
             </div>
             <div className="min-w-0">
               <h3 className="font-bold text-sm xl:text-base text-foreground dark:text-slate-100 truncate">
-                {interfaceLanguage === 'ru' ? 'Привет! Я Скили 🚗💡' :
-                  interfaceLanguage === 'en' ? "Hello! I'm Skily 💡" :
-                    "¡Hola! Soy Skily 💡"}
+                {interfaceLanguage === 'ru' ? 'Skily AI' : 'Skily AI'}
               </h3>
             </div>
+          </div>
+          <div className="flex items-center gap-2">
+            {isPremium ? (
+              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400">
+                <Crown className="w-3 h-3 fill-current" />
+                <span className="text-[10px] font-black uppercase tracking-wider hidden sm:inline">PRO</span>
+              </div>
+            ) : aiUsage !== null ? (
+              <div className={cn(
+                "flex items-center gap-1.5 px-2 py-1 rounded-full border transition-all shadow-sm",
+                aiRemaining <= 1
+                  ? "bg-red-500/10 border-red-500/20 text-red-500 animate-pulse"
+                  : "bg-slate-100 dark:bg-slate-800/80 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400"
+              )}>
+                <Zap className={cn("w-2.5 h-2.5", aiRemaining <= 1 ? "fill-current" : "")} />
+                <span className="text-[10px] font-bold">
+                  {aiRemaining}/{aiLimit}
+                </span>
+              </div>
+            ) : null}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-7 w-7 xl:h-8 xl:w-8 shrink-0 text-muted-foreground hover:text-foreground"
+              onClick={() => setIsExpanded(!isExpanded)}
+              title={isExpanded ? (interfaceLanguage === 'ru' ? t('lumiCollapse') : interfaceLanguage === 'en' ? 'Collapse' : 'Contraer') : (interfaceLanguage === 'ru' ? t('lumiExpand') : interfaceLanguage === 'en' ? 'Expand' : 'Expandir')}
+            >
+              {isExpanded ? <Minimize2 className="h-3.5 w-3.5 xl:h-4 xl:w-4" /> : <Maximize2 className="h-3.5 w-3.5 xl:h-4 xl:w-4" />}
+            </Button>
           </div>
         </div>
 
@@ -804,37 +822,6 @@ ${explanation ? `\n${interfaceLanguage === 'ru' ? 'Официальное объ
 
         {/* Input Area - стиль Officer Frank */}
         <div className="p-3 xl:p-4 border-t shrink-0 bg-background dark:bg-slate-900/60 dark:border-white/5">
-          {/* Индикатор сообщений */}
-          <div className="flex justify-center mb-3">
-            {isPremium ? (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="flex items-center gap-2 px-4 py-1 rounded-full bg-gradient-to-r from-amber-400/20 via-orange-500/10 to-amber-400/20 border border-amber-500/30 text-[11px] font-black text-amber-600 dark:text-amber-400 shadow-[0_0_15px_rgba(245,158,11,0.05)]"
-              >
-                <Crown className="w-3 h-3 fill-current animate-pulse" />
-                <span className="uppercase tracking-wider">{interfaceLanguage === 'ru' ? 'Безлимит Premium' : 'Premium Ilimitado'}</span>
-              </motion.div>
-            ) : aiUsage !== null ? (
-              <div className={cn(
-                "flex items-center gap-2 px-3 py-1 rounded-full text-[10px] font-bold transition-all border shadow-sm",
-                aiRemaining <= 1
-                  ? "bg-red-500/10 border-red-500/20 text-red-500 animate-pulse"
-                  : aiRemaining <= 2
-                    ? "bg-amber-500/10 border-amber-500/20 text-amber-600 dark:text-amber-400"
-                    : "bg-slate-50 dark:bg-slate-800/80 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400"
-              )}>
-                <Zap className={cn("w-3 h-3", aiRemaining <= 1 ? "fill-current" : "")} />
-                <span>
-                  {aiRemaining === 0
-                    ? (interfaceLanguage === 'ru' ? 'Лимит исчерпан' : 'Límite agotado')
-                    : `${aiRemaining} / ${aiLimit} ${interfaceLanguage === 'ru' ? 'сообщений' : 'mensajes'}`}
-                </span>
-              </div>
-            ) : (
-              <div className="h-6" /> // Placeholder
-            )}
-          </div>
           <form onSubmit={handleSubmit} className="relative">
             <input
               value={input}

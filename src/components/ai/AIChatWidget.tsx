@@ -500,23 +500,29 @@ export function AIChatWidget() {
                         <Bot className="w-5 h-5 text-indigo-500" />
                     </div>
                     <div className="flex flex-col justify-center">
-                        <span className="font-bold text-[15px] tracking-tight leading-tight">AI Помощник</span>
-                        {isPremium ? (
-                            <div className="flex items-center gap-1 text-[10px] font-black text-amber-600 dark:text-amber-400 uppercase tracking-[0.05em] mt-0.5">
-                                <Crown className="w-2.5 h-2.5 fill-current" />
-                                <span>Premium Ilimitado</span>
-                            </div>
-                        ) : aiUsage !== null ? (
-                            <span className={cn(
-                                "text-[10px] font-bold mt-0.5 transition-colors",
-                                aiRemaining <= 1 ? "text-red-500 animate-pulse" : "text-slate-500 dark:text-slate-400"
-                            )}>
-                                {aiRemaining} / {aiLimit} {interfaceLanguage === 'ru' ? 'запросов' : 'mensajes'}
-                            </span>
-                        ) : null}
+                        <span className="font-bold text-[15px] tracking-tight leading-tight">Skily AI</span>
+                        <p className="text-[10px] text-muted-foreground mt-0.5">AI Instructor</p>
                     </div>
                 </div>
                 <div className="flex items-center gap-2">
+                    {isPremium ? (
+                        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400">
+                            <Crown className="w-3 h-3 fill-current" />
+                            <span className="text-[10px] font-black uppercase tracking-wider hidden sm:inline">PRO</span>
+                        </div>
+                    ) : aiUsage !== null ? (
+                        <div className={cn(
+                            "flex items-center gap-1.5 px-2 py-1 rounded-full border transition-all shadow-sm",
+                            aiRemaining <= 1
+                                ? "bg-red-500/10 border-red-500/20 text-red-500 animate-pulse"
+                                : "bg-slate-100 dark:bg-slate-800/80 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400"
+                        )}>
+                            <Zap className={cn("w-2.5 h-2.5", aiRemaining <= 1 ? "fill-current" : "")} />
+                            <span className="text-[10px] font-bold">
+                                {aiRemaining}/{aiLimit}
+                            </span>
+                        </div>
+                    ) : null}
                     {questionContext?.explanationRu && (
                         <Button
                             variant="ghost"
