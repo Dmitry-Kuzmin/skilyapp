@@ -6,6 +6,7 @@
 import { supabase } from '@/integrations/supabase/client';
 import { CountryCode, UniversalQuestion, PDDTicketSummary } from '@/types/pdd';
 import { PDDDataStrategy } from '../PDDDataStrategy';
+import { isPremiumForStrategy, FREE_QUESTION_LIMIT } from '@/lib/premiumState';
 
 /**
  * Maps unified question to UniversalQuestion format
