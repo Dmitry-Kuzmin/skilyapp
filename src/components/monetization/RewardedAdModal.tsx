@@ -46,7 +46,18 @@ export function RewardedAdModal({
   const [showReward, setShowReward] = useState(false);
   const [showPromo, setShowPromo] = useState(false);
   const { t } = useLanguage();
+  const { isPremium } = usePremium();
   const ra = (path: string, params?: Record<string, string | number>) => t(`dashboard.rewardedAds.${path}`, params);
+
+  // Для premium-юзеров (без allowForPremium) — автоматически выдаём награду без рекламы
+  useEffect(() => {
+    if (!open || allowForPremium || !isPremium) return;
+    setShowReward(true);
+    onRewardClaimed();
+    const timer = setTimeout(() => onOpenChange(false), 2000);
+    return () => clearTimeout(timer);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, isPremium, allowForPremium]);
 
   useEffect(() => {
     if (open) {
