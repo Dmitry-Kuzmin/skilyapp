@@ -71,16 +71,17 @@ function FlightNavigation({ currentStatus, t }: { currentStatus: string, t: any 
         { id: 'start', title: t('dashboard.examReadiness.levels.start.title'), desc: t('dashboard.examReadiness.levels.start.desc'), range: '0-30%', color: '#ef4444', bgColor: 'bg-red-500/10' },
         { id: 'progress', title: t('dashboard.examReadiness.levels.progress.title'), desc: t('dashboard.examReadiness.levels.progress.desc'), range: '31-70%', color: '#f59e0b', bgColor: 'bg-orange-500/10' },
         { id: 'near', title: t('dashboard.examReadiness.levels.near.title'), desc: t('dashboard.examReadiness.levels.near.desc'), range: '71-84%', color: '#eab308', bgColor: 'bg-yellow-500/10' },
-        { id: 'ready', title: t('dashboard.examReadiness.levels.ready.title'), desc: t('dashboard.examReadiness.levels.ready.desc'), range: '85-100%', color: '#10b981', bgColor: 'bg-emerald-500/10' }
+        { id: 'ready', title: t('dashboard.examReadiness.levels.ready.title'), desc: t('dashboard.examReadiness.levels.ready.desc'), range: '85-95%', color: '#10b981', bgColor: 'bg-emerald-500/10' },
+        { id: 'legend', title: t('dashboard.examReadiness.levels.legend.title'), desc: t('dashboard.examReadiness.levels.legend.desc'), range: '96-100%', color: '#a855f7', bgColor: 'bg-violet-500/10' }
     ];
 
-    const currentIndex = levels.findIndex(l => l.id === (currentStatus === 'legend' ? 'ready' : currentStatus));
+    const currentIndex = levels.findIndex(l => l.id === currentStatus);
 
     return (
-        <div className="relative w-full flex flex-col md:grid md:grid-cols-4 gap-6 md:gap-4 py-2">
+        <div className="relative w-full flex flex-col md:grid md:grid-cols-5 gap-6 md:gap-4 py-2">
             {levels.map((lvl, idx) => {
-                const isActive = idx === currentIndex || (currentStatus === 'legend' && lvl.id === 'ready');
-                const isPast = idx < currentIndex;
+                const isActive = idx === currentIndex;
+                const isPast = idx < currentIndex || (currentIndex === -1 && currentStatus === 'legend'); // fallback if logic fails
 
                 return (
                     <div key={lvl.id} className="relative flex flex-row md:flex-col items-start gap-4 md:gap-3">
@@ -122,10 +123,10 @@ function FlightNavigation({ currentStatus, t }: { currentStatus: string, t: any 
 
                         {/* Content */}
                         <div className={cn(
-                            "flex flex-col transition-all duration-300 md:text-center md:items-center mt-[-2px] md:mt-1",
+                            "flex-1 flex flex-col transition-all duration-300 md:text-center md:items-center mt-[-2px] md:mt-1",
                             isActive ? "opacity-100" : "opacity-50 hover:opacity-80"
                         )}>
-                            <div className="flex flex-wrap md:justify-center items-center gap-2 mb-1.5">
+                            <div className="flex justify-between md:justify-center items-center gap-2 mb-1.5 w-full">
                                 <span className={cn(
                                     "text-sm md:text-[13px] font-black uppercase tracking-tight transition-colors duration-500",
                                     isActive ? "" : "text-foreground dark:text-white"
@@ -133,7 +134,7 @@ function FlightNavigation({ currentStatus, t }: { currentStatus: string, t: any 
                                     {lvl.title}
                                 </span>
                                 <span className={cn(
-                                    "text-[10px] font-bold px-1.5 py-0.5 rounded transition-colors duration-500",
+                                    "text-[10px] font-bold px-1.5 py-0.5 rounded transition-colors duration-500 tabular-nums shrink-0",
                                     isActive ? lvl.bgColor : "bg-muted/50 dark:bg-white/5 text-muted-foreground"
                                 )} style={{ color: isActive ? lvl.color : undefined }}>
                                     {lvl.range}
