@@ -1306,7 +1306,7 @@ const TestSession = () => {
                 testLanguage={effectiveLanguage}
                 country={isRussia ? 'russia' : 'spain'}
                 questionIndex={currentIndex}
-                totalQuestions={questionsState.questions.length}
+                totalQuestions={questionsState.length || questions.length}
               />
             </div>
 
