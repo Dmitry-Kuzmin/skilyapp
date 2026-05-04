@@ -31,6 +31,7 @@ const STREAK_TO_MASTER = 2;
 const FREE_SESSION_MAX = 10;
 const COUNT_OPTIONS_FREE = [10] as const;
 const COUNT_OPTIONS_PREMIUM = [10, 20, 50] as const;
+const PAGE_SIZE = 24; // 6 rows × 4 cols
 
 const heatLevel = (n: number) => (n >= 5 ? 3 : n >= 3 ? 2 : 1);
 
