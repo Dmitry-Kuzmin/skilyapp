@@ -240,11 +240,10 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
       <div className="space-y-3 pt-1">
         {[
           { label: t.f_tests, free: "5", pro: "∞", highlight: true },
-          { label: t.f_base, free: "~300", pro: "9500+" },
+          { label: t.f_base, free: "300", pro: "2157" },
           { label: t.f_ai, free: "5/day", pro: t.unlimited },
           { label: t.f_stats, free: "Basic", pro: "Deep" },
           { label: t.f_duels, free: "10%", pro: "0%", success: true },
-          { label: t.f_xp, free: "x1", pro: "x2", highlight: true },
         ].map((row, i) => (
           <div key={i} className="grid grid-cols-[1fr_50px_70px] gap-2 items-center">
             <span className="text-[11px] font-medium text-slate-300">{row.label}</span>
