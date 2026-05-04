@@ -268,8 +268,8 @@ Deno.serve(async (req) => {
             }), { status: 429, headers: corsHeaders });
           }
         } else {
-          // Для premium всё равно записываем факт использования для статистики (без блокировки)
-          await supabaseClient.rpc('increment_ai_usage', { p_user_id: userId }).catch(() => {});
+          // Для premium записываем статистику без блокировки (не ждём результата)
+          supabaseClient.rpc('increment_ai_usage', { p_user_id: userId }).catch(() => {});
         }
 
         // Загружаем слабые темы для персонализации совета (с таймаутом 3с)
