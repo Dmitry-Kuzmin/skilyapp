@@ -76,10 +76,21 @@ async function tryGemini(messages: Message[], country: string = 'spain', mode: s
     const basePrompt = getSystemPrompt(country, showComparison, language);
     const systemPrompt = weakTopicsContext ? basePrompt + weakTopicsContext : basePrompt;
 
-    let currentContents: any[] = messages.map(m => ({
-      role: m.role === 'user' ? 'user' : 'model',
-      parts: [{ text: m.content }]
-    }));
+    // Filter out system messages — they are handled via system_instruction.
+    // Gemini rejects a conversation that starts with role 'model', which is
+    // what system messages get mapped to.
+    let currentContents: any[] = messages
+      .filter(m => m.role !== 'system')
+      .map(m => ({
+        role: m.role === 'user' ? 'user' : 'model',
+        parts: [{ text: m.content }]
+      }));
+
+    // Guard: Gemini requires the first turn to be 'user'
+    if (currentContents.length === 0 || currentContents[0].role !== 'user') {
+      console.warn('[AI Chat] Gemini: no valid user message to start conversation');
+      return null;
+    }
 
     for (let iteration = 0; iteration < 2; iteration++) {
       const tools = (supabaseClient && userId) ? [{

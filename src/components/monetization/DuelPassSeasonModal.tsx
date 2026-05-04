@@ -17,7 +17,7 @@ import { useUserContext } from "@/contexts/UserContext";
 import { useLanguage, Language } from "@/contexts/LanguageContext";
 import { usePremium } from "@/hooks/usePremium";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { Trophy, Coins, Crown, Sparkles, X, Clock, BookOpen, Calendar, Target, CheckCircle2, Check, Zap, Gift, Star, ArrowRight, ChevronRight, ChevronDown, Flame, Gauge, Hourglass, Shield, Sticker, Swords, Award, BarChart3, Users, Rocket, Lock, LockOpen, TrendingUp, type LucideIcon } from "lucide-react";
+import { Trophy, Coins, Crown, Sparkles, X, Clock, BookOpen, Calendar, Target, CheckCircle2, Check, Zap, Gift, Star, ArrowRight, ChevronRight, ChevronDown, Flame, Gauge, Hourglass, Shield, Sticker, Swords, Award, BarChart3, Users, Rocket, Lock, LockOpen, TrendingUp, Info, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -373,7 +373,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
   const { isPremium: isPremiumFromHook } = usePremium();
   const isMobile = useIsMobile();
   const [currentView, setCurrentView] = useState<'main' | 'hall_of_fame' | 'onboarding'>('main');
-  const [onboardingStep, setOnboardingStep] = useState(0);
+
   const [showFullLeaderboard, setShowFullLeaderboard] = useState(false);
   const [top3Leaders, setTop3Leaders] = useState<any[]>([]);
   const [userLeaderboardPos, setUserLeaderboardPos] = useState<{ position: number; total: number } | null>(null);
@@ -1552,123 +1552,90 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
   };
 
   const OnboardingView = () => {
-    const slides = [
+    const features = [
       {
         icon: Trophy,
         title: language === 'ru' ? 'Твой сезонный путь' : language === 'es' ? 'Tu viaje de temporada' : 'Your Seasonal Journey',
-        description: language === 'ru' ? 'Duel Pass — это серия уровней с наградами, доступная только в этом сезоне. Успей собрать всё, пока время не истекло!' : language === 'es' ? 'Duel Pass es una serie de niveles con recompensas, disponible solo esta temporada. ¡Consíguelo todo antes de que se acabe el tiempo!' : 'Duel Pass is a series of reward levels available only this season. Get everything before time runs out!',
-        color: 'from-blue-500 to-indigo-600',
-        bg: 'bg-blue-500/15'
+        description: language === 'ru' ? 'Выполняй задания и собирай награды.' : language === 'es' ? 'Completa tareas y recoge recompensas.' : 'Complete tasks and collect rewards.',
+        color: 'text-blue-500',
+        bg: 'bg-blue-500/10'
       },
       {
         icon: Zap,
-        title: language === 'ru' ? 'Играй и прогрессируй' : language === 'es' ? 'Juega и progresa' : 'Play & Progress',
-        description: language === 'ru' ? 'За каждую дуэль и ежедневные задания ты получаешь SP. Больше очков — выше уровень и круче награды!' : language === 'es' ? 'Por cada duelo и tarea diaria recibes SP. ¡Más puntos significan niveles más altos и mejores recompensas!' : 'For every duel and daily task you receive SP. More points mean higher levels and cooler rewards!',
-        color: 'from-amber-400 to-orange-500',
-        bg: 'bg-amber-500/15'
+        title: language === 'ru' ? 'Играй и прогрессируй' : language === 'es' ? 'Juega y progresa' : 'Play & Progress',
+        description: language === 'ru' ? 'За каждую дуэль ты получаешь SP.' : language === 'es' ? 'Por cada duelo recibes SP.' : 'For every duel you receive SP.',
+        color: 'text-amber-500',
+        bg: 'bg-amber-500/10'
       },
       {
         icon: Crown,
         title: 'Elite Pass',
-        description: language === 'ru' ? 'Удвой свой прогресс! Elite Pass дает доступ к эксклюзивным скинам и в 2 раза больше опыта в каждой игре.' : language === 'es' ? '¡Duplica tu progreso! Elite Pass da acceso a aspectos exclusivos и el doble de experiencia en cada juego.' : 'Double your progress! Elite Pass gives access to exclusive skins and 2x XP in every game.',
-        color: 'from-purple-500 to-fuchsia-600',
-        bg: 'bg-purple-500/15'
+        description: language === 'ru' ? 'В 2 раза больше опыта и эксклюзив.' : language === 'es' ? 'Doble experiencia y recompensas.' : 'Double XP and exclusive rewards.',
+        color: 'text-purple-500',
+        bg: 'bg-purple-500/10'
       },
       {
         icon: Swords,
         title: language === 'ru' ? 'Зал Славы' : language === 'es' ? 'Salón de la Fama' : 'Hall of Fame',
-        description: language === 'ru' ? 'Попадай в Топ-3 лучших игроков сезона и забирай огромные призы в монетах в конце сезона.' : language === 'es' ? 'Entra en el Top-3 de los mejores jugadores de la temporada и llévate grandes premios en monedas al final de la temporada.' : 'Get into the Top-3 best players of the season and take huge coin prizes at the end of the season.',
-        color: 'from-emerald-400 to-teal-500',
-        bg: 'bg-emerald-500/15'
+        description: language === 'ru' ? 'Топ-3 игроков заберут монеты.' : language === 'es' ? 'El Top-3 se llevará monedas.' : 'Top 3 players take coins.',
+        color: 'text-emerald-500',
+        bg: 'bg-emerald-500/10'
       }
     ];
 
-    const currentSlide = slides[onboardingStep];
-    const isLastStep = onboardingStep === slides.length - 1;
-
     const handleNext = () => {
-      if (isLastStep) {
-        localStorage.setItem('duel_pass_onboarding_v1', 'true');
-        setCurrentView('main');
-      } else {
-        setOnboardingStep(prev => prev + 1);
-      }
+      localStorage.setItem('duel_pass_onboarding_v1', 'true');
+      setCurrentView('main');
     };
 
     return (
-      <div className="flex flex-col items-center justify-center min-h-[520px] px-8 py-10 text-center relative overflow-hidden">
-        {/* Animated Background Orbs */}
-        <div className="absolute top-0 left-0 w-full h-full pointer-events-none -z-10 overflow-hidden">
-          <motion.div 
-            animate={{ scale: [1, 1.2, 1], opacity: [0.1, 0.2, 0.1] }}
-            transition={{ duration: 8, repeat: Infinity }}
-            className={cn("absolute -top-20 -left-20 w-64 h-64 blur-[80px] rounded-full", currentSlide.bg.replace('/15', '/40'))} 
-          />
-          <motion.div 
-            animate={{ scale: [1, 1.3, 1], opacity: [0.05, 0.15, 0.05] }}
-            transition={{ duration: 10, repeat: Infinity, delay: 1 }}
-            className={cn("absolute -bottom-20 -right-20 w-80 h-80 blur-[100px] rounded-full", currentSlide.bg.replace('/15', '/30'))} 
-          />
+      <div className="flex flex-col min-h-[480px] px-6 py-8 relative overflow-hidden bg-slate-950">
+        {/* Festival Ambient */}
+        <div className="absolute top-0 inset-x-0 h-40 bg-gradient-to-b from-primary/10 to-transparent pointer-events-none" />
+        <div className="absolute -top-32 -right-32 w-64 h-64 bg-amber-500/10 rounded-full blur-[80px] pointer-events-none" />
+        <div className="absolute -bottom-32 -left-32 w-64 h-64 bg-blue-500/10 rounded-full blur-[80px] pointer-events-none" />
+
+        <div className="relative z-10 text-center mb-8 mt-2">
+          <div className="inline-flex items-center justify-center p-3.5 rounded-2xl bg-white/5 border border-white/10 mb-4 shadow-xl">
+            <Trophy className="w-8 h-8 text-primary drop-shadow-[0_0_15px_rgba(59,130,246,0.5)]" />
+          </div>
+          <h2 className="text-3xl font-black text-white tracking-tight leading-none uppercase">
+            Duel Pass
+          </h2>
+          <p className="text-slate-400 text-sm mt-3 max-w-[280px] mx-auto font-medium">
+            {language === 'ru' ? 'Новый сезон начался! Участвуй в гонке за призами.' : language === 'es' ? '¡Nueva temporada iniciada! Participa en la carrera por premios.' : 'New season started! Join the race for prizes.'}
+          </p>
         </div>
 
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={onboardingStep}
-            initial={{ opacity: 0, scale: 0.95, y: 15 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 1.05, y: -15 }}
-            transition={{ type: "spring", damping: 30, stiffness: 250 }}
-            className="flex flex-col items-center"
-          >
-            <div className={cn(
-              "w-36 h-36 rounded-[3.5rem] flex items-center justify-center mb-12 relative shadow-2xl transition-all duration-500",
-              currentSlide.bg
-            )}>
-              <div className={cn(
-                "absolute inset-0 blur-3xl opacity-50 rounded-full",
-                currentSlide.bg.replace('/15', '/60')
-              )} />
-              <currentSlide.icon className={cn(
-                "w-16 h-16 relative z-10 filter drop-shadow-[0_0_15px_rgba(255,255,255,0.4)]",
-                currentSlide.color.includes('amber') ? 'text-amber-500' : 
-                currentSlide.color.includes('blue') ? 'text-blue-400' : 
-                currentSlide.color.includes('emerald') ? 'text-emerald-400' : 'text-purple-400'
-              )} />
-            </div>
-
-            <h2 className="text-3xl font-black text-foreground mb-4 tracking-tight leading-tight">
-              {currentSlide.title}
-            </h2>
-            <p className="text-muted-foreground text-base leading-relaxed max-w-[300px] mb-14 font-medium">
-              {currentSlide.description}
-            </p>
-          </motion.div>
-        </AnimatePresence>
-
-        <div className="flex gap-2.5 mb-10">
-          {slides.map((_, i) => (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-auto relative z-10 flex-1">
+          {features.map((f, i) => (
             <motion.div
               key={i}
-              initial={false}
-              animate={{ 
-                width: i === onboardingStep ? 32 : 10,
-                backgroundColor: i === onboardingStep ? 'var(--primary)' : 'rgba(var(--muted-foreground-rgb), 0.2)' 
-              }}
-              className="h-2 rounded-full cursor-pointer"
-              onClick={() => setOnboardingStep(i)}
-            />
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.1 }}
+              className="flex items-start gap-3 p-3 sm:p-4 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 transition-colors"
+            >
+              <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center shrink-0", f.bg)}>
+                <f.icon className={cn("w-5 h-5", f.color)} />
+              </div>
+              <div>
+                <h3 className="font-bold text-sm text-white leading-tight mb-0.5">{f.title}</h3>
+                <p className="text-[11px] text-slate-400 leading-tight">{f.description}</p>
+              </div>
+            </motion.div>
           ))}
         </div>
 
-        <Button
-          size="lg"
-          onClick={handleNext}
-          className="w-full max-w-[260px] h-14 rounded-2xl font-black text-lg shadow-2xl shadow-primary/25 transition-all hover:scale-[1.03] active:scale-[0.97] bg-primary hover:bg-primary/90"
-        >
-          {isLastStep 
-            ? (language === 'ru' ? 'Вперед!' : language === 'es' ? '¡Adelante!' : 'Let\'s Go!') 
-            : (language === 'ru' ? 'Далее' : language === 'es' ? 'Siguiente' : 'Next')}
-        </Button>
+        <div className="mt-8 relative z-10 w-full flex justify-center pb-2">
+          <Button
+            size="lg"
+            onClick={handleNext}
+            className="w-full max-w-[280px] h-12 rounded-2xl font-black text-base uppercase tracking-wider shadow-xl shadow-primary/20 transition-transform active:scale-95 bg-primary hover:bg-primary/90 text-primary-foreground"
+          >
+            {language === 'ru' ? 'Начать путь' : language === 'es' ? 'Empezar viaje' : 'Start Journey'}
+          </Button>
+        </div>
       </div>
     );
   };
@@ -1714,9 +1681,18 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
               </div>
               
               <div className="space-y-2">
-                <h1 className="text-4xl sm:text-6xl font-black text-white tracking-tight uppercase leading-none drop-shadow-lg">
-                  {activeSeasonName}
-                </h1>
+                <div className="flex items-center justify-center gap-2">
+                  <h1 className="text-4xl sm:text-6xl font-black text-white tracking-tight uppercase leading-none drop-shadow-lg">
+                    {activeSeasonName}
+                  </h1>
+                  <button 
+                    onClick={() => setCurrentView('onboarding')}
+                    className="p-1.5 sm:p-2 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-md transition-colors border border-white/10"
+                    title="О Duel Pass"
+                  >
+                    <Info className="w-4 h-4 sm:w-5 sm:h-5 text-white/80" />
+                  </button>
+                </div>
                 <div className="flex items-center justify-center gap-3 py-1 px-4 rounded-full bg-white/5 border border-white/10 backdrop-blur-md mx-auto w-fit">
                   <Clock className="w-3.5 h-3.5 text-white/40" />
                   <span className="text-[10px] font-bold text-white/60 uppercase tracking-[0.1em]">
