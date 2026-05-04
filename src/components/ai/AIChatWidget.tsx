@@ -31,6 +31,9 @@ import { cn } from '@/lib/utils';
 import { generateAIChatPrompt } from '@/lib/aiPrompts';
 import { useProfileData } from '@/hooks/useProfileData';
 import { usePDDContext } from '@/contexts/PDDContext';
+import { usePremium } from '@/hooks/usePremium';
+import { useQuery } from '@tanstack/react-query';
+import { useUserContext } from '@/contexts/UserContext';
 
 type MarkdownProps = {
     children: string;
