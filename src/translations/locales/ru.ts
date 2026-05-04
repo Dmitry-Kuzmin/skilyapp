@@ -75,8 +75,8 @@ export const ru = {
   duelHistory: "История дуэлей",
   support: "Поддержка",
   favoritesGym: {
-    title: "Тренажерный Зал",
-    subtitle: "Умная система повторений. Тренируй только то, что мозг начинает забывать.",
+    title: "Challenge Bank™",
+    subtitle: "Тренажёрный зал памяти — повторяй только то, что мозг начинает забывать.",
     trainingLabel: "Тренировка",
     chargeMemory: "Зарядить Память",
     totalCards: "Всего карт",
