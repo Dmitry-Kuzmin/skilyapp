@@ -268,7 +268,7 @@ export class SpainUnifiedStrategy implements PDDDataStrategy {
             .eq('country', this.COUNTRY)
             .eq('topic_id', topicId);
 
-        if (!isPremiumForStrategy()) {
+        if (!hasFullQuestionPoolForStrategy()) {
             query = (query as any).eq('is_premium', false);
         }
 
