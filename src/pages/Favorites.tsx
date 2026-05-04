@@ -519,11 +519,14 @@ const Flashcard = ({ question, country, onRemove, labels }: {
                 >
                     {/* Image */}
                     <div className="relative h-44 shrink-0 bg-muted overflow-hidden">
-                        <QuestionImage
-                            imageUrl={question.image_url}
-                            country={isRus ? 'russia' : 'spain'}
-                            className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-500"
-                        />
+                        {question.image_url && (
+                            <img
+                                src={getImageUrl(question.image_url) || ''}
+                                alt=""
+                                className="absolute inset-0 w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-500"
+                                loading="lazy"
+                            />
+                        )}
                         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
 
                         {/* Tags */}

@@ -352,7 +352,7 @@ const Layout = memo(({ children, hideNavigation = false }: LayoutProps) => {
                         <LandingLogo variant="bold" showText={true} />
                       </NavLink>
 
-                      <div className="h-7 w-px bg-white/10" aria-hidden="true" />
+                      <div className="h-7 w-px bg-black/10 dark:bg-white/10" aria-hidden="true" />
 
                       <ContextSwitcher
                         embedded
