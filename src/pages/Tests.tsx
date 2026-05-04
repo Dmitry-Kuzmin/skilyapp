@@ -414,7 +414,7 @@ const Tests = () => {
         difficulty: challengeStats.errors === 0
           ? localeText("Мастер", "Maestría", "Master")
           : localeText("Важно", "Importante", "Important"),
-        route: challengeStats.errors === 0 ? "#" : `/test/challenge-bank?category=${selectedCategory}${selectedCountry === 'russia' ? '&country=russia' : ''}`,
+        route: challengeStats.errors === 0 ? "#" : `/tests/error-bank?category=${selectedCategory}${selectedCountry === 'russia' ? '&country=russia' : ''}`,
         gradient: challengeStats.errors === 0
           ? "from-emerald-500 to-teal-600 shadow-[0_0_20px_rgba(16,185,129,0.3)]"
           : "from-rose-600 to-red-600",
