@@ -766,35 +766,35 @@ ${explanation ? `\n${interfaceLanguage === 'ru' ? 'Официальное объ
         {/* Input Area - стиль Officer Frank */}
         <div className="p-3 xl:p-4 border-t shrink-0 bg-background dark:bg-slate-900/60 dark:border-white/5">
           <form onSubmit={handleSubmit} className="relative">
-            <Input
+            <input
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder={interfaceLanguage === 'ru' ? t('lumiPlaceholder') : interfaceLanguage === 'en' ? 'Ask your question here...' : 'Haz tu pregunta aquí...'}
-              className="w-full h-10 xl:h-12 pr-24 xl:pr-28 pl-3 xl:pl-4 text-xs xl:text-sm rounded-full border-border/50 focus:border-blue-300 focus:ring-blue-200 bg-background dark:bg-slate-950 dark:border-white/10 dark:text-slate-100 dark:placeholder:text-slate-500 transition-all"
+              className="w-full h-10 xl:h-12 pr-[100px] xl:pr-[120px] pl-4 text-xs xl:text-sm rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500/50 transition-all shadow-sm"
               disabled={isLoading}
             />
-            <div className="absolute right-1.5 xl:right-2 top-1/2 -translate-y-1/2 flex items-center gap-0.5 xl:gap-1">
+            <div className="absolute right-1 top-1/2 -translate-y-1/2 flex items-center gap-0.5">
               <Button
                 type="button"
                 size="icon"
                 variant="ghost"
                 className={cn(
-                  "h-7 w-7 xl:h-8 xl:w-8 shrink-0 transition-all rounded-full",
+                  "h-8 w-8 xl:h-10 xl:w-10 shrink-0 transition-all rounded-full",
                   isListening
                     ? "bg-red-500 hover:bg-red-600 text-white shadow-md shadow-red-500/20 animate-pulse scale-110"
-                    : "text-muted-foreground hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20"
+                    : "text-slate-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20"
                 )}
                 onClick={toggleVoiceInput}
                 disabled={isLoading}
                 title="Голосовой ввод"
               >
-                {isListening ? <MicOff className="h-3.5 w-3.5 xl:h-4 xl:w-4" /> : <Mic className="h-4 w-4 xl:h-4 xl:w-4" />}
+                {isListening ? <MicOff className="h-4 w-4 xl:h-5 xl:w-5" /> : <Mic className="h-4 w-4 xl:h-4 xl:w-4" />}
               </Button>
               <Button
                 type="button"
                 size="icon"
                 variant="ghost"
-                className="h-7 w-7 xl:h-8 xl:w-8 text-muted-foreground hover:text-yellow-600 hover:bg-yellow-50 dark:hover:bg-yellow-900/20 shrink-0 transition-colors rounded-full"
+                className="h-8 w-8 xl:h-10 xl:w-10 text-slate-400 hover:text-yellow-600 hover:bg-yellow-50 dark:hover:bg-yellow-900/20 shrink-0 transition-colors rounded-full"
                 disabled={isLoading}
                 onClick={() => {
                   const hintPrompt = interfaceLanguage === 'ru'
@@ -813,14 +813,14 @@ ${explanation ? `\n${interfaceLanguage === 'ru' ? 'Официальное объ
                 size="icon"
                 disabled={!input.trim() || isLoading}
                 className={cn(
-                  "h-7 w-7 xl:h-8 xl:w-8 rounded-full shrink-0 shadow-sm transition-all ml-1",
-                  !input.trim() && !isLoading ? "bg-muted text-muted-foreground" : "bg-blue-600 hover:bg-blue-700 text-white hover:scale-105"
+                  "h-8 w-8 xl:h-10 xl:w-10 rounded-full shrink-0 shadow-sm transition-all",
+                  !input.trim() && !isLoading ? "bg-blue-500/50 text-white shadow-none" : "bg-blue-500 hover:bg-blue-600 text-white hover:scale-105 shadow-blue-500/30"
                 )}
               >
                 {isLoading ? (
-                  <Sparkles className="h-3 w-3 xl:h-3.5 xl:w-3.5 animate-spin" />
+                  <Sparkles className="h-4 w-4 animate-spin" />
                 ) : (
-                  <Send className="h-3.5 w-3.5 xl:h-4 xl:w-4 ml-0.5" />
+                  <Send className="h-4 w-4" />
                 )}
               </Button>
             </div>

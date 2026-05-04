@@ -76,7 +76,7 @@ const Games = () => {
       difficulty: t('gamesPage.difficulties.medium'),
       route: "/games/duel",
       featured: true,
-      gradient: "from-violet-600 via-purple-600 to-indigo-600",
+      gradient: "from-blue-600 via-blue-500 to-indigo-600",
     },
     {
       id: 2,
@@ -122,7 +122,7 @@ const Games = () => {
       premium: false,
       difficulty: t('gamesPage.difficulties.medium'),
       route: "/games/four-variants",
-      gradient: "from-indigo-600 via-purple-600 to-pink-600",
+      gradient: "from-indigo-600 via-blue-600 to-cyan-600",
     },
     {
       id: 8,
@@ -205,10 +205,10 @@ const Games = () => {
               {/* Stats Badges - Style from Dashboard - Always on one line */}
               <div className="flex items-center gap-1.5 xs:gap-2 sm:gap-3 min-w-0">
                 {/* Games Played Badge */}
-                <div className="flex items-center gap-1 xs:gap-1.5 px-2 xs:px-2.5 sm:px-4 py-1.5 xs:py-2 rounded-full bg-gradient-to-r from-violet-500/20 to-purple-500/20 border border-violet-500/10 backdrop-blur-sm shadow-lg shadow-violet-500/5 flex-shrink-0 whitespace-nowrap">
-                  <Trophy className="w-3.5 h-3.5 xs:w-4 xs:h-4 text-violet-600 dark:text-violet-400 flex-shrink-0" />
-                  <span className="text-xs xs:text-sm font-bold text-violet-700 dark:text-violet-100">
-                    {safeStats.gamesPlayed} <span className="text-violet-600/70 dark:text-violet-300/70 font-normal">{t('gamesPage.stats.played')}</span>
+                <div className="flex items-center gap-1 xs:gap-1.5 px-2 xs:px-2.5 sm:px-4 py-1.5 xs:py-2 rounded-full bg-gradient-to-r from-blue-500/20 to-indigo-500/20 border border-blue-500/10 backdrop-blur-sm shadow-lg shadow-blue-500/5 flex-shrink-0 whitespace-nowrap">
+                  <Trophy className="w-3.5 h-3.5 xs:w-4 xs:h-4 text-blue-600 dark:text-blue-400 flex-shrink-0" />
+                  <span className="text-xs xs:text-sm font-bold text-blue-700 dark:text-blue-100">
+                    {safeStats.gamesPlayed} <span className="text-blue-600/70 dark:text-blue-300/70 font-normal">{t('gamesPage.stats.played')}</span>
                   </span>
                 </div>
 
@@ -243,7 +243,7 @@ const Games = () => {
                     : "cursor-not-allowed rounded-[1.5rem] md:rounded-[2rem] bg-gradient-to-br from-cyan-900 via-blue-900 to-slate-900 shadow-[0_0_40px_rgba(8,145,178,0.2)]"
                 )}
                 style={duelsEnabled ? {
-                  background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%)',
+                  background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 50%, #1d4ed8 100%)',
                   // ОПТИМИЗАЦИЯ: Явно указываем pointer-events и touch-action для мгновенной отзывчивости
                   pointerEvents: 'auto',
                   touchAction: 'manipulation',
@@ -277,8 +277,8 @@ const Games = () => {
                 {/* Animated Background Gradients - только для активной карточки */}
                 {duelsEnabled && (
                   <>
-                    <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-gradient-to-br from-fuchsia-500/30 to-purple-600/30 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 animate-pulse" />
-                    <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-gradient-to-tr from-indigo-500/30 to-blue-600/30 rounded-full blur-3xl translate-y-1/3 -translate-x-1/4" />
+                    <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-gradient-to-br from-blue-500/30 to-indigo-600/30 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 animate-pulse" />
+                    <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-gradient-to-tr from-cyan-500/30 to-blue-600/30 rounded-full blur-3xl translate-y-1/3 -translate-x-1/4" />
                   </>
                 )}
 
@@ -336,16 +336,16 @@ const Games = () => {
                       {duelsEnabled ? (
                         <button
                           onClick={handleDuelClick}
-                          className="group relative h-14 sm:h-16 px-8 sm:px-10 rounded-full font-black text-sm sm:text-base bg-white text-indigo-600 shadow-[0_10px_30px_rgba(255,255,255,0.35)] hover:shadow-[0_20px_50px_rgba(255,255,255,0.45)] hover:scale-105 active:scale-95 cursor-pointer transition-all duration-300 flex items-center gap-3 overflow-hidden"
+                          className="group relative h-14 sm:h-16 px-8 sm:px-10 rounded-full font-black text-sm sm:text-base bg-white text-blue-600 shadow-[0_10px_30px_rgba(255,255,255,0.35)] hover:shadow-[0_20px_50px_rgba(255,255,255,0.45)] hover:scale-105 active:scale-95 cursor-pointer transition-all duration-300 flex items-center gap-3 overflow-hidden"
                         >
-                          <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-indigo-100/60 to-transparent pointer-events-none" />
+                          <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-blue-100/60 to-transparent pointer-events-none" />
                           <div className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 ring-4 ring-white/30 pointer-events-none" />
                           <Swords className="w-5 h-5 sm:w-6 sm:h-6 relative z-10" />
                           <span className="relative z-10">{t('gamesPage.featured.button')}</span>
                           <div className="relative z-10 flex items-center gap-1 ml-1 opacity-60">
-                            <div className="w-1 h-1 rounded-full bg-indigo-400" />
-                            <div className="w-1 h-1 rounded-full bg-indigo-400 animate-bounce" style={{ animationDelay: '0.1s' }} />
-                            <div className="w-1 h-1 rounded-full bg-indigo-400 animate-bounce" style={{ animationDelay: '0.2s' }} />
+                            <div className="w-1 h-1 rounded-full bg-blue-400" />
+                            <div className="w-1 h-1 rounded-full bg-blue-400 animate-bounce" style={{ animationDelay: '0.1s' }} />
+                            <div className="w-1 h-1 rounded-full bg-blue-400 animate-bounce" style={{ animationDelay: '0.2s' }} />
                           </div>
                         </button>
                       ) : (
@@ -433,13 +433,13 @@ const Games = () => {
                     gradient: string;
                   }> = {
                     primary: {
-                      base: 'violet',
-                      border: 'hover:border-violet-500/50',
-                      shadow: 'hover:shadow-violet-500/10',
-                      iconBg: 'bg-gradient-to-br from-violet-500/20 to-violet-600/10 border-violet-500/30 shadow-violet-500/10',
-                      icon: 'text-violet-400',
-                      titleHover: 'group-hover:text-violet-300',
-                      gradient: 'from-violet-500/5'
+                      base: 'blue',
+                      border: 'hover:border-blue-500/50',
+                      shadow: 'hover:shadow-blue-500/10',
+                      iconBg: 'bg-gradient-to-br from-blue-500/20 to-blue-600/10 border-blue-500/30 shadow-blue-500/10',
+                      icon: 'text-blue-400',
+                      titleHover: 'group-hover:text-blue-300',
+                      gradient: 'from-blue-500/5'
                     },
                     secondary: {
                       base: 'blue',

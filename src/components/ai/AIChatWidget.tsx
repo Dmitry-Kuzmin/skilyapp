@@ -707,11 +707,11 @@ export function AIChatWidget() {
                         className={cn(
                             "h-12 w-12 shrink-0 rounded-full shadow-lg transition-all active:scale-90",
                             !input.trim()
-                                ? "bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 shadow-none"
+                                ? "bg-blue-500/50 text-white shadow-none"
                                 : "bg-blue-500 hover:bg-blue-600 text-white shadow-blue-500/30"
                         )}
                     >
-                        {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5 ml-0.5" />}
+                        {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
                     </Button>
                 </form>
             </div>

@@ -50,7 +50,7 @@ export function UnifiedPricingCard({
   
   const getAccentClasses = () => {
     switch (accentColor) {
-      case 'violet': return "border-violet-500/30 text-violet-400 bg-violet-600/10 shadow-violet-500/20";
+      case 'violet': return "border-blue-500/30 text-blue-400 bg-blue-600/10 shadow-blue-500/20";
       case 'amber': return "border-amber-500/30 text-amber-400 bg-amber-600/10 shadow-amber-500/20 text-amber-500";
       case 'cyan': return "border-cyan-500/30 text-cyan-400 bg-cyan-600/10 shadow-cyan-500/20";
       case 'emerald': return "border-emerald-500/30 text-emerald-400 bg-emerald-600/10 shadow-emerald-500/20";
@@ -60,7 +60,7 @@ export function UnifiedPricingCard({
 
   const getButtonClasses = () => {
     switch (accentColor) {
-      case 'violet': return "bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-violet-500/30 hover:brightness-110";
+      case 'violet': return "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-blue-500/30 hover:brightness-110";
       case 'amber': return "bg-gradient-to-r from-amber-400 to-orange-500 text-black shadow-amber-500/30 hover:brightness-105";
       case 'cyan': return "bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-cyan-500/30 hover:brightness-110";
       case 'emerald': return "bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-emerald-500/30 hover:brightness-110";
@@ -85,7 +85,7 @@ export function UnifiedPricingCard({
     >
       <Card className={cn(
         "relative flex flex-col h-full overflow-hidden rounded-[24px] border bg-card/40 backdrop-blur-xl transition-all duration-300",
-        isPopular ? "border-violet-500/40 shadow-2xl shadow-violet-500/10" : "border-white/10",
+        isPopular ? "border-blue-500/40 shadow-2xl shadow-blue-500/10" : "border-white/10",
         isVip ? "border-amber-400/40 shadow-2xl shadow-amber-400/10" : ""
       )}>
         {/* Анимированный градиент на фоне для VIP/Popular */}
@@ -102,7 +102,7 @@ export function UnifiedPricingCard({
               transition={{ duration: 10, repeat: Infinity }}
               className={cn(
                 "absolute inset-0",
-                isPopular ? "from-violet-600" : "from-amber-400"
+                isPopular ? "from-blue-600" : "from-amber-400"
               )}
             />
           </div>
@@ -110,7 +110,7 @@ export function UnifiedPricingCard({
 
         {/* Шиммер для популярных планов */}
         {isPopular && (
-          <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-violet-400 to-transparent opacity-50" />
+          <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-blue-400 to-transparent opacity-50" />
         )}
 
         {/* Бейдж */}
@@ -118,7 +118,7 @@ export function UnifiedPricingCard({
           <div className="absolute top-4 right-4 z-10">
             <Badge className={cn(
               "font-black text-[10px] tracking-widest px-2 py-0.5 border-0 shadow-lg",
-              isPopular ? "bg-violet-600 text-white" : 
+              isPopular ? "bg-blue-600 text-white" : 
               isVip ? "bg-amber-400 text-black" : 
               "bg-muted/30 text-muted-foreground"
             )}>
@@ -170,7 +170,7 @@ export function UnifiedPricingCard({
                 </div>
               )}
               {pricePerMonth && (
-                <div className="text-[10px] font-bold text-violet-400/80 uppercase tracking-wider mb-0.5">
+                <div className="text-[10px] font-bold text-blue-400/80 uppercase tracking-wider mb-0.5">
                   {pricePerMonth}
                 </div>
               )}

@@ -360,7 +360,7 @@ const Tests = () => {
         difficulty: localeText("Средняя", "Media", "Medium"),
         route: `/test/practice?count=${randomQuestionCount}${selectedCountry === 'russia' ? '&country=russia' : ''}&category=${selectedCategory}`,
         featured: true,
-        gradient: "from-indigo-600 via-purple-600 to-pink-600",
+        gradient: "from-blue-600 via-blue-500 to-cyan-500",
       },
       {
         id: 2,
@@ -679,7 +679,7 @@ const Tests = () => {
                             ? "bg-white text-orange-600 shadow-[0_0_15px_-3px_rgba(255,255,255,0.5)] hover:shadow-[0_0_25px_-3px_rgba(255,255,255,0.6)]"
                             : recommendation.theme === 'info'
                               ? "bg-white text-cyan-700 shadow-[0_0_15px_-3px_rgba(255,255,255,0.5)] hover:shadow-[0_0_25px_-3px_rgba(255,255,255,0.6)]"
-                              : "bg-white text-indigo-600 shadow-[0_0_15px_-3px_rgba(255,255,255,0.5)] hover:shadow-[0_0_25px_-3px_rgba(255,255,255,0.6)]"
+                              : "bg-white text-blue-600 shadow-[0_0_15px_-3px_rgba(255,255,255,0.5)] hover:shadow-[0_0_25px_-3px_rgba(255,255,255,0.6)]"
                         )}
                       >
                         {recommendation.theme === 'warning' ? <RotateCcw className="w-6 h-6" /> : <Play className="w-6 h-6 fill-current" />}
@@ -728,7 +728,7 @@ const Tests = () => {
                                   className={cn(
                                     "flex-1 px-6 py-3 rounded-xl font-bold text-base transition-all",
                                     randomQuestionCount === count
-                                      ? "bg-white text-indigo-600 shadow-lg shadow-white/30"
+                                      ? "bg-white text-blue-600 shadow-lg shadow-white/30"
                                       : "bg-white/10 text-white hover:bg-white/20 border border-white/20"
                                   )}
                                 >
@@ -754,9 +754,9 @@ const Tests = () => {
                               e.stopPropagation();
                               handleBannerClick();
                             }}
-                            className="group relative h-16 px-10 rounded-full bg-white text-indigo-600 font-black text-lg shadow-[0_0_15px_-3px_rgba(255,255,255,0.5)] hover:shadow-[0_0_25px_-3px_rgba(255,255,255,0.6)] hover:scale-105 active:scale-95 transition-all duration-300 flex items-center gap-3 overflow-hidden w-fit"
+                            className="group relative h-16 px-10 rounded-full bg-white text-blue-600 font-black text-lg shadow-[0_0_15px_-3px_rgba(255,255,255,0.5)] hover:shadow-[0_0_25px_-3px_rgba(255,255,255,0.6)] hover:scale-105 active:scale-95 transition-all duration-300 flex items-center gap-3 overflow-hidden w-fit"
                           >
-                            <Play className="w-6 h-6 fill-indigo-600 font-black" />
+                            <Play className="w-6 h-6 fill-blue-600 font-black" />
                             <span>{t('testsPage.startButton')}</span>
                             <ArrowRight className="w-6 h-6" />
                             <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-indigo-100/50 to-transparent" />
@@ -786,8 +786,8 @@ const Tests = () => {
                       "absolute inset-0 blur-3xl opacity-60",
                       selectedCountry === 'russia'
                         ? (recommendation.theme === 'warning' ? "bg-orange-400" :
-                          recommendation.theme === 'info' ? "bg-cyan-400" : "bg-purple-400")
-                        : "bg-pink-400"
+                          recommendation.theme === 'info' ? "bg-cyan-400" : "bg-blue-400")
+                        : "bg-blue-400"
                     )} />
 
                     {/* Glass Shape */}

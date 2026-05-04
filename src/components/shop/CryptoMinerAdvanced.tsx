@@ -131,7 +131,7 @@ export function CryptoMinerAdvanced({ className, onRewardClaimed }: CryptoMinerA
                         "relative w-full overflow-hidden rounded-2xl text-left",
                         "transition-all duration-300",
                         canWatch
-                            ? "bg-[#0d0618] shadow-[0_8px_40px_rgba(109,40,217,0.4)]"
+                            ? "bg-[#0d1b2a] shadow-[0_8px_40px_rgba(37,99,235,0.4)]"
                             : "bg-[#111827] shadow-lg",
                         "disabled:cursor-not-allowed"
                     )}
@@ -140,7 +140,7 @@ export function CryptoMinerAdvanced({ className, onRewardClaimed }: CryptoMinerA
                     <div className={cn(
                         "absolute inset-0 transition-opacity duration-500",
                         canWatch
-                            ? "bg-gradient-to-br from-violet-900/60 via-purple-900/40 to-indigo-900/60"
+                            ? "bg-gradient-to-br from-blue-900/60 via-blue-800/40 to-cyan-900/60"
                             : "bg-gradient-to-br from-slate-800/80 to-slate-900/80"
                     )} />
 
@@ -153,7 +153,7 @@ export function CryptoMinerAdvanced({ className, onRewardClaimed }: CryptoMinerA
                     {/* Glow orb */}
                     {canWatch && (
                         <motion.div
-                            className="absolute -top-8 -right-8 w-48 h-48 bg-violet-600/30 rounded-full blur-3xl pointer-events-none"
+                            className="absolute -top-8 -right-8 w-48 h-48 bg-blue-600/30 rounded-full blur-3xl pointer-events-none"
                             animate={{ scale: [1, 1.15, 1], opacity: [0.3, 0.5, 0.3] }}
                             transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
                         />
@@ -179,7 +179,7 @@ export function CryptoMinerAdvanced({ className, onRewardClaimed }: CryptoMinerA
                         )}>
                             {canWatch && (
                                 <motion.div
-                                    className="absolute inset-0 rounded-xl border border-violet-400/40"
+                                    className="absolute inset-0 rounded-xl border border-blue-400/40"
                                     animate={{ scale: [1, 1.15, 1], opacity: [0.6, 0.1, 0.6] }}
                                     transition={{ duration: 2, repeat: Infinity }}
                                 />
@@ -193,7 +193,7 @@ export function CryptoMinerAdvanced({ className, onRewardClaimed }: CryptoMinerA
                                     animate={{ rotate: [0, 8, -8, 0] }}
                                     transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
                                 >
-                                    <Cpu className="w-6 h-6 sm:w-7 sm:h-7 text-violet-300" />
+                                    <Cpu className="w-6 h-6 sm:w-7 sm:h-7 text-blue-300" />
                                 </motion.div>
                             )}
                         </div>
@@ -231,7 +231,7 @@ export function CryptoMinerAdvanced({ className, onRewardClaimed }: CryptoMinerA
                                         className={cn(
                                             "h-1 rounded-full transition-all duration-300",
                                             i < remainingWatches
-                                                ? "w-4 bg-violet-400 shadow-[0_0_6px_rgba(167,139,250,0.8)]"
+                                                ? "w-4 bg-blue-400 shadow-[0_0_6px_rgba(96,165,250,0.8)]"
                                                 : "w-3 bg-white/15"
                                         )}
                                     />
@@ -258,7 +258,7 @@ export function CryptoMinerAdvanced({ className, onRewardClaimed }: CryptoMinerA
                             </div>
                             {canWatch && (
                                 <motion.div
-                                    className="flex items-center gap-1 text-violet-300 text-[10px] font-bold"
+                                    className="flex items-center gap-1 text-blue-300 text-[10px] font-bold"
                                     animate={{ x: [0, 2, 0] }}
                                     transition={{ duration: 1.5, repeat: Infinity }}
                                 >
@@ -301,7 +301,7 @@ export function CryptoMinerAdvanced({ className, onRewardClaimed }: CryptoMinerA
                             >
                                 <Sparkles className="w-10 h-10 text-yellow-300" />
                                 <span className="text-white font-black text-2xl tracking-wider">+25 MINED</span>
-                                <span className="text-violet-400 text-xs font-mono uppercase tracking-widest">Block confirmed</span>
+                                <span className="text-blue-400 text-xs font-mono uppercase tracking-widest">Block confirmed</span>
                             </motion.div>
                         </motion.div>
                     )}

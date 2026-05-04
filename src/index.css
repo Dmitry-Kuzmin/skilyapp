@@ -944,21 +944,21 @@ All colors MUST be HSL.
   }
 
   .premium-mesh-primary {
-    background-color: #4f46e5;
+    background-color: #1d4ed8;
     background-image:
-      radial-gradient(at 0% 0%, #7c3aed 0px, transparent 50%),
-      radial-gradient(at 100% 0%, #2563eb 0px, transparent 50%),
-      radial-gradient(at 100% 100%, #4f46e5 0px, transparent 50%),
-      radial-gradient(at 0% 100%, #818cf8 0px, transparent 50%);
+      radial-gradient(at 0% 0%, #2563eb 0px, transparent 50%),
+      radial-gradient(at 100% 0%, #3b82f6 0px, transparent 50%),
+      radial-gradient(at 100% 100%, #1d4ed8 0px, transparent 50%),
+      radial-gradient(at 0% 100%, #60a5fa 0px, transparent 50%);
   }
 
   .premium-mesh-purple {
-    background-color: #8b5cf6;
+    background-color: #0f172a;
     background-image:
-      radial-gradient(at 0% 0%, #a855f7 0px, transparent 50%),
-      radial-gradient(at 100% 0%, #7c3aed 0px, transparent 50%),
-      radial-gradient(at 100% 100%, #8b5cf6 0px, transparent 50%),
-      radial-gradient(at 0% 100%, #c084fc 0px, transparent 50%);
+      radial-gradient(at 0% 0%, #1e293b 0px, transparent 50%),
+      radial-gradient(at 100% 0%, #3b82f6 0px, transparent 50%),
+      radial-gradient(at 100% 100%, #0f172a 0px, transparent 50%),
+      radial-gradient(at 0% 100%, #334155 0px, transparent 50%);
   }
 
   /* Cyber animations */
