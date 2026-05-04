@@ -12,11 +12,18 @@
   <script>
     (function () {
       var path = window.location.pathname;
-      // Улучшенная проверка: ищем ключевые слова в пути, игнорируя префиксы папок
       var isApp = /dashboard|tests|learning|games|profile|settings|purchase|topic|subtopic|test\/|admin|partner/.test(path);
       
-      var hex = '#0f172a';
-      var hsl = '222 47% 11%';
+      // Theme detection
+      var theme = localStorage.getItem('theme');
+      var isLight = theme === 'light' || (!theme && window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches);
+      
+      var hex = isLight ? '#f8fafc' : '#0f172a';
+      var hsl = isLight ? '210 40% 98%' : '222 47% 11%';
+
+      if (isLight) {
+        document.documentElement.classList.add('light');
+      }
 
       // Устанавливаем переменные для CSS
       document.documentElement.style.setProperty('--background', hsl);
@@ -804,17 +811,27 @@
         pointer-events: none;
       }
 
+      html.light .skily-grid {
+        opacity: 0.03;
+        background-image: linear-gradient(to right, rgba(15, 23, 42, 0.1) 1px, transparent 1px),
+          linear-gradient(to bottom, rgba(15, 23, 42, 0.1) 1px, transparent 1px);
+      }
+
       .glow-1 {
         position: absolute;
         top: 50%;
         left: 50%;
         width: 60vw;
         height: 60vw;
-        background: rgba(99, 102, 241, 0.08);
+        background: rgba(59, 130, 246, 0.08);
         border-radius: 50%;
         filter: blur(100px);
         transform: translate(-50%, -50%);
         pointer-events: none;
+      }
+
+      html.light .glow-1 {
+        background: rgba(59, 130, 246, 0.04);
       }
 
       .glow-2 {
@@ -823,11 +840,15 @@
         left: 50%;
         width: 40vw;
         height: 40vw;
-        background: rgba(168, 85, 247, 0.08);
+        background: rgba(148, 163, 184, 0.08);
         border-radius: 50%;
         filter: blur(80px);
         transform: translate(-50%, -50%);
         pointer-events: none;
+      }
+
+      html.light .glow-2 {
+        background: rgba(148, 163, 184, 0.04);
       }
 
       .ring-container {
@@ -846,8 +867,13 @@
         inset: 0;
         border-radius: 50%;
         border: 1px solid rgba(255, 255, 255, 0.05);
-        border-top-color: #6366f1;
+        border-top-color: #3b82f6;
         animation: sk-spin 4s linear infinite;
+      }
+
+      html.light .ring-1 {
+        border-color: rgba(15, 23, 42, 0.05);
+        border-top-color: #3b82f6;
       }
 
       .ring-2 {
@@ -855,8 +881,13 @@
         inset: 24px;
         border-radius: 50%;
         border: 1px solid rgba(255, 255, 255, 0.05);
-        border-bottom-color: #a855f7;
+        border-bottom-color: #2563eb;
         animation: sk-spin 2.5s linear infinite reverse;
+      }
+
+      html.light .ring-2 {
+        border-color: rgba(15, 23, 42, 0.05);
+        border-bottom-color: #2563eb;
       }
 
       .ring-3 {
@@ -865,6 +896,10 @@
         outline: 1px dashed rgba(255, 255, 255, 0.1);
         border-radius: 50%;
         animation: sk-spin 10s linear infinite;
+      }
+
+      html.light .ring-3 {
+        outline-color: rgba(15, 23, 42, 0.1);
       }
 
       .logo-center {
@@ -883,10 +918,14 @@
         margin-bottom: 8px;
       }
 
+      html.light .system-status {
+        color: rgba(15, 23, 42, 0.3);
+      }
+
       .divider {
         height: 1px;
         width: 40px;
-        background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.5), transparent);
+        background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.5), transparent);
         margin-bottom: 8px;
       }
 
@@ -897,6 +936,11 @@
         letter-spacing: 0.25em;
         text-transform: uppercase;
         filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.4));
+      }
+
+      html.light .logo-text {
+        color: #0f172a;
+        filter: none;
       }
 
       .phrase-box {
@@ -912,6 +956,10 @@
         z-index: 10;
       }
 
+      html.light .phrase-box {
+        color: rgba(15, 23, 42, 0.7);
+      }
+
       .phrase-badge {
         display: inline-flex;
         align-items: center;
@@ -923,12 +971,21 @@
         margin-bottom: 12px;
       }
 
+      html.light .phrase-badge {
+        background: rgba(15, 23, 42, 0.05);
+        border-color: rgba(15, 23, 42, 0.1);
+      }
+
       .phrase-badge span {
         font-size: 10px;
         font-weight: bold;
         letter-spacing: 0.15em;
         color: rgba(255, 255, 255, 0.4);
         text-transform: uppercase;
+      }
+
+      html.light .phrase-badge span {
+        color: rgba(15, 23, 42, 0.4);
       }
 
       .footer-info {
@@ -949,7 +1006,7 @@
       .dot {
         width: 5px;
         height: 5px;
-        background: #6366f1;
+        background: #3b82f6;
         border-radius: 50%;
         animation: sk-pulse 1.5s infinite;
       }
@@ -959,6 +1016,10 @@
         font-size: 9px;
         letter-spacing: 0.5em;
         color: rgba(255, 255, 255, 0.5);
+      }
+
+      html.light .version {
+        color: rgba(15, 23, 42, 0.4);
       }
 
       @keyframes sk-spin {
