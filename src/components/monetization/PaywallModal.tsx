@@ -641,7 +641,7 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
                           <div className="absolute inset-0 overflow-hidden rounded-[24px] pointer-events-none mix-blend-overlay">
                             <motion.div
                               animate={{ x: ["-100%", "200%"] }}
-                              transition={{ duration: 4, repeat: Infinity, ease: "linear", repeatDelay: 0.5 }}
+                              transition={{ duration: 4, repeat: 999, ease: "linear", repeatDelay: 0.5 }}
                               className="absolute top-0 bottom-0 w-[40%] -skew-x-[25deg] bg-gradient-to-r from-transparent via-white/10 to-transparent blur-md"
                             />
                           </div>
