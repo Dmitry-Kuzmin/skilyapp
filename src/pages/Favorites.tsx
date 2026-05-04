@@ -414,13 +414,25 @@ const Favorites = () => {
 
 const StatPill = ({ value, label, icon, alert }: { value: number; label: string; icon: React.ReactNode; alert?: boolean }) => (
     <div className={cn(
-        "flex items-center gap-2 px-3 py-2 rounded-xl border text-sm",
-        alert ? "bg-rose-500/5 border-rose-500/20" : "bg-muted/50 border-border/50"
+        "flex items-center gap-2.5 h-11 pl-3 pr-4 rounded-2xl border transition-colors",
+        alert
+            ? "bg-rose-500/5 border-rose-500/20 hover:bg-rose-500/10"
+            : "bg-muted/50 border-border/50 hover:bg-muted"
     )}>
-        <span className={cn("text-muted-foreground", alert && "text-rose-400")}>{icon}</span>
-        <div>
-            <div className={cn("text-xl font-black leading-none", alert ? "text-rose-500" : "text-foreground")}>{value}</div>
-            <div className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground mt-0.5 whitespace-nowrap">{label}</div>
+        <div className={cn(
+            "w-6 h-6 rounded-lg flex items-center justify-center shrink-0",
+            alert ? "bg-rose-500/15 text-rose-500" : "bg-background text-muted-foreground border border-border/50"
+        )}>
+            {icon}
+        </div>
+        <div className="flex flex-col leading-none">
+            <span className={cn(
+                "text-sm font-black tabular-nums leading-none",
+                alert ? "text-rose-500" : "text-foreground"
+            )}>{value}</span>
+            <span className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground mt-1 whitespace-nowrap">
+                {label}
+            </span>
         </div>
     </div>
 );
