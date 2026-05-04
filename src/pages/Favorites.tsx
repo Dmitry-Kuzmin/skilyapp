@@ -244,27 +244,28 @@ const Favorites = () => {
         <Layout>
             <div className="container mx-auto px-4 py-8 max-w-[1370px] min-h-screen pb-28">
 
+                {/* BACK BUTTON — standalone, above header */}
+                <button
+                    onClick={() => navigate(-1)}
+                    aria-label={t("common.back")}
+                    className="group mb-5 h-10 w-10 rounded-full bg-muted/40 hover:bg-muted border border-border/50 flex items-center justify-center text-muted-foreground hover:text-foreground transition-all hover:-translate-x-0.5 active:scale-95"
+                >
+                    <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-0.5" />
+                </button>
+
                 {/* HEADER */}
                 <div className="flex items-start sm:items-center justify-between gap-3 sm:gap-6 mb-8">
-                    {/* Left: back button + icon + title */}
+                    {/* Left: icon + title */}
                     <div className="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
-                        <button
-                            onClick={() => navigate(-1)}
-                            aria-label={t("common.back")}
-                            className="shrink-0 h-10 w-10 rounded-xl bg-muted/50 hover:bg-muted border border-border/50 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
-                        >
-                            <ArrowLeft className="w-4 h-4" />
-                        </button>
-
-                        <div className="shrink-0 w-11 h-11 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-lg shadow-violet-500/25">
-                            <Archive className="text-white" style={{ width: 22, height: 22 }} />
+                        <div className="shrink-0 w-12 h-12 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-lg shadow-violet-500/25">
+                            <Archive className="text-white" style={{ width: 24, height: 24 }} />
                         </div>
 
                         <div className="min-w-0">
                             <h1 className="text-xl sm:text-2xl md:text-3xl font-black text-foreground tracking-tight leading-none truncate">
                                 {t("favoritesGym.title")}
                             </h1>
-                            <p className="hidden sm:block text-xs text-muted-foreground mt-1 font-medium truncate">
+                            <p className="hidden sm:block text-xs text-muted-foreground mt-1.5 font-medium truncate">
                                 {t("favoritesGym.subtitle")}
                             </p>
                         </div>
