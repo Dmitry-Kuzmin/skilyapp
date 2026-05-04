@@ -20,7 +20,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { usePremium } from "@/hooks/usePremium";
 import { useModalStore } from "@/store/modalStore";
 
-const FREE_CARD_LIMIT = 4;
+const FREE_CARD_LIMIT = 10;
 
 // --- TYPES ---
 type FavoriteQuestion = {
