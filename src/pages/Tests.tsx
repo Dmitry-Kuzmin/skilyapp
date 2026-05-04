@@ -4,7 +4,7 @@ import {
   Shuffle, Clock, Flame, History, AlertTriangle, AlertCircle,
   Target, TrendingUp, Crown, BookOpen, Gamepad2, Play, ArrowRight, Sparkles, CheckCircle,
   Star, AlertTriangle as AlertIcon, RotateCcw,
-  CarFront, MapPin, Gauge, Check, Trophy, Bookmark, Lock
+  CarFront, MapPin, Gauge, Check, Trophy, Bookmark, Lock, BrainCircuit
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import Layout from "@/components/Layout";
