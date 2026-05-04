@@ -347,6 +347,14 @@ const Tests = () => {
     navigate(recommendation.route);
   };
 
+  const handleSmartTestStart = () => {
+    if (!isPremium) {
+      openModal('PAYWALL');
+      return;
+    }
+    navigate(`/test/smart?count=${randomQuestionCount}&category=${selectedCategory}`);
+  };
+
   // Адаптируем тесты под выбранную страну
   const testModes = useMemo(() => {
     const baseModes = [
