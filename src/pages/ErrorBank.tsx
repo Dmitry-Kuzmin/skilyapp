@@ -105,8 +105,25 @@ export default function ErrorBank() {
   const [count, setCount] = useState<number>(isPremium ? 20 : FREE_SESSION_MAX);
   const [topicFilter, setTopicFilter] = useState<string | null>(null);
   const [topicMenuOpen, setTopicMenuOpen] = useState(false);
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+  const loaderRef = useRef<HTMLDivElement>(null);
 
   const dbCountry = selectedCountry === "russia" ? "russia" : "es";
+
+  // Reset visible count when filter/preset changes
+  useEffect(() => { setVisibleCount(PAGE_SIZE); }, [preset, topicFilter]);
+
+  // Intersection Observer for infinite scroll
+  useEffect(() => {
+    const el = loaderRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) setVisibleCount(v => v + PAGE_SIZE); },
+      { rootMargin: "200px" }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [loading]);
 
   useEffect(() => {
     if (!profileId) return;
