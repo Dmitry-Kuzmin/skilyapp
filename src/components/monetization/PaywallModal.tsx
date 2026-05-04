@@ -230,33 +230,132 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
 
   const t = TRANSLATIONS[language] || TRANSLATIONS.en;
 
+  const [showComparison, setShowComparison] = useState(false);
+
+  const BENEFITS = [
+    { icon: Zap,      color: "text-amber-400",  bg: "bg-amber-500/10",   text: language === 'ru' ? "Безлимит тестов каждый день" : language === 'es' ? "Tests ilimitados cada día" : "Unlimited daily tests" },
+    { icon: Brain,    color: "text-violet-400",  bg: "bg-violet-500/10",  text: language === 'ru' ? "AI запоминает твои слабые темы" : language === 'es' ? "IA recuerda tus puntos débiles" : "AI remembers your weak spots" },
+    { icon: BarChart3,color: "text-emerald-400", bg: "bg-emerald-500/10", text: language === 'ru' ? "Глубокая статистика и прогноз" : language === 'es' ? "Estadísticas profundas y pronóstico" : "Deep stats & forecast" },
+    { icon: Swords,   color: "text-rose-400",    bg: "bg-rose-500/10",    text: language === 'ru' ? "Комиссия дуэлей 0% (было 10%)" : language === 'es' ? "Comisión 0% en duelos" : "0% duel fee (was 10%)" },
+    { icon: Infinity, color: "text-indigo-400",  bg: "bg-indigo-500/10",  text: language === 'ru' ? "2157 вопросов вместо 300" : language === 'es' ? "2157 preguntas en lugar de 300" : "2157 questions instead of 300" },
+  ];
+
+  const FULL_TABLE = [
+    { icon: Zap,       label: t.f_tests,  free: "5 / день", pro: "∞", proColor: "text-amber-400" },
+    { icon: Infinity,  label: t.f_base,   free: "300",       pro: "2 157", proColor: "text-violet-400" },
+    { icon: Brain,     label: t.f_ai,     free: "5 / день",  pro: t.unlimited, proColor: "text-emerald-400" },
+    { icon: BarChart3, label: t.f_stats,  free: "Basic",     pro: "Deep AI", proColor: "text-indigo-400" },
+    { icon: Swords,    label: t.f_duels,  free: "10%",       pro: "0%", proColor: "text-rose-400" },
+    { icon: ShieldCheck, label: language === 'ru' ? "Реклама" : language === 'es' ? "Anuncios" : "Ads", free: language === 'ru' ? "Есть" : "Sí", pro: language === 'ru' ? "Нет" : "No", proColor: "text-emerald-400" },
+    { icon: Star,      label: "Duel Pass", free: language === 'ru' ? "Free трек" : "Free track", pro: language === 'ru' ? "Premium трек" : "Premium track", proColor: "text-amber-400" },
+  ];
+
   const ComparisonTable = () => (
-    <div className="mt-8 space-y-3 bg-white/5 backdrop-blur-md rounded-2xl p-4 border border-white/10 shadow-inner">
-      <div className="grid grid-cols-[1fr_50px_70px] gap-2 pb-2 border-b border-white/10 text-[10px] font-bold uppercase tracking-wider text-slate-500">
-        <div>{t.feature}</div>
-        <div className="text-center">{t.free}</div>
-        <div className="text-center text-amber-400">{t.pro}</div>
-      </div>
-      <div className="space-y-3 pt-1">
-        {[
-          { label: t.f_tests, free: "5", pro: "∞", highlight: true },
-          { label: t.f_base, free: "300", pro: "2157" },
-          { label: t.f_ai, free: "5/day", pro: t.unlimited },
-          { label: t.f_stats, free: "Basic", pro: "Deep" },
-          { label: t.f_duels, free: "10%", pro: "0%", success: true },
-        ].map((row, i) => (
-          <div key={i} className="grid grid-cols-[1fr_50px_70px] gap-2 items-center">
-            <span className="text-[11px] font-medium text-slate-300">{row.label}</span>
-            <span className="text-[10px] text-center text-slate-500 font-mono">{row.free}</span>
-            <span className={cn(
-              "text-[11px] text-center font-bold font-mono px-2 py-0.5 rounded-full",
-              row.success ? "text-emerald-400 bg-emerald-500/10" : "text-amber-400 bg-amber-500/10"
-            )}>
-              {row.pro}
-            </span>
+    <div className="mt-6 space-y-3">
+      {BENEFITS.map((b, i) => (
+        <motion.div
+          key={i}
+          initial={{ opacity: 0, x: -12 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.45 + i * 0.07 }}
+          className="flex items-center gap-3"
+        >
+          <div className={cn("w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0", b.bg)}>
+            <b.icon className={cn("w-3.5 h-3.5", b.color)} />
           </div>
-        ))}
-      </div>
+          <span className="text-[12px] text-slate-300 leading-tight">{b.text}</span>
+        </motion.div>
+      ))}
+
+      <motion.button
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.9 }}
+        onClick={() => setShowComparison(true)}
+        className="flex items-center gap-1.5 mt-2 text-[11px] text-slate-500 hover:text-violet-400 transition-colors cursor-pointer group"
+      >
+        <span>{language === 'ru' ? 'Подробное сравнение' : language === 'es' ? 'Comparación completa' : 'Full comparison'}</span>
+        <ChevronRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
+      </motion.button>
+
+      {/* Full comparison dialog */}
+      <AnimatePresence>
+        {showComparison && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[200] flex items-center justify-center p-4"
+            style={{ background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(16px)' }}
+            onClick={() => setShowComparison(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.92, y: 20, opacity: 0 }}
+              animate={{ scale: 1, y: 0, opacity: 1 }}
+              exit={{ scale: 0.92, y: 20, opacity: 0 }}
+              transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+              onClick={(e) => e.stopPropagation()}
+              className="relative w-full max-w-sm bg-[#0d1020] border border-white/10 rounded-3xl overflow-hidden shadow-2xl"
+            >
+              {/* Header */}
+              <div className="px-6 pt-6 pb-4 border-b border-white/5 flex items-center justify-between">
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-violet-400 mb-0.5">
+                    {language === 'ru' ? 'Сравнение планов' : language === 'es' ? 'Comparación' : 'Plan comparison'}
+                  </p>
+                  <h3 className="text-lg font-black text-white">Free vs Premium</h3>
+                </div>
+                <button
+                  onClick={() => setShowComparison(false)}
+                  className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center transition-colors"
+                >
+                  <XIcon className="w-4 h-4 text-slate-400" />
+                </button>
+              </div>
+
+              {/* Column headers */}
+              <div className="grid grid-cols-[1fr_64px_80px] gap-2 px-6 py-3 bg-white/[0.02]">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-600">{t.feature}</span>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-600 text-center">{t.free}</span>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-amber-400 text-center">{t.pro}</span>
+              </div>
+
+              {/* Rows */}
+              <div className="px-4 pb-6 space-y-1">
+                {FULL_TABLE.map((row, i) => (
+                  <div
+                    key={i}
+                    className="grid grid-cols-[1fr_64px_80px] gap-2 items-center py-2.5 px-2 rounded-xl hover:bg-white/3 transition-colors"
+                  >
+                    <div className="flex items-center gap-2">
+                      <row.icon className="w-3.5 h-3.5 text-slate-600 flex-shrink-0" />
+                      <span className="text-[12px] font-medium text-slate-300">{row.label}</span>
+                    </div>
+                    <span className="text-[11px] text-center text-slate-600 font-mono">{row.free}</span>
+                    <span className={cn(
+                      "text-[12px] text-center font-black font-mono px-2 py-1 rounded-full text-center",
+                      row.proColor,
+                      row.proColor.replace('text-', 'bg-').replace('-400', '-500/10')
+                    )}>
+                      {row.pro}
+                    </span>
+                  </div>
+                ))}
+              </div>
+
+              {/* CTA */}
+              <div className="px-6 pb-6">
+                <button
+                  onClick={() => setShowComparison(false)}
+                  className="w-full h-11 rounded-2xl bg-gradient-to-r from-violet-600 to-indigo-600 text-white text-sm font-black hover:opacity-90 transition-opacity"
+                >
+                  {language === 'ru' ? '← Выбрать план' : language === 'es' ? '← Elegir plan' : '← Choose plan'}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 
