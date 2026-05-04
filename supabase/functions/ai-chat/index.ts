@@ -275,7 +275,7 @@ Deno.serve(async (req) => {
             p_profile_id: profile?.id || userId,
             p_limit: 5,
           });
-            if (weakTopics && weakTopics.length > 0) {
+          if (weakTopics && weakTopics.length > 0) {
             const topicLines = weakTopics
               .map((t: { topic_title: string; accuracy: number; attempt_count: number }) =>
                 `- ${t.topic_title}: ${t.accuracy}% correct (${t.attempt_count} attempts)`)
