@@ -101,17 +101,7 @@ export function useAIDebriefAnalysis() {
                 return cached.diagnosis;
             }
 
-            // 2. Get auth token
-            let accessToken: string | null = null;
-            const { data: { session } } = await supabase.auth.getSession();
-
-            if (session?.access_token) {
-                accessToken = session.access_token;
-            } else if (!isTelegramMiniApp()) {
-                throw new Error('Требуется авторизация');
-            }
-
-            // 3. Generate prompt
+            // 2. Generate prompt
             if (!generatePromptFn) {
                 throw new Error('Prompt generator function is required');
             }
@@ -119,93 +109,20 @@ export function useAIDebriefAnalysis() {
             const prompt = generatePromptFn(failedQuestions, country, studentStats, language);
 
             console.log('[useAIDebriefAnalysis] 🚀 Sending AI request...');
-            console.log('[useAIDebriefAnalysis] Country:', country);
-            console.log('[useAIDebriefAnalysis] StudentStats:', studentStats);
 
-            // 4. Call AI Edge Function
-            const headers: Record<string, string> = {
-                'Content-Type': 'application/json',
-            };
-
-            if (accessToken) {
-                headers['Authorization'] = `Bearer ${accessToken}`;
-            }
-
-            const response = await fetch(`${supabase.supabaseUrl}/functions/v1/ai-chat`, {
-                method: 'POST',
-                headers,
-                body: JSON.stringify({
-                    messages: [{ role: 'user', content: prompt }],
-                    stream: true,
-                    temperature: 0.7,
-                    country: country,
-                    mode: 'debrief',
-                }),
-            });
-
-            if (!response.ok) {
-                throw new Error(`AI request failed: ${response.status}`);
-            }
-
-            // 5. Read SSE Stream
+            // 3. Stream via shared hook, accumulate full text
             let resultText = '';
-            const contentType = response.headers.get('content-type');
+            let requestError: Error | null = null;
 
-            if (contentType?.includes('text/event-stream')) {
-                const reader = response.body?.getReader();
-                const decoder = new TextDecoder();
-                let lineBuffer = '';
-                let isDone = false;
+            await sendRequest(
+                { messages: [{ role: 'user', content: prompt }], country, language: language ?? 'es', mode: 'debrief' },
+                {
+                    onChunk: (text) => { resultText += text; },
+                    onError: (err) => { requestError = err; },
+                },
+            );
 
-                if (reader) {
-                    try {
-                        while (true) {
-                            const { done, value } = await reader.read();
-                            if (done || isDone) break;
-
-                            const chunk = decoder.decode(value, { stream: true });
-                            lineBuffer += chunk;
-
-                            const lines = lineBuffer.split('\n');
-                            lineBuffer = lines.pop() || '';
-
-                            for (const line of lines) {
-                                const trimmedLine = line.trim();
-                                if (!trimmedLine || !trimmedLine.startsWith('data: ')) continue;
-
-                                const data = trimmedLine.slice(6);
-                                if (data === '[DONE]') {
-                                    isDone = true;
-                                    break;
-                                }
-
-                                try {
-                                    const parsed = JSON.parse(data);
-                                    const textChunk = (
-                                        parsed.content ||
-                                        parsed.text ||
-                                        parsed.response ||
-                                        parsed.choices?.[0]?.delta?.content ||
-                                        parsed.choices?.[0]?.text ||
-                                        ''
-                                    );
-
-                                    if (textChunk) {
-                                        resultText += textChunk;
-                                    }
-                                } catch (e) {
-                                    // Ignore JSON parse errors in SSE lines
-                                }
-                            }
-                        }
-                    } finally {
-                        reader.releaseLock();
-                    }
-                }
-            } else {
-                const data = await response.json();
-                resultText = data.content || data.text || data.response || '';
-            }
+            if (requestError) throw requestError;
 
             console.log('[useAIDebriefAnalysis] ✅ Full result length:', resultText.length);
 
