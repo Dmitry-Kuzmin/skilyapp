@@ -20,7 +20,7 @@ export const AvatarGroup: React.FC<AvatarGroupProps> = ({
   totalCount,
   size = 'md',
   className,
-  overlap = -3,
+  overlap = -3, // This prop is now mapped to space-x classes for better consistency
   ringColor = 'ring-background',
   moreBgColor = 'bg-violet-600'
 }) => {
@@ -32,21 +32,25 @@ export const AvatarGroup: React.FC<AvatarGroupProps> = ({
     lg: 'h-10 w-10 text-[12px]'
   };
 
+  // Map overlap to tailwind space-x classes
+  const spaceClass = overlap <= -12 ? '-space-x-3' : overlap <= -8 ? '-space-x-2' : '-space-x-1';
+
   return (
-    <div className={cn("flex items-center", className)} style={{ marginLeft: `${Math.abs(overlap) / 4}rem` }}>
-      <div className="flex" style={{ gap: `${overlap}px` }}>
+    <div className={cn("flex items-center group", className)}>
+      <div className={cn("flex items-center", spaceClass)}>
         {displayAvatars.map((avatar, i) => (
           <motion.div
             key={avatar.id}
             initial={{ scale: 0, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ delay: i * 0.1 }}
-            className="relative"
-            style={{ zIndex: limit - i }}
+            className="relative transition-transform duration-300 group-hover:translate-x-1"
+            className="relative transition-transform duration-300 group-hover:translate-x-1"
+            style={{ zIndex: i + 1 }}
           >
             <Avatar className={cn(
               sizeClasses[size],
-              "border-none shadow-lg transition-transform hover:scale-110",
+              "border-none shadow-lg",
               "ring-2", ringColor
             )}>
               <AvatarImage src={avatar.photoUrl || undefined} className="object-cover" />
@@ -62,13 +66,13 @@ export const AvatarGroup: React.FC<AvatarGroupProps> = ({
             initial={{ scale: 0, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ delay: displayAvatars.length * 0.1 }}
-            className="relative"
-            style={{ zIndex: 0 }}
+            className="relative transition-transform duration-300 group-hover:translate-x-1"
+            style={{ zIndex: limit + 1 }}
           >
             <div className={cn(
               sizeClasses[size],
               "rounded-full border-2 flex items-center justify-center font-bold text-white shadow-lg",
-              ringColor.replace('ring-', 'border-'),
+              ringColor.replace('ring-', 'border-').replace('ring-[', 'border-['),
               moreBgColor
             )}>
               {typeof totalCount === 'number' ? `+${totalCount}` : totalCount}
