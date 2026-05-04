@@ -231,23 +231,6 @@ export function AIChatWidget() {
     const { isPremium } = usePremium();
     const { profileId } = useUserContext();
 
-    // Счётчик оставшихся AI-сообщений
-    const { data: aiUsage, refetch: refetchUsage } = useQuery({
-        queryKey: ['ai-usage-limit', profileId],
-        queryFn: async () => {
-            if (!profileId) return null;
-            const { data } = await supabase.rpc('check_ai_usage_limit', { p_user_id: profileId });
-            return data?.[0] ?? null;
-        },
-        enabled: !!profileId && isOpen,
-        staleTime: 0,
-    });
-
-    // Оставшиеся сообщения (для free)
-    const aiLimit = 5;
-    const aiUsed = aiUsage?.current_count ?? 0;
-    const aiRemaining = Math.max(aiLimit - aiUsed, 0);
-
     // Zustand Store
     const isOpen = useAIChatStore(selectIsOpen);
     const messages = useAIChatStore(selectMessages);
