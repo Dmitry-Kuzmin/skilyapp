@@ -1,0 +1,1202 @@
+[
+  {
+    "id": "4e0b716c-b3e6-4f7c-a86c-53da75c86fee",
+    "question_es": "En esta intersección sin señalizar se encuentra con un ciclista, ¿debe cederle el paso?",
+    "question_ru": "На этом нерегулируемом перекрестке без знаков вы встречаете велосипедиста. Должны ли вы уступить ему дорогу?",
+    "question_en": "At this unmarked intersection you encounter a cyclist, should you yield the right of way?",
+    "image_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/generated/topic-01_test-011/4e0b716c-b3e6-4f7c-a86c-53da75c86fee_1773053192808_pro.webp",
+    "explanation_es": "En las intersecciones que no están señalizadas, rige la norma general de prioridad de paso establecida en el Reglamento General de Circulación. Todo conductor está obligado a ceder el paso a los vehículos que se aproximen por su derecha. Dado que los ciclos tienen la consideración legal de vehículos, en ausencia de señalización que indique lo contrario, el conductor de un turismo debe respetar su prioridad cuando estos se aproximen por el lado derecho.",
+    "explanation_ru": "🎓 На перекрестках равнозначных дорог, где отсутствуют знаки приоритета, светофоры или регулировщик, действует общее правило: необходимо уступить дорогу транспортным средствам, приближающимся справа. Поскольку велосипед официально является транспортным средством, ты на своем легковом автомобиле обязан пропустить его. Это правило «помехи справа» универсально и не делает исключений для типа двигателя. 💡 Справа велик — жми на тормоз, не делай из него веник!",
+    "explanation_en": "In intersections without signage, the general right-of-way rule established in the General Traffic Regulations applies. Every driver is obliged to yield to vehicles approaching from their right. Since cycles are legally considered vehicles, in the absence of signage indicating otherwise, the driver of a turismo must respect their priority when they approach from the right side.",
+    "topics": {
+      "title_es": "Definiciones y uso de las vías",
+      "title_ru": "Определения и использование дорог"
+    },
+    "answer_options": [
+      {
+        "id": "8b18a492-0bdb-5c3f-0b2d-26946c3e94ba",
+        "text_es": "Sí, porque se aproxima por la derecha.",
+        "text_ru": "Да, так как он приближается справа.",
+        "text_en": "Yes, because they are approaching from the right.",
+        "is_correct": true,
+        "position": 1
+      },
+      {
+        "id": "11d4c0bd-d1b3-8d8d-c541-784477a2eaa0",
+        "text_es": "No, porque los vehículos de motor tienen preferencia sobre los ciclos de dos ruedas.",
+        "text_ru": "Нет, так как механические транспортные средства имеют преимущество перед двухколесными велосипедами.",
+        "text_en": "No, because motor vehicles have priority over two-wheeled cycles.",
+        "is_correct": false,
+        "position": 2
+      },
+      {
+        "id": "31d675ed-dbbb-fd2d-260b-7f7a366bceb1",
+        "text_es": "Sí, porque los vehículos de dos ruedas siempre tienen preferencia en los cruces.",
+        "text_ru": "Да, так как двухколесные транспортные средства всегда имеют преимущество на перекрестках.",
+        "text_en": "Yes, because two-wheeled vehicles always have priority at intersections.",
+        "is_correct": false,
+        "position": 3
+      }
+    ]
+  },
+  {
+    "id": "acc2f2a8-f57c-4bf3-83ad-f477e825f776",
+    "question_es": "¿Si presencia un accidente de circulación, tiene obligación de avisar a la Autoridad o a sus agentes si solo hay heridos leves y la seguridad de la circulación está restablecida?",
+    "question_ru": "Если вы стали свидетелем ДТП, обязаны ли вы сообщить об этом властям или их агентам, если есть только легкораненые и безопасность движения восстановлена?",
+    "question_en": "If you witness a traffic accident, are you obliged to notify the Authority or its agents if there are only minor injuries and traffic safety has been restored?",
+    "image_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/generated/topic-08_test-001/acc2f2a8-f57c-4bf3-83ad-f477e825f776_1768943223170_pro.webp",
+    "explanation_es": "Según el Reglamento General de Circulación, los usuarios que presencien un accidente están obligados a auxiliar o solicitar auxilio. No obstante, si solo hay heridos leves, la seguridad de la circulación ha sido restablecida y ninguno de los implicados solicita la presencia de la Autoridad, no existe obligación legal de avisar a los agentes. La comunicación de identidad y datos es obligatoria si los implicados lo requieren.",
+    "explanation_ru": "🎓 Если ты стал свидетелем ДТП, твоя главная обязанность — помочь или вызвать помощь. Однако, если в аварии есть только легкораненые, а проезжая часть уже свободна и безопасна для других, вызывать полицию не обязательно. Исключение одно: если кто-то из участников аварии прямо просит тебя вызвать патруль или сообщить о происшествии властям. В этом случае ты обязан это сделать. Также помни, что любой участник или свидетель обязан сообщить свои данные (ФИО, номер легкового автомобиля, данные страховки) другим участникам по их требованию. 🇷🇺 В РФ при наличии пострадавших даже с легкими травмами вызов сотрудников полиции на место ДТП является обязательным. 💡 Нет просьбы — нет полиции, если все целы и дорога свободна.",
+    "explanation_en": "According to the General Traffic Regulations, road users who witness an accident are obliged to help or request help. However, if there are only minor injuries, traffic safety has been restored and none of those involved request the presence of the Authority, there is no legal obligation to notify the agents. Communication of identity and data is mandatory if those involved request it.",
+    "topics": {
+      "title_es": "Comportamiento en caso de accidente",
+      "title_ru": "Действия при аварии"
+    },
+    "answer_options": [
+      {
+        "id": "d6e65bce-401d-bfac-8760-d9a58aca73f0",
+        "text_es": "No, salvo que alguna de las personas implicadas en el accidente lo solicite.",
+        "text_ru": "Нет, за исключением случаев, когда об этом просит кто-либо из участников ДТП.",
+        "text_en": "No, unless one of the persons involved in the accident requests it.",
+        "is_correct": true,
+        "position": 1
+      },
+      {
+        "id": "9c0657b6-b894-6c27-3ed5-49ff42ec4607",
+        "text_es": "Sí, siempre.",
+        "text_ru": "Да, всегда.",
+        "text_en": "Yes, always.",
+        "is_correct": false,
+        "position": 2
+      },
+      {
+        "id": "43216514-11f1-143c-b160-e542b7430f46",
+        "text_es": "No, en ningún caso.",
+        "text_ru": "Нет, ни в коем случае.",
+        "text_en": "No, in no case.",
+        "is_correct": false,
+        "position": 3
+      }
+    ]
+  },
+  {
+    "id": "cf5b747f-c58c-4f27-b820-ef5d61e78fdb",
+    "question_es": "Debe abstenerse de realizar un cambio de sentido cuando...",
+    "question_ru": "Вы должны воздержаться от разворота, когда...",
+    "question_en": "You must refrain from making a U-turn when...",
+    "image_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/generated/topic-02_test-008/cf5b747f-c58c-4f27-b820-ef5d61e78fdb.webp",
+    "explanation_es": "🎓 Realizar un cambio de sentido significa girar 180 grados para circular en sentido contrario. Por pura lógica, si la vía es de sentido único, ¡no existe un sentido contrario legal al que ir! Además, recuerda que está prohibido donde no haya visibilidad, en túneles, pasos a nivel y donde esté prohibido adelantar. 💡 Un truco: si ves señales de dirección obligatoria o de calzada de sentido único (flechas blancas sobre fondo azul), el cambio de sentido está totalmente prohibido.",
+    "explanation_ru": "🎓 Разворот (cambio de sentido) — это маневр, при котором вы поворачиваете на 180 градусов, чтобы ехать назад. По логике вещей, на дороге с односторонним движением встречного направления просто нет, поэтому разворот там запрещен. Также это запрещено в тоннелях, на ж/д переездах, в местах с плохой видимостью и там, где запрещен обгон. 💡 Лайфхак: если вы видите знаки предписанного направления или знак 'Одностороннее движение' (белая стрелка на синем фоне), разворот невозможен — вы сразу окажетесь на встречке!",
+    "explanation_en": "🎓 A U-turn (cambio de sentido) involves turning 180 degrees to head back the way you came. Logically, if the road is a one-way street, there is no legal opposite direction to travel in. It is also forbidden in tunnels, at level crossings, where visibility is poor, or where overtaking is prohibited. 💡 Exam tip: If you see mandatory direction signs or one-way street signs (white arrows on a blue background), forget about the U-turn! You would be driving against the traffic flow.",
+    "topics": {
+      "title_es": "Maniobras",
+      "title_ru": "Манёвры"
+    },
+    "answer_options": [
+      {
+        "id": "8470b029-e9cb-4030-e2dc-9a7d97958edf",
+        "text_es": "No exista un lugar adecuado para efectuar la maniobra.",
+        "text_ru": "Нет подходящего места для выполнения маневра.",
+        "text_en": "There is no suitable place to perform the maneuver.",
+        "is_correct": false,
+        "position": 1
+      },
+      {
+        "id": "49495e6f-a304-740d-eac6-9ffb6830d5fe",
+        "text_es": "No tenga prioridad.",
+        "text_ru": "У вас нет приоритета.",
+        "text_en": "You do not have priority.",
+        "is_correct": false,
+        "position": 2
+      },
+      {
+        "id": "82fbce41-d18b-ef52-8bd2-a6da3267b8b1",
+        "text_es": "La vía sea de sentido único.",
+        "text_ru": "Дорога является дорогой с односторонним движением.",
+        "text_en": "The road is a one-way street.",
+        "is_correct": true,
+        "position": 3
+      }
+    ]
+  },
+  {
+    "id": "52dc3d46-3a7a-4226-be43-ad326168887e",
+    "question_es": "¿Un turismo con remolque tiene permitido circular por un carril adicional?",
+    "question_ru": "Разрешено ли легковому автомобилю с прицепом движение по дополнительной полосе (carril adicional)?",
+    "question_en": "Is a passenger car with a trailer allowed to drive in an additional lane?",
+    "image_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/generated/topic-01_test-008/52dc3d46-3a7a-4226-be43-ad326168887e_1768737412673.webp",
+    "explanation_es": "El carril adicional circunstancial se habilita para mejorar la fluidez del tráfico en vías con un solo carril por sentido, utilizando los arcenes. A diferencia de otros carriles especiales como el VAO, su uso está permitido a todos los vehículos autorizados a circular por la vía, incluidos los turismos con remolque, salvo señalización expresa en contra. Es obligatorio el uso de la luz de posición y cruce tanto de día como de noche para todos los usuarios de la vía afectada, y la velocidad debe mantenerse entre un máximo de 80 km/h y un mínimo de 60 km/h, o inferior si así lo indica la señalización.",
+    "explanation_ru": "🎓 Дополнительная полоса (carril adicional) создается для разгрузки трафика на дорогах с одной полосой в каждом направлении за счет использования обочины (arcén). В отличие от полос VAO, сюда пускают абсолютно всех, кому разрешено движение по этой дороге: и легковой автомобиль, и грузопассажирский автомобиль, и твой легковой автомобиль с любым прицепом. Главное помнить правила: на всем участке дороги нужно включить ближний свет фар (даже днем), соблюдать скорость строго от 60 до 80 км/ч и ни в коем случае не пересекать линию конусов. 🇷🇺 В Испании при организации такой полосы обочина (arcén) временно становится полноценной частью проезжей части, тогда как в РФ движение по обочине запрещено. 💡 Дополнительная полоса — как гостеприимный дом: пускают всех (даже с прицепом), но свет и скорость (60-80) для всех обязательны!",
+    "explanation_en": "An additional circumstantial lane is established to improve traffic flow on roads with one lane per direction by utilizing the shoulders (arcenes). Unlike other special lanes such as VAO, its use is permitted for all vehicles authorized to travel on that road, including passenger cars with trailers, unless specifically prohibited. The use of position and low-beam lights is mandatory for all users of the affected road both day and night, and speed must be maintained between a maximum of 80 km/h and a minimum of 60 km/h, or lower if indicated by signage.",
+    "topics": {
+      "title_es": "Definiciones y uso de las vías",
+      "title_ru": "Определения и использование дорог"
+    },
+    "answer_options": [
+      {
+        "id": "21f780f9-b449-e317-a6ad-4eb03f01998f",
+        "text_es": "No.",
+        "text_ru": "Нет.",
+        "text_en": "No.",
+        "is_correct": false,
+        "position": 1
+      },
+      {
+        "id": "0c43a0a4-c8ba-7cc7-8b77-6bc09faa1fed",
+        "text_es": "Sí.",
+        "text_ru": "Да.",
+        "text_en": "Yes.",
+        "is_correct": true,
+        "position": 2
+      },
+      {
+        "id": "c737fc46-295f-b614-598d-ba70357210f9",
+        "text_es": "Solo si el remolque es ligero.",
+        "text_ru": "Только если прицеп является легким.",
+        "text_en": "Only if the trailer is light.",
+        "is_correct": false,
+        "position": 3
+      }
+    ]
+  },
+  {
+    "id": "34d64167-3fb2-4f7f-b704-9f9dd5c2cf7b",
+    "question_es": "Si su permiso para conducir de la clase B tiene un año de antigüedad, ¿cuál es la tasa máxima permitida de alcohol?",
+    "question_ru": "Если вашему водительскому удостоверению категории B исполнился один год, каков максимально допустимый уровень алкоголя?",
+    "question_en": "If your class B driving license is one year old, what is the maximum permitted alcohol level?",
+    "image_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/generated/topic-07_test-024/34d64167-3fb2-4f7f-b704-9f9dd5c2cf7b.webp",
+    "explanation_es": "De acuerdo con el Reglamento General de Circulación, los conductores durante los dos años siguientes a la obtención de su primer permiso de conducción están sujetos a una tasa de alcohol reducida. El límite máximo permitido es de 0,15 miligramos de alcohol por litro de aire espirado. Una vez transcurridos estos dos primeros años de antigüedad del permiso, la tasa máxima permitida para un conductor de turismo pasará a ser la general de 0,25 mg/l en aire espirado.",
+    "explanation_ru": "🎓 В Испании в течение первых 2 лет после получения первого водительского удостоверения ты считаешься начинающим водителем и обязан соблюдать пониженную норму алкоголя: 0,15 мг/л в выдыхаемом воздухе. После двух лет стажа норма увеличится до стандартных 0,25 мг/л. Тебе как водителю легкового автомобиля важно знать, что этот же строгий лимит (0,15) всегда обязаны соблюдать водители грузовиков с РММ более 3500 кг и автобусов. 🇷🇺 В РФ лимит составляет 0,16 мг/л для всех, в Испании же для новичков он строже — 0,15 мг/л. 💡 Новичок и профи — в одной лодке: 0,15 и ни каплей больше!",
+    "explanation_en": "According to the General Traffic Regulations, drivers are subject to a reduced alcohol limit during the first two years after obtaining their first driving license. The maximum permitted level is 0.15 milligrams of alcohol per liter of exhaled air. Once these first two years of license seniority have passed, the maximum permitted rate for a passenger car driver will become the general limit of 0.25 mg/l in exhaled air.",
+    "topics": {
+      "title_es": "Los accidentes",
+      "title_ru": "Аварии"
+    },
+    "answer_options": [
+      {
+        "id": "f555fe03-22ba-0d46-bce0-d102bfe8b6ef",
+        "text_es": "0,15 miligramos por litro de aire espirado.",
+        "text_ru": "0,15 миллиграмма на литр выдыхаемого воздуха.",
+        "text_en": "0.15 milligrams per liter of exhaled air.",
+        "is_correct": true,
+        "position": 1
+      },
+      {
+        "id": "251a09a1-8360-4644-d5f1-440a9c141060",
+        "text_es": "0,25 miligramos por litro de aire espirado.",
+        "text_ru": "0,25 миллиграмма на литр выдыхаемого воздуха.",
+        "text_en": "0.25 milligrams per liter of exhaled air.",
+        "is_correct": false,
+        "position": 2
+      },
+      {
+        "id": "77edbe17-4dc1-1822-e45d-bb019bd53643",
+        "text_es": "0,30 miligramos por litro de aire espirado.",
+        "text_ru": "0,30 миллиграмма на литр выдыхаемого воздуха.",
+        "text_en": "0.30 milligrams per liter of exhaled air.",
+        "is_correct": false,
+        "position": 3
+      }
+    ]
+  },
+  {
+    "id": "6c4b689c-b04a-46ca-835a-1a981c00c989",
+    "question_es": "En una motocicleta, ¿cuánto puede sobresalir, por su parte delantera y por la posterior, la carga transportada?",
+    "question_ru": "На мотоцикле, на какое расстояние может выступать перевозимый груз спереди и сзади?",
+    "question_en": "On a motorcycle, how much can the transported load protrude from the front and the back?",
+    "image_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/generated/topic-05_test-001/6c4b689c-b04a-46ca-835a-1a981c00c989_1768818379275_pro.webp",
+    "explanation_es": "Según el Reglamento General de Circulación, en los vehículos de anchura inferior a un metro (motocicletas, ciclomotores), la carga no debe sobresalir nada por la parte delantera y puede sobresalir hasta 0,25 metros por la parte posterior. Lateralmente, puede sobresalir hasta 0,50 metros a cada lado del eje longitudinal del vehículo.",
+    "explanation_ru": "🎓 Для транспортных средств шириной менее одного метра, таких как мотоциклы, установлены жесткие нормы перевозки грузов. Спереди выступ запрещен полностью (0 см). Сзади груз может выступать максимум на 0,25 метра. По бокам разрешен выступ до 0,50 метра, но внимание: этот замер производится не от края, а от центральной продольной оси мотоцикла. Тебе как водителю легкового автомобиля (Turismo) важно не путать это с правилами для машин, где лимиты считаются в процентах от длины авто. 🇷🇺 В Испании правила для мотоциклов значительно строже: четкий лимит 25 см сзади, тогда как в РФ применяются общие нормы для грузов до 1 метра. 💡 Спереди — пусто, сзади — четверть, по бокам — по полметра от центра!",
+    "explanation_en": "According to the General Traffic Regulations, for vehicles less than one meter wide (motorcycles, mopeds), the load must not protrude at all from the front and may protrude up to 0.25 meters from the rear. Laterally, it may protrude up to 0.50 meters from each side of the vehicle's longitudinal axis.",
+    "topics": {
+      "title_es": "El uso del vehículo",
+      "title_ru": "Использование ТС"
+    },
+    "answer_options": [
+      {
+        "id": "df1e3fe8-a45b-dc64-57d1-ce131c7349d4",
+        "text_es": "Nada por delante y hasta 0,25 metros por detrás.",
+        "text_ru": "Нисколько спереди и до 0,25 метра сзади.",
+        "text_en": "Nothing in front and up to 0.25 meters in the back.",
+        "is_correct": true,
+        "position": 1
+      },
+      {
+        "id": "19d5af0d-5fcb-59cc-d84c-67f2e4eaf54d",
+        "text_es": "Nada, no puede sobresalir la carga ni por delante ni por detrás.",
+        "text_ru": "Нисколько, груз не может выступать ни спереди, ни сзади.",
+        "text_en": "Nothing, the load cannot protrude either in front or in the back.",
+        "is_correct": false,
+        "position": 2
+      },
+      {
+        "id": "06a60e94-c1f5-cae2-be76-f6ccf18ae5fb",
+        "text_es": "Hasta 0,25 metros tanto por delante como por detrás.",
+        "text_ru": "До 0,25 метра как спереди, так и сзади.",
+        "text_en": "Up to 0.25 meters both in front and in the back.",
+        "is_correct": false,
+        "position": 3
+      }
+    ]
+  },
+  {
+    "id": "cf078f51-8211-48d6-bbdb-8bb4135f92cd",
+    "question_es": "¿Qué indica la señal?",
+    "question_ru": "Что означает этот дорожный знак?",
+    "question_en": "What does the sign indicate?",
+    "image_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/generated/topic-03_test-007/cf078f51-8211-48d6-bbdb-8bb4135f92cd.webp",
+    "explanation_es": "La señal S-32 indica que el vehículo que circule por el carril o carriles así señalizados puede efectuar el pago del peaje mediante el sistema de peaje dinámico o telepeaje, siempre que esté provisto del medio técnico que posibilite su uso. Al tener forma cuadrada, es una señal de indicación (informa de la posibilidad), a diferencia de la señal redonda con el mismo símbolo, que indicaría la obligación exclusiva de usar ese sistema.",
+    "explanation_ru": "🎓 Этот знак S-32 «Электронная оплата» (Telepeaje) информирует, что в данной полосе можно оплатить проезд с помощью системы динамической оплаты или транспондера. Это доступно только для автомобилей, оснащенных специальным устройством для бесконтактной оплаты. Важно помнить: квадратная форма знака означает «информацию» (вы можете воспользоваться этой системой), в отличие от круглого знака, который обязывает использовать только этот способ оплаты.\n\n🇷🇺 В РФ на пунктах взимания платы аналогичные полосы часто обозначаются зеленым цветом или надписью «T-pass», но принцип работы с транспондером идентичен.\n\n💡 Квадрат — **Т**ебе выбор (можно платить транспондером). Круг — **Т**олько транспондер (обязательно). Буква «Т» — **Т**елеоплата.",
+    "explanation_en": "Sign S-32 indicates that a vehicle traveling in the lane or lanes so marked may pay the toll using the dynamic toll or electronic toll system, provided it is equipped with the necessary technical means to do so. Being square, it is an indication sign (informing of the possibility), unlike the round sign with the same symbol, which would indicate the mandatory and exclusive use of that system.",
+    "topics": {
+      "title_es": "Señales",
+      "title_ru": "Сигналы"
+    },
+    "answer_options": [
+      {
+        "id": "7d1b729d-f9e2-030c-23f9-e3dc54a176b7",
+        "text_es": "Prohibido pasar sin detenerse.",
+        "text_ru": "Запрещено проезжать без остановки.",
+        "text_en": "No passing without stopping.",
+        "is_correct": false,
+        "position": 1
+      },
+      {
+        "id": "7af9f935-ace5-cf6b-1e6f-ca97fe57415e",
+        "text_es": "Telepeaje o peaje dinámico.",
+        "text_ru": "Электронная оплата или динамический пункт оплаты.",
+        "text_en": "Electronic toll or dynamic toll.",
+        "is_correct": true,
+        "position": 2
+      },
+      {
+        "id": "5dcd699b-a3a3-1802-a827-c0d67a6cd1bb",
+        "text_es": "Precaución; intersección próxima.",
+        "text_ru": "Внимание, впереди перекресток.",
+        "text_en": "Caution; intersection ahead.",
+        "is_correct": false,
+        "position": 3
+      }
+    ]
+  },
+  {
+    "id": "0bab8d61-c70c-4933-92de-ab9ddf7e22ea",
+    "question_es": "¿Cuando toma medicamentos que afectan al sistema nervioso, qué debe hacer para conducir?",
+    "question_ru": "Если вы принимаете лекарства, влияющие на нервную систему, что вы должны сделать, чтобы управлять автомобилем?",
+    "question_en": "When taking medications that affect the nervous system, what should you do to drive?",
+    "image_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/generated/topic-07_test-006/0bab8d61-c70c-4933-92de-ab9ddf7e22ea_1772991857681_pro.webp",
+    "explanation_es": "El consumo de medicamentos puede alterar las capacidades psicofísicas necesarias para la conducción segura. El conductor debe informarse sobre los efectos secundarios a través de un facultativo o del prospecto del fármaco. Es imperativo seguir las indicaciones médicas y prestar atención a los pictogramas de advertencia en el envase que indican la posible interferencia con la capacidad de conducir.",
+    "explanation_ru": "🎓 Любые препараты, влияющие на центральную нервную систему, могут замедлить твою реакцию, вызвать сонливость или нарушение координации. Как водитель легкового автомобиля (Turismo), ты несешь ответственность за свою безопасность и безопасность окружающих. Перед началом движения необходимо проконсультироваться с врачом и изучить инструкцию к препарату. Особое внимание уделяй маркировке на упаковке: если видишь значок автомобиля в красном треугольнике, вождение может быть опасным. 🇷🇺 В РФ, как и в Испании, запрещено управление ТС в состоянии медикаментозного опьянения, если препараты ухудшают внимание и реакцию. 💡 Пьешь таблетки — не спеши, у врача сперва спроси!",
+    "explanation_en": "The consumption of medications can impair the psychophysical abilities necessary for safe driving. Drivers must inform themselves about potential side effects through a medical professional or the medication's package leaflet. It is mandatory to follow medical advice and pay attention to warning pictograms on the packaging that indicate potential interference with driving ability.",
+    "topics": {
+      "title_es": "Los accidentes",
+      "title_ru": "Аварии"
+    },
+    "answer_options": [
+      {
+        "id": "10e9cb52-895f-35f6-178e-82f0933a789b",
+        "text_es": "Nada, porque mejoran mis capacidades.",
+        "text_ru": "Ничего, так как они улучшают мои способности.",
+        "text_en": "Nothing, because they improve my abilities.",
+        "is_correct": false,
+        "position": 1
+      },
+      {
+        "id": "cc4997ce-dc1f-96ca-413d-84387e1a8872",
+        "text_es": "Consultar al médico y obedecer sus indicaciones.",
+        "text_ru": "Проконсультироваться с врачом и следовать его указаниям.",
+        "text_en": "Consult a doctor and follow their instructions.",
+        "is_correct": true,
+        "position": 2
+      },
+      {
+        "id": "ea482e2c-8c2a-266b-f0a0-4900df724716",
+        "text_es": "No debe conducir hasta dos horas después de haberlo tomado.",
+        "text_ru": "Нельзя садиться за руль в течение двух часов после приема.",
+        "text_en": "You must not drive until two hours after taking it.",
+        "is_correct": false,
+        "position": 3
+      }
+    ]
+  },
+  {
+    "id": "0e4390e8-e7fb-435f-95b7-ece7323107fc",
+    "question_es": "Advertir a otros usuarios de que se va a realizar una maniobra, ¿es obligatorio?",
+    "question_ru": "Обязательно ли предупреждать других участников движения о намерении совершить маневр?",
+    "question_en": "Is it mandatory to warn other users that a maneuver is going to be performed?",
+    "image_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/generated/topic-02_test-007/0e4390e8-e7fb-435f-95b7-ece7323107fc.webp",
+    "explanation_es": "Según el Reglamento General de Circulación, los conductores están obligados a advertir al resto de los usuarios de la vía (no solo a otros conductores, sino también a peatones) de todas las maniobras que vayan a efectuar con sus vehículos. Esto incluye desplazamientos laterales, adelantamientos, estacionamientos o incorporaciones. La advertencia debe realizarse con antelación suficiente mediante señalización luminosa o con el brazo.",
+    "explanation_ru": "🎓 ПДД Испании требуют предупреждать о любом маневре абсолютно всех участников движения, включая пешеходов и велосипедистов. Это касается начала движения, перестроения, поворотов, разворотов и остановки. Сигнал подается заблаговременно световыми указателями (поворотниками) или рукой и поддерживается до полного завершения маневра.\n\n💡 На дороге нет телепатов. Включил поворотник — значит, вежливо «сказал» всем, куда собираешься ехать.",
+    "explanation_en": "According to the General Traffic Regulations, drivers are obliged to warn the rest of the road users (not just other drivers, but also pedestrians) of all maneuvers they intend to perform with their vehicles. This includes lateral displacements, overtaking, parking, or merging. The warning must be given well in advance using light signals or arm signals.",
+    "topics": {
+      "title_es": "Maniobras",
+      "title_ru": "Манёвры"
+    },
+    "answer_options": [
+      {
+        "id": "1534672b-dc3f-f7ab-a8a3-012813ce7178",
+        "text_es": "Sí, siempre.",
+        "text_ru": "Да, всегда.",
+        "text_en": "Yes, always.",
+        "is_correct": true,
+        "position": 1
+      },
+      {
+        "id": "7c68368a-fd7c-56cc-5ee4-48bc654292d6",
+        "text_es": "No, sólo es obligatorio advertir a los demás conductores.",
+        "text_ru": "Нет, обязательно предупреждать только других водителей.",
+        "text_en": "No, it is only mandatory to warn other drivers.",
+        "is_correct": false,
+        "position": 2
+      },
+      {
+        "id": "c2caf1fa-cdb8-e82c-b50d-27008d27ff2f",
+        "text_es": "No, pero es siempre muy recomendable.",
+        "text_ru": "Нет, но это всегда настоятельно рекомендуется.",
+        "text_en": "No, but it is always highly recommended.",
+        "is_correct": false,
+        "position": 3
+      }
+    ]
+  },
+  {
+    "id": "c874355f-4ee0-45bf-a771-028b55401c15",
+    "question_es": "¿Exige la lluvia al conductor tomar más precauciones de las habituales?",
+    "question_ru": "Требует ли дождь от водителя принятия больших мер предосторожности, чем обычно?",
+    "question_en": "Does rain require the driver to take more precautions than usual?",
+    "image_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/generated/topic-07_test-027/c874355f-4ee0-45bf-a771-028b55401c15_1768872861919_pro.webp",
+    "explanation_es": "La lluvia disminuye la adherencia de los neumáticos sobre el pavimento, lo que aumenta el riesgo de patinamiento y alarga la distancia de frenado. Asimismo, reduce la visibilidad del conductor. Es imperativo reducir la velocidad y aumentar la distancia de seguridad con el vehículo precedente para evitar colisiones y el efecto aquaplaning.",
+    "explanation_ru": "🎓 Дождь значительно снижает сцепление шин с проезжей частью, что увеличивает тормозной путь и риск заноса. Особенно опасны первые капли, когда пыль и масло превращаются в скользкую эмульсию. Однако и при затяжных осадках сохраняется риск аквапланирования. Тебе как водителю легкового автомобиля необходимо снизить скорость и увеличить дистанцию до впереди идущего ТС. 💡 Дождь пошел — ногу с газа, дистанцию в два раза!",
+    "explanation_en": "Rain reduces the grip of the tires on the road surface, increasing the risk of skidding and extending the braking distance. It also reduces driver visibility. It is mandatory to reduce speed and increase the safety distance from the vehicle ahead to prevent collisions and hydroplaning.",
+    "topics": {
+      "title_es": "Los accidentes",
+      "title_ru": "Аварии"
+    },
+    "answer_options": [
+      {
+        "id": "44df734b-4d87-cd4a-34b6-82e4606ab8e1",
+        "text_es": "Solo mientras caen las primeras gotas, luego no es necesario tomar precauciones.",
+        "text_ru": "Только пока падают первые капли, затем принимать меры предосторожности не обязательно.",
+        "text_en": "Only while the first drops fall, then it is not necessary to take precautions.",
+        "is_correct": false,
+        "position": 1
+      },
+      {
+        "id": "73b6bb30-19f7-cf51-d4e9-3ecdc0a31699",
+        "text_es": "Sí, ya que los neumáticos pueden perder su adherencia.",
+        "text_ru": "Да, так как шины могут потерять сцепление с дорогой.",
+        "text_en": "Yes, as tires can lose their grip.",
+        "is_correct": true,
+        "position": 2
+      },
+      {
+        "id": "875585b4-db24-3d07-ee1a-7c4202f8ef0f",
+        "text_es": "No, porque mejora la visibilidad al limpiar el parabrisas.",
+        "text_ru": "Нет, потому что это улучшает видимость, очищая лобовое стекло.",
+        "text_en": "No, because it improves visibility by cleaning the windshield.",
+        "is_correct": false,
+        "position": 3
+      }
+    ]
+  },
+  {
+    "id": "c1e2a979-0a64-48d4-b5dc-73d4ef493bf6",
+    "question_es": "En una travesía de dos carriles para cada sentido de la marcha, ¿puede circular por el carril izquierdo de su sentido para girar a la izquierda?",
+    "question_ru": "В населенном пункте с двумя полосами движения в каждом направлении, разрешено ли вам двигаться по левой полосе в вашем направлении, чтобы повернуть налево?",
+    "question_en": "In a built-up area with two lanes in each direction, can you use the left lane in your direction of travel to turn left?",
+    "image_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/generated/topic-01_test-015/c1e2a979-0a64-48d4-b5dc-73d4ef493bf6_1768759664907.webp",
+    "explanation_es": "En una travesía, la normativa de circulación es la misma que en cualquier vía urbana. Por lo tanto, si existen dos o más carriles para tu sentido de la marcha, puedes utilizar el carril que mejor convenga a tu destino, sin necesidad de ceñirte al carril de la derecha.",
+    "explanation_ru": "В населенном пункте правила дорожного движения такие же, как и на любой городской дороге. Следовательно, если есть две или более полосы для вашего направления движения, вы можете использовать ту полосу, которая лучше всего подходит для вашего пункта назначения, без необходимости придерживаться правой полосы. Если на проезжей части есть несколько полос, и они разделены линиями, вы можете ехать по той полосе, которая удобнее для вашего маршрута. Не обязательно оставаться в правой полосе, кроме случаев, когда вы готовитесь к смене направления, обгону, остановке или парковке.",
+    "explanation_en": "In a built-up area, traffic regulations are the same as on any urban road. Therefore, if there are two or more lanes for your direction of travel, you can use the lane that best suits your destination, without having to stick to the right lane.",
+    "topics": {
+      "title_es": "Definiciones y uso de las vías",
+      "title_ru": "Определения и использование дорог"
+    },
+    "answer_options": [
+      {
+        "id": "061dc4a6-eaf9-cd69-0eec-283fcbf386ce",
+        "text_es": "Sí, porque en las travesías se circula igual que en las vías urbanas.",
+        "text_ru": "Да, потому что в населенных пунктах движение регулируется так же, как и на городских дорогах.",
+        "text_en": "Yes, because traffic regulations in built-up areas are the same as in urban areas.",
+        "is_correct": true,
+        "position": 1
+      },
+      {
+        "id": "c89a515c-05f9-db62-c388-c68a0050ac47",
+        "text_es": "Solo si se va a adelantar, ya que la travesía es una vía interurbana.",
+        "text_ru": "Только если вы собираетесь совершить обгон, так как населенный пункт — это междугородняя дорога.",
+        "text_en": "Only if you are going to overtake, as the built-up area is an interurban road.",
+        "is_correct": false,
+        "position": 2
+      },
+      {
+        "id": "76adc585-06f8-8dd6-8f3f-957494e607f4",
+        "text_es": "No, porque en la travesía se debe circular siempre por la derecha.",
+        "text_ru": "Нет, потому что в населенном пункте всегда следует двигаться по правой стороне.",
+        "text_en": "No, because in built-up areas you should always drive on the right.",
+        "is_correct": false,
+        "position": 3
+      }
+    ]
+  },
+  {
+    "id": "1ccc9229-ad14-4ad3-bfad-43b60abe3979",
+    "question_es": "Tomar bebidas estimulantes, ¿puede prevenir el sueño?",
+    "question_ru": "Может ли употребление стимулирующих напитков предотвратить появление сна?",
+    "question_en": "Can the consumption of stimulant beverages prevent the onset of sleep?",
+    "image_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/generated/topic-07_test-006/1ccc9229-ad14-4ad3-bfad-43b60abe3979_1772992750845_pro.webp",
+    "explanation_es": "El consumo de sustancias estimulantes como el café, el té o las bebidas energéticas puede retrasar momentáneamente la sensación de fatiga y la aparición del sueño. No obstante, estas sustancias no eliminan la necesidad fisiológica de descanso. Una vez que el efecto de la sustancia disminuye, el sueño puede reaparecer de forma repentina y con mayor intensidad, fenómeno conocido como efecto rebote, lo que incrementa gravemente el riesgo de accidente.",
+    "explanation_ru": "🎓 Употребление стимулирующих напитков, таких как кофе или энергетики, лишь на короткое время маскирует усталость и откладывает наступление сна. Они не заменяют полноценный отдых, необходимый твоему организму. Как только действие кофеина закончится, сонливость вернется внезапно и может стать даже сильнее, чем до этого. Для водителя легкового автомобиля это крайне опасно, так как может привести к эффекту «микросна» за рулем. Единственный надежный способ борьбы со сном — это остановка в безопасном месте и отдых. 💡 Кофе сон не победит, он его лишь притаит!",
+    "explanation_en": "The consumption of stimulant substances such as coffee, tea, or energy drinks can momentarily delay the sensation of fatigue and the onset of sleep. However, these substances do not eliminate the physiological need for rest. Once the effect of the substance wears off, sleepiness can reappear suddenly and with greater intensity, a phenomenon known as the rebound effect, which severely increases the risk of an accident.",
+    "topics": {
+      "title_es": "Los accidentes",
+      "title_ru": "Аварии"
+    },
+    "answer_options": [
+      {
+        "id": "48796473-fc5c-d0b7-3259-54df71485624",
+        "text_es": "No, sólo puede prevenirse con bebidas gaseosas.",
+        "text_ru": "Нет, сон можно предотвратить только газированными напитками.",
+        "text_en": "No, it can only be prevented with carbonated drinks.",
+        "is_correct": false,
+        "position": 1
+      },
+      {
+        "id": "e2d2d3b5-d696-8cf0-c274-badf9b563c26",
+        "text_es": "Sí, cuando se toman habitualmente.",
+        "text_ru": "Да, если употреблять их регулярно.",
+        "text_en": "Yes, when they are consumed habitually.",
+        "is_correct": false,
+        "position": 2
+      },
+      {
+        "id": "dc905f37-510b-1bae-7da4-6ef3f18cb166",
+        "text_es": "A corto plazo sí, pero después puede volver a aparecer el sueño.",
+        "text_ru": "В краткосрочной перспективе да, но позже сонливость может вернуться снова.",
+        "text_en": "In the short term yes, but sleepiness may reappear later.",
+        "is_correct": true,
+        "position": 3
+      }
+    ]
+  },
+  {
+    "id": "25e1cb53-de37-4850-8910-118937034d50",
+    "question_es": "¿Si entra en una curva a la izquierda a velocidad excesiva, la fuerza centrífuga puede afectar a la trayectoria del vehículo?",
+    "question_ru": "Если вы входите в левый поворот на чрезмерной скорости, может ли центробежная сила повлиять на траекторию движения легкового автомобиля?",
+    "question_en": "If you enter a left-hand curve at excessive speed, can centrifugal force affect the vehicle's trajectory?",
+    "image_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/generated/topic-07_test-001/25e1cb53-de37-4850-8910-118937034d50_1768940025438_pro.webp",
+    "explanation_es": "La fuerza centrífuga es una fuerza inercial que tiende a alejar al vehículo del centro de rotación durante el trazado de una curva. Al girar a la izquierda, el centro de la curva se sitúa a la izquierda del conductor, por lo que la fuerza centrífuga empuja la masa del vehículo hacia el exterior, es decir, hacia la derecha de la calzada. La magnitud de esta fuerza es directamente proporcional al cuadrado de la velocidad e inversamente proporcional al radio de la curva.",
+    "explanation_ru": "🎓 Центробежная сила всегда направлена от центра поворота к его внешнему радиусу. Когда ты направляешь легковой автомобиль в левый поворот, внешняя сторона дороги оказывается справа от тебя. При избыточной скорости эта сила буквально «выдавливает» машину с заданной траектории, смещая её к правому краю проезжей части. Важно помнить, что эта сила растет в квадрате от скорости: если ты увеличишь скорость в два раза, выталкивающая сила станет в четыре раза мощнее, что может привести к заносу или вылету на обочину. 💡 Руль влево — тянет вправо, тише едешь — в ряд попадешь!",
+    "explanation_en": "Centrifugal force is an inertial force that acts on a vehicle moving along a curved path, directed away from the center of curvature. When entering a left-hand curve, the center of the turn is to the left; therefore, the force pushes the vehicle toward the outside of the curve, which is the right side of the roadway. The intensity of this force increases with the square of the vehicle's speed and decreases as the radius of the curve increases.",
+    "topics": {
+      "title_es": "Los accidentes",
+      "title_ru": "Аварии"
+    },
+    "answer_options": [
+      {
+        "id": "e3cca15e-38ae-8307-03f7-e887340dabfc",
+        "text_es": "Sí, se desplazará hacia la izquierda de la calzada.",
+        "text_ru": "Да, он сместится к левому краю проезжей части.",
+        "text_en": "Yes, it will move towards the left of the roadway.",
+        "is_correct": false,
+        "position": 1
+      },
+      {
+        "id": "aab5cd4d-65fa-40bd-a424-fb6279bc7f01",
+        "text_es": "Sí, se desplazará hacia la derecha de calzada.",
+        "text_ru": "Да, он сместится к правому краю проезжей части.",
+        "text_en": "Yes, it will move towards the right of the roadway.",
+        "is_correct": true,
+        "position": 2
+      },
+      {
+        "id": "1510add7-9c6d-ae65-a594-fe0a7a8dcbc4",
+        "text_es": "No, la fuerza centrífuga no afecta a la trayectoria del vehículo.",
+        "text_ru": "Нет, центробежная сила не влияет на траекторию движения.",
+        "text_en": "No, centrifugal force does not affect the vehicle's trajectory.",
+        "is_correct": false,
+        "position": 3
+      }
+    ]
+  },
+  {
+    "id": "4e0b0c68-5226-4e76-98d1-f2c66db26fff",
+    "question_es": "La distancia de detención es el espacio que recorre el vehículo...",
+    "question_ru": "Остановочный путь — это расстояние, которое проходит легковой автомобиль...",
+    "question_en": "The stopping distance is the space the vehicle travels...",
+    "image_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/generated/topic-07_test-019/4e0b0c68-5226-4e76-98d1-f2c66db26fff.webp",
+    "explanation_es": "La distancia de detención técnica o total es la suma de la distancia de reacción y la distancia de frenado. Comprende todo el espacio recorrido desde que el conductor visualiza un obstáculo o peligro hasta que el vehículo queda completamente inmóvil. Este valor depende de la velocidad, el estado del conductor, la calzada y el sistema de frenado.",
+    "explanation_ru": "🎓 Остановочный путь — это суммарное расстояние, которое проходит твой легковой автомобиль с той самой секунды, когда ты только заметил опасность, и до момента, когда машина полностью замерла. Он состоит из двух отрезков: пути за время реакции (пока мозг обрабатывает информацию и нога тянется к педали) и тормозного пути (когда тормоза уже работают). Помни: если ты устал или отвлекся, время реакции растет, и остановочный путь становится опасно длинным. 💡 Увидел, осознал, нажал и застыл — вот путь, что ты полностью за рулем проплыл!",
+    "explanation_en": "The total stopping distance is the sum of the reaction distance and the braking distance. It encompasses the entire space traveled from the moment the driver visualizes an obstacle or hazard until the vehicle is completely stationary. This value depends on speed, driver condition, road surface, and the braking system.",
+    "topics": {
+      "title_es": "Los accidentes",
+      "title_ru": "Аварии"
+    },
+    "answer_options": [
+      {
+        "id": "59062e1b-90dd-64e2-a3de-b14d4ef46b86",
+        "text_es": "desde que el conductor frena hasta que se detiene el vehículo.",
+        "text_ru": "с момента нажатия водителем на тормоз до полной остановки.",
+        "text_en": "from when the driver brakes until the vehicle stops.",
+        "is_correct": false,
+        "position": 1
+      },
+      {
+        "id": "be859534-b4e4-8f18-f64a-1be73ed7f00e",
+        "text_es": "desde que el conductor percibe un peligro hasta que el vehículo se detiene.",
+        "text_ru": "с момента, когда водитель замечает опасность, до полной остановки.",
+        "text_en": "from when the driver perceives a hazard until the vehicle stops.",
+        "is_correct": true,
+        "position": 2
+      },
+      {
+        "id": "e0d1c57a-b28f-b939-d4e1-397ee2a7da93",
+        "text_es": "durante el tiempo que pasa desde que el conductor reacciona hasta que pisa el pedal del freno.",
+        "text_ru": "за время, которое проходит с момента реакции водителя до нажатия на педаль тормоза.",
+        "text_en": "during the time that passes from when the driver reacts until they step on the brake pedal.",
+        "is_correct": false,
+        "position": 3
+      }
+    ]
+  },
+  {
+    "id": "7d9dd415-9516-4f33-8ff9-133683ef155a",
+    "question_es": "Si pretende cambiar el sentido de la marcha, debe cerciorarse de que...",
+    "question_ru": "Если вы намереваетесь выполнить разворот, вы должны убедиться, что...",
+    "question_en": "If you intend to make a U-turn, you must ensure that...",
+    "image_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/generated/topic-02_test-008/7d9dd415-9516-4f33-8ff9-133683ef155a_1768872430581_pro.webp",
+    "explanation_es": "🎓 Para realizar un **cambio de sentido** (dar media vuelta), la regla número uno es la **seguridad**. Debes elegir un lugar adecuado donde tengas visibilidad suficiente y espacio para hacerlo sin molestar a los demás. Si obligas a otro conductor a frenar o cambiar su trayectoria, lo estás obstaculizando.\n\n💡 **Truco:** No te obsesiones con distancias exactas como '100 metros' en esta pregunta. La clave es: **'Sin peligro y sin obstaculizar'**. Además, recuerda que idealmente debes hacerlo de una sola maniobra (sin marcha atrás). Si dudas, ¡sigue hasta una glorieta!",
+    "explanation_ru": "🎓 Разворот (**Cambio de sentido**) — это маневр, требующий особого внимания. Главное правило DGT: вы можете развернуться только если это **безопасно** и вы **не создаете помех** другим. Это значит, что никто из-за вас не должен тормозить или увиливать. Это разрешено и в городе, и за городом (если нет запрещающих знаков или сплошной линии).\n\n💡 **Лайфхак:** В тестах часто пытаются запутать конкретными цифрами (например, '100 метров'). Игнорируйте их в этом контексте. Правильный ответ всегда про **отсутствие опасности и помех**. И помните: разворот в идеале делается в один прием, без заднего хода!",
+    "explanation_en": "🎓 When performing a **U-turn** (changing direction to go the opposite way), safety is paramount. You must choose a suitable place with good visibility where you can complete the maneuver without disturbing others. If you force another driver to brake or swerve, you are obstructing them.\n\n💡 **Coach's Tip:** Don't get tricked by specific numbers like '100 meters' here. The correct answer always focuses on **safety** and **not obstructing**. Also, remember the 'One-Shot' rule: you should ideally complete the turn without using reverse gear. If in doubt, find a roundabout!",
+    "topics": {
+      "title_es": "Maniobras",
+      "title_ru": "Манёвры"
+    },
+    "answer_options": [
+      {
+        "id": "47d04912-14a5-0a7d-66c2-1ae45aee14f5",
+        "text_es": "puede hacerlo sin poner en peligro ni obstaculizar a otros usuarios.",
+        "text_ru": "можете сделать это, не подвергая опасности и не создавая помех другим участникам движения.",
+        "text_en": "you can do it without endangering or obstructing other road users.",
+        "is_correct": true,
+        "position": 1
+      },
+      {
+        "id": "bf964fa2-e882-f09e-0c38-d4dcf4614a52",
+        "text_es": "se encuentra en una vía urbana, ya que es una maniobra prohibida fuera de poblado.",
+        "text_ru": "находитесь на городской дороге, так как этот маневр запрещен вне населенных пунктов.",
+        "text_en": "you are on an urban road, since this maneuver is prohibited outside built-up areas.",
+        "is_correct": false,
+        "position": 2
+      },
+      {
+        "id": "39c741fa-46ac-a631-13e0-a037a163abd0",
+        "text_es": "no haya ningún otro usuario de la vía a menos de 100 metros de distancia.",
+        "text_ru": "на расстоянии менее 100 метров нет других участников движения.",
+        "text_en": "there are no other road users within 100 meters.",
+        "is_correct": false,
+        "position": 3
+      }
+    ]
+  },
+  {
+    "id": "8a99fb0c-d65f-44d9-acaf-dfd0aecdd9a2",
+    "question_es": "Esta señal indica el lugar desde donde deja de ser aplicable una anterior señal de...",
+    "question_ru": "Этот знак указывает на место, с которого перестает действовать ранее установленный знак...",
+    "question_en": "This sign indicates the place from which a previous sign of... no longer applies.",
+    "image_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/generated/topic-03_test-005/8a99fb0c-d65f-44d9-acaf-dfd0aecdd9a2_1772997353816_pro.webp",
+    "explanation_es": "La señal R-501 (Fin de limitación de velocidad) indica el lugar desde donde deja de ser aplicable una anterior señal de velocidad máxima. Esta señal solo anula la restricción de velocidad, manteniendo vigentes otras prohibiciones si las hubiera. El conductor debe volver a observar los límites de velocidad genéricos de la vía.",
+    "explanation_ru": "🎓 Знак «Конец ограничения максимальной скорости» указывает на место, с которого ранее установленное ограничение скорости перестает действовать. С этого момента водитель легкового автомобиля (Turismo) должен руководствоваться общими скоростными лимитами, установленными для данного типа дороги. Этот знак снимает только ограничение по скорости, не затрагивая другие запреты, такие как запрет на обгон. 💡 Видишь серый круг и косые черты — старые лимиты скорости стерты!",
+    "explanation_en": "The R-501 sign (End of speed limit) indicates the point from which a previous maximum speed limit sign is no longer applicable. This sign only cancels the speed restriction, keeping other prohibitions in effect if any exist. The driver must return to observing the generic speed limits of the road.",
+    "topics": {
+      "title_es": "Señales",
+      "title_ru": "Сигналы"
+    },
+    "answer_options": [
+      {
+        "id": "4cb17f4e-d851-50b5-2b76-e2fa61bf4f55",
+        "text_es": "prohibición de adelantamiento.",
+        "text_ru": "запрета на обгон.",
+        "text_en": "prohibition of overtaking.",
+        "is_correct": false,
+        "position": 1
+      },
+      {
+        "id": "fdaa1b57-8826-dca1-afff-76981d4139d2",
+        "text_es": "velocidad mínima.",
+        "text_ru": "минимальной скорости.",
+        "text_en": "minimum speed.",
+        "is_correct": false,
+        "position": 2
+      },
+      {
+        "id": "e9dbfa15-01e7-5a58-c352-4cac8283bb9e",
+        "text_es": "velocidad máxima.",
+        "text_ru": "максимальной скорости.",
+        "text_en": "maximum speed.",
+        "is_correct": true,
+        "position": 3
+      }
+    ]
+  },
+  {
+    "id": "0636d649-c5cb-4d2e-938e-41055bb72fb0",
+    "question_es": "¿Qué debe hacer el conductor de un vehículo que por motivos de emergencia queda inmovilizado en un paso inferior?",
+    "question_ru": "Что должен сделать водитель транспортного средства, которое из-за чрезвычайной ситуации оказалось обездвиженным в подземном переезде (тоннеле)?",
+    "question_en": "What should the driver of a vehicle do if it becomes immobilized in an underpass due to an emergency?",
+    "image_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/generated/topic-02_test-008/0636d649-c5cb-4d2e-938e-41055bb72fb0_1769190890581_pro.webp",
+    "explanation_es": "🎓 En túneles o pasos inferiores, la seguridad es crítica. Si tu vehículo se detiene por avería, debes apagar el motor, encender las luces de posición y de emergencia, y señalizar la zona. Lo más importante para ser rescatado rápido es usar el poste de socorro (SOS). 💡 ¡Lajfhack! En el examen, si te dan a elegir entre el móvil y el poste SOS en un túnel, elige siempre el poste SOS: permite al centro de control saber tu ubicación exacta al instante.",
+    "explanation_ru": "🎓 В тоннелях и подземных проездах безопасность превыше всего. Если автомобиль сломался, нужно выключить двигатель, включить габаритные огни и аварийную сигнализацию. Для вызова помощи следует использовать ближайший пост экстренной связи (SOS-стойку). 💡 Совет наставника: В вопросах про тоннели DGT всегда делает акцент на SOS-стойках. Почему? Потому что при звонке с такой стойки диспетчер сразу видит ваши точные координаты, что в условиях тоннеля гораздо эффективнее обычного мобильного телефона.",
+    "explanation_en": "🎓 In tunnels or underpasses, safety is paramount. If your vehicle breaks down, you must turn off the engine, switch on the position and hazard warning lights, and signal the vehicle's position. The most effective way to get help is using the nearest emergency SOS post. 💡 Driving Coach Tip: DGT prioritizes SOS posts over mobile phones in tunnels because they provide the control center with your precise location immediately, which is vital in enclosed spaces.",
+    "topics": {
+      "title_es": "Maniobras",
+      "title_ru": "Манёвры"
+    },
+    "answer_options": [
+      {
+        "id": "4763c01c-e443-828d-1845-27bbe3651de9",
+        "text_es": "Permanecer en el interior del vehículo.",
+        "text_ru": "Оставаться внутри транспортного средства.",
+        "text_en": "Stay inside the vehicle.",
+        "is_correct": false,
+        "position": 1
+      },
+      {
+        "id": "3b6ff86e-8a48-6a27-7fd7-184c8e26252a",
+        "text_es": "Inmovilizar el vehículo lo más cerca posible del borde de la calzada.",
+        "text_ru": "Остановить транспортное средство как можно ближе к краю проезжей части.",
+        "text_en": "Immobilize the vehicle as close as possible to the edge of the roadway.",
+        "is_correct": false,
+        "position": 2
+      },
+      {
+        "id": "f12127d7-1c83-3b64-0cf6-82b9fd42649d",
+        "text_es": "Solicitar auxilio a través del poste de socorro más próximo si existiese.",
+        "text_ru": "Запросить помощь через ближайший пост экстренной связи (SOS), если он имеется.",
+        "text_en": "Request help through the nearest emergency post if available.",
+        "is_correct": true,
+        "position": 3
+      }
+    ]
+  },
+  {
+    "id": "aac29d0b-6f72-40f5-845b-08bee7e9e0de",
+    "question_es": "¿Un conductor puede ser condenado a penas de prisión por conducir bajo los efectos del alcohol?",
+    "question_ru": "Может ли водитель быть приговорен к тюремному заключению за вождение в состоянии алкогольного опьянения?",
+    "question_en": "Can a driver be sentenced to prison for driving under the influence of alcohol?",
+    "image_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/generated/topic-07_test-026/aac29d0b-6f72-40f5-845b-08bee7e9e0de.webp",
+    "explanation_es": "El artículo 379.2 del Código Penal establece que la conducción bajo la influencia de bebidas alcohólicas es un delito contra la seguridad vial. Se considera delito cuando la tasa de alcohol en aire espirado es superior a 0,60 mg/l (o 1,2 g/l en sangre), o cuando se conduce bajo la influencia de estas sustancias con independencia de la tasa. Las penas pueden incluir prisión de tres a seis meses, multa o trabajos en beneficio de la comunidad, además de la privación del derecho a conducir de uno a cuatro años.",
+    "explanation_ru": "🎓 В Испании вождение в нетрезвом виде — это не только административный штраф, но и уголовное преступление. Если уровень алкоголя превышает 0,60 мг/л в выдыхаемом воздухе (или 1,2 г/л в крови), либо если водитель явно находится под влиянием опьянения, это влечет за собой тюремное заключение от 3 до 6 месяцев, крупные штрафы или общественные работы, а также лишение прав на срок до 4 лет. Даже если ДТП не произошло, сам факт превышения этого порога является уголовно наказуемым деянием. 🇷🇺 В РФ уголовная ответственность наступает только при повторном нарушении, тогда как в Испании можно попасть под суд уже при первом задержании, если уровень алкоголя критический. 💡 Выпил лишнего — сменил Turismo на тюремную камеру.",
+    "explanation_en": "Article 379.2 of the Penal Code states that driving under the influence of alcoholic beverages is a crime against road safety. It is classified as a criminal offense if the breath alcohol level exceeds 0.60 mg/l (or 1.2 g/l in blood), or if the driver's ability is clearly impaired regardless of the level. Penalties may include imprisonment for three to six months, fines, or community service, along with the suspension of the driving license for one to four years.",
+    "topics": {
+      "title_es": "Los accidentes",
+      "title_ru": "Аварии"
+    },
+    "answer_options": [
+      {
+        "id": "92b2b8e6-1b1d-cb96-dcac-5c03c3547e66",
+        "text_es": "No, el consumo de alcohol no está regulado en el Código Penal.",
+        "text_ru": "Нет, употребление алкоголя не регулируется Уголовным кодексом.",
+        "text_en": "No, alcohol consumption is not regulated in the Penal Code.",
+        "is_correct": false,
+        "position": 1
+      },
+      {
+        "id": "11fc8391-fe9f-0927-f067-1d1ffa0898d4",
+        "text_es": "Solo si el conductor es el responsable de un accidente con víctimas mortales.",
+        "text_ru": "Только если водитель является виновником аварии со смертельным исходом.",
+        "text_en": "Only if the driver is responsible for an accident with fatalities.",
+        "is_correct": false,
+        "position": 2
+      },
+      {
+        "id": "5f0c95ee-c0f5-d3ad-d947-20fecb65206c",
+        "text_es": "Sí, conducir bajo los efectos del alcohol puede ser un delito contra la seguridad vial.",
+        "text_ru": "Да, вождение в состоянии алкогольного опьянения может быть преступлением против безопасности дорожного движения.",
+        "text_en": "Yes, driving under the influence of alcohol can be a crime against road safety.",
+        "is_correct": true,
+        "position": 3
+      }
+    ]
+  },
+  {
+    "id": "c8f92dea-63a6-4383-b875-a3629d439e65",
+    "question_es": "Las ruedas motrices, ¿cuáles son?",
+    "question_ru": "Какие колеса являются ведущими?",
+    "question_en": "Which are the drive wheels?",
+    "image_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/generated/topic-09_test-001/c8f92dea-63a6-4383-b875-a3629d439e65_1768949611636_pro.webp",
+    "explanation_es": "Las ruedas motrices se definen técnicamente como aquellas que reciben directamente la fuerza del motor para generar el movimiento del vehículo. La configuración mecánica determina su ubicación: si la fuerza se transmite al eje delantero, se denomina tracción delantera; si se transmite al eje trasero, se denomina propulsión; y si se transmite a ambos ejes, es tracción total. Por consiguiente, la respuesta correcta no se limita a un solo eje, sino que depende del diseño específico del vehículo.",
+    "explanation_ru": "**🎓 **\nВедущие колеса (ruedas motrices) — это те колеса, на которые двигатель передает крутящий момент, заставляя автомобиль ехать. Остальные колеса просто катятся следом.\n\nДля водителя **Turismo** (легкового автомобиля) важно понимать, что это зависит от модели машины:\n1. **Передний привод (Tracción delantera):** Двигатель вращает передние колеса. Это самый распространенный вариант для обычных городских авто.\n2. **Задний привод (Propulsión):** Двигатель вращает задние колеса. Часто встречается у мощных седанов и спорткаров.\n3. **Полный привод (4x4):** Двигатель вращает все четыре колеса одновременно.\n\nПоэтому нельзя сказать однозначно «передние» или «задние» — все зависит от конструкции конкретного ТС.\n\n**💡 **\nСмотри на корень слова: **MOT**or (мотор) → **MOT**rices (ведущие).\nКуда мотор силу отдает, там и «мотрисес». А отдать он её может хоть вперед, хоть назад.",
+    "explanation_en": "Drive wheels are technically defined as the wheels that receive power directly from the engine to generate vehicle movement. The mechanical configuration determines their location: if power is transmitted to the front axle, it is called front-wheel drive; if transmitted to the rear axle, it is rear-wheel drive (propulsion); and if transmitted to both axles, it is all-wheel drive. Therefore, the correct answer is not limited to a single axle but depends on the specific design of the vehicle.",
+    "topics": {
+      "title_es": "Mecánica y mantenimiento",
+      "title_ru": "Механика и обслуживание"
+    },
+    "answer_options": [
+      {
+        "id": "dce09bae-f45c-2c27-7bc9-500347a5b000",
+        "text_es": "Las ruedas traseras.",
+        "text_ru": "Задние колеса.",
+        "text_en": "The rear wheels.",
+        "is_correct": false,
+        "position": 1
+      },
+      {
+        "id": "29caad4c-07e4-87ad-b203-0085bf609b3b",
+        "text_es": "Las ruedas delanteras.",
+        "text_ru": "Передние колеса.",
+        "text_en": "The front wheels.",
+        "is_correct": false,
+        "position": 2
+      },
+      {
+        "id": "2214446a-2e29-4298-21a3-c19485cf8cb0",
+        "text_es": "Pueden ser las ruedas delanteras o las ruedas traseras según el tipo de vehículo.",
+        "text_ru": "Это могут быть как передние, так и задние колеса, в зависимости от типа транспортного средства.",
+        "text_en": "They can be the front or rear wheels depending on the type of vehicle.",
+        "is_correct": true,
+        "position": 3
+      }
+    ]
+  },
+  {
+    "id": "b4bbc53b-ed3d-4bd4-b7e0-81d461c38124",
+    "question_es": "La mayor parte de los accidentes de circulación tienen lugar...",
+    "question_ru": "Большая часть дорожно-транспортных происшествий происходит...",
+    "question_en": "Most traffic accidents take place...",
+    "image_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/generated/topic-07_test-017/b4bbc53b-ed3d-4bd4-b7e0-81d461c38124.webp",
+    "explanation_es": "Según las estadísticas de siniestralidad vial, la mayoría de los accidentes se producen en las rectas y tramos con buena visibilidad. Esto se debe a que los conductores tienden a relajarse y disminuir su nivel de alerta, lo que favorece el exceso de velocidad, la fatiga y las distracciones. En las curvas, la percepción del peligro hace que el conductor mantenga mayor atención.",
+    "explanation_ru": "🎓 Вопреки интуиции, статистика показывает, что большинство аварий случается именно на прямых участках дорог с хорошей видимостью. Это чистая психология: на сложной дороге (повороты, подъемы) водитель инстинктивно концентрируется. На прямой же дороге возникает ложное чувство безопасности, водитель расслабляется, теряет бдительность, отвлекается или засыпает, часто превышая скорость.\n\n💡 Прямая трасса усыпляет, поворот — отрезвляет.",
+    "explanation_en": "According to road accident statistics, most accidents occur on straight roads and sections with good visibility. This is because drivers tend to relax and lower their alertness level, which fosters speeding, fatigue, and distractions. On curves, the perception of danger causes the driver to maintain higher attention.",
+    "topics": {
+      "title_es": "Los accidentes",
+      "title_ru": "Аварии"
+    },
+    "answer_options": [
+      {
+        "id": "96510419-3f36-1f29-43f6-316b6b90d413",
+        "text_es": "en los cambios de rasante.",
+        "text_ru": "на переломах профиля дороги.",
+        "text_en": "on hill crests.",
+        "is_correct": false,
+        "position": 1
+      },
+      {
+        "id": "911d3f04-4953-c4fd-69b1-cf9285ec8c21",
+        "text_es": "en las curvas.",
+        "text_ru": "на поворотах.",
+        "text_en": "on curves.",
+        "is_correct": false,
+        "position": 2
+      },
+      {
+        "id": "03e2b09a-3c2b-1c86-4dd9-906892b4601e",
+        "text_es": "en las rectas.",
+        "text_ru": "на прямых участках.",
+        "text_en": "on straight roads.",
+        "is_correct": true,
+        "position": 3
+      }
+    ]
+  },
+  {
+    "id": "c3569102-a478-4f85-b48d-55e8e28334b5",
+    "question_es": "A baja velocidad, la dirección asistida progresiva...",
+    "question_ru": "На низкой скорости прогрессивный усилитель рулевого управления...",
+    "question_en": "At low speed, progressive power steering...",
+    "image_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/generated/topic-07_test-026/c3569102-a478-4f85-b48d-55e8e28334b5.webp",
+    "explanation_es": "La dirección asistida progresiva varía el grado de asistencia en función de la velocidad del vehículo. A velocidades reducidas, el sistema proporciona la máxima asistencia para facilitar maniobras como el estacionamiento, minimizando el esfuerzo físico del conductor sobre el volante. A medida que aumenta la velocidad, la asistencia disminuye para mejorar la estabilidad y el tacto de la dirección.",
+    "explanation_ru": "🎓 Прогрессивный усилитель рулевого управления адаптирует свою работу под скорость движения. Когда твой легковой автомобиль (Turismo) движется на низкой скорости, например, во время парковки или маневрирования в узких местах, система обеспечивает максимальную помощь. Это позволяет вращать рулевое колесо с минимальным физическим усилием. По мере разгона помощь системы уменьшается, руль становится более «тяжелым» и информативным, что предотвращает резкие и опасные движения на высокой скорости. 💡 Паркуйся мизинцем, рули на трассе кулаком.",
+    "explanation_en": "Progressive power steering varies the level of assistance based on the vehicle's speed. At low speeds, the system provides maximum assistance to facilitate maneuvers such as parking, minimizing the driver's physical effort on the steering wheel. As speed increases, the assistance decreases to enhance stability and steering feel.",
+    "topics": {
+      "title_es": "Los accidentes",
+      "title_ru": "Аварии"
+    },
+    "answer_options": [
+      {
+        "id": "4dde09e6-2ff9-0869-28fd-57c08d35113f",
+        "text_es": "permite un control más preciso del vehículo.",
+        "text_ru": "позволяет более точно контролировать транспортное средство.",
+        "text_en": "allows for more precise control of the vehicle.",
+        "is_correct": false,
+        "position": 1
+      },
+      {
+        "id": "b774574d-bff0-1dde-a01e-a2e57dcd65f6",
+        "text_es": "reduce al mínimo el esfuerzo necesario para mover el volante.",
+        "text_ru": "сводит к минимуму усилия, необходимые для поворота рулевого колеса.",
+        "text_en": "minimizes the effort required to move the steering wheel.",
+        "is_correct": true,
+        "position": 2
+      },
+      {
+        "id": "7494a2d5-6f80-07fe-f290-94c248def489",
+        "text_es": "hace que la dirección se endurezca.",
+        "text_ru": "делает рулевое управление более жестким.",
+        "text_en": "causes the steering to become stiffer.",
+        "is_correct": false,
+        "position": 3
+      }
+    ]
+  },
+  {
+    "id": "df2decc0-8e2d-48d3-9ff3-be51df4bf60f",
+    "question_es": "Un turismo que circula de noche, por una vía interurbana suficientemente iluminada, ¿qué luces debe llevar encendidas?",
+    "question_ru": "Какие световые приборы должен включить легковой автомобиль при движении ночью по достаточно освещенной загородной дороге?",
+    "question_en": "A passenger car driving at night on a sufficiently illuminated interurban road, what lights must it have on?",
+    "image_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/generated/topic-04_test-001/df2decc0-8e2d-48d3-9ff3-be51df4bf60f_1768827182213_pro.webp",
+    "explanation_es": "Según el Reglamento General de Circulación, todo vehículo que circule entre el ocaso y la salida del sol por vías interurbanas suficientemente iluminadas deberá llevar encendido el alumbrado de posición y el de corto alcance o cruce. El uso de la luz de largo alcance está expresamente prohibido cuando la vía está suficientemente iluminada para evitar el deslumbramiento a otros usuarios.",
+    "explanation_ru": "🎓 При движении в темное время суток по достаточно освещенной загородной дороге ПДД Испании обязывают водителя легкового автомобиля использовать габаритные огни совместно с ближним светом фар. Дальний свет в таких условиях запрещен, так как он может ослепить других водителей. Это же требование распространяется на освещенные тоннели и путепроводы. 🇷🇺 В Испании при включении ближнего света габаритные огни всегда должны быть активны; использование только ДХО в темное время суток, даже при наличии уличного освещения, является нарушением. 💡 Светло в пути — на ближний перейди, габариты не забудь, безопасным будет путь!",
+    "explanation_en": "According to the General Traffic Regulations, any vehicle driving between sunset and sunrise on sufficiently illuminated interurban roads must use position lights and low beam (dipped) lights. The use of high beam lights is expressly prohibited when the road is sufficiently lit to prevent dazzling other road users.",
+    "topics": {
+      "title_es": "Alumbrado",
+      "title_ru": "Освещение"
+    },
+    "answer_options": [
+      {
+        "id": "90a625fc-28ab-12a5-1d00-847201d3b97b",
+        "text_es": "Las de largo alcance.",
+        "text_ru": "Дальний свет фар.",
+        "text_en": "High beam lights.",
+        "is_correct": false,
+        "position": 1
+      },
+      {
+        "id": "5d5759a3-c292-553f-b414-fc4c2188b762",
+        "text_es": "Las de corto alcance, únicamente.",
+        "text_ru": "Только ближний свет фар.",
+        "text_en": "Low beam lights, only.",
+        "is_correct": false,
+        "position": 2
+      },
+      {
+        "id": "6ee6ef62-1953-db44-a5e1-16de59d95476",
+        "text_es": "Las de posición y las de corto alcance.",
+        "text_ru": "Габаритные огни и ближний свет фар.",
+        "text_en": "Position and low beam lights.",
+        "is_correct": true,
+        "position": 3
+      }
+    ]
+  },
+  {
+    "id": "52283488-1143-4120-85b1-1b3d5e80ae66",
+    "question_es": "¿Está permitido adelantar a un vehículo que ha señalizado a su vez la intención de adelantar?",
+    "question_ru": "Разрешено ли выполнить обгон транспортного средства, которое само подало сигнал о намерении совершить обгон?",
+    "question_en": "Is it permitted to overtake a vehicle that has itself signaled the intention to overtake?",
+    "image_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/generated/topic-02_test-014/52283488-1143-4120-85b1-1b3d5e80ae66_1769451629588_pro.webp",
+    "explanation_es": "El conductor que precede tiene preferencia si ha señalizado su propósito de adelantar. Sin embargo, si después de un tiempo prudencial no inicia la maniobra, el vehículo que le sigue puede adelantarle, advirtiéndoselo previamente con señales acústicas u ópticas.",
+    "explanation_ru": "🎓 Когда вы управляете **легковым автомобилем (Turismo)** и видите, что машина впереди включила левый поворотник для **обгона (Adelantamiento)**, она имеет приоритет. Вы обязаны ждать. Однако ПДД Испании не требуют ждать бесконечно. Если водитель впереди включил сигнал, но в течение **разумного времени** так и не начал маневр (забыл выключить, боится или отвлекся), вы имеете право его обогнать.\n\n**Важное условие:** Перед началом своего обгона вы **обязаны** предупредить этого водителя о своих намерениях. Для этого используются:\n1. Кратковременное переключение фар (световой сигнал).\n2. Или звуковой сигнал (вне населенных пунктов).\n\n🇷🇺 Это критическое отличие! В РФ (п. 11.2 ПДД) обгон **категорически запрещен**, если транспортное средство впереди подало сигнал левого поворота. Российские правила не содержат оговорки про «разумное время» или возможность «посигналить и поехать». В Испании же, если водитель впереди «мигает, но не едет», закон разрешает вам взять инициативу на себя после предупреждения.\n\n💡 «Мигает, но спит? Разбуди и обгони!»\nЕсли перед тобой «вечный мигальщик», не стой за ним до старости: посигналь (светом или звуком) и проезжай.",
+    "explanation_en": "The driver ahead has priority if they have signaled their intention to overtake. However, if after a reasonable time they do not initiate the maneuver, the following vehicle may overtake them, having previously warned them with acoustic or optical signals.",
+    "topics": {
+      "title_es": "Maniobras",
+      "title_ru": "Манёвры"
+    },
+    "answer_options": [
+      {
+        "id": "549882e5-db6f-51b3-9137-6520fc48cfa5",
+        "text_es": "Sí, si después de un tiempo prudencial no lo hace y le advierte con las señales acústicas u ópticas.",
+        "text_ru": "Да, если спустя разумное время оно не начинает маневр, и вы предупредите его звуковыми или световыми сигналами.",
+        "text_en": "Yes, if after a reasonable time it does not do so and you warn it with acoustic or optical signals.",
+        "is_correct": true,
+        "position": 1
+      },
+      {
+        "id": "8382944e-c6a7-a56c-2e25-7ecaf9b5e41a",
+        "text_es": "No, si lo ha señalizado, tiene preferencia.",
+        "text_ru": "Нет, если оно подало сигнал, оно имеет преимущество.",
+        "text_en": "No, if it has signaled, it has preference.",
+        "is_correct": false,
+        "position": 2
+      },
+      {
+        "id": "66be4648-b2d8-27fe-8aa0-3d8ae5d4e6db",
+        "text_es": "No, tiene que esperar a que termine la maniobra o apague el intermitente.",
+        "text_ru": "Нет, нужно ждать, пока оно закончит маневр или выключит поворотник.",
+        "text_en": "No, you have to wait for it to finish the maneuver or turn off the indicator.",
+        "is_correct": false,
+        "position": 3
+      }
+    ]
+  },
+  {
+    "id": "4d8ce533-27c7-4cfa-9d80-ab7a1822d5dc",
+    "question_es": "La distancia de detención depende...",
+    "question_ru": "Остановочный путь зависит от...",
+    "question_en": "The stopping distance depends on...",
+    "image_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/generated/topic-07_test-003/4d8ce533-27c7-4cfa-9d80-ab7a1822d5dc.webp",
+    "explanation_es": "La distancia de detención técnica es la suma de la distancia de reacción y la distancia de frenado. La distancia de reacción depende exclusivamente del estado del conductor (fatiga, alcohol, distracciones). La distancia de frenado está condicionada por el estado del vehículo (frenos, neumáticos) y el estado de la vía (pavimento, condiciones meteorológicas). Por tanto, la detención total es el resultado de la interacción de los tres factores del sistema de tráfico.",
+    "explanation_ru": "🎓 Остановочный путь — это суммарное расстояние, которое проходит легковой автомобиль (Turismo) с момента обнаружения тобой опасности до полной остановки. Он состоит из пути реакции и тормозного пути. Путь реакции зависит только от твоего состояния (усталость, скорость реакции). Тормозной путь зависит от состояния транспортного средства (тормоза, шины) и состояния проезжей части (calzada), например, наличия воды или гравия. Для безопасной остановки все три фактора должны быть в норме. 💡 Твоя реакция плюс тормоза — вот безопасности цена!",
+    "explanation_en": "The total stopping distance is the sum of the reaction distance and the braking distance. The reaction distance depends exclusively on the driver's condition (fatigue, alcohol, distractions). The braking distance is determined by the vehicle's condition (brakes, tires) and the road's condition (pavement, weather conditions). Therefore, total stopping is the result of the interaction of all three factors in the traffic system.",
+    "topics": {
+      "title_es": "Los accidentes",
+      "title_ru": "Аварии"
+    },
+    "answer_options": [
+      {
+        "id": "60a97bcc-2333-4dee-e584-a26f0fcaec2f",
+        "text_es": "del estado de la vía, únicamente.",
+        "text_ru": "только от состояния проезжей части.",
+        "text_en": "the condition of the road, only.",
+        "is_correct": false,
+        "position": 1
+      },
+      {
+        "id": "1f55fd67-2557-8cc7-c7ba-f4c1d2bb61f6",
+        "text_es": "del estado del conductor, de la vía y del vehículo.",
+        "text_ru": "от состояния водителя, проезжей части и транспортного средства.",
+        "text_en": "the condition of the driver, the road, and the vehicle.",
+        "is_correct": true,
+        "position": 2
+      },
+      {
+        "id": "4a66668a-013f-f6e9-e4be-1527b6c5da5c",
+        "text_es": "del estado del vehículo, principalmente.",
+        "text_ru": "в основном от состояния транспортного средства.",
+        "text_en": "the condition of the vehicle, primarily.",
+        "is_correct": false,
+        "position": 3
+      }
+    ]
+  },
+  {
+    "id": "5ff25e9e-34da-4398-b769-174b8586dd76",
+    "question_es": "En un carril reservado para uso exclusivo del transporte público urbano, ¿se puede estacionar?",
+    "question_ru": "Разрешено ли совершать стоянку на полосе, предназначенной исключительно для городского общественного транспорта?",
+    "question_en": "Can you park in a lane reserved exclusively for urban public transport?",
+    "image_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/generated/topic-02_test-005/5ff25e9e-34da-4398-b769-174b8586dd76.webp",
+    "explanation_es": "Según el Reglamento General de Circulación (Art. 94), está prohibido parar y estacionar en los carriles o partes de la vía reservados exclusivamente para la circulación o para el servicio de determinados usuarios. Esto incluye los carriles bus y taxi, donde cualquier obstaculización afecta gravemente a la fluidez del servicio público.",
+    "explanation_ru": "🎓 ПДД Испании устанавливают строгий запрет: на полосах, выделенных для общественного транспорта (Carril Bus), запрещены и остановка (parada), и стоянка (estacionamiento). Эти зоны предназначены исключительно для движения автобусов и такси, и любое препятствие там нарушает график движения. 🇷🇺 В РФ на полосе для МТС (маршрутных транспортных средств) разрешена остановка для посадки и высадки пассажиров у правого края, если это не создает помех автобусам и разметка прерывистая. В Испании такой маневр категорически запрещен всегда. 💡 Видишь надпись BUS на асфальте? Считай, что там лава — заезжать нельзя ни на секунду.",
+    "explanation_en": "According to the General Traffic Regulations (Art. 94), stopping and parking are prohibited in lanes or parts of the road reserved exclusively for the circulation or service of certain users. This includes bus and taxi lanes, where any obstruction seriously affects the fluidity of public service.",
+    "topics": {
+      "title_es": "Maniobras",
+      "title_ru": "Манёвры"
+    },
+    "answer_options": [
+      {
+        "id": "29c4a4a7-5302-c8aa-24bb-3d1b033e3856",
+        "text_es": "Sí, se puede parar y estacionar.",
+        "text_ru": "Да, можно останавливаться и парковаться.",
+        "text_en": "Yes, you can stop and park.",
+        "is_correct": false,
+        "position": 1
+      },
+      {
+        "id": "a86960ad-35fb-d014-18fb-0f9a5820d8ed",
+        "text_es": "Solo fuera del horario de servicio.",
+        "text_ru": "Только в нерабочее время транспорта.",
+        "text_en": "Only outside of service hours.",
+        "is_correct": false,
+        "position": 2
+      },
+      {
+        "id": "3dd384a9-c509-f6ac-7b58-0cf8f474b446",
+        "text_es": "No.",
+        "text_ru": "Нет.",
+        "text_en": "No.",
+        "is_correct": true,
+        "position": 3
+      }
+    ]
+  },
+  {
+    "id": "5bce0c53-427f-4c61-9f9f-81005ee47073",
+    "question_es": "Conservar el vehículo en buen estado, ¿requiere revisiones frecuentes en algunos de los sistemas del vehículo?",
+    "question_ru": "Требует ли поддержание легкового автомобиля в хорошем состоянии частых проверок некоторых его систем?",
+    "question_en": "Does keeping the vehicle in good condition require frequent checks of some of the vehicle's systems?",
+    "image_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/generated/topic-07_test-025/5bce0c53-427f-4c61-9f9f-81005ee47073.webp",
+    "explanation_es": "El mantenimiento preventivo es una obligación del titular del vehículo para garantizar la seguridad vial y minimizar el impacto ambiental. El Reglamento General de Vehículos estipula que se deben realizar inspecciones periódicas de los elementos de seguridad (frenos, neumáticos, dirección) y cumplir estrictamente con los intervalos de mantenimiento técnico definidos por el fabricante en el libro de servicio.",
+    "explanation_ru": "🎓 Поддержание легкового автомобиля в исправном состоянии — это не только твоя безопасность, но и прямая обязанность. Ты должен регулярно проверять критически важные системы: тормоза, давление в шинах и работу фар. Однако личного осмотра недостаточно — необходимо строго следовать графику технического обслуживания, который прописал завод-изготовитель в сервисной книжке. Это позволяет выявить скрытые дефекты до того, как они приведут к аварии. 💡 Машина — как зубы: если не делать профилактику, когда ничего не болит, потом будет дорого и больно.",
+    "explanation_en": "Preventive maintenance is an obligation of the vehicle owner to ensure road safety and minimize environmental impact. The General Vehicle Regulations stipulate that periodic inspections of safety elements (brakes, tires, steering) must be carried out, and technical maintenance intervals defined by the manufacturer in the service manual must be strictly followed.",
+    "topics": {
+      "title_es": "Los accidentes",
+      "title_ru": "Аварии"
+    },
+    "answer_options": [
+      {
+        "id": "3196256a-4eae-7394-540e-1d5926a9ace7",
+        "text_es": "Solo si el vehículo sufre daños que afecte a la seguridad.",
+        "text_ru": "Только если легковой автомобиль получил повреждения, влияющие на безопасность.",
+        "text_en": "Only if the vehicle suffers damage that affects safety.",
+        "is_correct": false,
+        "position": 1
+      },
+      {
+        "id": "19fc91a2-1ea6-3280-8f8e-3efe47f9ce40",
+        "text_es": "No, no es necesario.",
+        "text_ru": "Нет, это не обязательно.",
+        "text_en": "No, it is not necessary.",
+        "is_correct": false,
+        "position": 2
+      },
+      {
+        "id": "44642753-226c-ca10-5282-db2f002e42e4",
+        "text_es": "Sí, además de seguir los planes de mantenimiento establecidos por el fabricante.",
+        "text_ru": "Да, в дополнение к соблюдению планов технического обслуживания, установленных производителем.",
+        "text_en": "Yes, in addition to following the maintenance plans established by the manufacturer.",
+        "is_correct": true,
+        "position": 3
+      }
+    ]
+  },
+  {
+    "id": "3f08c8f6-ab43-4375-afbf-c4c400accddc",
+    "question_es": "Circulando a una velocidad superior a la velocidad máxima permitida, está circulando...",
+    "question_ru": "Двигаясь со скоростью выше максимально разрешенной, вы двигаетесь...",
+    "question_en": "Driving at a speed higher than the maximum permitted speed, you are driving...",
+    "image_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/generated/topic-01_test-003/3f08c8f6-ab43-4375-afbf-c4c400accddc.webp",
+    "explanation_es": "Desde el punto de vista normativo, circular a una velocidad superior a la establecida por la señalización o las normas generales se tipifica como 'exceso de velocidad'. Es fundamental distinguir este concepto de la 'velocidad excesiva' o 'inadecuada'. La velocidad excesiva se refiere a una velocidad no adaptada a las circunstancias de la vía o del entorno (lluvia, tráfico denso), incluso si es inferior al límite máximo. Sin embargo, el enunciado especifica claramente que se supera el límite legal ('velocidad máxima permitida'), lo cual constituye objetivamente un exceso de velocidad sancionable.",
+    "explanation_ru": "🎓 Для водителя **Turismo** (легкового автомобиля) важно различать два похожих термина в испанских ПДД, чтобы не ошибиться в билетах:\n\n1. **Exceso de velocidad** (Превышение скорости) — это чисто математическое нарушение. Если знак показывает 120, а ты едешь 121 км/ч — это *exceso*. Ты нарушил закон, превысив цифру.\n2. **Velocidad excesiva / inadecuada** (Чрезмерная / несоответствующая скорость) — это нарушение логики безопасности. Например, ты едешь 90 км/ч (по правилам), но в густой туман или гололед. Ты не превысил лимит, но твоя скорость опасна для условий.\n\nВ вопросе четко сказано: «выше максимально разрешенной» (superior a la velocidad máxima permitida). Значит, речь идет именно о нарушении лимита — **exceso de velocidad**.\n\n💡 Как не запутаться в словах:\n*   **Exceso** (Эксцесс) — это про **Закон** (цифры, штрафы).\n*   **Excesiva** (Чрезмерная) — это про **Здравый смысл** (погода, трафик).\n\nВидишь в вопросе «выше разрешенной»? Ищи ответ со словом **Exceso**.",
+    "explanation_en": "From a regulatory standpoint, driving at a speed higher than that established by signs or general rules is classified as 'excess speed' (speeding). It is crucial to distinguish this concept from 'excessive speed' or 'inadequate speed.' Excessive speed refers to speed not adapted to road or environmental conditions (rain, heavy traffic), even if it is below the maximum limit. However, the question clearly states that the legal limit ('maximum permitted speed') is being exceeded, which objectively constitutes punishable excess speed.",
+    "topics": {
+      "title_es": "Definiciones y uso de las vías",
+      "title_ru": "Определения и использование дорог"
+    },
+    "answer_options": [
+      {
+        "id": "4f87d1ee-af44-b5ba-3467-5b3235aafcda",
+        "text_es": "con exceso de velocidad.",
+        "text_ru": "с превышением скорости.",
+        "text_en": "with excess speed.",
+        "is_correct": true,
+        "position": 1
+      },
+      {
+        "id": "0dc47654-22d1-3555-e0cc-a2e82e7ba180",
+        "text_es": "a una velocidad máxima.",
+        "text_ru": "с максимальной скоростью.",
+        "text_en": "at a maximum speed.",
+        "is_correct": false,
+        "position": 2
+      },
+      {
+        "id": "357316f7-d53e-b9b8-0717-7ebb5ad583b3",
+        "text_es": "a una velocidad moderada, según las circunstancias.",
+        "text_ru": "с умеренной скоростью, в зависимости от обстоятельств.",
+        "text_en": "at a moderate speed, depending on circumstances.",
+        "is_correct": false,
+        "position": 3
+      }
+    ]
+  },
+  {
+    "id": "84b51616-415b-45d4-a77a-fe492d28a80e",
+    "question_es": "En carretera, ¿cuándo puede adelantar por la derecha?",
+    "question_ru": "Когда разрешено выполнять обгон справа на загородной дороге?",
+    "question_en": "On an interurban road, when are you allowed to overtake on the right?",
+    "image_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/generated/topic-02_test-005/84b51616-415b-45d4-a77a-fe492d28a80e.webp",
+    "explanation_es": "Según el Reglamento General de Circulación, como norma general el adelantamiento debe efectuarse por la izquierda. Sin embargo, está permitido adelantar por la derecha cuando el conductor del vehículo al que se pretende adelantar esté indicando claramente su propósito de cambiar de dirección a la izquierda o parar en ese lado, siempre que exista espacio suficiente en la calzada para hacerlo con seguridad.",
+    "explanation_ru": "🎓 На дорогах вне населенных пунктов (carretera) действует строгое правило: любой обгон или опережение выполняются только слева. Единственное исключение для маневра справа: если водитель впереди включил левый поворотник и явно собирается повернуть налево или остановиться у левого края. В этом случае его можно обойти справа, если позволяет ширина проезжей части. 🇷🇺 В РФ разрешено \"опережение\" справа по соседней полосе на многополосных дорогах. В Испании на трассе это запрещено: нельзя объехать \"тихохода\", занимающего левый ряд, по правому ряду (это штраф). Справа можно только объезжать того, кто поворачивает налево. 💡 Поворотник влево — обходи справа.",
+    "explanation_en": "According to the General Traffic Regulations, as a general rule, overtaking must be carried out on the left. However, overtaking on the right is permitted when the driver of the vehicle to be overtaken is clearly indicating their intention to turn left or stop on that side, provided there is sufficient space on the roadway to do so safely.",
+    "topics": {
+      "title_es": "Maniobras",
+      "title_ru": "Манёвры"
+    },
+    "answer_options": [
+      {
+        "id": "3360d747-2549-4981-ca85-d6b113e2d25a",
+        "text_es": "Cuando conduzco por una calzada con más de dos carriles.",
+        "text_ru": "При движении по проезжей части, имеющей более двух полос.",
+        "text_en": "When driving on a roadway with more than two lanes.",
+        "is_correct": false,
+        "position": 1
+      },
+      {
+        "id": "b3f1ee58-c2ff-8c18-4b0d-fa0a85670518",
+        "text_es": "Cuando el vehículo que va delante va a girar a la izquierda y hay espacio libre en la calzada.",
+        "text_ru": "Когда транспортное средство впереди собирается повернуть налево, и на проезжей части есть свободное место.",
+        "text_en": "When the vehicle in front is going to turn left and there is free space on the roadway.",
+        "is_correct": true,
+        "position": 2
+      },
+      {
+        "id": "43027dc4-f889-2f70-7284-311a0a37b37f",
+        "text_es": "Cuando está libre el carril de la derecha.",
+        "text_ru": "Когда правая полоса свободна.",
+        "text_en": "When the right lane is free.",
+        "is_correct": false,
+        "position": 3
+      }
+    ]
+  },
+  {
+    "id": "f3c1d884-6b06-40ec-9596-280b1cfa4f39",
+    "question_es": "La carga que transporta en un vehículo...",
+    "question_ru": "Груз, перевозимый в транспортном средстве...",
+    "question_en": "The cargo carried in a vehicle...",
+    "image_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/generated/topic-05_test-002/f3c1d884-6b06-40ec-9596-280b1cfa4f39_1768868116249_pro.webp",
+    "explanation_es": "La carga transportada en un vehículo, así como los accesorios que se utilicen para su protección, deben estar dispuestos y, si fuera necesario, sujetos de tal forma que no puedan arrastrar, caer total o parcialmente o desplazarse de manera peligrosa, ni comprometer la estabilidad del vehículo. Asimismo, no deben ocultar los dispositivos de alumbrado o de señalización luminosa, las placas o distintivos obligatorios y las advertencias manuales de sus conductores.",
+    "explanation_ru": "🎓 При перевозке груза в легковом автомобиле (Turismo) твоя главная задача — обеспечить безопасность и устойчивость. Груз должен быть размещен и закреплен так, чтобы он не смещался, не выпадал и не волочился по дороге. Важно помнить: тяжелые предметы на крыше смещают центр тяжести вверх, что негативно влияет на устойчивость в поворотах и увеличивает расход топлива. Внутри салона можно перевозить только легкие и малогабаритные вещи, так как при резком торможении или аварии тяжелые предметы могут серьезно травмировать пассажиров. Категорически запрещено закрывать грузом фары, фонари, номерные знаки или ограничивать обзор водителю. Также нельзя ездить с открытыми дверями багажника или выставлять груз в окна. 💡 Груз закрепи и не гони — устойчивость сохрани!",
+    "explanation_en": "The cargo carried in a vehicle, as well as the accessories used for its protection, must be arranged and, if necessary, secured in such a way that they cannot drag, fall totally or partially, or move in a dangerous manner, nor compromise the stability of the vehicle. Furthermore, they must not hide the lighting or light signaling devices, the mandatory plates or markings, and the manual signals of the drivers.",
+    "topics": {
+      "title_es": "El uso del vehículo",
+      "title_ru": "Использование ТС"
+    },
+    "answer_options": [
+      {
+        "id": "a01872e9-9282-efe7-17ec-ac44f3934019",
+        "text_es": "puede colocarse como mejor convenga al conductor.",
+        "text_ru": "может размещаться так, как удобно водителю.",
+        "text_en": "may be placed as best suits the driver.",
+        "is_correct": false,
+        "position": 1
+      },
+      {
+        "id": "6fbb76ca-3510-3da6-fb39-6a4d6c4f7c1d",
+        "text_es": "puede ocultar los dispositivos de señalización luminosa.",
+        "text_ru": "может закрывать внешние световые приборы.",
+        "text_en": "may hide the light signaling devices.",
+        "is_correct": false,
+        "position": 2
+      },
+      {
+        "id": "092a47a5-9265-696e-c23c-2347e888b493",
+        "text_es": "debe estar colocada y sujeta de forma que no comprometa la estabilidad del vehículo.",
+        "text_ru": "должен быть размещен и закреплен таким образом, чтобы не нарушать устойчивость транспортного средства.",
+        "text_en": "must be placed and secured in such a way that it does not compromise the stability of the vehicle.",
+        "is_correct": true,
+        "position": 3
+      }
+    ]
+  },
+  {
+    "id": "6c62c447-3274-48ca-a3e4-cbb55a2b7034",
+    "question_es": "En un turismo, ¿cuál de los siguientes accesorios es obligatorio llevar?",
+    "question_ru": "Какой из следующих аксессуаров обязательно должен быть в легковом автомобиле?",
+    "question_en": "In a passenger car, which of the following accessories is mandatory to carry?",
+    "image_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/generated/topic-09_test-001/6c62c447-3274-48ca-a3e4-cbb55a2b7034_1768949967701_pro.webp",
+    "explanation_es": "Según el Reglamento General de Vehículos, los turismos deben llevar obligatoriamente los siguientes accesorios y repuestos: 1) Un chaleco reflectante de alta visibilidad homologado (debe estar accesible desde el interior del vehículo). 2) Dos triángulos de preseñalización de peligro o una señal luminosa V-16. 3) Una rueda de repuesto (o de uso temporal) con las herramientas necesarias para su cambio, o un sistema alternativo (como un kit antipinchazos). No es obligatorio llevar un botiquín de primeros auxilios ni un juego de lámparas de repuesto.",
+    "explanation_ru": "🎓 \nДля водителя легкового автомобиля (Turismo) в Испании установлен строгий перечень обязательного оборудования. Вы обязаны иметь:\n1. **Светоотражающий жилет** (минимум один, сертифицированный). Важно: он должен лежать в салоне (например, в бардачке), чтобы вы могли надеть его, не выходя из машины.\n2. **Два знака аварийной остановки** (треугольники) ИЛИ один проблесковый маячок V-16.\n3. **Запасное колесо** (полноценное или «докатку») с инструментами для замены ИЛИ ремкомплект для шин.\n\nЗапасные лампы и аптечка первой помощи для частных легковых автомобилей не являются обязательными.\n\n🇷🇺 \nЭто критическое отличие, на котором часто ошибаются опытные водители!\nВ РФ **аптечка** и **огнетушитель** обязательны, и за их отсутствие штрафуют.\nВ Испании для обычного легкового автомобиля аптечка и огнетушитель **НЕ НУЖНЫ** по закону (хотя возить их для безопасности не запрещено). Также в Испании официально отменили требование возить запасные лампочки, так как в современных авто их замена на дороге часто невозможна.\n\n💡 \nЗапомни «испанский набор»:\n**Ж**илет, **З**нак, **К**олесо.\nАптечку и огнетушитель оставь дома (если хочешь сэкономить место).",
+    "explanation_en": "According to the General Vehicle Regulations, passenger cars must mandatorily carry the following accessories and spares: 1) An approved high-visibility reflective vest (must be accessible from inside the vehicle). 2) Two danger warning triangles or a V-16 luminous signal. 3) A spare wheel (or temporary use wheel) with the necessary tools to change it, or an alternative system (such as a puncture repair kit). It is not mandatory to carry a first aid kit or a set of spare bulbs.",
+    "topics": {
+      "title_es": "Mecánica y mantenimiento",
+      "title_ru": "Механика и обслуживание"
+    },
+    "answer_options": [
+      {
+        "id": "3f0818ad-5be9-05a5-b2ed-bae840550f25",
+        "text_es": "Un chaleco reflectante de alta visibilidad homologado.",
+        "text_ru": "Сертифицированный светоотражающий жилет высокой видимости.",
+        "text_en": "An approved high-visibility reflective vest.",
+        "is_correct": true,
+        "position": 1
+      },
+      {
+        "id": "81d308d5-fa8d-74a7-e0ba-90d63746f626",
+        "text_es": "Una caja con lámparas de repuesto.",
+        "text_ru": "Набор запасных ламп.",
+        "text_en": "A box with spare bulbs.",
+        "is_correct": false,
+        "position": 2
+      },
+      {
+        "id": "1ee43ad4-65d2-d24a-afb2-614af1630f57",
+        "text_es": "Un botiquín de primeros auxilios.",
+        "text_ru": "Аптечка первой помощи.",
+        "text_en": "A first aid kit.",
+        "is_correct": false,
+        "position": 3
+      }
+    ]
+  }
+]
