@@ -156,6 +156,11 @@ const TestSession = () => {
   const isGuest = !authLoading && (!isAuthenticated || !profileId);
   const openModal = useModalStore((state) => state.openModal);
 
+  // Daily test limit: 5 full tests/day for free users (premium/trial unlimited)
+  const { incrementMutation: testLimitIncrement } = useDailyTestLimit(profileId);
+  const testLimitCheckedRef = useRef(false);
+  const [testLimitBlocked, setTestLimitBlocked] = useState(false);
+
   useEffect(() => {
     if (!isGuest) return;
     const guestAllowedModes = new Set([
@@ -172,6 +177,32 @@ const TestSession = () => {
     if (guestAllowedModes.has(mode)) return;
     navigate(`/test/practice?count=30&category=${searchParams.get("category") || selectedCategory}&guest=1`, { replace: true });
   }, [isGuest, mode, navigate, searchParams, selectedCategory]);
+
+  useEffect(() => {
+    if (testLimitCheckedRef.current) return;
+    if (authLoading) return;
+    if (isGuest) return;
+    if (!profileId) return;
+    if (!isFullTestMode(mode)) return;
+    if (isPremium) return;
+
+    testLimitCheckedRef.current = true;
+
+    testLimitIncrement.mutate(undefined, {
+      onSuccess: (result) => {
+        if (result?.limit_reached) {
+          setTestLimitBlocked(true);
+          openModal('PAYWALL', { trigger: 'attempt_limit', testCap: result.daily_cap });
+          navigate('/tests', { replace: true });
+        }
+      },
+      onError: (err) => {
+        console.error('[TestSession] test limit check failed:', err);
+        // Fail-open: не блокируем юзера если RPC недоступен
+        testLimitCheckedRef.current = false;
+      },
+    });
+  }, [authLoading, isGuest, profileId, mode, isPremium, testLimitIncrement, openModal, navigate]);
 
   // Определяем страну для ПДД билета
   const pddCountry = useMemo(() => {
