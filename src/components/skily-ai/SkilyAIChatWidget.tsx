@@ -58,7 +58,7 @@ export const SkilyAIChatWidget = ({
   const [input, setInput] = useState("");
   const [isMinimized, setIsMinimized] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const { messages, isLoading, error, sendMessage } = useSkilyAIChat(selectedCountry);
+  const { messages, isLoading, error, limitReached, clearLimit, sendMessage } = useSkilyAIChat(selectedCountry);
   const [hasShownExplanation, setHasShownExplanation] = useState(false);
 
   // Счётчик лимитов
