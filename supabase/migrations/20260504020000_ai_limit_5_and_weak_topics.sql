@@ -1,6 +1,10 @@
 -- AI chat: снижаем лимит с 10 до 5 для free пользователей
 -- + добавляем RPC get_weak_topics для premium memory
 
+-- Дропаем и пересоздаём (изменился тип возврата в комментарии, но структура одна — safer через replace)
+DROP FUNCTION IF EXISTS increment_ai_usage(UUID);
+DROP FUNCTION IF EXISTS check_ai_usage_limit(UUID);
+
 -- Обновляем increment_ai_usage: лимит 10 → 5
 CREATE OR REPLACE FUNCTION increment_ai_usage(p_user_id UUID)
 RETURNS TABLE(current_count INTEGER, limit_reached BOOLEAN) AS $$
