@@ -23,9 +23,14 @@ export const useSkilyAIChat = (country: CountryCode = 'spain') => {
     setMessages(prev => [...prev, newUserMessage]);
 
     try {
-      // Получаем токен сессии
+      // Получаем токен сессии — гости не могут использовать AI
       const { data: { session } } = await supabase.auth.getSession();
-      const authToken = session?.access_token || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+      if (!session?.access_token) {
+        setError('auth_required');
+        setIsLoading(false);
+        return;
+      }
+      const authToken = session.access_token;
 
       // Формируем сообщения с контекстом если есть
       let messagesToSend = [...messages, newUserMessage];

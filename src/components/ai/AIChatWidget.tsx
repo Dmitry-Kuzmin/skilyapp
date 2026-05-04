@@ -37,7 +37,7 @@ import {
 } from '@/components/ui/dialog';
 import { toast } from 'sonner';
 import { useModalStore } from '@/store/modalStore';
-import SkilyAICharacter from './SkilyAICharacter';
+import { SkilyAICharacter } from '@/components/skily-ai/SkilyAICharacter';
 import AIChatMessage from './AIChatMessage';
 
 export function AIChatWidget() {
