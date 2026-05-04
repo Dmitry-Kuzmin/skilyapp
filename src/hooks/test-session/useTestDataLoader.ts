@@ -78,6 +78,7 @@ export const useTestDataLoader = ({
     ticketNumber,
     questionCount = 30,
     category,
+    challengeSort = 'recent',
     redemptionData,
 }: UseTestDataLoaderProps): UseTestDataLoaderResult => {
     const isGuestMode = !profileId;
