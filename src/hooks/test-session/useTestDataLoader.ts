@@ -93,11 +93,12 @@ export const useTestDataLoader = ({
         (mode === 'sequential' && testId) ? testId : null
     );
 
-    // Challenge bank questions  
+    // Challenge bank questions
     const challengeBankQuestions = useChallengeBankQuestions(
         mode === 'challenge-bank' ? profileId : null,
         questionCount,
-        pddCountry || undefined
+        pddCountry || undefined,
+        challengeSort
     );
 
     // Favorites questions
