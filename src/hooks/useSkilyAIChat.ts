@@ -139,12 +139,17 @@ export const useSkilyAIChat = (country: CountryCode = 'spain') => {
   const clearMessages = useCallback(() => {
     setMessages([]);
     setError(null);
+    setLimitReached(null);
   }, []);
+
+  const clearLimit = useCallback(() => setLimitReached(null), []);
 
   return {
     messages,
     isLoading,
     error,
+    limitReached,
+    clearLimit,
     sendMessage,
     clearMessages,
   };
