@@ -41,9 +41,9 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
               isTransparent
                 ? 'bg-transparent border-transparent text-zinc-400 placeholder-transparent focus:ring-0 px-0 pl-0'
                 : cn(
-                  "bg-white/[0.03] text-white placeholder-zinc-600 border border-white/10",
-                  "focus:outline-none focus:bg-zinc-900/50 focus:border-blue-500/50",
-                  "focus:shadow-[0_0_20px_rgba(59,130,246,0.15)] disabled:opacity-50",
+                  "bg-muted/30 dark:bg-white/[0.03] text-foreground placeholder:text-muted-foreground/50 border border-border dark:border-white/10",
+                  "focus:outline-none focus:bg-background focus:border-primary/50",
+                  "focus:shadow-[0_0_20px_rgba(59,130,246,0.1)] dark:focus:shadow-[0_0_20px_rgba(59,130,246,0.15)] disabled:opacity-50",
                   error && 'border-red-500/50 focus:border-red-500 focus:shadow-[0_0_20px_rgba(239,68,68,0.15)]'
                 ),
               className
