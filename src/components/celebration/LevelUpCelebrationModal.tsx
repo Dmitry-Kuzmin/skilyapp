@@ -66,6 +66,12 @@ function rewardIcon(type: string) {
   }
 }
 
+function isValidReward(r: RewardData | null | undefined): r is RewardData {
+  if (!r) return false;
+  if (r.type === 'coins') return (r.amount ?? 0) > 0;
+  return !!r.icon || !!(r as any).id;
+}
+
 function rewardLabel(r: RewardData): string {
   if (r.name) return r.name;
   if (r.type === 'coins')  return `${r.amount ?? 0} монет`;
