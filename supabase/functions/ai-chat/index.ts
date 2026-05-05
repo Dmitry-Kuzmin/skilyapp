@@ -20,6 +20,24 @@ interface ChatRequest {
   language?: 'ru' | 'es' | 'en';
   mode?: 'chat' | 'debrief';
   showComparison?: boolean;
+  imageUrl?: string | null;
+}
+
+async function fetchImageAsBase64(url: string): Promise<{ data: string; mimeType: string } | null> {
+  try {
+    const res = await fetch(url, { signal: AbortSignal.timeout(4000) });
+    if (!res.ok) return null;
+    const contentType = res.headers.get('content-type') || 'image/jpeg';
+    const mimeType = contentType.split(';')[0].trim();
+    if (!mimeType.startsWith('image/')) return null;
+    const buffer = await res.arrayBuffer();
+    const bytes = new Uint8Array(buffer);
+    let binary = '';
+    for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
+    return { data: btoa(binary), mimeType };
+  } catch {
+    return null;
+  }
 }
 
 interface UsageData {
