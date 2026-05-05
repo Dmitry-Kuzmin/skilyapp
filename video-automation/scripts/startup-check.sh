@@ -47,4 +47,8 @@ echo $$ > "$LOCKFILE"
 trap "rm -f $LOCKFILE" EXIT
 
 cd "/Users/dimka/Desktop/Skily/sdadim-dgt-prep/video-automation"
-exec "$NODE" "$PIPELINE"
+"$NODE" "$PIPELINE"
+EC=$?
+# Exit code 78 (EX_CONFIG) would permanently disable this LaunchAgent in macOS launchd.
+# Normalize it to 1 so launchd keeps the job enabled for future runs.
+[ $EC -eq 78 ] && exit 1 || exit $EC
