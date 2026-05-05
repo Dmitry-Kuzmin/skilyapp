@@ -452,19 +452,6 @@ const Layout = memo(({ children, hideNavigation = false }: LayoutProps) => {
                           onOpenNotifications={() => setNotificationsOpen(true)}
                         />
                       </Suspense>
-
-                      {isAdmin && (
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => navigate('/admin')}
-                          className="h-9 w-9 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-500 hover:bg-amber-500/20 hover:text-amber-400 transition-all group relative"
-                          title="Админ-панель"
-                        >
-                          <AdminShield className="w-5 h-5 group-hover:scale-110 transition-transform" />
-                          <div className="absolute -top-1 -right-1 w-2 h-2 bg-amber-500 rounded-full border border-background animate-pulse" />
-                        </Button>
-                      )}
                     </div>
                   ) : (
                     <button
@@ -554,14 +541,6 @@ const Layout = memo(({ children, hideNavigation = false }: LayoutProps) => {
                         compact
                       />
                     </Suspense>
-                    {isAdmin && (
-                      <button
-                        onClick={() => navigate('/admin')}
-                        className="w-8 h-8 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-500 active:scale-90 transition-all"
-                      >
-                        <AdminShield className="w-4 h-4" />
-                      </button>
-                    )}
                   </div>
                 ) : (
                   <button

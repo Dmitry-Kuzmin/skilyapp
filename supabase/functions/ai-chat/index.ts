@@ -74,11 +74,18 @@ async function tryGemini(messages: Message[], country: string = 'spain', mode: s
 
   try {
     const basePrompt = getSystemPrompt(country, showComparison, language);
-    const systemPrompt = weakTopicsContext ? basePrompt + weakTopicsContext : basePrompt;
+    // Merge client-sent system messages into system_instruction so Gemini sees question context
+    const clientSystemContent = messages
+      .filter(m => m.role === 'system')
+      .map(m => m.content)
+      .join('\n\n');
+    const systemPrompt = [
+      basePrompt,
+      clientSystemContent || null,
+      weakTopicsContext || null,
+    ].filter(Boolean).join('\n\n');
 
-    // Filter out system messages — they are handled via system_instruction.
-    // Gemini rejects a conversation that starts with role 'model', which is
-    // what system messages get mapped to.
+    // Filter system messages from contents (handled above via system_instruction)
     let currentContents: any[] = messages
       .filter(m => m.role !== 'system')
       .map(m => ({
