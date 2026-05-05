@@ -377,7 +377,6 @@ export function RewardedAdModal({
                         <Button
                           variant="secondary"
                           onClick={(e) => {
-                            console.log("[RewardedAdModal] Watch button clicked");
                             e.stopPropagation();
                             handleShowAd();
                           }}
