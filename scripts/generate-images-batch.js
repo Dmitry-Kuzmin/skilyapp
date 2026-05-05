@@ -656,7 +656,7 @@ ${isMovingTraffic ? `
 1. **AUTHORITY SCENE**: Incorporate Spanish Traffic Police (Guardia Civil) in professional uniforms. 
 2. **POSITION**: They should be standing near a patrol vehicle or by the roadside, interacting with the scene.
 3. **PATROL VEHICLE**: A distinctive white and green Spanish Guardia Civil patrol car with blue flashing lights (Siren) is highly recommended to illustrate the context.
-` : (typeof visionAnalysis === 'string' && visionAnalysis.includes('IS_SIGN_ONLY: TRUE') ? `
+` : (detectSignOnly(visionAnalysis) ? `
 1. **PURE SIGN CONTEXT**: The original is an isolated sign. Place it realistically on a pole on the right-hand SIDEWALK of a professional city street.
 2. **NO OBSTRUCTIONS**: Ensure the sign is perfectly visible and readable, not blocked by any elements.
 ` : `
