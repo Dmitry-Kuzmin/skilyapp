@@ -298,23 +298,9 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
             }
           }
         } catch (fallbackError) {
-          console.error('[useDuelRealtime] ❌ Error in fallback recovery:', fallbackError);
+          logError('[useDuelRealtime] ❌ Error in fallback recovery:', fallbackError);
         }
 
-        // КРИТИЧНО: Логируем, почему exploits не найдены
-        console.warn('[useDuelRealtime] ⚠️⚠️⚠️ No active exploits to recover ⚠️⚠️⚠️:', {
-          duelId,
-          targetPlayerId,
-          myPlayerId,
-          profileId,
-          currentTime: new Date().toISOString(),
-          possibleReasons: [
-            'No exploits in DB for this target_player_id',
-            'All exploits expired',
-            'RLS blocking read access',
-            'Wrong target_player_id'
-          ]
-        });
         log('[useDuelRealtime] No active exploits to recover');
       }
     } catch (error) {
