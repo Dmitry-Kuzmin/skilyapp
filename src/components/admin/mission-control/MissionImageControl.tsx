@@ -170,6 +170,12 @@ export const MissionImageControl = forwardRef<MissionImageControlHandle, Mission
             }
         }, [questionId]);
 
+        // Re-fetch when server comes online and data hasn't loaded yet
+        useEffect(() => {
+            if (serverOnline && questionId && !questionData && !loading) {
+                fetchData();
+            }
+        }, [serverOnline]);
 
         // Load prompt when selected candidate changes
         useEffect(() => {
