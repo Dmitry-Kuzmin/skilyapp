@@ -178,18 +178,8 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
         exploits = rpcExploits || [];
       }
 
-      // КРИТИЧНО: Логируем детали ошибки, если есть
       if (exploitsError) {
-        console.error('[useDuelRealtime] ❌❌❌ SQL ERROR при recoverActiveExploits:', {
-          error: exploitsError,
-          message: exploitsError.message,
-          details: exploitsError.details,
-          hint: exploitsError.hint,
-          code: exploitsError.code,
-          sqlQuery,
-          duelId,
-          targetPlayerId
-        });
+        logError('[useDuelRealtime] ❌ SQL ERROR recoverActiveExploits:', exploitsError.message, { sqlQuery, duelId, targetPlayerId });
       }
 
       if (exploitsError) {
