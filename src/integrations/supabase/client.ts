@@ -98,7 +98,9 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
 // Add the debug helper to the window object
 if (typeof window !== 'undefined') {
   (window as any).supabase = supabase;
-  console.log('🔧 Supabase client exposed globally as window.supabase for debugging.');
+  if (import.meta.env.DEV) {
+    console.log('🔧 Supabase client exposed globally as window.supabase for debugging.');
+  }
 
   // 🛠 DEBUG: Выставляем метод для входа через консоль на localhost
   (window as any).sdadim_auth = async (input: any) => {
