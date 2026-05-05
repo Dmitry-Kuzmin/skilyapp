@@ -170,32 +170,44 @@ Cluttered scene, cartoon, low poly, ugly text, huge sci-fi buildings, flying car
 GENERATE EXACT SCENE FROM DESCRIPTION.`;
 
 // ==========================================
-// STRICT COPY PROMPT (точное копирование референса)
+// STRICT COPY PROMPT (точное копирование + живой фон Испании)
 // ==========================================
-const STRICT_COPY_PROMPT = `ROLE: Photorealistic 3D Scene Replicator.
-TASK: You are given a REFERENCE IMAGE. Reproduce it with maximum geometric and compositional fidelity, but elevate the visual quality to a cinematic, ultra-realistic level.
+function buildStrictCopyPrompt(location, universeElement) {
+    const bgElement = universeElement
+        ? `\n## BACKGROUND ACCENT (FAR BACKGROUND ONLY):\n${universeElement.text}\n⚠️ This element must be placed DEEP in the background — it must NOT obscure, overlap, or compete with the main road subject. The road and its markings/signs remain the undisputed hero of the image.`
+        : '';
 
-## ABSOLUTE RULES:
+    return `ROLE: Photorealistic 3D Scene Replicator with Spanish Soul.
+TASK: You are given a REFERENCE IMAGE. Reproduce its road geometry, signs, and composition with maximum fidelity — but transport the scene into a beautiful, cinematic Spanish environment. Elevate everything.
+
+## IRONCLAD RULES (DO NOT BREAK):
 1. **COMPOSITION FIRST**: Replicate the exact camera angle, framing, and perspective of the reference image.
-2. **LAYOUT LOCK**: Every object must be in the EXACT same position — no creative repositioning.
-3. **VEHICLE FIDELITY**: Match type, color, orientation, and lane position of every vehicle precisely. Vehicles must look like real, high-end European cars with metallic paint and reflections, NOT plush toys, plastic, or cartoonish.
+2. **LAYOUT LOCK**: Every road object (vehicles, signs, markings) must be in the EXACT same position.
+3. **VEHICLE FIDELITY**: Match type, color, orientation, and lane position of every vehicle precisely. Real European cars with metallic paint and reflections.
 4. **SIGN ACCURACY**: Reproduce ONLY the signs visible in the reference. ZERO invented signs.
 5. **MARKINGS**: Copy road markings exactly — dashed, solid, crosswalk, arrows — WHITE ONLY (Spanish DGT standard).
-6. **INFRASTRUCTURE**: Replicate road type, lane count, shoulders, barriers, and surface texture. Use hyper-realistic asphalt textures.
-7. **ENVIRONMENT**: Elevate the environment to a beautiful, cinematic Spanish location (e.g., golden hour in Madrid, coastal Basque road, or misty Pyrenees), while keeping lighting and weather consistent with the reference's needs.
-8. **NO BRANDING**: Do NOT add Skily logos, liveries, robots, drones, or EV stations.
-9. **NO HALLUCINATIONS**: Do NOT invent people, vehicles, signs, or objects not in the reference.
-10. **NO TEXT CODES**: Never write catalog codes (R-301, P-18, S-34) on signs — use visual symbol only.
+6. **INFRASTRUCTURE**: Replicate road type, lane count, shoulders, barriers, and asphalt surface exactly.
+7. **NO TEXT CODES**: Never write catalog codes (R-301, P-18, S-34) on signs — visual symbol only.
+8. **NO NEW ROAD OBJECTS**: Do NOT invent people, vehicles, or signs not in the reference.
+
+## 🌍 THE ENVIRONMENT — THIS IS WHERE YOU SHINE:
+Transform the background and sky into this specific Spanish location:
+**${location}**
+
+Make the environment breathtaking: dramatic lighting, cinematic atmosphere, real textures.
+The road is faithful to the reference — the WORLD AROUND IT comes alive.
+${bgElement}
 
 ## STYLE:
-Cinematic, ultra-realistic 8K photography, Unreal Engine 5 render style.
-True-to-life materials: glossy automotive paint, textured asphalt, reflective glass, natural lighting.
+Cinematic 8K photography, Unreal Engine 5 render style. Golden hour or dramatic sky preferred.
+True-to-life materials: glossy automotive paint, textured asphalt, reflective glass.
 ABSOLUTELY NO toy-like, plastic, clay, or miniature aesthetics.
 
 ## NEGATIVE PROMPT:
-Cartoon, plush toys, plastic cars, low poly, miniature, tilt-shift, watermarks, text labels, hallucinated vehicles, invented signs, yellow center lines, Skily branding, sci-fi elements, drones, robots, accidents, injuries, creative liberties, blurry, fake.
+Cartoon, plush toys, plastic cars, low poly, miniature, tilt-shift, watermarks, text labels, hallucinated vehicles, invented signs on road, yellow center lines, accidents, injuries, blurry, generic grey sky, flat lighting, boring flat fields.
 
-Reproduce the reference image with maximum fidelity at cinematic quality.`;
+The road geometry is the reference — the Spanish soul is yours to paint.`;
+}
 
 
 // ==========================================

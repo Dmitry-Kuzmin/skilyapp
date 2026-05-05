@@ -810,29 +810,29 @@
     },
     "answers": [
       {
-        "id": "a",
+        "id": "opt_0",
         "text": {
+          "ru": "Что движение осуществляется в обоих направлениях.",
           "es": "Que la circulación es en los dos sentidos.",
-          "en": "That traffic is in both directions.",
-          "ru": "Что движение осуществляется в обоих направлениях."
+          "en": "That traffic is in both directions."
         },
         "is_correct": true
       },
       {
-        "id": "b",
+        "id": "opt_1",
         "text": {
+          "ru": "Что впереди место для разворота.",
           "es": "Que hay un cambio de sentido.",
-          "en": "That there is a change of direction (U-turn).",
-          "ru": "Что впереди место для разворота."
+          "en": "That there is a change of direction (U-turn)."
         },
         "is_correct": false
       },
       {
-        "id": "c",
+        "id": "opt_2",
         "text": {
+          "ru": "Что на дороге две полосы движения.",
           "es": "Que la carretera tiene dos carriles.",
-          "en": "That the road has two lanes.",
-          "ru": "Что на дороге две полосы движения."
+          "en": "That the road has two lanes."
         },
         "is_correct": false
       }
@@ -840,7 +840,7 @@
     "explanation": {
       "es": "La señal P-25 advierte del peligro por la proximidad de una zona de la calzada donde la circulación se realiza, de forma provisional o permanente, en los dos sentidos. Se utiliza habitualmente cuando una vía de sentido único pasa a ser de doble sentido.",
       "en": "The P-25 sign warns of danger due to the proximity of a section of the road where traffic flows in both directions, either temporarily or permanently. It is commonly used when a one-way road becomes a two-way road.",
-      "ru": "🎓 Этот предупреждающий знак P-25 информирует тебя о том, что участок дороги с односторонним движением заканчивается, и впереди начинается проезжая часть с двусторонним движением. Это может быть как постоянным изменением организации движения, так и временным, например, из-за дорожных работ. Тебе как водителю легкового автомобиля (Turismo) крайне важно вовремя это заметить, так как теперь на твоем пути могут появиться встречные транспортные средства. 🇷🇺 В РФ этот знак 1.21 имеет абсолютно такое же значение и устанавливается в местах, где дорога с односторонним движением переходит в двустороннюю. 💡 Две стрелки в разные стороны — жди встречку, не лезь в заторы!"
+      "ru": "🎓 Этот предупреждающий знак P-25 информирует тебя о том, что участок дороги с односторонним движением заканчивается, и впереди начинается проезжая часть с двусторонним движением. Это может быть как постоянным изменением организации движения, так и временным, например, из-за дорожных работ. Тебе как водителю легкового автомобиля (Turismo) крайне важно вовремя это заметить, так как теперь на твоем пути могут появиться встречные транспортные средства. "
     },
     "image_url": "https://teorica.practicavial.com/question/6435bd7c-349e-4c1d-80dd-ad1678dcb174-1658211786-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/6435bd7c-349e-4c1d-80dd-ad1678dcb174-s-1.jpg",
@@ -860,29 +860,29 @@
     },
     "answers": [
       {
-        "id": "a",
+        "id": "opt_0",
         "text": {
-          "es": "Peligro por la proximidad de una intersección a distinto nivel.",
-          "en": "Danger due to the proximity of an intersection at a different level.",
-          "ru": "Опасность в связи с близостью пересечения в разных уровнях."
-        },
-        "is_correct": false
-      },
-      {
-        "id": "b",
-        "text": {
+          "ru": "Опасность в связи с близостью участка дороги, на котором имеется несколько прямых выездов на проезжую часть.",
           "es": "Peligro por la proximidad de un tramo en el que existen varios accesos directos a la vía.",
-          "en": "Danger due to the proximity of a stretch of road where there are several direct accesses to the road.",
-          "ru": "Опасность в связи с близостью участка дороги, на котором имеется несколько прямых выездов на проезжую часть."
+          "en": "Danger due to the proximity of a stretch of road where there are several direct accesses to the road."
         },
         "is_correct": true
       },
       {
-        "id": "c",
+        "id": "opt_1",
         "text": {
+          "ru": "Опасность в связи с близостью пересечения в разных уровнях.",
+          "es": "Peligro por la proximidad de una intersección a distinto nivel.",
+          "en": "Danger due to the proximity of an intersection at a different level."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "opt_2",
+        "text": {
+          "ru": "Перекресток, на котором необходимо уступить дорогу.",
           "es": "Intersección donde se debe ceder el paso.",
-          "en": "Intersection where you must yield the way.",
-          "ru": "Перекресток, на котором необходимо уступить дорогу."
+          "en": "Intersection where you must yield the way."
         },
         "is_correct": false
       }
@@ -890,7 +890,7 @@
     "explanation": {
       "es": "La señal P-1e advierte del peligro por la proximidad de un tramo de vía con varios accesos directos. Los conductores que circulan por la vía principal tienen prioridad de paso, mientras que los usuarios que se incorporan desde dichos accesos tienen la obligación legal de ceder el paso. Es una señal de advertencia que obliga a extremar la precaución ante posibles incorporaciones en un tramo continuado.",
       "en": "Sign P-1e warns of danger due to the proximity of a section of the road with several direct access points. Drivers on the main road have the right of way, while users entering from these access points are legally required to yield. It is a hazard warning sign that requires increased caution regarding potential merging traffic throughout the designated stretch.",
-      "ru": "🎓 Этот знак предупреждает тебя о приближении к участку дороги, где расположены несколько прямых выездов с прилегающих территорий (например, из дворов или промзон). Ты едешь по главной дороге и обладаешь приоритетом, а те, кто выезжает на проезжую часть, обязаны уступить тебе дорогу. Будь готов к тому, что на этом отрезке пути другие водители могут начать маневр в любой момент.\n🇷🇺 В РФ для обозначения примыканий используются отдельные знаки для каждого пересечения, в то время как в Испании этот знак предупреждает сразу о серии выездов на одном участке.\n💡 Видишь «гребенку» на знаке — жди выездов на своем пути!"
+      "ru": "🎓 Этот знак предупреждает тебя о приближении к участку дороги, где расположены несколько прямых выездов с прилегающих территорий (например, из дворов или промзон). Ты едешь по главной дороге и обладаешь приоритетом, а те, кто выезжает на проезжую часть, обязаны уступить тебе дорогу. Будь готов к тому, что на этом отрезке пути другие водители могут начать маневр в любой момент."
     },
     "image_url": "https://teorica.practicavial.com/question/9bb9e9da-ad2f-4226-b925-005b50faad5e-1759304328-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/9bb9e9da-ad2f-4226-b925-005b50faad5e-s-1.jpg",
@@ -910,37 +910,37 @@
     },
     "answers": [
       {
-        "id": "a",
+        "id": "opt_0",
         "text": {
-          "es": "una autopista.",
-          "en": "a motorway (autopista).",
-          "ru": "Автомагистрали."
-        },
-        "is_correct": false
-      },
-      {
-        "id": "b",
-        "text": {
-          "es": "una autovía.",
-          "en": "a dual carriageway (autovía).",
-          "ru": "Скоростной дороги."
-        },
-        "is_correct": false
-      },
-      {
-        "id": "c",
-        "text": {
+          "ru": "дороги, зарезервированной для движения автомобилей.",
           "es": "una vía reservada a la circulación de automóviles.",
-          "en": "a road reserved for automobile traffic.",
-          "ru": "дороги, зарезервированной для движения автомобилей."
+          "en": "a road reserved for automobile traffic."
         },
         "is_correct": true
+      },
+      {
+        "id": "opt_1",
+        "text": {
+          "ru": "Автомагистрали.",
+          "es": "una autopista.",
+          "en": "a motorway (autopista)."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "opt_2",
+        "text": {
+          "ru": "Скоростной дороги.",
+          "es": "una autovía.",
+          "en": "a dual carriageway (autovía)."
+        },
+        "is_correct": false
       }
     ],
     "explanation": {
       "es": "La señal S-3 indica el principio de una vía reservada a la circulación de automóviles. Según el Reglamento General de Circulación, esta vía es exclusiva para vehículos de motor, quedando prohibida la circulación de peatones, ciclos, ciclomotores y vehículos de tracción animal. No debe confundirse con una autopista o autovía, las cuales disponen de señalización específica (S-1 y S-1a respectivamente).",
       "en": "Sign S-3 indicates the start of a road reserved for automobile traffic. According to the General Traffic Regulations, this road is restricted to motor vehicles only, prohibiting pedestrians, cycles, mopeds, and animal-drawn vehicles. It must not be confused with a motorway (autopista) or a dual carriageway (autovía), which are identified by their own specific signs (S-1 and S-1a).",
-      "ru": "🎓 Этот знак обозначает начало дороги, зарезервированной исключительно для движения автомобилей. Это означает, что на такую дорогу запрещен въезд пешеходам, велосипедистам, мопедам и гужевым повозкам. Важно не путать её с Автомагистралью или Скоростной дорогой — для них существуют свои специфические знаки. Тебе, как водителю легкового автомобиля (Turismo), движение здесь разрешено, но помни, что это дорога с ограниченным доступом для медленных участников движения.\n\n🇷🇺 В РФ этот знак является полным аналогом знака 5.3 «Дорога для автомобилей».\n\n💡 Видишь машинку в синем квадрате — забудь про педали и копыта на этой дороге!"
+      "ru": "🎓 Этот знак обозначает начало дороги, зарезервированной исключительно для движения автомобилей. Это означает, что на такую дорогу запрещен въезд пешеходам, велосипедистам, мопедам и гужевым повозкам. Важно не путать её с Автомагистралью или Скоростной дорогой — для них существуют свои специфические знаки. Тебе, как водителю легкового автомобиля (Turismo), движение здесь разрешено, но помни, что это дорога с ограниченным доступом для медленных участников движения."
     },
     "image_url": "https://teorica.practicavial.com/question/d54ff6ad-9fc8-418e-b264-29f39962e1cc-1658167584-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/d54ff6ad-9fc8-418e-b264-29f39962e1cc-s-1.jpg",
