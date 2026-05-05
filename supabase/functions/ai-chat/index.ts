@@ -86,7 +86,7 @@ async function tryGroq(messages: Message[], country: string = 'spain', mode: str
   }
 }
 
-async function tryGemini(messages: Message[], country: string = 'spain', mode: string = 'chat', showComparison: boolean = true, language: string = 'es', supabaseClient?: any, userId?: string | null, weakTopicsContext?: string | null): Promise<Response | null> {
+async function tryGemini(messages: Message[], country: string = 'spain', mode: string = 'chat', showComparison: boolean = true, language: string = 'es', supabaseClient?: any, userId?: string | null, weakTopicsContext?: string | null, imageUrl?: string | null): Promise<Response | null> {
   const apiKey = Deno.env.get('GEMINI_API_KEY');
   if (!apiKey) return null;
 
