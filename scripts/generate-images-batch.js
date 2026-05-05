@@ -289,31 +289,7 @@ const SPAIN_REGIONS = [
     { name: "Madrid (Modern Urban)", desc: "Wide avenues, golden hour sun, glass skyscrapers", weather: "Sunset/Golden Hour" }
 ];
 
-const SKILY_VARIANTS = [
-    {
-        id: 'MUPI',
-        tags: ['urban', 'city', 'bus', 'parada', 'avenue', 'calle'],
-        text: `**THE COOL ELEMENT:** A modern glass bus shelter (MUPI) on the sidewalk. Inside, a high-res OLED screen displays a witty Skily ad.
-        **Ad Visual:** A split screen showing a sweating stressed driver vs. a chill Skily driver.
-        **Text on Ad:** "Tu carnet. Modo Fácil." (Your license. Easy Mode).
-        **Interaction:** The Skily car drives past in the lane.`
-    },
-    {
-        id: 'ROBOT',
-        tags: ['sidewalk', 'crosswalk', 'urban', 'pedestrian'],
-        text: `**MODERN GADGET:** A friendly, six-wheeled autonomous delivery robot (White/Cyan with Skily logo) navigating the sidewalk safely. It adds a futuristic touch.`
-    },
-    {
-        id: 'DRONE',
-        tags: ['mountain', 'coast', 'scenic', 'highway', 'road'],
-        text: `**MODERN GADGET:** A small professional camera drone hovering high in the sky (subtle), filming the Skily car driving through this epic landscape.`
-    },
-    {
-        id: 'EV_STATION',
-        tags: ['parking', 'station', 'rest', 'gas', 'service'],
-        text: `**MODERN GADGET:** A futuristic "Skily Energy" EV Charging Station with glowing cyan LED rings, visible in the background.`
-    }
-];
+// SKILY_VARIANTS replaced by skily-universe.js (pickSkilyElement)
 
 
 function getSkilyBranding(text, isSafetyCritical = false, isSignOnly = false) {
