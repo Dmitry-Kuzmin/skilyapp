@@ -96,7 +96,7 @@ async function tryGemini(messages: Message[], country: string = 'spain', mode: s
       const tools = (supabaseClient && userId) ? [{
         functionDeclarations: [{
           name: "get_user_stats",
-          description: "Returns user statistics (XP, level, coins, pass) and recent test results. MUST be called if asked about progress/coins.",
+          description: "Returns user statistics (XP, coins, Duel Pass level, season points) and recent test sessions. Call ONLY when the user explicitly asks about their progress, XP, coins, level, or test results. Do NOT call proactively.",
         }]
       }] : undefined;
       const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite-preview:streamGenerateContent?alt=sse&key=${apiKey}`, {
