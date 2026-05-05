@@ -60,37 +60,37 @@
     },
     "answers": [
       {
-        "id": "a",
+        "id": "opt_0",
         "text": {
-          "es": "obliga a desviarse a la derecha.",
-          "en": "obliges to turn right.",
-          "ru": "обязывает повернуть направо."
-        },
-        "is_correct": false
-      },
-      {
-        "id": "b",
-        "text": {
-          "es": "obliga a seguir de frente.",
-          "en": "obliges to go straight ahead.",
-          "ru": "обязывает двигаться прямо."
-        },
-        "is_correct": false
-      },
-      {
-        "id": "c",
-        "text": {
+          "ru": "информирует о том, что правая полоса движения отклоняется в ту же сторону.",
           "es": "informa de que el carril de la derecha se desvía hacia ese mismo lado.",
-          "en": "informs that the right lane deviates to that same side.",
-          "ru": "информирует о том, что правая полоса движения отклоняется в ту же сторону."
+          "en": "informs that the right lane deviates to that same side."
         },
         "is_correct": true
+      },
+      {
+        "id": "opt_1",
+        "text": {
+          "ru": "обязывает повернуть направо.",
+          "es": "obliga a desviarse a la derecha.",
+          "en": "obliges to turn right."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "opt_2",
+        "text": {
+          "ru": "обязывает двигаться прямо.",
+          "es": "obliga a seguir de frente.",
+          "en": "obliges to go straight ahead."
+        },
+        "is_correct": false
       }
     ],
     "explanation": {
       "es": "La señal S-60 a indica una bifurcación hacia la derecha en una calzada de dos carriles. Al ser una señal de indicación, su función es informar sobre la configuración de la vía y no establecer una obligación de maniobra inmediata.",
       "en": "Sign S-60 a indicates a bifurcation to the right on a two-lane roadway. As an indication sign, its function is to inform about the layout of the road rather than establishing a mandatory maneuver.",
-      "ru": "🎓 Этот знак сообщает водителю легкового автомобиля, что на проезжей части с двумя полосами правая полоса движения отклоняется вправо. Это информационный знак, он не обязывает совершать маневр, а лишь предупреждает о разветвлении дороги. Если тебе нужно ехать прямо, следует заранее занять левую полосу. 🇷🇺 В отличие от знаков 5.15.1 в РФ, которые диктуют разрешенные направления, испанские знаки этой группы чаще используются для обозначения физического разделения потоков на скоростных дорогах. 💡 Синий квадрат — не приказ, а совет, куда полоса тебя ведет!"
+      "ru": "🎓 Этот знак сообщает водителю легкового автомобиля, что на проезжей части с двумя полосами правая полоса движения отклоняется вправо. Это информационный знак, он не обязывает совершать маневр, а лишь предупреждает о разветвлении дороги. Если тебе нужно ехать прямо, следует заранее занять левую полосу. \n💡 Синий квадрат — не приказ, а совет, куда полоса тебя ведет!"
     },
     "image_url": "https://teorica.practicavial.com/question/cdc3c37f-bec2-49d0-8428-4fa138e86fc5-1658168634-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/cdc3c37f-bec2-49d0-8428-4fa138e86fc5-s-1.jpg",
