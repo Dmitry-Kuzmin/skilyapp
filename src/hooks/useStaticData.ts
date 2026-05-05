@@ -19,25 +19,16 @@ export interface DailyBonusDef {
 
 /**
  * Загружает определения ежедневных бонусов
- * SUPER ОПТИМИЗАЦИЯ: Берет из Super RPC Dashboard (нет отдельного запроса!)
+ * Приоритет: Super RPC Dashboard → отдельный запрос (fallback)
  * КЭШИРОВАНИЕ: 24 часа (данные не меняются)
  */
 export function useDailyBonusDefinitions() {
   const { profileId } = useUserContext();
-  // ОПТИМИЗАЦИЯ: Пытаемся взять из Super RPC Dashboard
-  const { data: dashboardData } = useDashboardData();
+  const { data: dashboardData, loading: dashboardLoading } = useDashboardData();
 
   return useQuery<DailyBonusDef[]>({
     queryKey: ['daily-bonus-definitions', profileId],
     queryFn: async () => {
-      // Если есть в Super RPC - используем!
-      if (dashboardData?.daily_bonus_definitions) {
-        console.log('[useStaticData] ✅ Using daily_bonus_definitions from Super RPC');
-        return dashboardData.daily_bonus_definitions;
-      }
-
-      // Fallback: отдельный запрос
-      console.warn('[useStaticData] ⚠️ Daily bonus defs not in Super RPC, fetching separately');
       const { data, error } = await supabase
         .from('daily_bonus_def')
         .select('day_number, reward, description')
@@ -47,7 +38,10 @@ export function useDailyBonusDefinitions() {
       if (error) throw error;
       return data || [];
     },
-    enabled: !!profileId,
+    // Ждём завершения dashboard-запроса; если там есть данные — query вообще не запустится
+    enabled: !!profileId && !dashboardLoading && !dashboardData?.daily_bonus_definitions,
+    // Данные из Super RPC подставляются напрямую как initialData
+    initialData: dashboardData?.daily_bonus_definitions ?? undefined,
     staleTime: 24 * 60 * 60 * 1000, // 24 часа
     gcTime: 24 * 60 * 60 * 1000,
     refetchOnWindowFocus: false,
@@ -71,25 +65,14 @@ export interface TopicBasic {
 
 /**
  * Загружает базовый список всех тем
- * SUPER ОПТИМИЗАЦИЯ: Берет из Super RPC Dashboard (нет отдельного запроса!)
- * КЭШИРОВАНИЕ: 1 час (данные меняются редко)
+ * Topics не включены в Super RPC — всегда отдельный запрос, кэш 1 час
  */
 export function useTopicsList() {
   const { profileId } = useUserContext();
-  // ОПТИМИЗАЦИЯ: Пытаемся взять из Super RPC Dashboard
-  const { data: dashboardData } = useDashboardData();
 
   return useQuery<TopicBasic[]>({
-    queryKey: ['topics-list', profileId],
+    queryKey: ['topics-list'],
     queryFn: async () => {
-      // Если есть в Super RPC - используем!
-      if (dashboardData?.topics) {
-        console.log('[useStaticData] ✅ Using topics from Super RPC');
-        return dashboardData.topics;
-      }
-
-      // Fallback: отдельный запрос
-      console.warn('[useStaticData] ⚠️ Topics not in Super RPC, fetching separately');
       const { data, error } = await supabase
         .from('topics')
         .select('id, number, title_ru, title_es, title_en, order_index')
@@ -125,12 +108,10 @@ export function useSeasonRewards() {
   return useQuery<SeasonReward[]>({
     queryKey: ['season-rewards'],
     queryFn: async () => {
-      // Сначала получаем активный сезон
       const { data: seasonData } = await supabase.rpc('get_active_season');
 
       if (!seasonData) return [];
 
-      // Загружаем награды для этого сезона
       const { data, error } = await supabase
         .from('duel_pass_season_rewards')
         .select('season_id, level, sp_required')
@@ -139,7 +120,7 @@ export function useSeasonRewards() {
       if (error) throw error;
       return data || [];
     },
-    staleTime: 60 * 60 * 1000, // 1 час
+    staleTime: 60 * 60 * 1000,
     gcTime: 2 * 60 * 60 * 1000,
     refetchOnWindowFocus: false,
     refetchOnMount: false,
@@ -147,19 +128,3 @@ export function useSeasonRewards() {
     retry: 2,
   });
 }
-
-// ========================================
-// Achievement Definitions (определения достижений)
-// ========================================
-// Можно добавить по необходимости
-
-/**
- * ИСПОЛЬЗОВАНИЕ:
- * 
- * const { data: bonusDefs, loading } = useDailyBonusDefinitions();
- * const { data: topics } = useTopicsList();
- * const { data: rewards } = useSeasonRewards();
- * 
- * Эти хуки кэшируются глобально для всего приложения
- * Первый вызов загрузит данные, все последующие будут брать из кэша
- */

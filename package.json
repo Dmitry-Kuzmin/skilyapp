@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "./optimize-system.sh && concurrently \"npm run dev:frontend\" \"npm run validator\" \"./scripts/maintenance-service.sh\" --names \"APP,API,MAINT\" --prefix-colors \"cyan,magenta,yellow\"",
+    "dev:all": "./optimize-system.sh && concurrently \"npm run dev:frontend\" \"npm run dev:landing\" --names \"APP,LAND\" --prefix-colors \"cyan,blue\"",
     "panic-clean": "./scripts/cleanup-and-optimize.sh",
     "dev:frontend": "NODE_OPTIONS='--max-old-space-size=1536' vite",
     "dev:landing": "cd landing && npm run dev",
