@@ -160,7 +160,7 @@ LOCATION: {{DYNAMIC_LOCATION_PLACEHOLDER}}
 {{DYNAMIC_BRANDING_PLACEHOLDER}}
 
 ## NEGATIVE PROMPT:
-Cluttered scene, cartoon, low poly, ugly text, huge sci-fi buildings, flying cars, watermarks, signature, blurry, distorted, accident, crash, dead body, injury, blood, collision, smashed car, dented car, broken glass, violence, tragedy, gore, road warning triangle, red triangle on road, text labels, R-407a, P-18, Obras, sign code, white plate below sign, yellow plate below sign, sign caption, text on pole, American yellow center lines, floating cars.
+Cluttered scene, cartoon, low poly, ugly text, huge sci-fi buildings, flying cars, watermarks, signature, blurry, distorted, accident, crash, dead body, injury, blood, collision, smashed car, dented car, broken glass, violence, tragedy, gore, road warning triangle, red triangle on road, text labels, R-407a, P-18, Obras, sign code, white plate below sign, yellow plate below sign, sign caption, text on pole, American yellow center lines, floating cars, toy car, plastic car, simplified geometry, miniature car, doll car, action figure, scaled-down vehicles, playroom aesthetics.
 
 ## INFRASTRUCTURE & LOGIC (DGT STANDARDS):
 1. **MARKINGS**: WHITE lines only (No yellow US lines).
