@@ -97,7 +97,8 @@ export function MissionEditor({ questionId, testId, country = 'spain', serverOnl
                     explanation_en: question.explanation?.en || "",
                 });
             }
-        } catch (e) {
+        } catch (e: any) {
+            if (e?.name === 'AbortError') return;
             console.error("[MissionEditor] Error loading question:", e);
             toast.error("Ошибка загрузки данных вопроса");
         } finally {
