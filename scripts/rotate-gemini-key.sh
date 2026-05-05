@@ -88,14 +88,36 @@ else
   echo "     supabase secrets set GEMINI_API_KEY=<KEY> --project-ref $PROJECT_REF"
 fi
 
+# ── 4. Быстрый тест ключа ────────────────────────────────────────────────────
+echo ""
+echo "Тестирую новый ключ (Gemini text API)..."
+TEST_RESULT=$(GEMINI_API_KEY="$NEW_KEY" node -e "
+import('node-fetch').then(({default: fetch}) => {
+  return fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' + process.env.GEMINI_API_KEY, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({contents:[{parts:[{text:'Hi'}]}]})
+  });
+}).then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1));
+" 2>/dev/null; echo $?)
+
+if [ "$TEST_RESULT" = "0" ]; then
+  echo "  ✅ Ключ работает (Gemini text API)"
+else
+  echo "  ⚠️  Ключ не прошёл быстрый тест — проверь правильность ключа"
+  echo "     Также убедись что ключ имеет доступ к Imagen API:"
+  echo "     https://aistudio.google.com/apikey"
+fi
+
 # Очищаем переменную из памяти
 unset NEW_KEY
 
 echo ""
 echo "──────────────────────────────────────────"
-echo "✅  Готово. Перезапусти validator-server и"
-echo "   задеплой функции если менял Supabase:"
-echo "   supabase functions deploy telegram-bot"
-echo "   supabase functions deploy ai-chat"
-echo "   supabase functions deploy generate-flashcards"
+echo "✅  Готово. ОБЯЗАТЕЛЬНО:"
+echo "   1. Перезапусти validator-server (Ctrl+C → npm run validator)"
+echo "   2. Задеплой Edge Functions:"
+echo "      supabase functions deploy telegram-bot"
+echo "      supabase functions deploy ai-chat"
+echo "      supabase functions deploy generate-flashcards"
 echo ""
