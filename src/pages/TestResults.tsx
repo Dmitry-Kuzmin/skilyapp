@@ -576,6 +576,30 @@ const TestResults = () => {
     );
   }
 
+  // Show celebration flow first (authenticated users with reward data only)
+  if (!celebrationDone && !isGuest && rewardResult && totalQuestions > 0) {
+    const celebrationData: CelebrationData = {
+      score: totalQuestions > 0 ? Math.round((correctCount / totalQuestions) * 100) : 0,
+      correctCount,
+      totalQuestions,
+      timeSeconds: timeSpent,
+      spAwarded: rewardResult.sp_awarded ?? 0,
+      xpAwarded: rewardResult.xp_awarded ?? 0,
+      currentSP: rewardResult.total_sp ?? rewardResult.sp_awarded ?? 0,
+      currentLevel: rewardResult.new_level ?? 1,
+      isPassed: passed,
+      mode,
+      failedTopics,
+      leveledUp: rewardResult.level_up ?? false,
+    };
+    return (
+      <TestResultsCelebrationFlow
+        data={celebrationData}
+        onDone={() => setCelebrationDone(true)}
+      />
+    );
+  }
+
   return (
     <Layout>
       {showConfetti && <Confetti width={window.innerWidth} height={window.innerHeight} recycle={false} numberOfPieces={200} gravity={0.3} />}
