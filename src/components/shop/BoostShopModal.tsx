@@ -2285,6 +2285,7 @@ export function BoostShopModal({
                     handlePurchase(inspectBoost);
                     setSelectedBoostForInspect(null);
                   }}
+                  disabled={
                     !inspectCanAfford ||
                     inspectBoost.is_premium ||
                     inspectIsButtonDisabled
