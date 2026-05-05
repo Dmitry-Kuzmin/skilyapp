@@ -35,6 +35,7 @@ type TestRewardPayload = {
   base_sp?: number;
   level_up?: boolean;
   new_level?: number;
+  total_sp?: number;
   message?: string;
 };
 
