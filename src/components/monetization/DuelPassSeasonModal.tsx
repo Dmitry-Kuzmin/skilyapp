@@ -1952,7 +1952,8 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
                   {filteredRewards.map((reward) => {
                     const unlocked = currentLevel >= reward.level;
                     const isCurrent = currentLevel === reward.level;
-                    const hasFreeReward = !!reward.free_reward;
+                    const hasFreeReward = isValidReward(reward.free_reward);
+                    const hasPremiumReward = isValidReward(reward.premium_reward);
                     const freeClaimed = claimedFreeRewards.has(reward.level);
                     const premiumClaimed = claimedPremiumRewards.has(reward.level);
 
@@ -1960,14 +1961,14 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
                     if (unlocked) {
                       const freeRewardClaimed = hasFreeReward ? freeClaimed : true;
                       let premiumRewardClaimed = true;
-                      if (reward.premium_reward) {
+                      if (hasPremiumReward) {
                         if (isPremium) {
                           premiumRewardClaimed = premiumClaimed;
                         } else {
                           premiumRewardClaimed = hasFreeReward ? true : false;
                         }
                       }
-                      if (!hasFreeReward && reward.premium_reward && !isPremium) {
+                      if (!hasFreeReward && hasPremiumReward && !isPremium) {
                         allClaimed = false;
                       } else {
                         allClaimed = freeRewardClaimed && premiumRewardClaimed;
