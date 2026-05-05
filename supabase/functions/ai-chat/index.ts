@@ -287,7 +287,7 @@ Deno.serve(async (req) => {
 
   try {
     const body: ChatRequest = await req.json();
-    const { messages, country = 'spain', mode = 'chat', showComparison = false, language = 'es' } = body;
+    const { messages, country = 'spain', mode = 'chat', showComparison = false, language = 'es', imageUrl = null } = body;
 
     const authHeader = req.headers.get('Authorization');
     let supabaseClient: any = null;
