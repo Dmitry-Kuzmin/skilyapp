@@ -1252,8 +1252,8 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
         const isPremiumClaimed = claimedPremiumRewards.has(rLevel);
 
         // ВАЖНО: Награда доступна СЕЙЧАС только если активирован Elite Pass (isPremium) или это бесплатная награда
-        const canClaimFree = !!r.free_reward && !isFreeClaimed;
-        const canClaimPremium = !!r.premium_reward && !isPremiumClaimed && isPremium;
+        const canClaimFree = isValidReward(r.free_reward) && !isFreeClaimed;
+        const canClaimPremium = isValidReward(r.premium_reward) && !isPremiumClaimed && isPremium;
 
         return canClaimFree || canClaimPremium;
       }
