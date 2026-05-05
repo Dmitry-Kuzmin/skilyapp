@@ -117,6 +117,23 @@ async function tryGemini(messages: Message[], country: string = 'spain', mode: s
       return null;
     }
 
+    // Inject question image into the first user message as inline_data (multimodal)
+    if (imageUrl) {
+      const img = await fetchImageAsBase64(imageUrl);
+      if (img) {
+        console.log(`[AI Chat] 🖼️ Injecting image into Gemini (${img.mimeType}, ${Math.round(img.data.length * 0.75 / 1024)}KB)`);
+        currentContents[0] = {
+          ...currentContents[0],
+          parts: [
+            { inline_data: { mime_type: img.mimeType, data: img.data } },
+            ...currentContents[0].parts,
+          ],
+        };
+      } else {
+        console.warn('[AI Chat] Failed to fetch image, proceeding without it');
+      }
+    }
+
     for (let iteration = 0; iteration < 2; iteration++) {
       const tools = (supabaseClient && userId) ? [{
         functionDeclarations: [{
