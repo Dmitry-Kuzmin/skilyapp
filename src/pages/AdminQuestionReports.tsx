@@ -96,6 +96,7 @@ const statusLabels: Record<ReportStatus, { es: string; ru: string; color: string
 };
 
 const AdminQuestionReports = () => {
+  const navigate = useNavigate();
   const [reports, setReports] = useState<QuestionReport[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedReport, setSelectedReport] = useState<QuestionReport | null>(null);
