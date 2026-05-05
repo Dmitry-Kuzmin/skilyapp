@@ -152,10 +152,6 @@ export function DuelPassLeaderboardView({
   const [userPositionData, setUserPositionData] = useState<UserPositionData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [rewardsModalOpen, setRewardsModalOpen] = useState(false);
-  const [selectedPosition, setSelectedPosition] = useState<number | null>(null);
-  const [activeSeasonId, setActiveSeasonId] = useState<number | null>(null);
-  const [seasonEndDate, setSeasonEndDate] = useState<string | null>(null);
   const [timeLeft, setTimeLeft] = useState<ReturnType<typeof calculateTimeLeft>>(null);
   const [filterType, setFilterType] = useState<FilterType>("global");
   const [searchQuery, setSearchQuery] = useState("");
