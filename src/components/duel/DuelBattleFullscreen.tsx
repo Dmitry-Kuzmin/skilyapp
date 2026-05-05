@@ -96,12 +96,6 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
   const { state: realtimeState, refreshExploits, removeExploit } = useDuelRealtime(duelId, myPlayerId);
   const { fetchQuestions, fetchPlayers, fetchBoostInventory, fetchBetInfo } = useDuelData(duelId, profileId);
 
-  // 5. Debug Log
-  useEffect(() => {
-    if (duelId) {
-      console.log('[DuelBattleFullscreen] DUEL_ID:', duelId);
-    }
-  }, [duelId]);
 
   // 7. Grouped UI State & Refs
   const {
