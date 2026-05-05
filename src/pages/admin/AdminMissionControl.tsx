@@ -5,6 +5,7 @@ import { Maximize2, Minimize2, ChevronRight, TestTube2, AlertCircle, Command, Po
 import { cn } from "@/lib/utils";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { MissionSidebar } from "@/components/admin/mission-control/MissionSidebar";
+import { MissionEditor } from "@/components/admin/mission-control/MissionEditor";
 import { MissionImageControl, MissionImageControlHandle } from "@/components/admin/mission-control/MissionImageControl";
 import { MissionTestDashboard } from "@/components/admin/mission-control/MissionTestDashboard";
 import { FloatingDock } from "@/components/admin/mission-control/FloatingDock";
