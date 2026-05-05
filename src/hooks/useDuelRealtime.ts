@@ -140,28 +140,11 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
     }
 
     try {
-      console.log('[useDuelRealtime] 🔄 Starting exploit recovery...', {
-        duelId,
-        myPlayerId,
-        profileId,
-        targetPlayerId: myPlayerId
-      });
       log('[useDuelRealtime] 🔄 Starting exploit recovery...');
 
       // myPlayerId - это уже ID из duel_players, используем его напрямую (через ref для стабильности)
       const targetPlayerId = myPlayerIdRef.current || myPlayerId;
-
-      // УПРОЩЕННАЯ ЛОГИКА: В дуэли 1 на 1 берем все exploits, где attacker НЕ я
-      // КРИТИЧНО: Логируем SQL запрос для отладки
-      const sqlQuery = `
-        SELECT * FROM duel_active_exploits 
-        WHERE duel_id = '${duelId}' 
-        AND attacker_player_id != '${targetPlayerId}' 
-        AND is_active = true 
-        AND expires_at > NOW()
-        ORDER BY activated_at DESC
-      `;
-      console.log('[useDuelRealtime] 🔍 SQL запрос для recoverActiveExploits (1v1 logic):', sqlQuery);
+      const sqlQuery = `SELECT * FROM duel_active_exploits WHERE duel_id = '${duelId}' AND attacker_player_id != '${targetPlayerId}' AND is_active = true AND expires_at > NOW() ORDER BY activated_at DESC`;
 
       // 🆕 Используем RPC функцию вместо прямого запроса для обхода CORS проблем
       const { data: rpcExploits, error: rpcError } = await supabase.rpc('get_active_exploits', {
