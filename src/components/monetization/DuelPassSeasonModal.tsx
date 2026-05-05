@@ -135,6 +135,12 @@ const rewardTypeVisuals: Record<
   },
 };
 
+const isValidReward = (r: any): boolean => {
+  if (!r) return false;
+  if (r.type === 'coins') return (r.amount ?? 0) > 0;
+  return !!r.id;
+};
+
 const resolveRewardType = (rewardData: any): string => {
   if (!rewardData) return "coins";
   const directType =
