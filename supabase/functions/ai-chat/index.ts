@@ -152,9 +152,43 @@ async function tryGemini(messages: Message[], country: string = 'spain', mode: s
           console.log('[AI Chat] ⚙️ TOOL CALLED: get_user_stats');
           let toolResult: any = {};
           try {
-            const { data: profile } = await supabaseClient.from('profiles').select('id, xp, coins, duel_pass_level, ton_wallet_address').or(`id.eq.${userId},user_id.eq.${userId}`).single();
-            const { data: sessions } = await supabaseClient.from('game_sessions').select('score, total_questions, game_type, created_at').eq('user_id', profile?.id || userId).order('created_at', { ascending: false }).limit(5);
-            toolResult = { user_stats: profile || null, latest_tests: sessions || [] };
+            const { data: profile } = await supabaseClient.from('profiles').select('id, xp, coins').or(`id.eq.${userId},user_id.eq.${userId}`).single();
+            const profileId = profile?.id || userId;
+
+            // Real Duel Pass level from user_season_progress (not the stale profiles.duel_pass_level)
+            const { data: seasonProgress } = await supabaseClient
+              .from('user_season_progress')
+              .select('level, season_points, season_id')
+              .eq('user_id', profileId)
+              .order('season_id', { ascending: false })
+              .limit(1)
+              .maybeSingle();
+
+            // score = XP earned per session, NOT correct answer count
+            const { data: sessions } = await supabaseClient
+              .from('game_sessions')
+              .select('score, total_questions, game_type, created_at')
+              .eq('user_id', profileId)
+              .order('created_at', { ascending: false })
+              .limit(5);
+
+            const formattedSessions = sessions?.map((s: { score: number; total_questions: number; game_type: string; created_at: string }) => ({
+              xp_earned: s.score,
+              total_questions: s.total_questions,
+              game_type: s.game_type,
+              date: s.created_at,
+              note: "xp_earned is XP points gained, NOT correct answer count",
+            }));
+
+            toolResult = {
+              user_stats: {
+                xp: profile?.xp ?? 0,
+                coins: profile?.coins ?? 0,
+                duel_pass_level: seasonProgress?.level ?? 1,
+                season_points: seasonProgress?.season_points ?? 0,
+              },
+              latest_tests: formattedSessions || [],
+            };
           } catch (e) { toolResult = { error: "Database unavailable" }; }
 
           currentContents.push({ role: "model", parts: allModelParts });
