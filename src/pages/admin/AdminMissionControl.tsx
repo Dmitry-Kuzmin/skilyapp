@@ -27,6 +27,7 @@ export const AdminMissionControl = () => {
 const AdminMissionControlContent = () => {
     // State
     const navigate = useNavigate();
+    const [searchParams, setSearchParams] = useSearchParams();
     const [selectedCountry, setSelectedCountry] = useState<'spain' | 'russia'>('spain');
     const [selectedTestId, setSelectedTestId] = useState<string | null>(null);
     const [selectedQuestionId, setSelectedQuestionId] = useState<string | null>(null);
@@ -36,6 +37,10 @@ const AdminMissionControlContent = () => {
     const [generatingQuestionId, setGeneratingQuestionId] = useState<string | null>(null);
     const [isTestEnriched, setIsTestEnriched] = useState<boolean>(true);
     const [isSearchOpen, setIsSearchOpen] = useState(false);
+    const [cmdCopied, setCmdCopied] = useState(false);
+
+    // Deep-link: questionId from URL param (from Report Management)
+    const pendingQuestionRef = useRef<string | null>(searchParams.get('questionId'));
 
     const imageControlRef = useRef<MissionImageControlHandle>(null);
 
