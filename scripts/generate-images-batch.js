@@ -18,6 +18,7 @@ import dotenv from 'dotenv';
 import crypto from 'crypto';
 import { v5 as uuidv5 } from 'uuid';
 import { getCreativeScenario } from './creative-scenarios.js';
+import { pickSkilyElement } from './skily-universe.js';
 
 const NAMESPACE = '1b671a64-40d5-491e-99b0-da01ff1f3341'; // Same as validator-server
 
