@@ -105,7 +105,10 @@ const AdminMissionControlContent = () => {
             // Deep-link: auto-select pending question
             if (pendingQuestionRef.current) {
                 const uuid = pendingQuestionRef.current;
-                const match = qs.find((q: any) => q.external_id === uuid || q.id === uuid);
+                const match = qs.find((q: any) => {
+                    const qId = q.external_id || q.id || '';
+                    return qId === uuid || qId.endsWith(`_${uuid}`);
+                });
                 if (match) {
                     const extId = match.external_id || match.id;
                     const fullId = extId.startsWith(testId) ? extId : `${testId}_${extId}`;
