@@ -290,19 +290,29 @@ const AdminMissionControlContent = () => {
                     </div>
 
                     {!isValidatorServerOnline && (
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            className="h-6 px-2 text-[10px] border-rose-500/30 text-rose-500 hover:bg-rose-500/10 hover:text-rose-400 bg-transparent"
-                            onClick={() => {
-                                toast("Initializing System...", { description: "Please ensure 'npm run validator' is running in terminal." });
-                                // In a real scenario, this might trigger a server restart endpoint if reachable
-                                checkServerStatus();
-                            }}
-                        >
-                            <Power className="w-3 h-3 mr-1.5" />
-                            IGNITION
-                        </Button>
+                        <div className="flex items-center gap-1.5">
+                            <button
+                                onClick={() => {
+                                    navigator.clipboard.writeText('npm run validator');
+                                    setCmdCopied(true);
+                                    setTimeout(() => setCmdCopied(false), 2000);
+                                }}
+                                className="flex items-center gap-1.5 px-2 py-1 rounded border border-zinc-700 bg-zinc-900 text-zinc-400 hover:text-white hover:border-zinc-600 transition-colors text-[10px] font-mono"
+                                title="Copy command to clipboard"
+                            >
+                                {cmdCopied ? <Check className="w-3 h-3 text-emerald-500" /> : <Copy className="w-3 h-3" />}
+                                npm run validator
+                            </button>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                className="h-6 px-2 text-[10px] border-rose-500/30 text-rose-500 hover:bg-rose-500/10 hover:text-rose-400 bg-transparent"
+                                onClick={() => checkServerStatus()}
+                            >
+                                <Power className="w-3 h-3 mr-1.5" />
+                                IGNITION
+                            </Button>
+                        </div>
                     )}
 
                     <button onClick={toggleFullscreen} className="text-zinc-600 hover:text-white transition-colors">
