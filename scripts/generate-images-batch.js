@@ -346,33 +346,32 @@ function getSkilyBranding(text, isSafetyCritical = false, isSignOnly = false) {
         };
     }
 
-    // 2. Branding Elements (Adequate Quantity & Cool Gadgets)
-    let brandingText = "";
-
-    // Check for matching context
-    const candidates = SKILY_VARIANTS.filter(v => v.tags.some(t => text.includes(t)));
-
-    // Fallback if no specific tag match (e.g. rural road) -> Drone or Robot valid? Drone yes.
-    if (candidates.length === 0) {
-        candidates.push(SKILY_VARIANTS.find(v => v.id === 'DRONE'));
-    }
-
     const SAFETY_PROTOCOL = `
 **BRAND SAFETY (CRITICAL):**
 * Skily vehicles (marked with livery) must NEVER be involved in accidents, collisions, or illegal maneuvers.
 * Skily vehicles must always be PARKED legally or DRIVING safely.`;
 
-    // Probability 10% for gadgets (drones/robots) to avoid clutter, but 70% for car livery (minimal)
-    if (candidates.length > 0 && Math.random() < 0.1) {
-        const selected = candidates[Math.floor(Math.random() * candidates.length)];
-        brandingText = `## SKILY BRANDING (MODERN & COOL):
-${selected.text}
-Also: One of the cars (preferable the main car) should have the Skily Livery (White/Blue/Cyan).
+    // Try to find a matching Skily Universe element (robots, drones, smart city, etc.)
+    // 30% chance to use a universe element if a tag match exists (to avoid clutter)
+    const universeElement = pickSkilyElement(text);
+    const useUniverse = universeElement && Math.random() < 0.30;
+
+    let brandingText = "";
+    if (useUniverse) {
+        console.log(`   🌍 Skily Universe element: ${universeElement.id}`);
+        brandingText = `## SKILY UNIVERSE BRANDING (NEAR-FUTURE SPAIN):
+${universeElement.text}
+
+**DESIGN LANGUAGE FOR ALL TECH ELEMENTS:**
+* Materials: Matte White plastic, Brushed Aluminum, Black Glass.
+* Accents: Active elements glow in Electric Cyan and Deep Blue.
+* Appearance: Robots/drones look friendly and functional (Apple/Tesla design style), NOT dystopian.
+* Also: One car in the scene should use the Skily Livery (White/Blue hatchback with Cyan accents).
 ${SAFETY_PROTOCOL}`;
     } else {
-        // Default: Just the car logo
+        // Fallback: classic minimal car livery
         brandingText = `## SKILY BRANDING (MINIMAL):
-One of the vehicles (the main car) should use the Skily Livery (White/Blue with Cyan accents).
+One of the vehicles (the main car) should use the Skily Livery (White/Blue hatchback with Cyan accents).
 ${SAFETY_PROTOCOL}`;
     }
 
