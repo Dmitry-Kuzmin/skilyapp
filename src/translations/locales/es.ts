@@ -21,6 +21,7 @@ export const es = {
     termsTitle: "Términos de Servicio",
     privacyTitle: "Política de Privacidad",
     close: "Cerrar",
+    new: "NUEVO",
   },
   pageLoader: {
     system: "Sistema Skily",
@@ -930,6 +931,7 @@ export const es = {
     duelPass: {
       title: "Duel Pass",
       subtitle: "Compite y gana recompensas exclusivas",
+      season: "Temporada {{number}}",
       description: "Camino de progreso único: abre cofres, obtén aspectos raros y domina en los duelos.",
       button: "Abrir Duel Pass",
       toastTitle: "Duel Pass",

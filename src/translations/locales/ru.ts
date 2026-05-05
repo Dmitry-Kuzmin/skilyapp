@@ -21,6 +21,7 @@ export const ru = {
     termsTitle: "Пользовательское соглашение",
     privacyTitle: "Политика конфиденциальности",
     close: "Закрыть",
+    new: "NEW",
   },
   pageLoader: {
     system: "Система Skily",
@@ -948,6 +949,7 @@ export const ru = {
     duelPass: {
       title: "Duel Pass",
       subtitle: "Соревнуйся и получай эксклюзивные награды",
+      season: "Сезон {{number}}",
       description: "Уникальный путь прогресса: открывай сундуки, получай редкие скины и доминируй в дуэлях.",
       button: "Открыть Duel Pass",
       toastDescription: "Откройте Duel Pass на главной странице",

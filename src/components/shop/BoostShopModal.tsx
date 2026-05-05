@@ -1704,7 +1704,7 @@ export function BoostShopModal({
                         title={t("boostShop.coins.packLabel", { amount: pack.coins })}
                         price={pack.price}
                         subtitle={t(pack.descriptionKey || "boostShop.coins.purpose")}
-                        badge={isBestValue ? '🔥 ХИТ' : isHighlighted ? '⭐ VIP' : undefined}
+                        badge={isBestValue ? '🔥 ' + t('boostShop.coins.tags.hit') : isHighlighted ? '⭐ ' + t('boostShop.coins.tags.vip') : undefined}
                         isPopular={isBestValue}
                         isVip={isHighlighted}
                         accentColor={isBestValue ? 'violet' : isHighlighted ? 'amber' : 'blue'}
@@ -1798,7 +1798,7 @@ export function BoostShopModal({
                           <Trophy className="w-10 h-10 text-emerald-400 drop-shadow-[0_0_12px_rgba(52,211,153,0.6)]" />
                         </div>
                         <div className="absolute -bottom-2 -right-2 px-2 py-0.5 rounded-md bg-emerald-500 text-[#022c22] text-[10px] font-black uppercase tracking-tighter shadow-lg">
-                          NEW
+                          {t('common.new')}
                         </div>
                       </div>
 
@@ -1806,13 +1806,13 @@ export function BoostShopModal({
                       <div className="flex-1 text-center md:text-left space-y-4">
                         <div className="space-y-1">
                           <div className="flex items-center justify-center md:justify-start gap-2">
-                            <h3 className="text-2xl font-black text-white tracking-tight italic uppercase">Duel Pass</h3>
+                            <h3 className="text-2xl font-black text-white tracking-tight italic uppercase">{t('boostShop.duelPass.title')}</h3>
                             <span className="text-xs font-bold text-emerald-400 bg-emerald-400/10 px-2 py-0.5 rounded-full border border-emerald-400/20">
-                              SEASON 1
+                              {t('boostShop.duelPass.season', { number: 1 })}
                             </span>
                           </div>
                           <p className="text-sm text-emerald-100/60 font-medium max-w-md">
-                            Уникальный путь прогресса: открывай сундуки, получай редкие скины и доминируй в дуэлях.
+                            {t('boostShop.duelPass.description')}
                           </p>
                         </div>
 
@@ -1842,7 +1842,7 @@ export function BoostShopModal({
                           onClick={() => {
                             handleBuyClick({
                               id: 'duel_pass',
-                              title: 'Duel Pass Season 1',
+                              title: `${t('boostShop.duelPass.title')} ${t('boostShop.duelPass.season', { number: 1 })}`,
                               priceValue: DUEL_PASS_PRICE.priceValue,
                               catalogKey: 'duel_pass'
                             });
@@ -1959,18 +1959,18 @@ export function BoostShopModal({
                 transition={{ duration: 0.2, repeat: Infinity }}
                 className="text-base md:text-lg font-black text-foreground truncate tracking-wide font-mono uppercase relative z-10"
               >
-                BLACK MARKET
+                {t('boostShop.header.title')}
                 {/* Glitch layers on hover */}
                 <span className="absolute top-0 left-0 -z-10 text-red-500 opacity-0 group-hover/title:opacity-50 group-hover/title:animate-pulse translate-x-[-2px] select-none">
-                  BLACK MARKET
+                  {t('boostShop.header.title')}
                 </span>
                 <span className="absolute top-0 left-0 -z-10 text-cyan-500 opacity-0 group-hover/title:opacity-50 group-hover/title:animate-pulse translate-x-[2px] select-none">
-                  BLACK MARKET
+                  {t('boostShop.header.title')}
                 </span>
               </motion.h2>
               <p className="text-[10px] text-muted-foreground truncate font-mono tracking-widest uppercase opacity-70 flex items-center gap-1">
                 <span className="inline-block w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
-                SECURE ACCESS GRANTED
+                {t('boostShop.header.subtitle')}
               </p>
             </div>
           </div>
@@ -2014,7 +2014,7 @@ export function BoostShopModal({
                 "transition-all duration-200",
                 "opacity-80 hover:opacity-100",
               )}
-              aria-label="Закрыть"
+              aria-label={t('common.close')}
             >
               <X className="w-5 h-5 md:w-4 md:h-4" />
             </button>
@@ -2146,14 +2146,14 @@ export function BoostShopModal({
             }
 
             toast({
-              title: "✨ Монеты получены!",
-              description: "Тебе начислено 20 монет за просмотр рекламы",
+              title: t('boostShop.toasts.adSuccessTitle'),
+              description: t('boostShop.toasts.adSuccessDesc'),
             });
           } catch (error: any) {
             console.error("[BoostShop] Error claiming ad reward:", error);
             toast({
-              title: "Ошибка",
-              description: error.message || "Не удалось начислить монеты",
+              title: t('common.error'),
+              description: error.message || t('boostShop.toasts.adErrorDesc'),
               variant: "destructive",
             });
           }
@@ -2163,10 +2163,6 @@ export function BoostShopModal({
       {/* Boost Inspect Sheet (Product Details) */}
       {selectedBoostForInspect &&
         (() => {
-          console.log(
-            "[BoostShopModal] Rendering inspect sheet for:",
-            selectedBoostForInspect.type,
-          );
           const inspectBoost = selectedBoostForInspect;
           const inspectCategory = getBoostCategory(inspectBoost.type);
           const inspectInventoryCount = getInventoryCount(inspectBoost.type);
@@ -2210,12 +2206,6 @@ export function BoostShopModal({
             <ResponsiveModal
               open={!!selectedBoostForInspect}
               onOpenChange={(open) => {
-                console.log(
-                  "[BoostShopModal] ResponsiveModal onOpenChange:",
-                  open,
-                  "selectedBoost:",
-                  selectedBoostForInspect?.type,
-                );
                 if (!open) {
                   setSelectedBoostForInspect(null);
                 }
@@ -2226,27 +2216,16 @@ export function BoostShopModal({
               )}
               contentClassName="p-0"
             >
+              {/* Header */}
+              <div className="p-4 border-b border-white/10 flex items-center gap-2">
+                <Button variant="ghost" onClick={() => setSelectedBoostForInspect(null)} className="gap-2 text-muted-foreground">
+                  <ArrowLeft className="w-4 h-4" />
+                  {t('common.back')}
+                </Button>
+              </div>
+
               {/* Cyber background effects */}
               <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                {/* Binary Background Effect */}
-                <div className="absolute inset-0 opacity-[0.05] font-mono text-[10px] text-white leading-none select-none overflow-hidden">
-                  <div className="animate-slide-down flex flex-col gap-1">
-                    {Array.from({ length: 20 }).map((_, i) => (
-                      <div key={i} className="whitespace-nowrap opacity-50">
-                        {Array.from({ length: 10 })
-                          .map(() => Math.round(Math.random()))
-                          .join(" ")}{" "}
-                        {Array.from({ length: 10 })
-                          .map(() => Math.round(Math.random()))
-                          .join(" ")}{" "}
-                        {Array.from({ length: 10 })
-                          .map(() => Math.round(Math.random()))
-                          .join(" ")}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                {/* Grid pattern */}
                 <div
                   className="absolute inset-0 opacity-[0.03]"
                   style={{
@@ -2254,195 +2233,58 @@ export function BoostShopModal({
                     backgroundSize: "20px 20px",
                   }}
                 />
-                {/* Glow effect based on category */}
-                <div
-                  className={cn(
-                    "absolute -top-20 -right-20 w-40 h-40 rounded-full blur-3xl opacity-30",
-                    inspectCategory === "exploit" && "bg-red-500",
-                    inspectCategory === "defense" && "bg-cyan-500",
-                    inspectCategory === "utility" && "bg-emerald-500",
-                  )}
-                />
-                <div
-                  className={cn(
-                    "absolute -bottom-10 -left-10 w-32 h-32 rounded-full blur-2xl opacity-20",
-                    inspectCategory === "exploit" && "bg-red-500",
-                    inspectCategory === "defense" && "bg-cyan-500",
-                    inspectCategory === "utility" && "bg-emerald-500",
-                  )}
-                />
               </div>
-
-              {/* Scanline effect при появлении */}
-              <motion.div
-                initial={{ top: 0 }}
-                animate={{ top: "100%" }}
-                transition={{ duration: 0.4, ease: "easeOut" }}
-                className={cn(
-                  "absolute left-0 right-0 h-1 pointer-events-none z-20",
-                  inspectCategory === "exploit" &&
-                  "bg-gradient-to-r from-transparent via-red-500 to-transparent shadow-[0_0_20px_rgba(239,68,68,0.8)]",
-                  inspectCategory === "defense" &&
-                  "bg-gradient-to-r from-transparent via-cyan-500 to-transparent shadow-[0_0_20px_rgba(6,182,212,0.8)]",
-                  inspectCategory === "utility" &&
-                  "bg-gradient-to-r from-transparent via-emerald-500 to-transparent shadow-[0_0_20px_rgba(34,197,94,0.8)]",
-                )}
-              />
-
-              {/* Border flash animation */}
-              <motion.div
-                initial={{ opacity: 1 }}
-                animate={{ opacity: 0 }}
-                transition={{ duration: 0.5, ease: "easeOut" }}
-                className={cn(
-                  "absolute inset-0 rounded-xl pointer-events-none z-10",
-                  inspectCategory === "exploit" &&
-                  "shadow-[inset_0_0_30px_rgba(239,68,68,0.5),0_0_30px_rgba(239,68,68,0.5)]",
-                  inspectCategory === "defense" &&
-                  "shadow-[inset_0_0_30px_rgba(6,182,212,0.5),0_0_30px_rgba(6,182,212,0.5)]",
-                  inspectCategory === "utility" &&
-                  "shadow-[inset_0_0_30px_rgba(34,197,94,0.5),0_0_30px_rgba(34,197,94,0.5)]",
-                )}
-              />
 
               <motion.div
                 initial={{ opacity: 0, scale: 0.95, y: 10 }}
-                animate={{
-                  opacity: 1,
-                  scale: 1,
-                  y: 0,
-                  x: [0, -2, 2, -1, 1, 0], // Glitch shake
-                }}
-                transition={{
-                  duration: 0.3,
-                  x: { duration: 0.2, times: [0, 0.2, 0.4, 0.6, 0.8, 1] },
-                }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
                 className="relative z-10 p-5"
               >
-                {/* Header */}
+                {/* Header Content */}
                 <div className="flex items-center gap-4 mb-5">
-                  <div
-                    className={cn(
-                      "w-16 h-16 rounded-xl flex items-center justify-center",
-                      "bg-black/50 border",
-                      inspectTheme.border,
-                      inspectTheme.buttonShadow,
-                    )}
-                  >
-                    <span
-                      className={cn("text-3xl", inspectTheme.icon)}
-                      style={{
-                        filter: `drop-shadow(0 0 12px ${inspectCategory === "exploit"
-                          ? "rgba(239, 68, 68, 0.8)"
-                          : inspectCategory === "defense"
-                            ? "rgba(6, 182, 212, 0.8)"
-                            : "rgba(34, 197, 94, 0.8)"
-                          })`,
-                      }}
-                    >
+                  <div className={cn("w-16 h-16 rounded-xl flex items-center justify-center bg-black/50 border", inspectTheme.border)}>
+                    <span className={cn("text-3xl", inspectTheme.icon)}>
                       {inspectBoost.icon}
                     </span>
                   </div>
                   <div className="flex-1">
-                    <div
-                      className={cn(
-                        "text-[10px] font-mono mb-1 uppercase tracking-widest",
-                        inspectTheme.text,
-                        "opacity-60",
-                      )}
-                    >
-                      {inspectCategory === "exploit"
-                        ? "ATK"
-                        : inspectCategory === "defense"
-                          ? "DEF"
-                          : "UTL"}
-                      _MODULE v.{inspectInventoryCount || 1}
-                    </div>
                     <h2 className="text-xl font-bold text-white mb-1">
-                      {translateBoostField(
-                        inspectBoost.type,
-                        "name",
-                        inspectBoost.name_ru,
-                      )}
+                      {translateBoostField(inspectBoost.type, "name", inspectBoost.name_ru)}
                     </h2>
-                    {inspectInventoryCount > 0 && inspectIsConsumable && (
-                      <div
-                        className={cn(
-                          "inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-mono",
-                          "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30",
-                        )}
-                      >
-                        <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
-                        STOCK: {inspectInventoryCount}
-                      </div>
-                    )}
                   </div>
                 </div>
 
-                {/* System Effect Block - Hacker style */}
-                <div
-                  className={cn(
-                    "p-4 rounded-xl border mb-5",
-                    "bg-white/[0.02]",
-                    inspectTheme.border,
-                  )}
-                >
-                  <div className="flex items-center gap-2 mb-2">
-                    <div
-                      className={cn(
-                        "w-2 h-2 rounded-full animate-pulse",
-                        inspectCategory === "exploit" &&
-                        "bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.8)]",
-                        inspectCategory === "defense" &&
-                        "bg-cyan-500 shadow-[0_0_8px_rgba(6,182,212,0.8)]",
-                        inspectCategory === "utility" &&
-                        "bg-emerald-500 shadow-[0_0_8px_rgba(34,197,94,0.8)]",
-                      )}
-                    />
-                    <h3 className="text-[10px] font-mono text-white/40 uppercase tracking-widest">
-                      System Effect
-                    </h3>
-                  </div>
-                  <p className="text-sm text-white/70 leading-relaxed">
-                    {translateBoostField(
-                      inspectBoost.type,
-                      "description",
-                      inspectBoost.description_ru,
-                    )}
-                  </p>
-                </div>
-
-                {/* Specs Grid - Terminal style */}
+                {/* Specs Grid */}
                 <div className="grid grid-cols-2 gap-3 mb-6">
                   <div className="p-3 rounded-lg bg-black/30 border border-white/5">
                     <div className="text-[9px] text-white/30 font-mono mb-1 uppercase tracking-wider">
-                      DURATION
+                      {t('boostShop.inspect.duration')}
                     </div>
                     <div className="text-sm text-white font-bold font-mono">
-                      1 Round
+                      {t('boostShop.inspect.oneRound')}
                     </div>
                   </div>
                   <div className="p-3 rounded-lg bg-black/30 border border-white/5">
                     <div className="text-[9px] text-white/30 font-mono mb-1 uppercase tracking-wider">
-                      TARGET
+                      {t('boostShop.inspect.target')}
                     </div>
                     <div className="text-sm text-white font-bold font-mono">
                       {inspectCategory === "exploit"
-                        ? "Enemy"
+                        ? t('boostShop.inspect.targets.enemy')
                         : inspectCategory === "defense"
-                          ? "Self"
-                          : "Both"}
+                          ? t('boostShop.inspect.targets.self')
+                          : t('boostShop.inspect.targets.both')}
                     </div>
                   </div>
                 </div>
 
-                {/* Action Button - Neon style */}
+                {/* Action Button */}
                 <motion.button
                   onClick={() => {
                     handlePurchase(inspectBoost);
                     setSelectedBoostForInspect(null);
                   }}
-                  disabled={
                     !inspectCanAfford ||
                     inspectBoost.is_premium ||
                     inspectIsButtonDisabled

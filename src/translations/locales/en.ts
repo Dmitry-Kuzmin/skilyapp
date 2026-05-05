@@ -21,6 +21,7 @@ export const en = {
     termsTitle: "Terms of Service",
     privacyTitle: "Privacy Policy",
     close: "Close",
+    new: "NEW",
   },
   pageLoader: {
     system: "Skily System",
@@ -939,6 +940,7 @@ export const en = {
     duelPass: {
       title: "Duel Pass",
       subtitle: "Compete and earn exclusive rewards",
+      season: "Season {{number}}",
       description: "Unique progress path: open chests, get rare skins and dominate in duels.",
       button: "Open Duel Pass",
       toastTitle: "Duel Pass",
