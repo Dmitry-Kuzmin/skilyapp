@@ -23,6 +23,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { maybeTriggerLevelUp } from "@/store/levelUpStore";
 import { useUserContext } from "@/contexts/UserContext";
 import { useModalStore } from "@/store/modalStore";
+import { TestResultsCelebrationFlow, type CelebrationData } from "@/components/celebration/TestResultsCelebrationFlow";
 
 type TestRewardPayload = {
   coins_awarded?: number;
