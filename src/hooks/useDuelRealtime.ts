@@ -229,14 +229,8 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
           };
         });
       } else {
-        // КРИТИЧНО: Fallback - проверяем exploits по user_id если myPlayerId не совпадает
-        console.warn('[useDuelRealtime] ⚠️⚠️⚠️ No active exploits found for myPlayerId, trying fallback by user_id ⚠️⚠️⚠️:', {
-          duelId,
-          targetPlayerId,
-          myPlayerId,
-          profileId,
-          currentTime: new Date().toISOString()
-        });
+        // Fallback: проверяем exploits по user_id если myPlayerId не совпадает
+        log('[useDuelRealtime] No exploits for myPlayerId, trying fallback by user_id');
 
         // Fallback: находим наш player_id по user_id и проверяем exploits для него
         try {
