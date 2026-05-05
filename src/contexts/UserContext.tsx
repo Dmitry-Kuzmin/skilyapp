@@ -59,7 +59,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
         }
 
         // For web users - get profile by user_id
-        console.log("[UserContext] 🔍 Loading profile for Supabase user:", supabaseUser.id);
+        devLog("[UserContext] 🔍 Loading profile for Supabase user:", supabaseUser.id);
 
         // Обновляем ref сразу, чтобы предотвратить параллельные запросы
         lastProcessedUserRef.current = supabaseUser.id;
@@ -93,13 +93,13 @@ export function UserProvider({ children }: { children: ReactNode }) {
             // 🎁 Process referral code for Web/Auth users (Google OAuth, Magic Link)
             const refCode = sessionStorage.getItem('referral_code');
             if (refCode) {
-              console.log("[UserContext] Processing pending referral code for web user:", refCode);
+              devLog("[UserContext] Processing pending referral code for web user:", refCode);
               (supabase as any).rpc('create_referral', {
                 p_referrer_code: refCode,
                 p_referred_id: actualProfileId
               }).then(({ data, error }: { data: any, error: any }) => {
                 if (!error && data && data[0]?.success) {
-                  console.log("[UserContext] ✅ Referral applied successfully!");
+                  devLog("[UserContext] ✅ Referral applied successfully!");
                   sessionStorage.removeItem('referral_code');
                   
                   // 🎉 Красивое уведомление
@@ -112,7 +112,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
                   queryClient.invalidateQueries({ queryKey: ['dashboard'] });
                   queryClient.invalidateQueries({ queryKey: ['dashboard-complete'] });
                 } else if (data && data[0] && (data[0].message === 'Already referred by someone' || data[0].message === 'Cannot refer yourself')) {
-                  console.log("[UserContext] Referral skipped:", data[0].message);
+                  devLog("[UserContext] Referral skipped:", data[0].message);
                   sessionStorage.removeItem('referral_code');
                 } else if (error) {
                   console.error("[UserContext] Error applying referral:", error);
@@ -128,11 +128,11 @@ export function UserProvider({ children }: { children: ReactNode }) {
           if (isTelegramMiniApp() && (!photoUrl || photoUrl.includes('api.telegram.org'))) {
             const initData = window.Telegram?.WebApp?.initData;
             if (initData && !initData.startsWith('mock_')) {
-              console.log("[UserContext] 🔄 Detected stale/missing avatar, triggering background sync...");
+              devLog("[UserContext] 🔄 Detected stale/missing avatar, triggering background sync...");
               // Fire and forget - не блокируем UI
               supabase.functions.invoke('telegram-auth-v2', { body: { initData } })
                 .then(({ data: res, error: err }) => {
-                  if (!err) console.log("[UserContext] ✅ Avatar sync request sent successfully");
+                  if (!err) devLog("[UserContext] ✅ Avatar sync request sent successfully");
                   else console.error("[UserContext] Avatar sync request failed", err);
                 })
                 .catch(err => console.error("[UserContext] Avatar sync exception", err));
@@ -140,7 +140,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
           }
         } else if (isMounted && !data) {
           // КРИТИЧНО: Если профиля нет, создаем его автоматически для веб-пользователя
-          console.log("[UserContext] 🐣 Profile not found, creating new one...");
+          devLog("[UserContext] 🐣 Profile not found, creating new one...");
           // Используем upsert, чтобы избежать ошибок уникальности
           const { data: newProfile, error: createError } = await supabase
             .from('profiles')
@@ -160,7 +160,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
             .single();
 
           if (!createError && newProfile) {
-            console.log("[UserContext] ✨ New profile created:", newProfile.id);
+            devLog("[UserContext] ✨ New profile created:", newProfile.id);
             setProfileId(newProfile.id);
             setGlobalProfileId(newProfile.id);
             localStorage.setItem(`profile_${supabaseUser.id}`, newProfile.id);
@@ -194,12 +194,12 @@ export function UserProvider({ children }: { children: ReactNode }) {
         lastProcessedUserRef.current = telegramIdStr;
 
         // For Telegram users - get profile by telegram_id with retry
-        console.log("[UserContext] Loading profile for Telegram user:", user.id);
+        devLog("[UserContext] Loading profile for Telegram user:", user.id);
 
         // Check cache first - если есть кэш, используем его и НЕ делаем запрос
         const cachedId = localStorage.getItem(`profile_${user.id}`);
         if (cachedId) {
-          console.log("[UserContext] ✅ Using cached profileId (no DB request):", cachedId);
+          devLog("[UserContext] ✅ Using cached profileId (no DB request):", cachedId);
           if (isMounted) {
             if (profileId !== cachedId) {
               setProfileId(cachedId);
@@ -223,7 +223,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
             console.error('[UserContext] Error loading profile:', error);
             if (attempt >= 3) lastProcessedUserRef.current = null;
           } else if (data && (data as any).id) {
-            console.log("[UserContext] Loaded profile ID for Telegram user:", (data as any).id);
+            devLog("[UserContext] Loaded profile ID for Telegram user:", (data as any).id);
             if (isMounted) {
               const pid = (data as any).id;
               if (profileId !== pid) {
@@ -236,7 +236,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
             console.log(`[UserContext] Profile not found, retry ${attempt}/3 in 1000ms...`);
             setTimeout(() => queryProfile(attempt + 1), 1000);
           } else {
-            console.log("[UserContext] No profile found after 3 retries");
+            devLog("[UserContext] No profile found after 3 retries");
             lastProcessedUserRef.current = null;
           }
         };
@@ -259,11 +259,11 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
   // Supabase auth listener for web users
   useEffect(() => {
-    console.log("[UserContext] Setting up Supabase auth listener");
+    devLog("[UserContext] Setting up Supabase auth listener");
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, newSession) => {
-        console.log("[UserContext] Auth state changed:", event, newSession?.user?.email);
+        devLog("[UserContext] Auth state changed:", event, newSession?.user?.email);
 
         // КРИТИЧНО: Сохраняем токен в IndexedDB для доступа из Service Worker
         if (newSession?.access_token) {
@@ -276,13 +276,13 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
         // КРИТИЧНО: Если есть реальный пользователь из Supabase, очищаем Telegram mock-данные
         if (newSession?.user) {
-          console.log("[UserContext] Real Supabase user detected, setting user and clearing Telegram mock");
+          devLog("[UserContext] Real Supabase user detected, setting user and clearing Telegram mock");
           setSession(newSession);
           setSupabaseUser(newSession.user);
           // Очищаем Telegram mock-данные, если они были установлены
           setUser(prevUser => {
             if (prevUser && (prevUser.id === 123456789 || prevUser.username === 'test_user')) {
-              console.log("[UserContext] Clearing Telegram mock user");
+              devLog("[UserContext] Clearing Telegram mock user");
               window.puzzleUser = null;
               return null;
             }
@@ -306,21 +306,21 @@ export function UserProvider({ children }: { children: ReactNode }) {
   // Initialize Telegram user with enhanced fallbacks
   useEffect(() => {
     const initializeAuth = async () => {
-      console.log("[UserContext] 🚀 initializeAuth started");
+      devLog("[UserContext] 🚀 initializeAuth started");
       // АРХИТЕКТУРА: Зависим от TelegramProvider (webApp)
       // Если WebApp еще не инициализирован, ждем
       // НО: Только если мы действительно в Telegram Mini App
       if (!webApp && window.Telegram?.WebApp && isTelegramMiniApp()) {
-        console.log("[UserContext] ⏳ Waiting for TelegramProvider...");
+        devLog("[UserContext] ⏳ Waiting for TelegramProvider...");
         return;
       }
-      console.log("[UserContext] 🔐 Initializing...");
+      devLog("[UserContext] 🔐 Initializing...");
 
       // КРИТИЧНО: Если уже есть реальный пользователь из Supabase, не используем Telegram mock
       // Проверяем сессию Supabase перед инициализацией Telegram
       const { data: { session: existingSession } } = await supabase.auth.getSession();
       if (existingSession?.user) {
-        console.log("[UserContext] Real Supabase user found, restoring session...");
+        devLog("[UserContext] Real Supabase user found, restoring session...");
         setSupabaseUser(existingSession.user);
         setSession(existingSession);
 
@@ -331,7 +331,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
           webApp?.initDataUnsafe?.user ??
           window.Telegram?.WebApp?.initDataUnsafe?.user;
         if (tgWebappUser && tgWebappUser.id !== 123456789 && tgWebappUser.username !== 'test_user') {
-          console.log("[UserContext] ✅ TelegramUser restored from WebApp on session restore:", tgWebappUser.first_name);
+          devLog("[UserContext] ✅ TelegramUser restored from WebApp on session restore:", tgWebappUser.first_name);
           setUser(tgWebappUser as TelegramUser);
           window.puzzleUser = tgWebappUser as TelegramUser;
         }
@@ -340,7 +340,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
         // Это предотвращает мигание/блокировку кнопки оплаты
         const cachedProfileId = localStorage.getItem(`profile_${existingSession.user.id}`);
         if (cachedProfileId) {
-          console.log("[UserContext] ✅ profileId restored from cache:", cachedProfileId);
+          devLog("[UserContext] ✅ profileId restored from cache:", cachedProfileId);
           setProfileId(cachedProfileId);
           setGlobalProfileId(cachedProfileId);
         }
@@ -357,7 +357,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
       /* 
       if (isMockTelegram) {
-        console.log("[UserContext] Mock Telegram detected, skipping initialization");
+        devLog("[UserContext] Mock Telegram detected, skipping initialization");
         setIsLoading(false);
         return;
       }
@@ -373,7 +373,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
         // Проверяем, не мок ли это
         if (userData.id !== 123456789 && userData.username !== 'test_user') {
           telegramUser = userData as TelegramUser;
-          console.log("[UserContext] User from TelegramProvider:", telegramUser.first_name);
+          devLog("[UserContext] User from TelegramProvider:", telegramUser.first_name);
         }
       }
 
@@ -383,20 +383,20 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
         // Проверяем, не мок ли это
         if (telegramUser && (telegramUser.id === 123456789 || telegramUser.username === 'test_user')) {
-          console.log("[UserContext] Mock user detected, skipping");
+          devLog("[UserContext] Mock user detected, skipping");
           telegramUser = null;
         }
       }
 
       // Fallback to window.puzzleUser or localStorage (только если не мок)
       if (!telegramUser) {
-        console.log("[UserContext] Checking fallback sources...");
+        devLog("[UserContext] Checking fallback sources...");
         if (window.puzzleUser) {
           // Проверяем, не мок ли это
           if (window.puzzleUser.id === 123456789 || window.puzzleUser.username === 'test_user') {
-            console.log("[UserContext] Mock user in window.puzzleUser, skipping");
+            devLog("[UserContext] Mock user in window.puzzleUser, skipping");
           } else {
-            console.log("[UserContext] Using window.puzzleUser");
+            devLog("[UserContext] Using window.puzzleUser");
             telegramUser = window.puzzleUser;
           }
         } else {
@@ -406,9 +406,9 @@ export function UserProvider({ children }: { children: ReactNode }) {
               const parsedUser = JSON.parse(storedUserStr);
               // Проверяем, не мок ли это
               if (parsedUser.id === 123456789 || parsedUser.username === 'test_user') {
-                console.log("[UserContext] Mock user in localStorage, skipping");
+                devLog("[UserContext] Mock user in localStorage, skipping");
               } else {
-                console.log("[UserContext] Using stored user from localStorage");
+                devLog("[UserContext] Using stored user from localStorage");
                 telegramUser = parsedUser;
               }
             } catch (err) {
@@ -422,16 +422,16 @@ export function UserProvider({ children }: { children: ReactNode }) {
       const detectedPlatform = getPlatform();
       const isTelegramEnv = isTelegramMiniApp();
 
-      console.log("[UserContext] Detected platform:", detectedPlatform);
-      console.log("[UserContext] Is Telegram Mini App:", isTelegramEnv);
-      console.log("[UserContext] Telegram User from init:", telegramUser);
-      console.log("[UserContext] WebApp initDataUnsafe:", window.Telegram?.WebApp?.initDataUnsafe);
+      devLog("[UserContext] Detected platform:", detectedPlatform);
+      devLog("[UserContext] Is Telegram Mini App:", isTelegramEnv);
+      devLog("[UserContext] Telegram User from init:", telegramUser);
+      devLog("[UserContext] WebApp initDataUnsafe:", window.Telegram?.WebApp?.initDataUnsafe);
 
       setPlatform(detectedPlatform);
 
       // Auto-login for Telegram Mini App with user data (только если не мок)
       if (telegramUser && telegramUser.id !== 123456789 && telegramUser.username !== 'test_user') {
-        console.log("[UserContext] Auto-logging in Telegram user:", telegramUser.first_name);
+        devLog("[UserContext] Auto-logging in Telegram user:", telegramUser.first_name);
 
         // Set user immediately for instant UI feedback
         setUser(telegramUser);
@@ -455,14 +455,14 @@ export function UserProvider({ children }: { children: ReactNode }) {
           setProfileId(cachedTgProfileId);
           setGlobalProfileId(cachedTgProfileId);
           setIsLoading(false);
-          console.log("[UserContext] ⚡ Fast path: UI unblocked with cached profileId:", cachedTgProfileId);
+          devLog("[UserContext] ⚡ Fast path: UI unblocked with cached profileId:", cachedTgProfileId);
         }
 
         // Обмениваем Telegram initData на Supabase сессию (в фоне для возвращающихся, await для новых)
         const initData = webApp?.initData || window.Telegram?.WebApp?.initData;
         if (initData && initData !== '' && !initData.startsWith('mock_')) {
           const doTelegramAuth = async () => {
-            console.log("[UserContext] 🔐 Exchanging Telegram initData for Supabase session...");
+            devLog("[UserContext] 🔐 Exchanging Telegram initData for Supabase session...");
 
             const { data: authData, error: authError } = await supabase.functions.invoke('telegram-auth-v2', {
               body: { initData }
@@ -477,7 +477,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
                 });
               }
             } else if (authData?.session) {
-              console.log("[UserContext] ✅ Got Supabase session from Telegram auth!");
+              devLog("[UserContext] ✅ Got Supabase session from Telegram auth!");
 
               const { error: sessionError } = await supabase.auth.setSession({
                 access_token: authData.session.access_token,
@@ -492,12 +492,12 @@ export function UserProvider({ children }: { children: ReactNode }) {
                   await login(telegramUser).catch(err => console.error('[UserContext] Fallback login failed:', err));
                 }
               } else {
-                console.log("[UserContext] 🎉 Supabase session set successfully!");
+                devLog("[UserContext] 🎉 Supabase session set successfully!");
                 setSession(authData.session);
                 setSupabaseUser(authData.user);
 
                 if (authData.profile_id) {
-                  console.log("[UserContext] ✅ profileId from auth function:", authData.profile_id);
+                  devLog("[UserContext] ✅ profileId from auth function:", authData.profile_id);
                   setProfileId(authData.profile_id);
                   setGlobalProfileId(authData.profile_id);
                   localStorage.setItem(`profile_${telegramUser.id}`, authData.profile_id);
@@ -538,7 +538,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
           }
         }
       } else {
-        console.log("[UserContext] No Telegram user - user needs to login manually");
+        devLog("[UserContext] No Telegram user - user needs to login manually");
       }
 
       // setIsLoading(false) для новых пользователей (у возвращающихся уже вызван выше через fast path)
@@ -549,7 +549,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
   }, [webApp]); // АРХИТЕКТУРА: webApp добавлен в зависимости для корректного перезапуска после инициализации
 
   const login = useCallback(async (userData: TelegramUser) => {
-    console.log("[UserContext] Login started for:", userData.first_name);
+    devLog("[UserContext] Login started for:", userData.first_name);
 
     // Update local state immediately for instant UI feedback
     setUser(userData);
@@ -576,21 +576,21 @@ export function UserProvider({ children }: { children: ReactNode }) {
     localStorage.setItem('puzzle_user', JSON.stringify(userData));
 
     try {
-      console.log("[UserContext] Saving to backend with platform:", actualPlatform);
+      devLog("[UserContext] Saving to backend with platform:", actualPlatform);
 
       // Check for referral code from deep link
       const referralCode = sessionStorage.getItem('referral_code');
       if (referralCode) {
-        console.log("[UserContext] Found referral code:", referralCode);
+        devLog("[UserContext] Found referral code:", referralCode);
       }
 
       // КРИТИЧНО: Проверяем партнерский код из start_param
       const partnerRefCode = sessionStorage.getItem('partner_ref_code');
       if (partnerRefCode) {
-        console.log("[UserContext] Found partner ref code:", partnerRefCode);
+        devLog("[UserContext] Found partner ref code:", partnerRefCode);
       }
 
-      console.log("[UserContext] User data:", {
+      devLog("[UserContext] User data:", {
         id: userData.id,
         first_name: userData.first_name,
         platform: actualPlatform,
@@ -612,11 +612,11 @@ export function UserProvider({ children }: { children: ReactNode }) {
         throw error;
       }
 
-      console.log("[UserContext] Backend response:", result);
+      devLog("[UserContext] Backend response:", result);
 
       // If we got profile data back, immediately set profileId
       if (result?.profile?.id) {
-        console.log("[UserContext] Setting profileId from backend response:", result.profile.id);
+        devLog("[UserContext] Setting profileId from backend response:", result.profile.id);
         setProfileId(result.profile.id);
         setGlobalProfileId(result.profile.id); // 🔒 Синхронизация с глобальным синглтоном
         localStorage.setItem(`profile_${userData.id}`, result.profile.id);
@@ -624,7 +624,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
         // КРИТИЧНО: Связываем пользователя с партнером после создания профиля
         if (partnerRefCode) {
           try {
-            console.log("[UserContext] Linking user to partner:", partnerRefCode);
+            devLog("[UserContext] Linking user to partner:", partnerRefCode);
             const { data: linkResult, error: linkError } = await supabase.rpc(
               'link_user_to_partner_from_start_param',
               {
@@ -636,12 +636,12 @@ export function UserProvider({ children }: { children: ReactNode }) {
             if (linkError) {
               console.error('[UserContext] Failed to link user to partner:', linkError);
             } else if (linkResult && (linkResult as any).length > 0 && (linkResult as any)[0].success) {
-              console.log("[UserContext] User linked to partner:", {
+              devLog("[UserContext] User linked to partner:", {
                 partner_id: (linkResult as any)[0].partner_id,
                 partner_code: (linkResult as any)[0].partner_code
               });
             } else {
-              console.log("[UserContext] Partner link result:", (linkResult as any)?.[0]?.message || 'Unknown');
+              devLog("[UserContext] Partner link result:", (linkResult as any)?.[0]?.message || 'Unknown');
             }
           } catch (linkErr) {
             console.error('[UserContext] Exception linking user to partner:', linkErr);
@@ -658,16 +658,16 @@ export function UserProvider({ children }: { children: ReactNode }) {
       // Clear referral code after successful use
       if (referralCode) {
         sessionStorage.removeItem('referral_code');
-        console.log("[UserContext] Referral code cleared from session");
+        devLog("[UserContext] Referral code cleared from session");
       }
 
       // Clear partner ref code after successful use
       if (partnerRefCode) {
         sessionStorage.removeItem('partner_ref_code');
-        console.log("[UserContext] Partner ref code cleared from session");
+        devLog("[UserContext] Partner ref code cleared from session");
       }
 
-      console.log("[UserContext] User saved to backend successfully");
+      devLog("[UserContext] User saved to backend successfully");
     } catch (error) {
       console.error('[UserContext] Backend save error:', error);
       // Don't throw - user is already set locally
@@ -676,7 +676,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
   }, [platform]);
 
   const logout = useCallback(async () => {
-    console.log("[UserContext] Logging out");
+    devLog("[UserContext] Logging out");
 
     // Sign out from Supabase if web platform
     if (platform === 'web' && session) {
@@ -711,7 +711,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
       window.location.href = '/';
     }
 
-    console.log("[UserContext] User logged out");
+    devLog("[UserContext] User logged out");
   }, [platform, session]);
 
   // Determine if user is authenticated (either Telegram or Supabase)
