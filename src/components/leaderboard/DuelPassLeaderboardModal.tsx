@@ -162,42 +162,13 @@ export function DuelPassLeaderboardView({
     total_pages: 0,
   });
   const [showMyPosition, setShowMyPosition] = useState(false);
+  // Данные сезона и прогресса из React Query (кэш, без лишних запросов)
+  const { data: activeSeason } = useActiveSeason();
+  const { data: dashboardData } = useDashboardData();
+  const activeSeasonId = activeSeason?.id ?? null;
+  const seasonEndDate = activeSeason?.end_date ?? null;
   // null = ещё не загружено, 0 = не участвовал в сезоне, >0 = участник
-  const [userSeasonPoints, setUserSeasonPoints] = useState<number | null>(null);
-
-  // Кэшируем ID и дату активного сезона, чтобы не дергать базу при каждой смене вкладки/страницы
-  // ОПТИМИЗАЦИЯ СКОРОСТИ
-  useEffect(() => {
-    const fetchActiveSeason = async () => {
-      const { data: activeSeason } = await supabase
-        .from("duel_pass_seasons")
-        .select("id, end_date")
-        .eq("is_active", true)
-        .order("season_number", { ascending: false })
-        .limit(1)
-        .single<{ id: number; end_date: string }>();
-
-      if (activeSeason) {
-        setActiveSeasonId(activeSeason.id);
-        setSeasonEndDate(activeSeason.end_date);
-        setTimeLeft(calculateTimeLeft(activeSeason.end_date));
-
-        // Параллельно грузим SP текущего пользователя для этого сезона
-        if (profileId) {
-          const { data: spData } = await supabase
-            .from("user_season_progress")
-            .select("season_points")
-            .eq("season_id", activeSeason.id)
-            .eq("user_id", profileId)
-            .single();
-          setUserSeasonPoints(spData?.season_points ?? 0);
-        } else {
-          setUserSeasonPoints(0);
-        }
-      }
-    };
-    fetchActiveSeason();
-  }, [profileId]);
+  const userSeasonPoints = dashboardData?.season_progress?.season_points ?? null;
 
   // Загрузка топ-10
   const loadTopLeaderboard = async (page: number = 1) => {
