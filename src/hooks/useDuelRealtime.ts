@@ -242,11 +242,7 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
             .maybeSingle();
 
           if (myPlayer?.id && myPlayer.id !== myPlayerId) {
-            console.warn('[useDuelRealtime] 🔍 FALLBACK: Found different player_id by user_id:', {
-              oldMyPlayerId: myPlayerId,
-              newMyPlayerId: myPlayer.id,
-              profileId
-            });
+            log('[useDuelRealtime] FALLBACK: Found different player_id by user_id');
 
             // Пробуем восстановить exploits для правильного player_id
             const { data: fallbackExploits } = await supabase
