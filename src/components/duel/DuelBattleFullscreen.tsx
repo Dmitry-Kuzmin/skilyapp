@@ -244,7 +244,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
       // Avoid loading if we already have players to prevent loop
       if (players.length > 0) return;
 
-      console.log('[DuelBattleFullscreen] 🔍 Loading players for bot opponent hook...');
+      log('[DuelBattleFullscreen] Loading players...');
       const playersData = await fetchPlayers();
 
       if (playersData?.players && playersData.players.length > 0) {
