@@ -475,6 +475,28 @@ const TestResults = () => {
     return sorted[0]?.[0];
   }, [incorrectCount, answers, questions, country]);
 
+  const failedTopics = useMemo(() => {
+    if (answers.length === 0) return [];
+    const seen = new Set<string>();
+    const topics: string[] = [];
+    answers.filter(a => !a.isCorrect).forEach(ans => {
+      const q = questions.find(q => q.id === ans.questionId);
+      if (!q) return;
+      const isUniversal = 'text' in q && !('answer_options' in q);
+      let topicTitle: string | null = null;
+      if (isUniversal) {
+        topicTitle = (q as any).topics?.[0] || null;
+      } else {
+        topicTitle = country === 'spain' ? (q as QuestionData).topics?.title_es ?? null : (q as QuestionData).topics?.title_ru ?? null;
+      }
+      if (topicTitle && !seen.has(topicTitle)) {
+        seen.add(topicTitle);
+        topics.push(topicTitle);
+      }
+    });
+    return topics.slice(0, 4);
+  }, [answers, questions, country]);
+
   const aiPlanPreview = useMemo(() => {
     const accuracy = getAccuracy();
     const level = accuracy >= 85
