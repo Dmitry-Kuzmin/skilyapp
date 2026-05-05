@@ -53,8 +53,22 @@ export function usePremium() {
   // ВАЖНО: Всегда вызываем хуки в одном порядке (правила хуков)
   // ОПТИМИЗАЦИЯ: Пытаемся взять premium из Super RPC Dashboard
   // useDashboardData теперь безопасный и вернет null если QueryClient отсутствует
-  const { data: dashboardData } = useDashboardData();
-  
+  const { data: dashboardData, loading: dashboardLoading } = useDashboardData();
+
+  // Dashboard premium данные готовы — строим состояние без доп. запроса
+  const dashboardPremium = dashboardData?.premium
+    ? {
+        isPremium: dashboardData.premium.is_premium,
+        isTrial: dashboardData.premium.subscription_status === 'trial',
+        isLifetime: dashboardData.premium.subscription_status === 'lifetime',
+        activeUntil: dashboardData.premium.subscription_end_date ?? null,
+        daysRemaining: 0,
+        coins: dashboardData.profile?.coins ?? 0,
+        subscriptionType: dashboardData.premium.subscription_status ?? null,
+        subscriptionStatus: dashboardData.premium.subscription_status ?? null,
+      }
+    : null;
+
   // Проверяем наличие провайдеров для enabled флага
   const hasProviders = !!(userContext && queryClient);
 
@@ -67,26 +81,7 @@ export function usePremium() {
     queryFn: async () => {
       if (!profileId) return initialState;
 
-      // ОПТИМИЗАЦИЯ: Если есть данные из Super RPC - используем их!
-      if (dashboardData?.premium) {
-        console.log('[usePremium] ✅ Using premium data from Super RPC (no extra request)');
-        const premium = dashboardData.premium;
-        
-        return {
-          isPremium: premium.is_premium,
-          isTrial: premium.subscription_status === 'trial',
-          isLifetime: premium.subscription_status === 'lifetime',
-          activeUntil: premium.subscription_end_date,
-          daysRemaining: premium.trial_days_remaining ?? 0,
-          coins: dashboardData.profile.coins,
-          subscriptionType: premium.subscription_status,
-          subscriptionStatus: premium.subscription_status,
-        };
-      }
-
-      // Fallback: Edge Function (только если Super RPC не вернул данные)
-      console.warn('[usePremium] ⚠️ Super RPC premium data not available, using Edge Function');
-
+      // Fallback: Edge Function (только если Super RPC не вернул premium)
       const { data, error } = await supabase.functions.invoke("premium-status", {
         body: { user_id: profileId },
       });
