@@ -311,11 +311,6 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
   useEffect(() => {
     if (!duelId) return;
 
-    // КРИТИЧНО: Логируем duelId в консоль для удобной отладки SQL запросов
-    console.log('[useDuelRealtime] 🔍 DUEL_ID для SQL запросов:', duelId);
-    console.log('[useDuelRealtime] 📋 SQL запрос для проверки exploits:');
-    console.log(`SELECT * FROM duel_active_exploits WHERE duel_id = '${duelId}' ORDER BY activated_at DESC LIMIT 5;`);
-
     // 🚦 FEATURE FLAG: Проверка включения real-time для дуэлей
     if (!realtimeEnabled) {
       log('[useDuelRealtime] ⚠️ Real-time disabled by feature flag');
