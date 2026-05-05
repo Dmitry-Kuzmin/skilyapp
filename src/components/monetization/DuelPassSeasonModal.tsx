@@ -717,7 +717,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
         tasks.push(
           supabase
             .from("sticker_definitions")
-            .select("id, name_ru, name_es, name_en, description_ru, description_es, description_en, rarity, metadata")
+            .select("id, name_ru, name_es, description_ru, description_es, rarity, metadata")
             .in("id", Array.from(typeMap.sticker))
             .then(({ data, error }) => {
               if (error) {
