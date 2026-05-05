@@ -41,6 +41,8 @@ import { useAnalysisHistoryStore } from '@/stores/useAnalysisHistoryStore';
 import { useAIDebriefAnalysis } from '@/hooks/useAIDebriefAnalysis';
 import { generateDebriefPrompt } from '@/lib/aiPrompts';
 
+const devLog = (...a: any[]) => { if (import.meta.env.DEV) console.log(...a); };
+
 // Константы для лимитов
 const FREE_DAILY_LIMIT = 1;
 const AUTH_REQUIRED_ERROR = 'AUTH_REQUIRED';
@@ -471,7 +473,7 @@ const SmartDebriefCard = memo(({
       try {
         // DESKTOP FIX: Проверяем платформу для диагностики
         const platform = (window as any).Telegram?.WebApp?.platform;
-        console.log('[SmartDebrief] Platform:', platform);
+        devLog('[SmartDebrief] Platform:', platform);
 
         const { data: { user } } = await supabase.auth.getUser();
 
@@ -480,7 +482,7 @@ const SmartDebriefCard = memo(({
           // TELEGRAM FIX: В телеграм-мини-приложении мы никогда не показываем баннер "Войти".
           // Считаем пользователя условно авторизованным для UI.
           if (isTelegramMiniApp()) {
-            console.log('[SmartDebrief] Telegram environment detected, skipping auth block');
+            devLog('[SmartDebrief] Telegram environment detected, skipping auth block');
             setIsAuthenticated(true);
           } else {
             setIsAuthenticated(false);
@@ -491,11 +493,11 @@ const SmartDebriefCard = memo(({
 
         // КРИТИЧНО: Ждем получения profileData перед проверкой лимитов
         if (!profileData?.id) {
-          console.log('[SmartDebrief] Waiting for profileData...', { platform });
+          devLog('[SmartDebrief] Waiting for profileData...', { platform });
           return;
         }
 
-        console.log('[SmartDebrief] Using profileId:', profileData.id);
+        devLog('[SmartDebrief] Using profileId:', profileData.id);
 
         const { data, error } = await supabase.rpc('get_ai_debrief_limit_status', {
           user_uuid: profileData.id
@@ -519,7 +521,7 @@ const SmartDebriefCard = memo(({
     const cached = getCachedAnalysis(questionIds, country, uiLanguage);
 
     if (cached) {
-      console.log('[SmartDebrief] ✅ Loaded cached analysis from Zustand');
+      devLog('[SmartDebrief] ✅ Loaded cached analysis from Zustand');
       setAnalysisData(cached.diagnosis);
     }
   }, [failedQuestions, getCachedAnalysis, country, uiLanguage]);
@@ -548,7 +550,7 @@ const SmartDebriefCard = memo(({
       }
 
       // 2. Limit check (only for non-premium users)
-      console.log('[SmartDebrief] 🔍 Premium check:', {
+      devLog('[SmartDebrief] 🔍 Premium check:', {
         isPremium,
         isServerPremium,
         limitStatus,
@@ -582,7 +584,7 @@ const SmartDebriefCard = memo(({
           });
         }
       } else if (isPremium) {
-        console.log('[SmartDebrief] 👑 Premium user: skipping limit check');
+        devLog('[SmartDebrief] 👑 Premium user: skipping limit check');
         setLimitStatus({
           remaining: 999,
           limit: 999,
@@ -623,7 +625,7 @@ const SmartDebriefCard = memo(({
             : rawErrorMessage;
 
       if (attempt === 1 && !isFatal) {
-        console.log('[SmartDebrief] Retrying in 1 second...');
+        devLog('[SmartDebrief] Retrying in 1 second...');
         await new Promise(resolve => setTimeout(resolve, 1000));
         return performAnalysisV2(2);
       }
@@ -652,7 +654,7 @@ const SmartDebriefCard = memo(({
   const handlePractice = useCallback(() => {
     // Навигация в режим Redemption (восстановление)
     // Передаем failedQuestions и данные анализа ИИ для этапа рефлексии
-    console.log(`[SmartDebrief] Navigating to redemption with ${failedQuestions.length} questions`);
+    devLog(`[SmartDebrief] Navigating to redemption with ${failedQuestions.length} questions`);
     navigate('/test/redemption', {
       state: {
         mode: 'redemption',
