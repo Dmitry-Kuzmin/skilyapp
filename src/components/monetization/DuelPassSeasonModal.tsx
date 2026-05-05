@@ -930,8 +930,8 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
 
   const handleRewardClick = async (reward: any) => {
     const level = reward.level;
-    const hasFreeReward = !!reward.free_reward;
-    const hasPremiumReward = !!reward.premium_reward;
+    const hasFreeReward = isValidReward(reward.free_reward);
+    const hasPremiumReward = isValidReward(reward.premium_reward);
     const freeClaimed = claimedFreeRewards.has(level);
     const premiumClaimed = claimedPremiumRewards.has(level);
 
@@ -944,7 +944,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
       return;
     }
 
-    // Premium пользователь: получаем премиум (и автоматически free на сервере)
+    // Premium пользователь: если есть premium-награда — получаем её (и автоматически free на сервере)
     if (isPremium && hasPremiumReward && !premiumClaimed) {
       await claimReward(level, true, {
         lockFreePath: hasFreeReward && !freeClaimed,
