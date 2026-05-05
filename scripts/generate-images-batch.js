@@ -174,24 +174,37 @@ GENERATE EXACT SCENE FROM DESCRIPTION.`;
 // ==========================================
 function buildStrictCopyPrompt(isSignOnly = false) {
     if (isSignOnly) {
+        // Pick a random Northern Spain backdrop for variety
+        const SIGN_BACKDROPS = [
+            "Asturian mountain valley: jagged limestone peaks (Picos de Europa), vivid neon-green meadows, dramatic storm-clearing sky with golden rays breaking through dark clouds, wet reflective asphalt road stretching into the distance",
+            "Cantabrian coastline: rugged Atlantic cliffs, deep blue-grey ocean, white sea foam on rocks below, moody overcast sky with bright silver light, coastal road visible in the background",
+            "Basque green hills: rolling emerald farmland dotted with traditional stone farmhouses (Baserri), soft diffuse overcast light, lush hedgerows, winding country road behind the sign",
+            "Galician forest road: dense magical eucalyptus forest, thick morning fog with golden god-rays filtering through the canopy, mossy stone walls, mysterious and lush green atmosphere",
+            "Pyrenean alpine pass: high mountain road, snow patches on rocky peaks, crystal-clear cold blue sky, crisp clean air, dramatic scale — sign in sharp focus against the epic backdrop",
+            "Basque coast cliffs: ocean far below, intense green clifftop grass, stormy dramatic sky, lighthouse visible in the far distance",
+            "Cantabrian green valley: river gorge below, ancient stone bridge in background, soft morning mist, warm dappled light through trees"
+        ];
+        const backdrop = SIGN_BACKDROPS[Math.floor(Math.random() * SIGN_BACKDROPS.length)];
+
         return `ROLE: Photorealistic DGT Sign Renderer.
-TASK: You are given a REFERENCE IMAGE showing a DGT road sign. Render it as a photorealistic standalone sign on a pole, exactly as shown. DO NOT add vehicles, people, or complex scenes.
+TASK: You are given a REFERENCE IMAGE showing a DGT road sign. Render it as a photorealistic standalone sign on a pole, exactly as shown. The sign is the hero — the background is a stunning Northern Spanish landscape.
 
 ## SIGN FIDELITY (ABSOLUTE):
-1. **EXACT SIGN**: Reproduce the sign's shape, color, symbol, and proportions precisely — no changes, no additions.
+1. **EXACT SIGN**: Reproduce the sign's shape, color, symbol, and proportions precisely — no changes, no additions to the sign itself.
 2. **NO VEHICLES**: Do NOT add any cars, motorcycles, trucks, or any vehicle whatsoever.
 3. **NO EXTRA OBJECTS**: No robots, no Skily branding elements, no people.
-4. **POLE**: Place the sign on a standard metal pole on the right-hand side of a road.
+4. **POLE**: Place the sign on a standard metal pole by the roadside.
 
-## ENVIRONMENT:
-- Simple, uncluttered Northern Spanish roadside backdrop — green hills, soft natural light, clean sky.
-- The sign must be the clear focal point. Background is blurred/shallow depth of field.
+## BACKGROUND — NORTHERN SPAIN (MAKE IT BEAUTIFUL):
+${backdrop}
+
+The background should feel cinematic and immersive — shallow depth of field, sign in sharp focus, landscape beautifully blurred behind it.
 
 ## QUALITY:
-Cinematic photorealistic 8K. Real metal pole, real painted sign surface, real reflections on the sign face.
+Cinematic photorealistic 8K. Real metal pole with bolts and texture. Real painted enamel sign surface with subtle reflections. Natural dramatic lighting from the environment.
 
 ## NEGATIVE PROMPT:
-Cars, vehicles, trucks, motorcycles, robots, Skily car, people, complex traffic scenes, busy intersections, invented elements, watermarks, text labels, flat lighting, cartoon style.`;
+Cars, vehicles, trucks, motorcycles, robots, Skily car, people, complex traffic scenes, busy intersections, invented sign elements, watermarks, text labels, cartoon style, flat grey sky, boring flat fields.`;
     }
 
     return `ROLE: Photorealistic DGT Scene Rebuilder — Skily Edition.
