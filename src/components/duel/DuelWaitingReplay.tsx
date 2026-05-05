@@ -28,7 +28,7 @@ import { createPortal } from 'react-dom';
 import { getTelegramWebApp, isTelegramMiniApp } from '@/lib/telegram';
 import { useLanguage } from '@/contexts/LanguageContext';
 
-const devLog = (...a: any[]) => { if (import.meta.env.DEV) devLog(...a); };
+const devLog = (...a: any[]) => { if (import.meta.env.DEV) console.log(...a); };
 
 interface OpponentAnswer {
   question_number: number;

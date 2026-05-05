@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
-const devLog = (...a: any[]) => { if (import.meta.env.DEV) devLog(...a); };
+const devLog = (...a: any[]) => { if (import.meta.env.DEV) console.log(...a); };
 
 interface BotOpponentProps {
   duelId: string | null;

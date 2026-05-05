@@ -498,7 +498,7 @@ const SmartDebriefCard = memo(({
         console.log('[SmartDebrief] Using profileId:', profileData.id);
 
         const { data, error } = await supabase.rpc('get_ai_debrief_limit_status', {
-          p_user_id: profileData.id  // ИСПРАВЛЕНО: profile ID вместо user.id
+          user_uuid: profileData.id
         });
 
         if (!error && data) {

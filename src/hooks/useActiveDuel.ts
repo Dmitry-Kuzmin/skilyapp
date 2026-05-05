@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import type { ActiveDuelState } from '@/features/duel/shared';
 import { ACTIVE_DUEL_STORAGE_KEY, MAX_STORAGE_AGE_MS, STALE_DUEL_AGE_MS } from '@/features/duel/shared';
 
-const devLog = (...a: any[]) => { if (import.meta.env.DEV) devLog(...a); };
+const devLog = (...a: any[]) => { if (import.meta.env.DEV) console.log(...a); };
 
 // Re-export для обратной совместимости
 export type { ActiveDuelState } from '@/features/duel/shared';

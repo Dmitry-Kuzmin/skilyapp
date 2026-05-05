@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 
-const devLog = (...a: any[]) => { if (import.meta.env.DEV) devLog(...a); };
+const devLog = (...a: any[]) => { if (import.meta.env.DEV) console.log(...a); };
 
 interface UseDuelSyncProps {
   fetchBoostInventory: () => Promise<any[]>;
