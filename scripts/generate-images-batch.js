@@ -115,7 +115,7 @@ OUTPUT FORMAT: Structured breakdown.
 7. ENVIRONMENT: Lighting, Weather, Surrounding (Urban/Rural).
 8. SCENARIO: Objective description of situation (Overtaking, Junction, Parking).
 9. TRAJECTORIES: Describe arrow paths (Color, Start/End).
-10. IS_SIGN_ONLY: SET TO TRUE if the image is strictly an isolated traffic sign on a white or plain background without any road/traffic context.
+10. IS_SIGN_ONLY: Write exactly "IS_SIGN_ONLY: TRUE" (all caps) if the image is strictly an isolated traffic sign graphic on a white/plain/transparent background with NO road, NO vehicles, NO real-world context. Write "IS_SIGN_ONLY: FALSE" otherwise.
 
 ACCURACY IS PARAMOUNT. FLAG LOGICAL ERRORS.`;
 
