@@ -441,7 +441,7 @@ const SLIDE_SOUNDS: Record<SlideId, () => void> = {
   time:    () => {},
   xp:      playSuccessSound,
   topics:  () => {},
-  cta:     () => data => data,
+  cta:     () => {},
 };
 
 export function TestResultsCelebrationFlow({ data, onDone }: Props) {
