@@ -199,12 +199,14 @@ The road is faithful to the reference — the WORLD AROUND IT comes alive.
 ${bgElement}
 
 ## STYLE:
-Cinematic 8K photography, Unreal Engine 5 render style. Golden hour or dramatic sky preferred.
-True-to-life materials: glossy automotive paint, textured asphalt, reflective glass.
-ABSOLUTELY NO toy-like, plastic, clay, or miniature aesthetics.
+Cinematic 8K photography, hyper-realistic photographic quality. Golden hour or dramatic sky preferred.
+MANDATORY REALISM FOR ALL OBJECTS:
+* **VEHICLES**: Real European cars with metallic automotive paint, clear coat reflections, accurate proportions. No simplified geometry or cartoon shapes.
+* **MATERIALS**: Glossy lacquered automotive finishes, wet asphalt with visible grain and tire marks, reflective glass with proper optical properties.
+* **PROPORTIONS**: Full-size realistic vehicles in correct perspective. NOT miniature, toy-like, or stylized.
 
 ## NEGATIVE PROMPT:
-Cartoon, plush toys, plastic cars, low poly, miniature, tilt-shift, watermarks, text labels, hallucinated vehicles, invented signs on road, yellow center lines, accidents, injuries, blurry, generic grey sky, flat lighting, boring flat fields.
+Cartoon, plush toys, plastic cars, toy car, simplified geometry, low poly, miniature, tilt-shift, doll, action figure, watermarks, text labels, hallucinated vehicles, invented signs on road, yellow center lines, accidents, injuries, blurry, generic grey sky, flat lighting, boring flat fields, stylized proportions, scaled-down cars.
 
 The road geometry is the reference — the Spanish soul is yours to paint.`;
 }
