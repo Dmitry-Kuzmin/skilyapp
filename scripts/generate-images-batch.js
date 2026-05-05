@@ -607,7 +607,7 @@ async function generateImage(question, visionAnalysis, attempt = 1, useBackup = 
         const hasPoliceInOriginal = typeof visionAnalysis === 'string' &&
             (visionAnalysis.toLowerCase().includes('police') || visionAnalysis.toLowerCase().includes('officer'));
 
-        const isSignOnly = typeof visionAnalysis === 'string' && visionAnalysis.includes('IS_SIGN_ONLY: TRUE');
+        const isSignOnly = detectSignOnly(visionAnalysis);
 
         // INJECT SKILY BRANDING (SUBTLE MODE)
         // Pass isEmergencyV16 to disable branding in accidents, and isSignOnly for isolated signs
