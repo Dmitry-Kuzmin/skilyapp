@@ -568,16 +568,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
   const currentSP = seasonProgress?.season_points || 0;
   const currentLevel = seasonProgress?.level || 1;
   const maxLevel = rewards.length || 30;
-
-  // Countdown for V2 compact header (CountdownTicker handles V1 hero block separately)
   const seasonEndDateStr = activeSeason?.end_date ?? null;
-  const [timeLeft, setTimeLeft] = useState<TimeLeft | null>(() => calculateTimeLeft(seasonEndDateStr));
-  useEffect(() => {
-    if (!seasonEndDateStr) { setTimeLeft(null); return; }
-    setTimeLeft(calculateTimeLeft(seasonEndDateStr));
-    const t = setInterval(() => setTimeLeft(calculateTimeLeft(seasonEndDateStr)), 1000);
-    return () => clearInterval(t);
-  }, [seasonEndDateStr]);
 
   const featuredRewards = useMemo(() => {
     return [
