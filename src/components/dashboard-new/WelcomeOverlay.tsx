@@ -20,8 +20,8 @@ type PreloaderMode = 'mechanical' | 'biometric';
  * z-index: 2147483647 (max 32-bit) — ничто не может быть выше.
  */
 export const WelcomeOverlay: React.FC<WelcomeOverlayProps> = ({ onComplete, isLoading = false, isPremium = false }) => {
-  // Автоматический выбор режима: Bio для премиум, Std для остальных
-  const [mode] = useState<PreloaderMode>(() => isPremium ? 'biometric' : 'mechanical');
+  // Всегда показываем механический Start Engine для всех пользователей
+  const [mode] = useState<PreloaderMode>(() => 'mechanical');
   const [isIgniting, setIsIgniting] = useState(false);
   const [isLaunched, setIsLaunched] = useState(false);
   const timersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
