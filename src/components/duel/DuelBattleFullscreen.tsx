@@ -495,17 +495,20 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     }
   }, [realtimeState.duelStarted, duelId, profileId]);
 
-  // КРИТИЧНО: Обработка завершения дуэли (когда Realtime говорит, что дуэль закончена)
+  // Обработка завершения дуэли (когда Realtime сообщает что дуэль окончена)
   useEffect(() => {
-    // FIX: Переходим к результатам как только сервер подтвердил завершение дуэли.
-    // Не ждём hasFinishedMyQuestions — если дуэль закончена на сервере, игра уже окончена.
-    // hasTransitionedRef.current ставим СРАЗУ (до async-операции) — блокирует повторные вызовы.
-    if (realtimeState.duelFinished && !hasTransitionedRef.current) {
+    if (!realtimeState.duelFinished || hasTransitionedRef.current) return;
+
+    // ВАЖНО: Переходим к результатам только если пользователь уже ответил на все свои вопросы.
+    // Если бот закончил быстрее — даём пользователю доиграть в отведённое время (1 мин/вопрос).
+    // Переход произойдёт автоматически когда пользователь ответит на последний вопрос (via finishDuel).
+    if (hasFinishedMyQuestions) {
       hasTransitionedRef.current = true;
-      log('[DuelBattleFullscreen] 🏁 Realtime: Duel finished. Transitioning to results...');
+      log('[DuelBattleFullscreen] 🏁 Realtime: duel finished + user done → transitioning to results');
       transitionToResults();
     }
-  }, [realtimeState.duelFinished, transitionToResults]);
+    // else: пользователь ещё отвечает — ждём, finishDuel сам вызовет transitionToResults
+  }, [realtimeState.duelFinished, hasFinishedMyQuestions, transitionToResults]);
 
   // FALLBACK: Polling when waiting — catches finish when Realtime fails in Telegram Mini Apps
   useEffect(() => {
