@@ -441,10 +441,6 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
   const [activeCosmeticReward, setActiveCosmeticReward] = useState<any | null>(null);
   const [isApplyingAppearance, setIsApplyingAppearance] = useState(false);
   const [rewardDetails, setRewardDetails] = useState<Record<string, RewardDefinitionDetails>>({});
-  // Optimistic local tracking — merged with server data in useMemo below
-  const [localClaimedFree, setClaimedFreeRewards] = useState<Set<number>>(new Set());
-  const [localClaimedPremium, setClaimedPremiumRewards] = useState<Set<number>>(new Set());
-  const [, setClaimedRewards] = useState<Set<number>>(new Set()); // kept for call-site compat
 
   const queryClient = useQueryClient();
 
