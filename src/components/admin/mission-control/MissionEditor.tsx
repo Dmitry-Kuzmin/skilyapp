@@ -59,12 +59,13 @@ export function MissionEditor({ questionId, testId, country = 'spain', serverOnl
         }
     }, [data?.question_ru, data?.question_es]);
 
-    const loadQuestionData = async () => {
+    const loadQuestionData = async (signal?: AbortSignal) => {
         setLoading(true);
         try {
-            const res = await fetch(`http://localhost:3030/api/db/question/${questionId}?country=${country}`);
+            const res = await fetch(`http://localhost:3030/api/db/question/${questionId}?country=${country}`, { signal });
             if (!res.ok) throw new Error(`Server returned ${res.status}`);
             const { question, source, table, sourceFile } = await res.json();
+            if (signal?.aborted) return;
 
             console.log('[MissionEditor] Loaded:', { question, source, table, sourceFile });
 
