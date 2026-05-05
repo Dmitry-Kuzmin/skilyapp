@@ -219,28 +219,14 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
               );
             });
 
-          console.log('[useDuelRealtime] 📦 Adding new exploits to state:', {
-            newExploitsCount: newExploits.length,
-            newExploits,
-            existingCount: (prev.activeExploits || []).length
-          });
-
           if (newExploits.length === 0) {
-            console.log('[useDuelRealtime] ⚠️ No new exploits to add (all duplicates)');
             return prev; // Нет новых exploits
           }
 
-          const updatedState = {
+          return {
             ...prev,
             activeExploits: [...(prev.activeExploits || []), ...newExploits]
           };
-
-          console.log('[useDuelRealtime] ✅ State updated with exploits:', {
-            totalExploits: updatedState.activeExploits.length,
-            exploitTypes: updatedState.activeExploits.map(e => e.type)
-          });
-
-          return updatedState;
         });
       } else {
         // КРИТИЧНО: Fallback - проверяем exploits по user_id если myPlayerId не совпадает
