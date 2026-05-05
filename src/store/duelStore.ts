@@ -280,14 +280,6 @@ export const useDuelStore = create<DuelState>()(
                     return state;
                 }
 
-                // 🔴 CRITICAL DEBUG: Логируем КАЖДЫЙ вызов syncActiveExploits (console.error = видно в prod)
-                console.error('[duelStore] 🔴 syncActiveExploits CALLED:', {
-                    incomingCount: incomingExploits.length,
-                    incomingTypes: incomingExploits.map((e: any) => e.type),
-                    incomingIds: incomingExploits.map((e: any) => e.id),
-                    currentMapSize: state.activeExploits.size,
-                    currentMapKeys: Array.from(state.activeExploits.keys()),
-                });
 
                 const newMap = new Map<string, ExploitState>(state.activeExploits);
                 let hasNewAttack = false;
