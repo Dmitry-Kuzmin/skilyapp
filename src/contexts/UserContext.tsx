@@ -1,5 +1,10 @@
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode, useMemo, useRef } from "react";
 import { toast } from "sonner";
+
+/** Dev-only logger — ничего не выводит в продакшне */
+const devLog = (...args: Parameters<typeof console.log>) => {
+  if (import.meta.env.DEV) console.log(...args);
+};
 import { TelegramUser } from "@/types/window";
 import { getTelegramUser, getPlatform } from "@/core/TelegramInit";
 import { isTelegramMiniApp } from "@/lib/telegram";
