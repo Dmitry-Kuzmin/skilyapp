@@ -298,7 +298,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
   // ⚡️ ПРЕДЗАГРУЗКА ИЗОБРАЖЕНИЙ: Загружаем картинки первых 3-х вопросов заранее
   useEffect(() => {
     if (storeQuestions?.length > 0) {
-      console.log('[DuelBattleFullscreen] ⚡️ Initiating smart preloading for first 3 questions');
+      log('[DuelBattleFullscreen] Preloading questions...');
       storeQuestions.slice(0, 3).forEach((q: any) => {
         const imageUrl = q.question_snapshot?.image_url;
         if (imageUrl) {
