@@ -445,8 +445,13 @@ async function generateImage(question, visionAnalysis, attempt = 1, useBackup = 
         } else {
             console.warn(`   ⚠️  image_url не найден в данных вопроса`);
         }
-        // Упрощённый промпт для strict copy — основная работа делается через image input
-        prompt = STRICT_COPY_PROMPT;
+        // Build dynamic prompt: faithful road + cinematic Spanish environment + optional Skily element
+        const sceneText = ((question.question?.es || question.question?.ru || '') + ' ' + (typeof visionAnalysis === 'string' ? visionAnalysis : '')).toLowerCase();
+        const strictLocation = getCreativeScenario(sceneText);
+        const strictElement = pickSkilyElement(sceneText);
+        console.log(`   🌍 Strict Copy location: ${strictLocation.slice(0, 60)}...`);
+        if (strictElement) console.log(`   🌍 Strict Copy universe element: ${strictElement.id}`);
+        prompt = buildStrictCopyPrompt(strictLocation, strictElement);
     } else if (question.custom_prompt) {
         console.log(`   🎨 Используем кастомный промт пользователя`);
         prompt = question.custom_prompt;
