@@ -416,8 +416,18 @@ async function loadImageAsBase64(imageUrl) {
             mimeType
         };
     } catch (e) {
-        console.warn(`   ⚠️  Не удалось загрузить изображение: ${e.message}`);
-        return null;
+        console.warn(`   ⚠️  Прямой запрос заблокирован (${e.message}), пробуем через локальный прокси...`);
+        // Fallback: локальный прокси-сервер уже запущен и умеет обходить Cloudflare
+        try {
+            const proxyUrl = `http://localhost:3030/api/proxy-image?url=${encodeURIComponent(imageUrl)}`;
+            const proxyRes = await axios.get(proxyUrl, { responseType: 'arraybuffer', timeout: 15000 });
+            const mimeType = proxyRes.headers['content-type']?.split(';')[0] || 'image/jpeg';
+            console.log(`   ✅ Загружено через локальный прокси`);
+            return { data: Buffer.from(proxyRes.data).toString('base64'), mimeType };
+        } catch (proxyErr) {
+            console.warn(`   ❌ Прокси тоже не помог: ${proxyErr.message}`);
+            return null;
+        }
     }
 }
 
