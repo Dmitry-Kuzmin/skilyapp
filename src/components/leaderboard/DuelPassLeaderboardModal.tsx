@@ -279,17 +279,8 @@ export function DuelPassLeaderboardView({
   // Проверка, находится ли пользователь в топе
   const isUserInTop = useMemo(() => {
     if (!profileId) return false;
-    // Проверка через userContext.profileId (может быть null, если не авторизован)
-    const currentUserId = userContext?.profileId;
     return leaders.some((leader) => leader.user_id === profileId);
   }, [leaders, profileId]);
-
-  const getUserPosition = () => {
-    if (!profileId) return null;
-    return leaders.findIndex((leader) => leader.user_id === profileId);
-  };
-
-  const userPosition = getUserPosition();
 
   const disableAnimations = loading;
 
