@@ -36,16 +36,33 @@ interface LevelUpState {
   dismiss: () => void;
 }
 
+const STORAGE_KEY = 'skily_pending_level_up';
+
+function savePending(data: PendingLevelUp | null) {
+  try {
+    if (data) localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    else localStorage.removeItem(STORAGE_KEY);
+  } catch { /* ignore */ }
+}
+
+function loadPending(): PendingLevelUp | null {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch { return null; }
+}
+
 export const useLevelUpStore = create<LevelUpState>((set, get) => ({
-  pending: null,
+  // Restore any unseen level-up that was lost due to fast navigation
+  pending: loadPending(),
   queue: [],
 
   triggerLevelUp: (data) => {
     const { pending, queue } = get();
     if (pending) {
-      // Уже показывается один — добавляем в очередь
       set({ queue: [...queue, data] });
     } else {
+      savePending(data);
       set({ pending: data });
     }
   },
@@ -53,10 +70,11 @@ export const useLevelUpStore = create<LevelUpState>((set, get) => ({
   dismiss: () => {
     const { queue } = get();
     if (queue.length > 0) {
-      // Показываем следующий из очереди
       const [next, ...rest] = queue;
+      savePending(next);
       set({ pending: next, queue: rest });
     } else {
+      savePending(null);
       set({ pending: null });
     }
   },
