@@ -172,43 +172,26 @@ GENERATE EXACT SCENE FROM DESCRIPTION.`;
 // ==========================================
 // STRICT COPY PROMPT (точное копирование + живой фон Испании)
 // ==========================================
-function buildStrictCopyPrompt(location, universeElement) {
-    const bgElement = universeElement
-        ? `\n## BACKGROUND ACCENT (FAR BACKGROUND ONLY):\n${universeElement.text}\n⚠️ This element must be placed DEEP in the background — it must NOT obscure, overlap, or compete with the main road subject. The road and its markings/signs remain the undisputed hero of the image.`
-        : '';
+function buildStrictCopyPrompt() {
+    return `ROLE: Exact Digital Replicator.
+TASK: You are given a REFERENCE IMAGE. Reproduce it with pixel-perfect fidelity. No creative additions, no invented elements, no style changes.
 
-    return `ROLE: Photorealistic 3D Scene Replicator with Spanish Soul.
-TASK: You are given a REFERENCE IMAGE. Reproduce its road geometry, signs, and composition with maximum fidelity — but transport the scene into a beautiful, cinematic Spanish environment. Elevate everything.
-
-## IRONCLAD RULES (DO NOT BREAK):
-1. **COMPOSITION FIRST**: Replicate the exact camera angle, framing, and perspective of the reference image.
-2. **LAYOUT LOCK**: Every road object (vehicles, signs, markings) must be in the EXACT same position.
-3. **VEHICLE FIDELITY**: Match type, color, orientation, and lane position of every vehicle precisely. Real European cars with metallic paint and reflections.
-4. **SIGN ACCURACY**: Reproduce ONLY the signs visible in the reference. ZERO invented signs.
-5. **MARKINGS**: Copy road markings exactly — dashed, solid, crosswalk, arrows — WHITE ONLY (Spanish DGT standard).
-6. **INFRASTRUCTURE**: Replicate road type, lane count, shoulders, barriers, and asphalt surface exactly.
-7. **NO TEXT CODES**: Never write catalog codes (R-301, P-18, S-34) on signs — visual symbol only.
-8. **NO NEW ROAD OBJECTS**: Do NOT invent people, vehicles, or signs not in the reference.
-
-## 🌍 THE ENVIRONMENT — THIS IS WHERE YOU SHINE:
-Transform the background and sky into this specific Spanish location:
-**${location}**
-
-Make the environment breathtaking: dramatic lighting, cinematic atmosphere, real textures.
-The road is faithful to the reference — the WORLD AROUND IT comes alive.
-${bgElement}
+## RULES (ABSOLUTE):
+1. **EXACT COMPOSITION**: Same camera angle, framing, perspective — no changes.
+2. **EXACT LAYOUT**: Every object (vehicles, signs, markings, road elements) in the EXACT same position and size.
+3. **EXACT VEHICLES**: Same type, color, orientation, lane position. No substitutions.
+4. **EXACT SIGNS**: Only signs present in the reference. Zero invented signs.
+5. **EXACT MARKINGS**: Same road markings — dashed, solid, crosswalk, arrows. Same colors.
+6. **EXACT INFRASTRUCTURE**: Same road type, lane count, shoulders, barriers, surface.
+7. **EXACT BACKGROUND**: Keep the background/environment as close to the reference as possible.
+8. **NO ADDITIONS**: Do NOT add people, vehicles, signs, objects, or decorative elements not in the reference.
+9. **NO TEXT CODES**: Never write catalog codes on signs — visual symbol only.
 
 ## STYLE:
-Cinematic 8K photography, hyper-realistic photographic quality. Golden hour or dramatic sky preferred.
-MANDATORY REALISM FOR ALL OBJECTS:
-* **VEHICLES**: Real European cars with metallic automotive paint, clear coat reflections, accurate proportions. No simplified geometry or cartoon shapes.
-* **MATERIALS**: Glossy lacquered automotive finishes, wet asphalt with visible grain and tire marks, reflective glass with proper optical properties.
-* **PROPORTIONS**: Full-size realistic vehicles in correct perspective. NOT miniature, toy-like, or stylized.
+Photorealistic, high resolution. Match the lighting and atmosphere of the reference.
 
 ## NEGATIVE PROMPT:
-Cartoon, plush toys, plastic cars, toy car, simplified geometry, low poly, miniature, tilt-shift, doll, action figure, watermarks, text labels, hallucinated vehicles, invented signs on road, yellow center lines, accidents, injuries, blurry, generic grey sky, flat lighting, boring flat fields, stylized proportions, scaled-down cars.
-
-The road geometry is the reference — the Spanish soul is yours to paint.`;
+Any invented elements, new objects, changed background, different vehicles, added signs, creative additions, artistic interpretation, style transfer.`;
 }
 
 
