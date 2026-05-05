@@ -193,15 +193,21 @@ serve(async (req) => {
       return new Response(JSON.stringify({ error: "Reward not found" }), { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
+    const isValidReward = (r: RewardPayload | null | undefined): boolean => {
+      if (!r) return false;
+      if (r.type === "coins") return (r.amount ?? 0) > 0;
+      return !!r.id;
+    };
+
+    const hasFreeReward = isValidReward(rewardRow.free_reward as RewardPayload);
+    const hasPremiumReward = isValidReward(rewardRow.premium_reward as RewardPayload);
+
     const grantedRewards: RewardPayload[] = [];
     const claimedEntries: { reward: RewardPayload; is_premium: boolean }[] = [];
 
     if (is_premium) {
-      if (!rewardRow.premium_reward) {
-        return new Response(JSON.stringify({ error: "Premium reward not available" }), { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } });
-      }
-
-      if (rewardRow.free_reward) {
+      // Claim free reward first (premium users always get free + premium)
+      if (hasFreeReward) {
         try {
           const res = await processReward(rewardRow.free_reward as RewardPayload, false, "ignore");
           if (res?.status === "granted") {
@@ -213,15 +219,22 @@ serve(async (req) => {
         }
       }
 
-      const pRes = await processReward(rewardRow.premium_reward as RewardPayload, true, "error");
-      if (!pRes) return new Response(JSON.stringify({ error: "Premium reward fail" }), { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } });
-      if (pRes.status === "already_claimed") {
+      if (hasPremiumReward) {
+        const pRes = await processReward(rewardRow.premium_reward as RewardPayload, true, "error");
+        if (!pRes) return new Response(JSON.stringify({ error: "Premium reward fail" }), { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+        if (pRes.status === "already_claimed") {
+          return new Response(JSON.stringify({ error: "Already claimed", message: "Уже получено" }), { status: 409, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+        }
+        grantedRewards.push(pRes.reward);
+        claimedEntries.push({ reward: pRes.reward, is_premium: true });
+      } else if (!hasFreeReward) {
+        return new Response(JSON.stringify({ error: "No rewards available for this level" }), { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      } else if (grantedRewards.length === 0) {
+        // Free reward was already claimed
         return new Response(JSON.stringify({ error: "Already claimed", message: "Уже получено" }), { status: 409, headers: { ...corsHeaders, "Content-Type": "application/json" } });
       }
-      grantedRewards.push(pRes.reward);
-      claimedEntries.push({ reward: pRes.reward, is_premium: true });
     } else {
-      if (!rewardRow.free_reward) return new Response(JSON.stringify({ error: "Free reward not available" }), { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      if (!hasFreeReward) return new Response(JSON.stringify({ error: "Free reward not available" }), { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } });
       const fRes = await processReward(rewardRow.free_reward as RewardPayload, false, "error");
       if (!fRes) return new Response(JSON.stringify({ error: "Free reward fail" }), { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } });
       if (fRes.status === "already_claimed") {
