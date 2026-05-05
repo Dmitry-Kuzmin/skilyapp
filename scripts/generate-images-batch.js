@@ -172,7 +172,28 @@ GENERATE EXACT SCENE FROM DESCRIPTION.`;
 // ==========================================
 // STRICT COPY PROMPT (точное копирование + живой фон Испании)
 // ==========================================
-function buildStrictCopyPrompt() {
+function buildStrictCopyPrompt(isSignOnly = false) {
+    if (isSignOnly) {
+        return `ROLE: Photorealistic DGT Sign Renderer.
+TASK: You are given a REFERENCE IMAGE showing a DGT road sign. Render it as a photorealistic standalone sign on a pole, exactly as shown. DO NOT add vehicles, people, or complex scenes.
+
+## SIGN FIDELITY (ABSOLUTE):
+1. **EXACT SIGN**: Reproduce the sign's shape, color, symbol, and proportions precisely — no changes, no additions.
+2. **NO VEHICLES**: Do NOT add any cars, motorcycles, trucks, or any vehicle whatsoever.
+3. **NO EXTRA OBJECTS**: No robots, no Skily branding elements, no people.
+4. **POLE**: Place the sign on a standard metal pole on the right-hand side of a road.
+
+## ENVIRONMENT:
+- Simple, uncluttered Northern Spanish roadside backdrop — green hills, soft natural light, clean sky.
+- The sign must be the clear focal point. Background is blurred/shallow depth of field.
+
+## QUALITY:
+Cinematic photorealistic 8K. Real metal pole, real painted sign surface, real reflections on the sign face.
+
+## NEGATIVE PROMPT:
+Cars, vehicles, trucks, motorcycles, robots, Skily car, people, complex traffic scenes, busy intersections, invented elements, watermarks, text labels, flat lighting, cartoon style.`;
+    }
+
     return `ROLE: Photorealistic DGT Scene Rebuilder — Skily Edition.
 TASK: You are given a REFERENCE IMAGE of a DGT driving test scenario. Faithfully rebuild it as a cinematic photorealistic image with Skily branding and a Northern Spanish natural environment. DO NOT invent new road elements.
 
@@ -185,13 +206,13 @@ TASK: You are given a REFERENCE IMAGE of a DGT driving test scenario. Faithfully
 6. **SITUATION**: The traffic scenario (who is where, what is happening) must match the reference exactly.
 
 ## UPGRADE — APPLY THESE IMPROVEMENTS:
-7. **VEHICLES → SKILY**: Replace any vehicles with the Skily hero car — White/Blue hatchback with Electric Cyan accents and metallic automotive paint. Real reflections, real proportions. NOT plastic, NOT toy-like.
+7. **VEHICLES → SKILY**: Replace any vehicles with the Skily hero car — White/Blue hatchback with Electric Cyan accents and metallic automotive paint. Real reflections, real proportions. NOT plastic, NOT toy-like. If the scene requires a truck/bus, keep its type but give it a clean modern look — NO Skily livery on trucks.
 8. **ENVIRONMENT → NORTHERN SPAIN**: Transform the background into a natural Northern Spanish landscape — lush green hills, Asturian/Cantabrian/Basque scenery, dramatic but clean sky. Cinematic natural lighting (soft golden hour or crisp daylight).
 9. **QUALITY → PHOTOREALISTIC**: Cinematic 8K photography quality. Real asphalt texture (grain, slight wear). Real sky with volumetric light. No flat lighting, no cartoon style.
 
 ## SKILY BRAND SAFETY:
 - Skily vehicles must NEVER be involved in accidents or illegal maneuvers.
-- If a sign or situation requires a truck/bus, keep the correct vehicle type but give it a clean modern look.
+- Skily vehicles must always be parked legally or driving safely.
 
 ## NEGATIVE PROMPT:
 Plastic cars, toy cars, simplified geometry, low poly, cartoon style, miniature scale, tilt-shift, doll-like proportions, invented signs, yellow road lines (USA style), added text labels, watermarks, generic grey flat sky, boring flat fields, changed road layout, missing signs from original, extra vehicles not in reference.`;
