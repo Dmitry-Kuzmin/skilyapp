@@ -349,6 +349,41 @@ const faqSchema = {
             }
           });
         }, 500);
+
+        // ── Hero rotating words ────────────────────────────────────────────────
+        (function() {
+          var WORDS = [
+            { text:'Sin dramas',            grad:'linear-gradient(to right,#3b82f6,#38bdf8,#67e8f9)' },
+            { text:'Con IA inteligente',    grad:'linear-gradient(to right,#8b5cf6,#c084fc,#e879f9)' },
+            { text:'Jugando en PvP',        grad:'linear-gradient(to right,#f97316,#fb923c,#fcd34d)' },
+            { text:'En tiempo récord',      grad:'linear-gradient(to right,#10b981,#2dd4bf,#67e8f9)' },
+            { text:'Sin libros aburridos',  grad:'linear-gradient(to right,#ec4899,#f472b6,#fb923c)' },
+          ];
+          var idx = 0;
+
+          function getEls() {
+            return ['hero-word-v1','hero-word-v2']
+              .map(function(id){ return document.getElementById(id); })
+              .filter(Boolean);
+          }
+
+          function rotate() {
+            idx = (idx + 1) % WORDS.length;
+            var word = WORDS[idx];
+            getEls().forEach(function(el) {
+              el.classList.add('hero-word-out');
+              setTimeout(function() {
+                el.textContent = word.text;
+                el.style.backgroundImage = word.grad;
+                el.classList.remove('hero-word-out');
+                el.classList.add('hero-word-in');
+                setTimeout(function(){ el.classList.remove('hero-word-in'); }, 700);
+              }, 420);
+            });
+          }
+
+          setInterval(rotate, 2800);
+        })();
       });
     </script>
 
