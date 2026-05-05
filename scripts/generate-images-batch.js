@@ -342,9 +342,10 @@ function getSkilyBranding(text, isSafetyCritical = false, isSignOnly = false) {
 * Skily vehicles must always be PARKED legally or DRIVING safely.`;
 
     // Try to find a matching Skily Universe element (robots, drones, smart city, etc.)
-    // 30% chance to use a universe element if a tag match exists (to avoid clutter)
+    // 10% chance to use a universe element if a tag match exists (was 30%, too frequent)
+    // This avoids repetitive drones/robots in every image
     const universeElement = pickSkilyElement(text);
-    const useUniverse = universeElement && Math.random() < 0.30;
+    const useUniverse = universeElement && Math.random() < 0.10;
 
     let brandingText = "";
     if (useUniverse) {
