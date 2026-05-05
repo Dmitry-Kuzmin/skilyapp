@@ -1817,7 +1817,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
                     >
                       <Trophy className="w-4 h-4 text-yellow-500" />
                       <span className="text-[11px] font-black text-white/40 uppercase tracking-widest">
-                        {dp("hallOfFame.title") === "duelPass.hallOfFame.title" ? "Salón de la Fama" : dp("hallOfFame.title")}
+                        {dp("leaderboard.hallOfFame")}
                       </span>
                       <ChevronRight className="w-4 h-4 text-white/20" />
                     </button>
