@@ -1025,17 +1025,6 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
 
       for (const entry of claimedList) {
         if (!entry?.reward) continue;
-
-        if (entry.is_premium) {
-          setClaimedPremiumRewards((prev) => new Set([...prev, level]));
-          if (isPremium) {
-            setClaimedRewards((prev) => new Set([...prev, level]));
-          }
-        } else {
-          setClaimedFreeRewards((prev) => new Set([...prev, level]));
-          setClaimedRewards((prev) => new Set([...prev, level]));
-        }
-
         makeRewardToast(entry.reward, entry.is_premium, level);
         await queueCosmeticReward(entry.reward);
       }
