@@ -52,7 +52,6 @@ function safeGetTelegramWebApp() {
   return typeof getTelegramWebAppRaw === 'function' ? getTelegramWebAppRaw() : null;
 }
 
-console.log('[DuelBattleFullscreen] File version 12 (Answer Processing Overlay) loading...');
 
 
 // ОПТИМИЗАЦИЯ: Условное логирование
