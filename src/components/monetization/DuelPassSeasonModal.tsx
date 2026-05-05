@@ -1319,7 +1319,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
       : claimingRewards.has(`${options.level}-free`);
 
     // Заблокированная Premium ячейка — показываем сундук вместо слова "Награда"
-    if (!rewardData && isPremiumCell) {
+    if (!isValidReward(rewardData) && isPremiumCell) {
       return (
         <div className="rounded-xl border border-dashed border-yellow-500/20 bg-yellow-500/5 px-1 py-1 sm:px-1.5 sm:py-1.5 flex items-center gap-1 sm:gap-1.5 opacity-50 min-h-[44px] sm:min-h-[48px]">
           <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center text-sm flex-shrink-0 bg-yellow-500/10">
@@ -1330,7 +1330,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
       );
     }
 
-    if (!rewardData) {
+    if (!isValidReward(rewardData)) {
       return <div className="flex items-center justify-center h-[44px] sm:h-[48px]"><span className="text-[10px] text-muted-foreground">—</span></div>;
     }
 
