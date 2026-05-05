@@ -293,7 +293,7 @@ const AdminMissionControlContent = () => {
                         <div className="flex items-center gap-1.5">
                             <button
                                 onClick={() => {
-                                    navigator.clipboard.writeText('npm run validator');
+                                    navigator.clipboard.writeText('cd /Users/dimka/Desktop/Skily/sdadim-dgt-prep && npm run validator');
                                     setCmdCopied(true);
                                     setTimeout(() => setCmdCopied(false), 2000);
                                 }}
@@ -301,7 +301,7 @@ const AdminMissionControlContent = () => {
                                 title="Copy command to clipboard"
                             >
                                 {cmdCopied ? <Check className="w-3 h-3 text-emerald-500" /> : <Copy className="w-3 h-3" />}
-                                npm run validator
+                                cd && npm run validator
                             </button>
                             <Button
                                 variant="outline"
