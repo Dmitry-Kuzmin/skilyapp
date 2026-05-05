@@ -255,7 +255,7 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
               .order('activated_at', { ascending: false });
 
             if (fallbackExploits && fallbackExploits.length > 0) {
-              console.log('[useDuelRealtime] ✅✅✅ FALLBACK: Recovered exploits by user_id:', fallbackExploits.length);
+              log('[useDuelRealtime] FALLBACK: Recovered exploits by user_id:', fallbackExploits.length);
 
               setState(prev => {
                 // Улучшенная дедупликация для fallback exploits
