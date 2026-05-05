@@ -122,6 +122,9 @@ export const QuestionImage = memo(function QuestionImage({
     );
   }
 
+  // Square-ish images (signs, icons) should not fill full width
+  const isSquareImage = imageAspectRatio !== null && imageAspectRatio < 1.3;
+
   return (
     <>
       <div
@@ -135,12 +138,18 @@ export const QuestionImage = memo(function QuestionImage({
         }}
         onContextMenu={(e) => e.preventDefault()}
       >
-        <div className="relative w-full overflow-hidden">
+        <div className={cn(
+          "relative w-full overflow-hidden",
+          isSquareImage && "flex justify-center items-center py-6 px-10"
+        )}>
           {/* Protected Image Layer */}
           <img
             src={imageSrc}
             alt={alt}
-            className="w-full h-auto object-contain block transition-transform duration-500 group-hover/img:scale-[1.02] select-none pointer-events-none"
+            className={cn(
+              "h-auto object-contain block transition-transform duration-500 group-hover/img:scale-[1.02] select-none pointer-events-none",
+              isSquareImage ? "w-auto max-h-[200px] sm:max-h-[240px]" : "w-full"
+            )}
             loading="lazy"
             decoding="async"
             draggable={false}
