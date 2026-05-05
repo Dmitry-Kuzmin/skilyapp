@@ -660,29 +660,29 @@
     },
     "answers": [
       {
-        "id": "a",
+        "id": "opt_0",
         "text": {
-          "es": "Que hay una salida obligatoria a la derecha.",
-          "en": "That there is a mandatory exit to the right.",
-          "ru": "Что впереди обязательный съезд направо."
-        },
-        "is_correct": false
-      },
-      {
-        "id": "b",
-        "text": {
+          "ru": "Что левая полоса движения заканчивается и ведутся дорожные работы.",
           "es": "Que se termina el carril izquierdo y que hay obras.",
-          "en": "That the left lane ends and there are roadworks.",
-          "ru": "Что левая полоса движения заканчивается и ведутся дорожные работы."
+          "en": "That the left lane ends and there are roadworks."
         },
         "is_correct": true
       },
       {
-        "id": "c",
+        "id": "opt_1",
         "text": {
+          "ru": "Что впереди обязательный съезд направо.",
+          "es": "Que hay una salida obligatoria a la derecha.",
+          "en": "That there is a mandatory exit to the right."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "opt_2",
+        "text": {
+          "ru": "Что имеется полоса для медленного движения.",
           "es": "Que hay un carril para circulación lenta.",
-          "en": "That there is a lane for slow traffic.",
-          "ru": "Что имеется полоса для медленного движения."
+          "en": "That there is a lane for slow traffic."
         },
         "is_correct": false
       }
@@ -690,7 +690,7 @@
     "explanation": {
       "es": "Esta señal de orientación (S-17) con fondo amarillo indica una situación de obras en la calzada. Advierte de la pérdida de un carril (el izquierdo) en una calzada de varios carriles en el mismo sentido, obligando a los conductores a incorporarse al carril contiguo. Las señales con fondo amarillo tienen el mismo significado que las de fondo blanco, pero su presencia obliga a extremar la precaución debido a la posible presencia de operarios o maquinaria, independientemente de la hora o el día.",
       "en": "This guidance sign (S-17) with a yellow background indicates roadworks on the carriageway. It warns of the end of a lane (the left one) on a road with multiple lanes in the same direction, requiring drivers to merge into the adjacent lane. Signs with a yellow background carry the same regulatory weight as standard white ones but signal temporary conditions due to construction, requiring increased driver alertness for potential workers or machinery.",
-      "ru": "🎓 Жёлтый фон знака информирует о проведении дорожных работ на данном участке. Этот знак предупреждает, что на проезжей части левая полоса движения заканчивается, и тебе необходимо заблаговременно перестроиться в правую полосу. Временные знаки и разметка жёлтого цвета имеют приоритет над постоянными. Ты обязан соблюдать их требования всегда, даже если в данный момент на дороге не видно рабочих или техники.\n\n🇷🇺 В Испании при дорожных работах жёлтый фон приобретают даже прямоугольные информационные знаки, в то время как в РФ жёлтый фон как признак временного знака чаще используется для предупреждающих знаков в треугольнике.\n\n💡 Жёлтый фон — ремонт в пути, в левый ряд не заходи!"
+      "ru": "🎓 Жёлтый фон знака информирует о проведении дорожных работ на данном участке. Этот знак предупреждает, что на проезжей части левая полоса движения заканчивается, и тебе необходимо заблаговременно перестроиться в правую полосу. Временные знаки и разметка жёлтого цвета имеют приоритет над постоянными. Ты обязан соблюдать их требования всегда, даже если в данный момент на дороге не видно рабочих или техники.\n\n💡 Жёлтый фон — ремонт в пути, в левый ряд не заходи!"
     },
     "image_url": "https://teorica.practicavial.com/question/d296217c-1617-47ea-a57d-5c6c2bd6c618-1658167082-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/d296217c-1617-47ea-a57d-5c6c2bd6c618-s-1.jpg",

@@ -17,6 +17,7 @@ import { useUserContext } from "@/contexts/UserContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "next-themes";
 import { usePremium } from "@/hooks/usePremium";
+import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { useProfileData } from "@/hooks/useProfileData";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
@@ -100,6 +101,7 @@ export const UserProfilePopover = memo(function UserProfilePopover({ notificatio
   const { language, setLanguage, t } = useLanguage();
   const { theme, setTheme } = useTheme();
   const { isPremium } = usePremium();
+  const { isAdmin } = useIsAdmin();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { previewSkin, previewBadges, previewSticker } = useCosmeticsPreview();
@@ -210,6 +212,17 @@ export const UserProfilePopover = memo(function UserProfilePopover({ notificatio
         </div>
       )
     },
+    ...(isAdmin ? [{
+      key: 'admin',
+      icon: Shield,
+      label: "Админ-панель",
+      action: () => {
+        navigate('/admin');
+      },
+      badge: (
+        <div className="w-2 h-2 rounded-full bg-amber-500 animate-pulse ml-1" />
+      )
+    }] : []),
   ];
 
   return (

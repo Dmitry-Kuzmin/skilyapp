@@ -110,29 +110,29 @@
     },
     "answers": [
       {
-        "id": "a",
+        "id": "opt_0",
         "text": {
-          "es": "Obedecer la señal de stop.",
-          "en": "Obey the STOP sign.",
-          "ru": "Выполнить требование знака STOP."
-        },
-        "is_correct": false
-      },
-      {
-        "id": "b",
-        "text": {
+          "ru": "Подчиниться сигналу светофора, так как он имеет приоритет перед знаком STOP.",
           "es": "Obedecer al semáforo, que tiene prioridad sobre la señal de stop.",
-          "en": "Obey the traffic light, which has priority over the STOP sign.",
-          "ru": "Подчиниться сигналу светофора, так как он имеет приоритет перед знаком STOP."
+          "en": "Obey the traffic light, which has priority over the STOP sign."
         },
         "is_correct": true
       },
       {
-        "id": "c",
+        "id": "opt_1",
         "text": {
+          "ru": "Выполнить требование знака STOP.",
+          "es": "Obedecer la señal de stop.",
+          "en": "Obey the STOP sign."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "opt_2",
+        "text": {
+          "ru": "Подчиниться сигналу светофора, но при этом уступить дорогу.",
           "es": "Obedecer al semáforo, pero debo ceder el paso.",
-          "en": "Obey the traffic light, but I must yield the way.",
-          "ru": "Подчиниться сигналу светофора, но при этом уступить дорогу."
+          "en": "Obey the traffic light, but I must yield the way."
         },
         "is_correct": false
       }
@@ -140,7 +140,7 @@
     "explanation": {
       "es": "Según el orden de prevalencia entre los distintos tipos de señales, los semáforos tienen prioridad sobre las señales verticales de circulación. Por lo tanto, si el semáforo está en funcionamiento, la señal de STOP queda anulada y no es necesario realizar la detención obligatoria.",
       "en": "According to the order of precedence between different types of signals, traffic lights take priority over vertical traffic signs. Therefore, if the traffic light is operational, the STOP sign is superseded and there is no need to perform the mandatory stop.",
-      "ru": "🎓 Как водителю легкового автомобиля (Turismo), тебе важно помнить иерархию дорожных сигналов в Испании. Светофоры всегда приоритетнее вертикальных знаков. Если на перекрестке установлен работающий светофор и знак STOP, ты обязан руководствоваться только сигналами светофора. Когда загорается зеленый свет, ты проезжаешь без остановки, так как знак STOP в этот момент не действует. Он станет обязательным к исполнению только в том случае, если светофор будет выключен или перейдет в режим мигающего желтого сигнала. 💡 Светофор горит — про знаки забудь, светофор погас — на знаки смотри!"
+      "ru": "🎓 Как водителю легкового автомобиля (Turismo), тебе важно помнить иерархию дорожных сигналов в Испании. Светофоры всегда приоритетнее вертикальных знаков. Если на перекрестке установлен работающий светофор и знак STOP, ты обязан руководствоваться только сигналами светофора. Когда загорается зеленый свет, ты проезжаешь без остановки, так как знак STOP в этот момент не действует. Он станет обязательным к исполнению только в том случае, если светофор будет выключен или перейдет в режим мигающего желтого сигнала. "
     },
     "image_url": "https://teorica.practicavial.com/question/9137e33e-4efe-4382-a2e1-04bcf30781a0-1658166731-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/9137e33e-4efe-4382-a2e1-04bcf30781a0-s-1.jpg",

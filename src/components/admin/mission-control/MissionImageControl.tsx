@@ -14,7 +14,9 @@ import {
     UploadCloud,
     Plus,
     Archive,
-    Folder
+    Folder,
+    ScanLine,
+    Copy
 } from "lucide-react";
 import { toast } from "sonner";
 import { Textarea } from "@/components/ui/textarea";
@@ -22,6 +24,7 @@ import { useActivityLog } from "@/contexts/ActivityLogContext";
 import { cn } from "@/lib/utils";
 import { useDropzone } from "react-dropzone";
 import { ImageGalleryModal } from "./ImageGalleryModal";
+import { SignLibraryModal } from "./SignLibraryModal";
 
 interface MissionImageControlProps {
     questionId: string;
@@ -31,7 +34,7 @@ interface MissionImageControlProps {
 
 export interface MissionImageControlHandle {
     approve: () => Promise<boolean>;
-    regenerate: () => Promise<void>;
+    regenerate: (strictCopy?: boolean) => Promise<void>;
     reject: () => Promise<void>;
     archive: () => Promise<void>;
 }
@@ -63,6 +66,7 @@ export const MissionImageControl = forwardRef<MissionImageControlHandle, Mission
         const [showRawPrompt, setShowRawPrompt] = useState(false);
         const [isPromptOpen, setIsPromptOpen] = useState(false);
         const [isGalleryOpen, setIsGalleryOpen] = useState(false);
+        const [isSignLibraryOpen, setIsSignLibraryOpen] = useState(false);
         const [loading, setLoading] = useState(false);
         const [uploading, setUploading] = useState(false);
         const [questionData, setQuestionData] = useState<any>(null);
@@ -243,6 +247,30 @@ export const MissionImageControl = forwardRef<MissionImageControlHandle, Mission
         });
 
         // ----------------------------------------------------
+        // SIGN LIBRARY LOGIC
+        // ----------------------------------------------------
+        const handleSignSelected = async (imageUrl: string) => {
+            try {
+                setUploading(true);
+                addLog(`Скачиваем знак из библиотеки...`, 'loading');
+                const response = await fetch(imageUrl);
+                const blob = await response.blob();
+                
+                // Извлекаем имя файла из URL или задаем дефолтное
+                const urlParts = imageUrl.split('/');
+                const originalName = urlParts[urlParts.length - 1].split('?')[0];
+                const filename = originalName || `sign-${Date.now()}.png`;
+                
+                const file = new File([blob], filename, { type: blob.type || 'image/png' });
+                await onDrop([file]);
+            } catch (e) {
+                addLog(`Ошибка при загрузке знака: ${e}`, 'error');
+                toast.error("Не удалось загрузить изображение знака");
+                setUploading(false);
+            }
+        };
+
+        // ----------------------------------------------------
         // ACTIONS (DELETE with NO CONFIRM)
         // ----------------------------------------------------
         const deleteCandidate = async (candidate: Candidate, action: 'trash' | 'archive' = 'trash') => {
@@ -332,7 +360,7 @@ export const MissionImageControl = forwardRef<MissionImageControlHandle, Mission
                     return false;
                 }
             },
-            regenerate: async () => {
+            regenerate: async (strictCopy: boolean = false) => {
                 if (!serverOnline) return addLog("Server offline", 'error');
                 setLoading(true);
                 addLog(`Generating new candidate...`, 'loading');
@@ -343,7 +371,12 @@ export const MissionImageControl = forwardRef<MissionImageControlHandle, Mission
                 const testId = parts.slice(0, -1).join('_');
 
                 try {
+                if (strictCopy) {
+                    addLog(`🔍 STRICT COPY: передаём оригинал в Gemini...`, 'loading');
+                    toast.info("🔍 Strict Copy — цифровое копирование референса (~30-60s)", { duration: 5000 });
+                } else {
                     toast.info("Sending request to Gemini Director... (takes ~30-60s)", { duration: 5000 });
+                }
                     await fetch('http://localhost:3030/api/generate/single', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
@@ -352,7 +385,8 @@ export const MissionImageControl = forwardRef<MissionImageControlHandle, Mission
                             category,
                             testId,
                             customPrompt: prompt,
-                            userInstruction: userInstruction
+                            userInstruction: userInstruction,
+                            strictCopy: strictCopy
                         })
                     });
 
@@ -513,11 +547,29 @@ export const MissionImageControl = forwardRef<MissionImageControlHandle, Mission
                     </div>
 
                     <div
+                        onClick={() => setIsSignLibraryOpen(true)}
+                        className="min-w-[70px] h-[70px] rounded-lg border-2 border-dashed border-zinc-700 flex flex-col items-center justify-center cursor-pointer hover:border-sky-500 hover:bg-sky-500/10 transition-colors shrink-0"
+                        title="Выбрать знак из библиотеки"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6 text-sky-500/70"><path d="M12 2v20"/><path d="m4.93 10.93 14.14 14.14"/><path d="m2 22 20-20"/><path d="m10.93 4.93 14.14 14.14"/></svg>
+                        <span className="text-[9px] text-sky-500/70 mt-1">Signs</span>
+                    </div>
+
+                    <div
                         onClick={() => setIsPromptOpen(true)}
                         className="min-w-[70px] h-[70px] rounded-lg border-2 border-dashed border-zinc-700 flex flex-col items-center justify-center cursor-pointer hover:border-purple-500 hover:bg-purple-500/10 transition-colors shrink-0"
                     >
                         <Sparkles className="w-6 h-6 text-purple-500/70" />
                         <span className="text-[9px] text-purple-500/70 mt-1">AI Gen</span>
+                    </div>
+
+                    <div
+                        onClick={() => { if (ref && 'current' in ref && ref.current) ref.current.regenerate(true); }}
+                        className="min-w-[70px] h-[70px] rounded-lg border-2 border-dashed border-zinc-700 flex flex-col items-center justify-center cursor-pointer hover:border-amber-500 hover:bg-amber-500/10 transition-colors shrink-0"
+                        title="Strict Copy — передаёт оригинал в Gemini для точного копирования"
+                    >
+                        <Copy className="w-6 h-6 text-amber-500/70" />
+                        <span className="text-[9px] text-amber-500/70 mt-1">Copy Ref</span>
                     </div>
 
                     {/* Candidate List */}
@@ -614,11 +666,22 @@ export const MissionImageControl = forwardRef<MissionImageControlHandle, Mission
                             )}
                         </div>
 
-                        <div className="flex justify-end pt-2 border-t border-white/5">
+                        <div className="flex justify-end gap-2 pt-2 border-t border-white/5">
+                            <Button
+                                size="sm"
+                                variant="outline"
+                                className="h-8 border-orange-500/30 hover:bg-orange-500/10 text-orange-400 gap-2 px-4"
+                                onClick={() => { if (ref && 'current' in ref && ref.current) ref.current.regenerate(true); }}
+                                disabled={loading}
+                                title="Copy original exactly without creative additions"
+                            >
+                                {loading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Copy className="w-3 h-3" />}
+                                Strict Copy
+                            </Button>
                             <Button
                                 size="sm"
                                 className="h-8 bg-purple-600 hover:bg-purple-500 text-white gap-2 px-4"
-                                onClick={() => { if (ref && 'current' in ref && ref.current) ref.current.regenerate(); }}
+                                onClick={() => { if (ref && 'current' in ref && ref.current) ref.current.regenerate(false); }}
                                 disabled={loading}
                             >
                                 {loading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />}
@@ -637,6 +700,12 @@ export const MissionImageControl = forwardRef<MissionImageControlHandle, Mission
                         fetchData();
                         addLog("Image copied from gallery", 'success');
                     }}
+                />
+
+                <SignLibraryModal
+                    open={isSignLibraryOpen}
+                    onOpenChange={setIsSignLibraryOpen}
+                    onSelectSign={handleSignSelected}
                 />
             </div>
         );

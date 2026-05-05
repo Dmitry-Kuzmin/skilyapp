@@ -33,6 +33,8 @@ import { GlobalDuelWatcher } from "./duel/GlobalDuelWatcher";
 import { HeaderSkeleton } from "./HeaderSkeleton";
 import { PWAInstallPrompt } from "./PWAInstallPrompt";
 import { ContextSwitcher } from "./shared/ContextSwitcher";
+import { useIsAdmin } from "@/hooks/useIsAdmin";
+import { Shield as AdminShield } from "lucide-react";
 
 interface LayoutProps {
   children: ReactNode;
@@ -110,6 +112,7 @@ const Layout = memo(({ children, hideNavigation = false }: LayoutProps) => {
   // settingsOpen удалён — используется глобальный UnifiedSettingsDrawer
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const { isAdmin } = useIsAdmin();
   const isTelegramApp = isTelegramMiniApp();
   const isMobile = useIsMobile();
   const [isTelegramMobilePlatform, setIsTelegramMobilePlatform] = useState<boolean | null>(null);
@@ -442,13 +445,26 @@ const Layout = memo(({ children, hideNavigation = false }: LayoutProps) => {
                     </Suspense>
                   </div>
                   {isAuthenticated ? (
-                    <div className="flex-shrink-0">
+                    <div className="flex-shrink-0 flex items-center gap-2">
                       <Suspense fallback={null}>
                         <UserProfilePopover
                           notificationsApi={notificationsApi}
                           onOpenNotifications={() => setNotificationsOpen(true)}
                         />
                       </Suspense>
+
+                      {isAdmin && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => navigate('/admin')}
+                          className="h-9 w-9 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-500 hover:bg-amber-500/20 hover:text-amber-400 transition-all group relative"
+                          title="Админ-панель"
+                        >
+                          <AdminShield className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                          <div className="absolute -top-1 -right-1 w-2 h-2 bg-amber-500 rounded-full border border-background animate-pulse" />
+                        </Button>
+                      )}
                     </div>
                   ) : (
                     <button
@@ -528,15 +544,25 @@ const Layout = memo(({ children, hideNavigation = false }: LayoutProps) => {
               ))}
 
               {/* Profile/Login Icon */}
-              <div className="flex flex-col items-center justify-center gap-0.5 py-1.5 px-3">
+              <div className="flex flex-col items-center justify-center gap-1.5 py-1.5 px-3">
                 {isAuthenticated ? (
-                  <Suspense fallback={null}>
-                    <UserProfilePopover
-                      notificationsApi={notificationsApi}
-                      onOpenNotifications={handleOpenNotifications}
-                      compact
-                    />
-                  </Suspense>
+                  <div className="flex flex-row items-center gap-2">
+                    <Suspense fallback={null}>
+                      <UserProfilePopover
+                        notificationsApi={notificationsApi}
+                        onOpenNotifications={handleOpenNotifications}
+                        compact
+                      />
+                    </Suspense>
+                    {isAdmin && (
+                      <button
+                        onClick={() => navigate('/admin')}
+                        className="w-8 h-8 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-500 active:scale-90 transition-all"
+                      >
+                        <AdminShield className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
                 ) : (
                   <button
                     onClick={handleOpenAuth}
@@ -565,7 +591,20 @@ const Layout = memo(({ children, hideNavigation = false }: LayoutProps) => {
       {/* PWA Install Prompt — только iOS Safari мобайл */}
       <PWAInstallPrompt />
 
+      {/* Admin FAB — floating button, fixed bottom-right, только для администраторов */}
+      {isAuthenticated && isAdmin && (
+        <button
+          onClick={() => navigate('/admin')}
+          className="fixed bottom-6 right-6 z-[200] w-12 h-12 rounded-full bg-amber-500 text-white shadow-[0_4px_24px_rgba(245,158,11,0.5)] flex items-center justify-center hover:bg-amber-400 hover:scale-110 active:scale-95 transition-all duration-200 group"
+          title="Открыть Админ-панель"
+        >
+          <AdminShield className="w-5 h-5" />
+          <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-background animate-pulse" />
+        </button>
+      )}
+
     </div >
+
   );
 });
 

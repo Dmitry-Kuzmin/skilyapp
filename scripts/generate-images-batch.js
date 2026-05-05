@@ -169,6 +169,35 @@ Cluttered scene, cartoon, low poly, ugly text, huge sci-fi buildings, flying car
 GENERATE EXACT SCENE FROM DESCRIPTION.`;
 
 // ==========================================
+// STRICT COPY PROMPT (точное копирование референса)
+// ==========================================
+const STRICT_COPY_PROMPT = `ROLE: Photorealistic 3D Scene Replicator.
+TASK: You are given a REFERENCE IMAGE. Reproduce it with maximum geometric and compositional fidelity, but elevate the visual quality to a cinematic, ultra-realistic level.
+
+## ABSOLUTE RULES:
+1. **COMPOSITION FIRST**: Replicate the exact camera angle, framing, and perspective of the reference image.
+2. **LAYOUT LOCK**: Every object must be in the EXACT same position — no creative repositioning.
+3. **VEHICLE FIDELITY**: Match type, color, orientation, and lane position of every vehicle precisely. Vehicles must look like real, high-end European cars with metallic paint and reflections, NOT plush toys, plastic, or cartoonish.
+4. **SIGN ACCURACY**: Reproduce ONLY the signs visible in the reference. ZERO invented signs.
+5. **MARKINGS**: Copy road markings exactly — dashed, solid, crosswalk, arrows — WHITE ONLY (Spanish DGT standard).
+6. **INFRASTRUCTURE**: Replicate road type, lane count, shoulders, barriers, and surface texture. Use hyper-realistic asphalt textures.
+7. **ENVIRONMENT**: Elevate the environment to a beautiful, cinematic Spanish location (e.g., golden hour in Madrid, coastal Basque road, or misty Pyrenees), while keeping lighting and weather consistent with the reference's needs.
+8. **NO BRANDING**: Do NOT add Skily logos, liveries, robots, drones, or EV stations.
+9. **NO HALLUCINATIONS**: Do NOT invent people, vehicles, signs, or objects not in the reference.
+10. **NO TEXT CODES**: Never write catalog codes (R-301, P-18, S-34) on signs — use visual symbol only.
+
+## STYLE:
+Cinematic, ultra-realistic 8K photography, Unreal Engine 5 render style.
+True-to-life materials: glossy automotive paint, textured asphalt, reflective glass, natural lighting.
+ABSOLUTELY NO toy-like, plastic, clay, or miniature aesthetics.
+
+## NEGATIVE PROMPT:
+Cartoon, plush toys, plastic cars, low poly, miniature, tilt-shift, watermarks, text labels, hallucinated vehicles, invented signs, yellow center lines, Skily branding, sci-fi elements, drones, robots, accidents, injuries, creative liberties, blurry, fake.
+
+Reproduce the reference image with maximum fidelity at cinematic quality.`;
+
+
+// ==========================================
 // CHECKPOINT SYSTEM
 // ==========================================
 function loadCheckpoint() {
@@ -286,7 +315,19 @@ const SKILY_VARIANTS = [
 ];
 
 
-function getSkilyBranding(text, isSafetyCritical = false) {
+function getSkilyBranding(text, isSafetyCritical = false, isSignOnly = false) {
+    // 0. SIGN ONLY OVERRIDE:
+    if (isSignOnly) {
+        return {
+            location: "Neutral, slightly blurred urban backdrop or clean studio gradient. Minimalist setting.",
+            branding: `## BRANDING DISARMED (PURE SIGN FOCUS):
+**NEUTRALITY RULE**: The original image is just a sign graphic.
+1. DO NOT draw complex landscapes (no mountains, coastlines, or busy traffic).
+2. DO NOT add vehicles, branding, or robots.
+3. Focus 100% on making the sign itself photorealistic and perfectly legible against a simple, uncluttered background.`
+        };
+    }
+
     // 1. Creative Scenario (Location & Weather)
     // Now biased heavily towards Northern Spain beauty
     const locationString = getCreativeScenario(text);
@@ -341,6 +382,46 @@ ${SAFETY_PROTOCOL}`;
 }
 
 // ==========================================
+// УТИЛИТА: загрузить изображение как base64
+// ==========================================
+async function loadImageAsBase64(imageUrl) {
+    if (!imageUrl) return null;
+    try {
+        // Локальный файл
+        if (!imageUrl.startsWith('http')) {
+            const localPath = imageUrl.startsWith('/') ? imageUrl : path.resolve(imageUrl);
+            const buffer = await fs.readFile(localPath);
+            return { data: buffer.toString('base64'), mimeType: 'image/png' };
+        }
+        // Удалённый URL — используем полный набор заголовков браузера для обхода Cloudflare
+        const response = await axios.get(imageUrl, {
+            responseType: 'arraybuffer',
+            timeout: 15000,
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                'Accept': 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',
+                'Accept-Language': 'en-US,en;q=0.9,es;q=0.8',
+                'Referer': 'https://teorica.practicavial.com/',
+                'Sec-Fetch-Dest': 'image',
+                'Sec-Fetch-Mode': 'no-cors',
+                'Sec-Fetch-Site': 'same-origin',
+                'Sec-CH-UA': '"Not_A Brand";v="8", "Chromium";v="120", "Google Chrome";v="120"',
+                'Sec-CH-UA-Mobile': '?0',
+                'Sec-CH-UA-Platform': '"macOS"'
+            }
+        });
+        const mimeType = response.headers['content-type']?.split(';')[0] || 'image/jpeg';
+        return {
+            data: Buffer.from(response.data).toString('base64'),
+            mimeType
+        };
+    } catch (e) {
+        console.warn(`   ⚠️  Не удалось загрузить изображение: ${e.message}`);
+        return null;
+    }
+}
+
+// ==========================================
 // ГЕНЕРАЦИЯ ИЗОБРАЖЕНИЯ (Imagen)
 // ==========================================
 async function generateImage(question, visionAnalysis, attempt = 1, useBackup = false) {
@@ -350,8 +431,25 @@ async function generateImage(question, visionAnalysis, attempt = 1, useBackup = 
     }
 
     let prompt;
+    let referenceImageData = null;
 
-    if (question.custom_prompt) {
+    if (question.strict_copy) {
+        console.log(`   🔍 STRICT COPY MODE: передаём оригинальное изображение в Imagen`);
+        // Загружаем оригинальное изображение для передачи в API
+        const imageUrl = question.image_url || question.original_image_url;
+        if (imageUrl) {
+            referenceImageData = await loadImageAsBase64(imageUrl);
+            if (referenceImageData) {
+                console.log(`   ✅ Референс загружен (${referenceImageData.mimeType}, ${Math.round(referenceImageData.data.length * 0.75 / 1024)}KB)`);
+            } else {
+                console.warn(`   ⚠️  Не удалось загрузить референс, используем текстовый анализ`);
+            }
+        } else {
+            console.warn(`   ⚠️  image_url не найден в данных вопроса`);
+        }
+        // Упрощённый промпт для strict copy — основная работа делается через image input
+        prompt = STRICT_COPY_PROMPT;
+    } else if (question.custom_prompt) {
         console.log(`   🎨 Используем кастомный промт пользователя`);
         prompt = question.custom_prompt;
     } else {
@@ -477,9 +575,11 @@ async function generateImage(question, visionAnalysis, attempt = 1, useBackup = 
         const hasPoliceInOriginal = typeof visionAnalysis === 'string' &&
             (visionAnalysis.toLowerCase().includes('police') || visionAnalysis.toLowerCase().includes('officer'));
 
+        const isSignOnly = typeof visionAnalysis === 'string' && visionAnalysis.includes('IS_SIGN_ONLY: TRUE');
+
         // INJECT SKILY BRANDING (SUBTLE MODE)
-        // Pass isEmergencyV16 to disable branding in accidents
-        const branding = getSkilyBranding(textToScan, isEmergencyV16);
+        // Pass isEmergencyV16 to disable branding in accidents, and isSignOnly for isolated signs
+        const branding = getSkilyBranding(textToScan, isEmergencyV16, isSignOnly);
         prompt = `${STYLE_MASTER_PROMPT.replace('{{DYNAMIC_LOCATION_PLACEHOLDER}}', branding.location).replace('{{DYNAMIC_BRANDING_PLACEHOLDER}}', branding.branding)}
 
 ## SCENE TO GENERATE:
@@ -679,9 +779,21 @@ STRICT GUIDELINES:
 
         const result = await Promise.race([
             activeModel.generateContent({
-                contents: [{ role: 'user', parts: [{ text: prompt }] }],
+                contents: [{
+                    role: 'user',
+                    parts: [
+                        // Если есть оригинальное изображение (strict copy) — передаём его
+                        ...(referenceImageData ? [{
+                            inlineData: {
+                                data: referenceImageData.data,
+                                mimeType: referenceImageData.mimeType
+                            }
+                        }] : []),
+                        { text: prompt }
+                    ]
+                }],
                 generationConfig: {
-                    temperature: 0.4,
+                    temperature: referenceImageData ? 0.2 : 0.4, // Ниже температура для strict copy
                     candidateCount: 1,
                     responseModalities: ['Image'],
                     imageConfig: {

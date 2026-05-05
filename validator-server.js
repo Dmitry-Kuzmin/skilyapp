@@ -1261,7 +1261,7 @@ app.get('/api/enrich/status', (req, res) => {
 // ==========================================
 app.post('/api/generate/single', async (req, res) => {
     try {
-        const { questionId, testId, category, customPrompt, userInstruction } = req.body;
+        const { questionId, testId, category, customPrompt, userInstruction, strictCopy } = req.body;
 
         if (!questionId || !testId || !category) {
             return res.status(400).json({
@@ -1273,6 +1273,7 @@ app.post('/api/generate/single', async (req, res) => {
         console.log(`[Generate Single] QuestionID: ${questionId}, Test: ${testId}`);
         if (customPrompt) console.log(`[Generate Single] Custom Prompt length: ${customPrompt.length}`);
         if (userInstruction) console.log(`[Generate Single] 🧞‍♂️ User Wish: "${userInstruction}"`);
+        if (strictCopy) console.log(`[Generate Single] 🔍 STRICT COPY MODE активирован`);
 
         // Extract UUID from questionId if it's in format topic-01_test-001_UUID
         const uuid = questionId.includes('_') ? questionId.split('_').pop() : questionId;
@@ -1324,7 +1325,8 @@ app.post('/api/generate/single', async (req, res) => {
             ...question,
             testId,
             custom_prompt: customPrompt,
-            user_instruction: userInstruction // Pass instruction to script
+            user_instruction: userInstruction,
+            strict_copy: strictCopy || false
         };
 
         await fs.writeFile(tempQuestionFile, JSON.stringify([questionWithParams], null, 2));

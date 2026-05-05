@@ -1137,29 +1137,29 @@
     },
     "answers": [
       {
-        "id": "a",
+        "id": "opt_0",
         "text": {
+          "ru": "Начало тоннеля или нижнего проезда.",
           "es": "El inicio de un túnel o paso inferior.",
-          "en": "The beginning of a tunnel or underpass.",
-          "ru": "Начало тоннеля или нижнего проезда."
+          "en": "The beginning of a tunnel or underpass."
         },
         "is_correct": true
       },
       {
-        "id": "b",
+        "id": "opt_1",
         "text": {
+          "ru": "Обязанность включить ближний свет фар.",
           "es": "La obligación de encender las luces de cruce.",
-          "en": "The obligation to switch on dipped headlights.",
-          "ru": "Обязанность включить ближний свет фар."
+          "en": "The obligation to switch on dipped headlights."
         },
         "is_correct": false
       },
       {
-        "id": "c",
+        "id": "opt_2",
         "text": {
+          "ru": "Расположение исторического или художественного памятника.",
           "es": "La situación de una obra histórica o artística declarada monumento.",
-          "en": "The location of a historical or artistic work declared a monument.",
-          "ru": "Расположение исторического или художественного памятника."
+          "en": "The location of a historical or artistic work declared a monument."
         },
         "is_correct": false
       }
@@ -1167,7 +1167,7 @@
     "explanation": {
       "es": "La señal es la **S-5 (Túnel)**. Según el Reglamento General de Circulación, indica el principio, y eventualmente el nombre, de un túnel, de un paso inferior o de un tramo de vía equiparado a túnel. Aunque al entrar en un túnel es obligatorio encender el alumbrado correspondiente, la función principal de la señal es delimitar el inicio de la infraestructura, no exclusivamente la obligación del alumbrado.",
       "en": "The sign is **S-5 (Tunnel)**. According to the General Traffic Regulations, it indicates the beginning, and possibly the name, of a tunnel, an underpass, or a road section equivalent to a tunnel. Although switching on the corresponding lights is mandatory when entering a tunnel, the primary function of the sign is to mark the start of the infrastructure, not exclusively the lighting obligation.",
-      "ru": "🎓 Этот знак (S-5) информирует водителя **легкового автомобиля** о начале тоннеля, нижнего проезда или участка дороги, приравненного к ним.\n\nКак только ты пересекаешь линию этого знака, для тебя начинают действовать особые правила:\n• Ты **обязан** включить ближний свет (независимо от освещения внутри).\n• Запрещено разворачиваться и сдавать назад.\n• Запрещено останавливаться (кроме аварийных случаев).\n\nВажно понимать: хотя знак и заставляет включить фары, правильный ответ описывает саму зону («Начало тоннеля»), а не одно из действий водителя.\n\n🇷🇺 В РФ знак «Тоннель» (1.31) — это красный треугольник (предупреждающий). В Испании перед въездом устанавливается этот **синий квадратный** знак особых предписаний. Не путай его по форме с российскими знаками сервиса или автобусной остановки.\n\n💡 Видим **арку на синем фоне**?\nВспоминаем правило трех «Т»:\n• Это **Т**оннель.\n• Там **Т**емно.\n• Жми **Т**умблер света."
+      "ru": "🎓 Этот знак (S-5) информирует водителя **легкового автомобиля** о начале тоннеля, нижнего проезда или участка дороги, приравненного к ним.\n\nКак только ты пересекаешь линию этого знака, для тебя начинают действовать особые правила:\n• Ты **обязан** включить ближний свет (независимо от освещения внутри).\n• Запрещено разворачиваться и сдавать назад.\n• Запрещено останавливаться (кроме аварийных случаев).\n\nВажно понимать: хотя знак и заставляет включить фары, правильный ответ описывает саму зону («Начало тоннеля»), а не одно из действий водителя.\n\n🇷🇺 В РФ знак «Тоннель» — это красный треугольник (предупреждающий). В Испании перед въездом устанавливается этот **синий квадратный** знак особых предписаний. Не путай его по форме с российскими знаками сервиса или автобусной остановки.\n\n💡 Видим **арку на синем фоне**?\nВспоминаем правило трех «Т»:\n• Это **Т**оннель.\n• Там **Т**емно.\n• Жми **Т**умблер света."
     },
     "image_url": "https://teorica.practicavial.com/question/7c408245-6d6b-4d4e-951d-ef1543832e8d-1658167654-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/7c408245-6d6b-4d4e-951d-ef1543832e8d-s-1.jpg",
