@@ -173,25 +173,28 @@ GENERATE EXACT SCENE FROM DESCRIPTION.`;
 // STRICT COPY PROMPT (точное копирование + живой фон Испании)
 // ==========================================
 function buildStrictCopyPrompt() {
-    return `ROLE: Exact Digital Replicator.
-TASK: You are given a REFERENCE IMAGE. Reproduce it with pixel-perfect fidelity. No creative additions, no invented elements, no style changes.
+    return `ROLE: Photorealistic DGT Scene Rebuilder — Skily Edition.
+TASK: You are given a REFERENCE IMAGE of a DGT driving test scenario. Faithfully rebuild it as a cinematic photorealistic image with Skily branding and a Northern Spanish natural environment. DO NOT invent new road elements.
 
-## RULES (ABSOLUTE):
-1. **EXACT COMPOSITION**: Same camera angle, framing, perspective — no changes.
-2. **EXACT LAYOUT**: Every object (vehicles, signs, markings, road elements) in the EXACT same position and size.
-3. **EXACT VEHICLES**: Same type, color, orientation, lane position. No substitutions.
-4. **EXACT SIGNS**: Only signs present in the reference. Zero invented signs.
-5. **EXACT MARKINGS**: Same road markings — dashed, solid, crosswalk, arrows. Same colors.
-6. **EXACT INFRASTRUCTURE**: Same road type, lane count, shoulders, barriers, surface.
-7. **EXACT BACKGROUND**: Keep the background/environment as close to the reference as possible.
-8. **NO ADDITIONS**: Do NOT add people, vehicles, signs, objects, or decorative elements not in the reference.
-9. **NO TEXT CODES**: Never write catalog codes on signs — visual symbol only.
+## ROAD FIDELITY (ABSOLUTE — DO NOT CHANGE):
+1. **COMPOSITION LOCK**: Identical camera angle, framing, and perspective.
+2. **LAYOUT LOCK**: Every road object (vehicles, signs, markings, barriers) stays in the EXACT same position and lane.
+3. **SIGN ACCURACY**: Reproduce ONLY the signs visible in the reference — symbol, shape, color. ZERO invented signs. NO catalog code text on signs.
+4. **MARKINGS**: Replicate all road markings exactly — dashed, solid, crosswalk, arrows — WHITE ONLY (Spanish DGT standard).
+5. **INFRASTRUCTURE**: Same road type, lane count, shoulders, and barriers.
+6. **SITUATION**: The traffic scenario (who is where, what is happening) must match the reference exactly.
 
-## STYLE:
-Photorealistic, high resolution. Match the lighting and atmosphere of the reference.
+## UPGRADE — APPLY THESE IMPROVEMENTS:
+7. **VEHICLES → SKILY**: Replace any vehicles with the Skily hero car — White/Blue hatchback with Electric Cyan accents and metallic automotive paint. Real reflections, real proportions. NOT plastic, NOT toy-like.
+8. **ENVIRONMENT → NORTHERN SPAIN**: Transform the background into a natural Northern Spanish landscape — lush green hills, Asturian/Cantabrian/Basque scenery, dramatic but clean sky. Cinematic natural lighting (soft golden hour or crisp daylight).
+9. **QUALITY → PHOTOREALISTIC**: Cinematic 8K photography quality. Real asphalt texture (grain, slight wear). Real sky with volumetric light. No flat lighting, no cartoon style.
+
+## SKILY BRAND SAFETY:
+- Skily vehicles must NEVER be involved in accidents or illegal maneuvers.
+- If a sign or situation requires a truck/bus, keep the correct vehicle type but give it a clean modern look.
 
 ## NEGATIVE PROMPT:
-Any invented elements, new objects, changed background, different vehicles, added signs, creative additions, artistic interpretation, style transfer.`;
+Plastic cars, toy cars, simplified geometry, low poly, cartoon style, miniature scale, tilt-shift, doll-like proportions, invented signs, yellow road lines (USA style), added text labels, watermarks, generic grey flat sky, boring flat fields, changed road layout, missing signs from original, extra vehicles not in reference.`;
 }
 
 
