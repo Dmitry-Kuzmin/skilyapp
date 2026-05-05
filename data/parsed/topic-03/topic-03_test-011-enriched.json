@@ -549,29 +549,29 @@
     },
     "answers": [
       {
-        "id": "a",
+        "id": "opt_0",
         "text": {
-          "es": "Cambio de sentido a distinto nivel a 300 metros.",
-          "en": "U-turn at a different level in 300 meters.",
-          "ru": "Разворот на разных уровнях через 300 метров."
-        },
-        "is_correct": false
-      },
-      {
-        "id": "b",
-        "text": {
-          "es": "Cambio de sentido al mismo nivel a 300 metros.",
-          "en": "U-turn at the same level in 300 meters.",
-          "ru": "Разворот на одном уровне через 300 метров."
+          "ru": "Разворот на одном уровне через 150 метров.",
+          "es": "Cambio de sentido al mismo nivel a 150 metros.",
+          "en": "U-turn at the same level in 150 meters."
         },
         "is_correct": true
       },
       {
-        "id": "c",
+        "id": "opt_1",
         "text": {
-          "es": "Cambio de dirección al mismo nivel a 300 metros.",
-          "en": "Change of direction at the same level in 300 meters.",
-          "ru": "Поворот (изменение направления) на одном уровне через 300 метров."
+          "ru": "Разворот на разных уровнях через 150 метров.",
+          "es": "Cambio de sentido a distinto nivel a 150 metros.",
+          "en": "U-turn at a different level in 150 meters."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "opt_2",
+        "text": {
+          "ru": "Поворот (изменение направления) на одном уровне через 150 метров.",
+          "es": "Cambio de dirección al mismo nivel a 150 metros.",
+          "en": "Change of direction at the same level in 150 meters."
         },
         "is_correct": false
       }

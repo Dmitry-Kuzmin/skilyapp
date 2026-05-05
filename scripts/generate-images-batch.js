@@ -437,7 +437,9 @@ async function generateImage(question, visionAnalysis, attempt = 1, useBackup = 
             console.warn(`   ⚠️  image_url не найден в данных вопроса`);
         }
         // Pure copy — no creative additions, no invented locations or elements
-        prompt = buildStrictCopyPrompt();
+        const isSignOnly = typeof visionAnalysis === 'string' && visionAnalysis.includes('IS_SIGN_ONLY: TRUE');
+        if (isSignOnly) console.log(`   🚦 STRICT COPY: sign-only detected — skipping vehicle branding`);
+        prompt = buildStrictCopyPrompt(isSignOnly);
     } else if (question.custom_prompt) {
         console.log(`   🎨 Используем кастомный промт пользователя`);
         prompt = question.custom_prompt;
