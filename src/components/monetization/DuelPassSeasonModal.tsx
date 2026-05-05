@@ -453,13 +453,10 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
   const hasPremiumForever = seasonData?.hasPremiumForever ?? false;
   const hasPremiumPass = seasonData?.hasPremiumPass ?? false;
 
-  const { claimedFreeRewards, claimedPremiumRewards } = useMemo(() => {
-    const base = buildClaimedSets(seasonData?.claimedRecords ?? []);
-    return {
-      claimedFreeRewards: new Set([...base.claimedFreeRewards, ...localClaimedFree]),
-      claimedPremiumRewards: new Set([...base.claimedPremiumRewards, ...localClaimedPremium]),
-    };
-  }, [seasonData?.claimedRecords, localClaimedFree, localClaimedPremium]);
+  const { claimedFreeRewards, claimedPremiumRewards } = useMemo(
+    () => buildClaimedSets(seasonData?.claimedRecords ?? []),
+    [seasonData?.claimedRecords]
+  );
 
   useEffect(() => {
     if (!activeCosmeticReward && cosmeticQueue.length > 0) {
