@@ -436,7 +436,21 @@ const AdminQuestionReports = () => {
             </div>
           )}
 
-          <DialogFooter>
+          <DialogFooter className="flex-col sm:flex-row gap-2">
+            <Button
+              variant="outline"
+              onClick={() => {
+                if (selectedReport?.question?.id) {
+                  navigate(`/admin/mission-control?questionId=${selectedReport.question.id}`);
+                  setIsDialogOpen(false);
+                }
+              }}
+              className="border-indigo-500/30 text-indigo-400 hover:bg-indigo-500/10 hover:text-indigo-300 bg-transparent sm:mr-auto"
+              disabled={!selectedReport?.question?.id}
+            >
+              <ExternalLink className="w-4 h-4 mr-2" />
+              Открыть в Mission Control
+            </Button>
             <Button variant="ghost" onClick={() => setIsDialogOpen(false)} className="text-zinc-400 hover:text-white hover:bg-zinc-800">Cancel</Button>
             <Button onClick={handleUpdateReport} disabled={isSubmitting} className="bg-zinc-100 text-zinc-900 hover:bg-white">
               {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <CheckCircle2 className="w-4 h-4 mr-2" />}
