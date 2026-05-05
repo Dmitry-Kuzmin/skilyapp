@@ -28,6 +28,7 @@ export interface AIRequestOptions {
   language?: string;
   mode?: 'chat' | 'debrief';
   showComparison?: boolean;
+  imageUrl?: string | null;
 }
 
 export interface AILimitData {

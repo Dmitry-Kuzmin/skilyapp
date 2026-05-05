@@ -710,29 +710,29 @@
     },
     "answers": [
       {
-        "id": "a",
+        "id": "opt_0",
         "text": {
+          "ru": "Участок проезжей части с односторонним движением.",
           "es": "Tramo de calzada de sentido único.",
-          "en": "One-way traffic section of the road.",
-          "ru": "Участок проезжей части с односторонним движением."
+          "en": "One-way traffic section of the road."
         },
         "is_correct": true
       },
       {
-        "id": "b",
+        "id": "opt_1",
         "text": {
+          "ru": "Обязывает повернуть в направлении стрелки.",
           "es": "Obliga a girar en la dirección de la flecha.",
-          "en": "Obliges to turn in the direction of the arrow.",
-          "ru": "Обязывает повернуть в направлении стрелки."
+          "en": "Obliges to turn in the direction of the arrow."
         },
         "is_correct": false
       },
       {
-        "id": "c",
+        "id": "opt_2",
         "text": {
+          "ru": "Обязательный объезд справа.",
           "es": "Paso obligatorio por la derecha.",
-          "en": "Mandatory pass on the right.",
-          "ru": "Обязательный объезд справа."
+          "en": "Mandatory pass on the right."
         },
         "is_correct": false
       }
@@ -740,7 +740,7 @@
     "explanation": {
       "es": "La señal S-12a indica un tramo de calzada de sentido único. Informa a los conductores que, en el tramo de calzada que se prolonga en la dirección de la flecha, los vehículos deben circular en el sentido indicado por esta, y que está prohibida la circulación en sentido contrario. Al ser una señal rectangular, pertenece al grupo de señales de indicación general y no debe confundirse con las señales de obligación (circulares).",
       "en": "Sign S-12a indicates a one-way traffic section. It informs drivers that, on the stretch of the road extending in the direction of the arrow, vehicles must travel in the direction indicated, and traffic in the opposite direction is prohibited. As a rectangular sign, it belongs to the general indication signs group and should not be confused with mandatory (circular) signs.",
-      "ru": "🎓 Данный дорожный знак указывает на участок проезжей части с односторонним движением. Он сообщает водителю, что на протяжении всего этого участка движение разрешено только в направлении, указанном стрелкой, а въезд и движение во встречном направлении категорически запрещены. Тебе как водителю легкового автомобиля важно помнить: это информационный знак, а не предписывающий. Он не обязывает тебя совершать поворот немедленно, в отличие от круглых синих знаков, а лишь описывает правила движения на данной дороге.\n🇷🇺 В РФ аналогичный знак 5.5 имеет форму квадрата, в то время как в Испании используется вытянутый прямоугольник.\n💡 Прямоугольник — это информация, круг — это приказ!"
+      "ru": "🎓 Данный дорожный знак указывает на участок проезжей части с односторонним движением. Он сообщает водителю, что на протяжении всего этого участка движение разрешено только в направлении, указанном стрелкой, а въезд и движение во встречном направлении категорически запрещены. Тебе как водителю легкового автомобиля важно помнить: это информационный знак, а не предписывающий. Он не обязывает тебя совершать поворот немедленно, в отличие от круглых синих знаков, а лишь описывает правила движения на данной дороге."
     },
     "image_url": "https://teorica.practicavial.com/question/31e7d43b-cabc-4e47-bbf6-5bd25c8b2e99-1761294049-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/31e7d43b-cabc-4e47-bbf6-5bd25c8b2e99-s-1.jpg?t=1768426208",
