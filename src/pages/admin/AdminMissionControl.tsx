@@ -58,6 +58,32 @@ const AdminMissionControlContent = () => {
         return () => clearInterval(interval);
     }, []);
 
+    // Deep-link: auto-navigate when server comes online
+    useEffect(() => {
+        if (!isValidatorServerOnline || !pendingQuestionRef.current) return;
+        const uuid = pendingQuestionRef.current;
+        // Clear URL param without triggering re-render
+        setSearchParams({}, { replace: true });
+
+        (async () => {
+            try {
+                const res = await fetch(`http://localhost:3030/api/search?q=${encodeURIComponent(uuid)}&country=spain`);
+                if (!res.ok) return;
+                const results = await res.json();
+                if (results.length > 0) {
+                    setSelectedTestId(results[0].testId);
+                    // pendingQuestionRef stays set — loadQuestions will consume it
+                } else {
+                    toast.error("Вопрос не найден в Mission Control");
+                    pendingQuestionRef.current = null;
+                }
+            } catch (e) {
+                console.error("[MissionControl] Deep-link error:", e);
+                pendingQuestionRef.current = null;
+            }
+        })();
+    }, [isValidatorServerOnline]);
+
     // Load Data
     useEffect(() => {
         if (selectedTestId && isValidatorServerOnline) {
@@ -72,8 +98,24 @@ const AdminMissionControlContent = () => {
             const res = await fetch(`http://localhost:3030/api/test/${testId}/questions?country=${country}`);
             if (!res.ok) throw new Error(`Server returned ${res.status}`);
             const data = await res.json();
-            setQuestions(data.questions || []);
+            const qs = data.questions || [];
+            setQuestions(qs);
             setIsTestEnriched(data.is_enriched ?? true);
+
+            // Deep-link: auto-select pending question
+            if (pendingQuestionRef.current) {
+                const uuid = pendingQuestionRef.current;
+                const match = qs.find((q: any) => q.external_id === uuid || q.id === uuid);
+                if (match) {
+                    const extId = match.external_id || match.id;
+                    const fullId = extId.startsWith(testId) ? extId : `${testId}_${extId}`;
+                    setSelectedQuestionId(fullId);
+                    toast.success("Вопрос найден и открыт");
+                } else {
+                    toast.warning("Вопрос не найден в этом тесте");
+                }
+                pendingQuestionRef.current = null;
+            }
         } catch (e) {
             console.error("[MissionControl] Fetch error:", e);
             setQuestions([]);
