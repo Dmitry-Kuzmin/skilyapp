@@ -881,14 +881,6 @@ export function DuelPassLeaderboardView({
         )}
       </motion.div>
 
-      {activeSeasonId && selectedPosition && (
-        <LeaderboardRewardsModal
-          open={rewardsModalOpen}
-          onOpenChange={setRewardsModalOpen}
-          seasonId={activeSeasonId}
-          position={selectedPosition}
-        />
-      )}
     </>
   );
 }
