@@ -207,13 +207,14 @@ export const LevelUpCelebrationModal: React.FC = () => {
   // Решаем какую награду показать как «главную»
   const primaryReward = useMemo<RewardData | null>(() => {
     if (!rewards) return null;
-    return (isPremium && rewards.premium) ? rewards.premium : (rewards.free ?? null);
+    const premiumValid = isPremium && isValidReward(rewards.premium) ? rewards.premium : null;
+    return premiumValid ?? (isValidReward(rewards.free) ? rewards.free : null);
   }, [rewards, isPremium]);
 
-  const lockedPremiumReward = !isPremium && rewards?.premium ? rewards.premium : null;
+  const lockedPremiumReward = !isPremium && isValidReward(rewards?.premium) ? rewards!.premium : null;
 
   // Упущенная выгода: нет бесплатной награды, но есть премиум, а пользователь не премиум
-  const isMissedOpportunity = !isPremium && !primaryReward && !!lockedPremiumReward;
+  const isMissedOpportunity = !isPremium && !isValidReward(rewards?.free) && !!lockedPremiumReward;
 
   return (
     <AnimatePresence>
