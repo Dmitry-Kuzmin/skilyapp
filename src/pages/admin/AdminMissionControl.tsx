@@ -387,16 +387,22 @@ const AdminMissionControlContent = () => {
                             isEnriched={isTestEnriched}
                         />
                     ) : (
-                        /* REVIEW VIEW */
-                        <div className="bg-[#050505] relative h-full">
-                            <MissionImageControl
-                                ref={imageControlRef}
-                                questionId={selectedQuestionId}
-                                serverOnline={isValidatorServerOnline}
-                                onGenerationStart={() => setGeneratingQuestionId(selectedQuestionId)}
-                                onGenerationEnd={() => setGeneratingQuestionId(null)}
-                            />
-                        </div>
+                        /* REVIEW SPLIT VIEW */
+                        <ResizablePanelGroup direction="horizontal" className="h-full">
+                            <ResizablePanel defaultSize={50} minSize={30} className="bg-[#050505] border-r border-white/5 relative">
+                                <MissionImageControl
+                                    ref={imageControlRef}
+                                    questionId={selectedQuestionId}
+                                    serverOnline={isValidatorServerOnline}
+                                    onGenerationStart={() => setGeneratingQuestionId(selectedQuestionId)}
+                                    onGenerationEnd={() => setGeneratingQuestionId(null)}
+                                />
+                            </ResizablePanel>
+                            <ResizableHandle withHandle className="bg-transparent hover:bg-white/10 w-1 transition-colors" />
+                            <ResizablePanel defaultSize={50} minSize={30} className="bg-[#09090b]">
+                                <MissionEditor questionId={selectedQuestionId} testId={selectedTestId} country={selectedCountry} serverOnline={isValidatorServerOnline} />
+                            </ResizablePanel>
+                        </ResizablePanelGroup>
                     )}
 
                     {/* Floating Dock Overlay */}
