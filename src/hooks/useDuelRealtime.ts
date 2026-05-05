@@ -157,10 +157,8 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
 
       if (rpcError) {
         exploitsError = rpcError;
-        console.error('[useDuelRealtime] ❌ RPC get_active_exploits error in recoverActiveExploits:', rpcError);
-
+        logError('[useDuelRealtime] ❌ RPC get_active_exploits error:', rpcError);
         // Fallback: если RPC не работает, пробуем прямой запрос
-        console.log('[useDuelRealtime] 🔄 Falling back to direct query in recoverActiveExploits...');
         const { data: fallbackExploits, error: fallbackError } = await supabase
           .from('duel_active_exploits')
           .select('*')
