@@ -108,7 +108,9 @@ export function usePremium() {
         subscriptionStatus: data.subscriptionStatus || null,
       };
     },
-    enabled: hasProviders && !!profileId,
+    // Запускаем Edge Function только если dashboard загрузился и premium там нет
+    enabled: hasProviders && !!profileId && !dashboardLoading && !dashboardPremium,
+    initialData: dashboardPremium ?? undefined,
     staleTime: 2 * 60 * 1000, // 2 минуты
     gcTime: 5 * 60 * 1000, // 5 минут
     refetchOnWindowFocus: false,
