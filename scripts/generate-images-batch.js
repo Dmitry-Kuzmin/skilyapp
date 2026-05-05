@@ -344,8 +344,10 @@ function getSkilyBranding(text, isSafetyCritical = false, isSignOnly = false) {
     // Try to find a matching Skily Universe element (robots, drones, smart city, etc.)
     // 10% chance to use a universe element if a tag match exists (was 30%, too frequent)
     // This avoids repetitive drones/robots in every image
+    // EXCLUDE flying elements (drones, etc.) for road sign copying — they distract from the sign
     const universeElement = pickSkilyElement(text);
-    const useUniverse = universeElement && Math.random() < 0.10;
+    const excludeFlying = ['DRONE_SHEPHERD']; // IDs of flying elements to skip for sign scenes
+    const useUniverse = universeElement && !excludeFlying.includes(universeElement.id) && Math.random() < 0.10;
 
     let brandingText = "";
     if (useUniverse) {
