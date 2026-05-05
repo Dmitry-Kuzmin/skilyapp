@@ -110,7 +110,7 @@ export function getSystemPrompt(options: SystemPromptOptions = {}): string {
 ALWAYS respond in the SAME LANGUAGE the user is using (Russian, Spanish, or English). If the conversation has just started, default to ${languageName}.
 ${personality}
 ${widgetRules}
-Call get_user_stats tool if asked about stats, XP, coins, or learning progress.`;
+Call get_user_stats tool ONLY when the user explicitly asks about their stats, XP, coins, level, or test results. Never call it proactively.`;
   }
 
   const comparisonLogic = showComparison
