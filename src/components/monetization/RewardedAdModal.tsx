@@ -148,35 +148,29 @@ export function RewardedAdModal({
   const RewardIcon = info.icon;
 
   const handleShowAd = async () => {
-    console.log(`[RewardedAdModal] 🖱️ handleShowAd clicked for placement: ${placement || title}`);
-
     const webApp = getTelegramWebApp();
     const isMobileTMA = isTelegramMiniApp() && isTelegramMobilePlatformName(webApp?.platform);
 
     // В мобильном Telegram Mini App — пробуем AdsGram (партнёрская реклама)
     if (isMobileTMA) {
       try {
-        console.log('[RewardedAdModal] 📱 Trying AdsGram (Mobile TMA)...');
         const rewarded = await showAd(placement);
         if (rewarded) {
-          console.log('[RewardedAdModal] ✅ AdsGram rewarded — granting reward');
           setShowReward(true);
           try { await onRewardClaimed(); } catch (err) { console.error('[RewardedAdModal] Error claiming reward:', err); }
           setTimeout(() => onOpenChange(false), 2500);
           return;
         }
-      } catch (err) {
-        console.warn('[RewardedAdModal] ⚠️ AdsGram failed, falling back to Premium promo:', err);
+      } catch {
+        // AdsGram failed — fallback to promo
       }
     }
 
     // Fallback: десктоп / веб / AdsGram не загрузился → Premium промо-карусель
-    console.log('[RewardedAdModal] 🎬 Showing Premium promo carousel');
     setShowPromo(true);
   };
 
   const handlePromoComplete = useCallback(async () => {
-    console.log('[RewardedAdModal] ✅ Promo ad completed — granting reward');
     setShowPromo(false);
     setShowReward(true);
     try {
