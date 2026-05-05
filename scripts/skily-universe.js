@@ -107,7 +107,7 @@ const NATURE_VARIANTS = [
   {
     id: 'DRONE_SHEPHERD',
     category: 'nature',
-    tags: ['mountain', 'montaña', 'rural', 'field', 'campo', 'coast', 'scenic', 'highway', 'animals', 'ganado'],
+    tags: ['animals', 'ganado', 'sheep', 'flock', 'oveja'],
     text: `**SKILY UNIVERSE ELEMENT — Drone Shepherd:**
 A large, graceful white agricultural drone (wide wingspan, Skily-branded) glides silently over a flock of sheep on a vivid green Asturian hillside. The drone projects a soft blue grid of light on the ground below to guide the animals. The ancient stone farmhouse in the distance and the ultra-modern tech create a beautiful contrast.`,
   },
