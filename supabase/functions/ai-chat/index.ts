@@ -368,7 +368,7 @@ Deno.serve(async (req) => {
       }
     }
 
-    const gemini = await tryGemini(messages, country, mode, showComparison, language, supabaseClient, userId, weakTopicsContext);
+    const gemini = await tryGemini(messages, country, mode, showComparison, language, supabaseClient, userId, weakTopicsContext, imageUrl);
     if (gemini) return gemini;
 
     const groq = await tryGroq(messages, country, mode, showComparison, 'llama-3.1-8b-instant', language);
