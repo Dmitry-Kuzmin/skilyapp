@@ -46,7 +46,10 @@ export function MissionEditor({ questionId, testId, country = 'spain', serverOnl
     const syncLogsPanelRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        if (questionId) loadQuestionData();
+        if (!questionId) return;
+        const controller = new AbortController();
+        loadQuestionData(controller.signal);
+        return () => controller.abort();
     }, [questionId, country]);
 
     // Auto-switch to best available lang when data loads
