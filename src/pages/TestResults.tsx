@@ -183,6 +183,9 @@ const TestResults = () => {
   const [showTranslation, setShowTranslation] = useState<Record<string, boolean>>({});
   const [expandedExplanations, setExpandedExplanations] = useState<Record<string, boolean>>({});
 
+  // Celebration flow — show before results
+  const [celebrationDone, setCelebrationDone] = useState(false);
+
   // Confetti
   const [showConfetti, setShowConfetti] = useState(false);
 
