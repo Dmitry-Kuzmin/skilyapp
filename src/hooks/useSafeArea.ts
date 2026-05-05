@@ -25,7 +25,7 @@ export function useSafeArea() {
   useEffect(() => {
     const webApp = getTelegramWebApp();
     if (!webApp) {
-      console.warn("[useSafeArea] Telegram WebApp API не найден");
+      // Нормальное поведение в web-режиме — не логируем
       return;
     }
 
