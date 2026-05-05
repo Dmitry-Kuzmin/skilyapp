@@ -750,6 +750,10 @@ export const es = {
   boostShop: {
     title: "Tienda",
     subtitle: "Impulsos, monedas y Premium",
+    header: {
+      title: "MERCADO NEGRO",
+      subtitle: "ACCESO SEGURO CONCEDIDO",
+    },
     tabs: {
       boosts: "Impulsos",
       coins: "Monedas",
@@ -850,6 +854,8 @@ export const es = {
       tags: {
         starter: "Ideal para empezar",
         bestValue: "Mejor oferta",
+        hit: "ÉXITO",
+        vip: "VIP",
       },
       descriptions: {
         starter: "Recarga rápida para boosts de última hora",
@@ -924,7 +930,7 @@ export const es = {
     duelPass: {
       title: "Duel Pass",
       subtitle: "Compite y gana recompensas exclusivas",
-      description: "Obtén recompensas exclusivas por cada nivel. Premium duplica todas las recompensas.",
+      description: "Camino de progreso único: abre cofres, obtén aspectos raros y domina en los duelos.",
       button: "Abrir Duel Pass",
       toastTitle: "Duel Pass",
       toastDescription: "Abre Duel Pass en la página principal",
@@ -994,6 +1000,9 @@ export const es = {
       purchaseErrorDescription: "No se pudo completar la compra. Inténtalo de nuevo.",
       rlsError: "Error de acceso. Actualiza la página e inicia sesión.",
       insufficientCoins: "Necesitas {{amount}} monedas más",
+      adSuccessTitle: "✨ ¡Monedas recibidas!",
+      adSuccessDesc: "Has recibido 20 monedas por ver un anuncio",
+      adErrorDesc: "No se pudieron acreditar las monedas",
     },
     transactions: {
       coinsPurchasePaddle: "Compra de monedas: {{amount}}",

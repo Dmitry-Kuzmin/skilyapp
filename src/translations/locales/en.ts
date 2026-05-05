@@ -759,6 +759,10 @@ export const en = {
   boostShop: {
     title: "Shop",
     subtitle: "Boosts, coins & Premium",
+    header: {
+      title: "BLACK MARKET",
+      subtitle: "SECURE ACCESS GRANTED",
+    },
     tabs: {
       boosts: "Boosts",
       coins: "Coins",
@@ -859,6 +863,8 @@ export const en = {
       tags: {
         starter: "Starter pack",
         bestValue: "Best value",
+        hit: "HIT",
+        vip: "VIP",
       },
       descriptions: {
         starter: "Quick refill for last-minute boosts",
@@ -933,7 +939,7 @@ export const en = {
     duelPass: {
       title: "Duel Pass",
       subtitle: "Compete and earn exclusive rewards",
-      description: "Earn exclusive rewards for every level! Premium doubles all rewards.",
+      description: "Unique progress path: open chests, get rare skins and dominate in duels.",
       button: "Open Duel Pass",
       toastTitle: "Duel Pass",
       toastDescription: "Open Duel Pass on the home page",
@@ -1003,6 +1009,9 @@ export const en = {
       purchaseErrorDescription: "Couldn't complete the purchase. Try again.",
       rlsError: "Access error. Refresh the page and log in again.",
       insufficientCoins: "You need {{amount}} more coins",
+      adSuccessTitle: "✨ Coins received!",
+      adSuccessDesc: "You received 20 coins for watching an ad",
+      adErrorDesc: "Failed to credit coins",
     },
     transactions: {
       coinsPurchasePaddle: "Coin top-up: {{amount}}",

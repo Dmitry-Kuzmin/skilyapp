@@ -767,6 +767,10 @@ export const ru = {
   boostShop: {
     title: "Магазин",
     subtitle: "Бусты, монеты и Premium",
+    header: {
+      title: "ЧЕРНЫЙ РЫНОК",
+      subtitle: "БЕЗОПАСНЫЙ ДОСТУП РАЗРЕШЕН",
+    },
     tabs: {
       boosts: "Бусты",
       coins: "Монеты",
@@ -868,6 +872,8 @@ export const ru = {
       tags: {
         starter: "Быстрый старт",
         bestValue: "Выгоднее всего",
+        hit: "ХИТ",
+        vip: "VIP",
       },
       descriptions: {
         starter: "Быстрый заряд перед тестом или дуэлью",
@@ -942,7 +948,7 @@ export const ru = {
     duelPass: {
       title: "Duel Pass",
       subtitle: "Соревнуйся и получай эксклюзивные награды",
-      description: "Получайте эксклюзивные награды за каждый уровень! Premium удваивает все награды.",
+      description: "Уникальный путь прогресса: открывай сундуки, получай редкие скины и доминируй в дуэлях.",
       button: "Открыть Duel Pass",
       toastDescription: "Откройте Duel Pass на главной странице",
       oneTime: "единоразово",
@@ -1010,6 +1016,9 @@ export const ru = {
       purchaseErrorDescription: "Не удалось совершить покупку. Попробуйте ещё раз.",
       rlsError: "Ошибка доступа. Попробуйте обновить страницу и войти снова.",
       insufficientCoins: "Вам нужно ещё {{amount}} монет",
+      adSuccessTitle: "✨ Монеты получены!",
+      adSuccessDesc: "Тебе начислено 20 монет за просмотр рекламы",
+      adErrorDesc: "Не удалось начислить монеты",
     },
     transactions: {
       coinsPurchasePaddle: "Покупка монет: {{amount}}",

@@ -96,6 +96,21 @@ const faqSchema = {
   jsonLd={[appSchema, faqSchema]}
   hreflang={hreflang}
 >
+  <!-- Auth redirect: logged-in users go straight to /dashboard -->
+  <script is:inline>
+    (function() {
+      try {
+        var raw = localStorage.getItem('sb-yffjnqegeiorunyvcxkn-auth-token');
+        if (raw) {
+          var parsed = JSON.parse(raw);
+          if (parsed && parsed.access_token) {
+            window.location.replace('/dashboard');
+          }
+        }
+      } catch(e) {}
+    })();
+  </script>
+
   <div class="relative min-h-[100dvh] bg-[#0f172a] text-white font-sans overflow-x-hidden selection:bg-blue-500/30 w-full">
 
     <!-- Dev Variant Switcher (Only in DEV) -->
