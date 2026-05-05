@@ -3,6 +3,8 @@ import { supabase } from '@/integrations/supabase/client';
 import type { ActiveDuelState } from '@/features/duel/shared';
 import { ACTIVE_DUEL_STORAGE_KEY, MAX_STORAGE_AGE_MS, STALE_DUEL_AGE_MS } from '@/features/duel/shared';
 
+const devLog = (...a: any[]) => { if (import.meta.env.DEV) devLog(...a); };
+
 // Re-export для обратной совместимости
 export type { ActiveDuelState } from '@/features/duel/shared';
 
@@ -20,13 +22,13 @@ export function useActiveDuel() {
       const age = Date.now() - (state.timestamp || 0);
       
       if (age > MAX_STORAGE_AGE_MS) {
-        console.log('[useActiveDuel] Saved state too old (>30 min), clearing immediately');
+        devLog('[useActiveDuel] Saved state too old (>30 min), clearing immediately');
         localStorage.removeItem(ACTIVE_DUEL_STORAGE_KEY);
         return null;
       }
 
       if (age > STALE_DUEL_AGE_MS) {
-        console.log('[useActiveDuel] ⚠️ Duel is stale (>15 min), clearing immediately');
+        devLog('[useActiveDuel] ⚠️ Duel is stale (>15 min), clearing immediately');
         localStorage.removeItem(ACTIVE_DUEL_STORAGE_KEY);
         return null;
       }
@@ -100,7 +102,7 @@ export function useActiveDuel() {
       .then((status) => {
         if (status === 'invalid') {
           // Дуэль не существует или ошибка - очищаем
-          console.log('[useActiveDuel] ⚠️ Duel not found or error, clearing stale state');
+          devLog('[useActiveDuel] ⚠️ Duel not found or error, clearing stale state');
           localStorage.removeItem(ACTIVE_DUEL_STORAGE_KEY);
           setActiveDuel(null);
           setIsChecking(false);
@@ -110,14 +112,14 @@ export function useActiveDuel() {
         if (status === 'finished') {
           // 🆕 CRITICAL FIX: Завершенная дуэль НЕ очищается автоматически
           // Данные нужны для экрана результатов, очистка произойдет при выходе пользователя
-          console.log('[useActiveDuel] ✅ Duel is finished, keeping data for results screen (Delayed Cleanup)');
+          devLog('[useActiveDuel] ✅ Duel is finished, keeping data for results screen (Delayed Cleanup)');
           setActiveDuel(initialActiveDuel);
           setIsChecking(false);
           return;
         }
         
         // Дуэль активна или в ожидании - восстанавливаем состояние
-        console.log('[useActiveDuel] ✅ Active duel validated, restoring state');
+        devLog('[useActiveDuel] ✅ Active duel validated, restoring state');
         setActiveDuel(initialActiveDuel);
         setIsChecking(false);
       })
@@ -140,7 +142,7 @@ export function useActiveDuel() {
       localStorage.setItem(ACTIVE_DUEL_STORAGE_KEY, JSON.stringify(stateWithTimestamp));
       setActiveDuel(stateWithTimestamp);
       window.dispatchEvent(new CustomEvent('activeDuelSync', { detail: stateWithTimestamp }));
-      console.log('[useActiveDuel] ✅ Saved active duel state:', {
+      devLog('[useActiveDuel] ✅ Saved active duel state:', {
         duelId: state.duelId,
         mode: state.mode,
         currentIndex: state.currentIndex,
@@ -154,7 +156,7 @@ export function useActiveDuel() {
     localStorage.removeItem(ACTIVE_DUEL_STORAGE_KEY);
     setActiveDuel(null);
     window.dispatchEvent(new CustomEvent('activeDuelSync', { detail: null }));
-    console.log('[useActiveDuel] ✅ Cleared active duel state');
+    devLog('[useActiveDuel] ✅ Cleared active duel state');
   }, []);
 
   const updateActiveDuel = useCallback((updates: Partial<ActiveDuelState>) => {

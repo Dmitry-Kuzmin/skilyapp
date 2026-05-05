@@ -1,6 +1,8 @@
 import { useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
+const devLog = (...a: any[]) => { if (import.meta.env.DEV) devLog(...a); };
+
 interface BotOpponentProps {
   duelId: string | null;
   currentQuestionId: string | null;
@@ -60,12 +62,12 @@ export function useBotOpponent({
   // Находим бота среди игроков
   useEffect(() => {
     if (!players || players.length === 0) {
-      console.log('[useBotOpponent] ⚠️ No players provided');
+      devLog('[useBotOpponent] ⚠️ No players provided');
       botPlayerRef.current = null;
       return;
     }
 
-    console.log('[useBotOpponent] 🔍 Looking for bot in players:', players.map((p: any) => ({
+    devLog('[useBotOpponent] 🔍 Looking for bot in players:', players.map((p: any) => ({
       id: p.id,
       user_id: p.user_id,
       is_bot: p.is_bot,
@@ -75,14 +77,14 @@ export function useBotOpponent({
 
     const botPlayer = players.find((p: any) => p.is_bot === true);
     if (botPlayer) {
-      console.log('[useBotOpponent] ✅ Bot found:', {
+      devLog('[useBotOpponent] ✅ Bot found:', {
         id: botPlayer.id,
         bot_name: botPlayer.bot_name,
         name: botPlayer.name,
         score: botPlayer.score
       });
     } else {
-      console.log('[useBotOpponent] ⚠️ Bot not found in players');
+      devLog('[useBotOpponent] ⚠️ Bot not found in players');
     }
     botPlayerRef.current = botPlayer || null;
   }, [players]);
@@ -94,7 +96,7 @@ export function useBotOpponent({
       return;
     }
 
-    console.log('[useBotOpponent] 🚀 Hook active for duel:', duelId);
+    devLog('[useBotOpponent] 🚀 Hook active for duel:', duelId);
 
     // Функция для запуска таймера ответа бота
     const startBotAnswerTimer = (questionToAnswer: string, questionIndexToAnswer: number) => {
@@ -103,7 +105,7 @@ export function useBotOpponent({
       const thinkingTime = calculateBotThinkingTime(difficulty);
       const botName = botPlayerRef.current.bot_name || botPlayerRef.current.name || 'Bot';
 
-      console.log(`[useBotOpponent] 🤖 ${botName} thinking about Q${questionIndexToAnswer + 1}/${totalQuestions}... (${(thinkingTime / 1000).toFixed(1)}s)`);
+      devLog(`[useBotOpponent] 🤖 ${botName} thinking about Q${questionIndexToAnswer + 1}/${totalQuestions}... (${(thinkingTime / 1000).toFixed(1)}s)`);
 
       const timer = setTimeout(async () => {
         // Помечаем вопрос как обрабатываемый (чтобы не запустить второй таймер)
@@ -127,7 +129,7 @@ export function useBotOpponent({
             return;
           }
 
-          console.log(`[useBotOpponent] ✅ Bot answered Q${questionIndexToAnswer + 1}:`, {
+          devLog(`[useBotOpponent] ✅ Bot answered Q${questionIndexToAnswer + 1}:`, {
             is_correct: data?.is_correct,
             score: data?.new_score
           });
@@ -177,7 +179,7 @@ export function useBotOpponent({
         if (nextQ) {
           startBotAnswerTimer(nextQ.id, nextQ.position - 1);
         } else {
-          console.log('[useBotOpponent] 🏁 Bot has no more questions to answer');
+          devLog('[useBotOpponent] 🏁 Bot has no more questions to answer');
         }
       } catch (err) {
         console.error('[useBotOpponent] ❌ Error in processBotAnswers:', err);
@@ -192,7 +194,7 @@ export function useBotOpponent({
     const interval = setInterval(processBotAnswers, 3000);
 
     return () => {
-      console.log('[useBotOpponent] 🛑 Cleaning up hook');
+      devLog('[useBotOpponent] 🛑 Cleaning up hook');
       clearInterval(interval);
       activeTimers.current.forEach(clearTimeout);
       activeTimers.current.clear();
@@ -207,7 +209,7 @@ export function useBotOpponent({
   useEffect(() => {
     // Если duelId изменился (не только стал null) — сбрасываем ВСЕ состояние
     if (previousDuelIdRef.current !== duelId) {
-      console.log('[useBotOpponent] 🔄 DuelId changed, resetting ALL state', {
+      devLog('[useBotOpponent] 🔄 DuelId changed, resetting ALL state', {
         from: previousDuelIdRef.current,
         to: duelId
       });
@@ -291,7 +293,7 @@ export function useBotOpponent({
       // Случайная проверка на использование буста
       if (Math.random() < attackChance) {
         try {
-          console.log(`[useBotOpponent] 🤖 Bot is using a boost! (difficulty: ${botDifficulty})`);
+          devLog(`[useBotOpponent] 🤖 Bot is using a boost! (difficulty: ${botDifficulty})`);
 
           // 🔥 Помечаем что атака использована на этом вопросе
           attackUsedForQuestion = true;
@@ -313,7 +315,7 @@ export function useBotOpponent({
             return;
           }
 
-          console.log('[useBotOpponent] ✅ Bot used boost successfully:', {
+          devLog('[useBotOpponent] ✅ Bot used boost successfully:', {
             boost_type: data?.boost_type,
             effect: data?.effect
           });

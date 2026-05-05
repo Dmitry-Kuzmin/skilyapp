@@ -1,5 +1,7 @@
 import { useCallback } from 'react';
 
+const devLog = (...a: any[]) => { if (import.meta.env.DEV) devLog(...a); };
+
 interface UseDuelSyncProps {
   fetchBoostInventory: () => Promise<any[]>;
   fetchBetInfo: () => Promise<any>;
@@ -16,7 +18,7 @@ export function useDuelSync({
   const syncBoostInventory = useCallback(async () => {
     const isTelegram = typeof window !== 'undefined' && window.Telegram?.WebApp;
     // КРИТИЧНО: Версионирование логов для проверки обновления кода
-    console.log('[useDuelSync] 🔄 Starting boost inventory sync [v2]:', {
+    devLog('[useDuelSync] 🔄 Starting boost inventory sync [v2]:', {
       isTelegram,
       platform: isTelegram ? window.Telegram.WebApp.platform : 'browser',
       timestamp: new Date().toISOString(),
@@ -24,7 +26,7 @@ export function useDuelSync({
     });
     try {
       const inventory = await fetchBoostInventory();
-      console.log('[useDuelSync] ✅ Raw inventory loaded:', {
+      devLog('[useDuelSync] ✅ Raw inventory loaded:', {
         count: inventory.length,
         boosts: inventory.map(b => ({ type: b.boost_type, quantity: b.quantity })),
         isTelegram,
@@ -33,7 +35,7 @@ export function useDuelSync({
       // ВАЖНО: Показываем ВСЕ бусты из loadout, даже с количеством 0
       // Фильтр убран, чтобы показывать все 3 слота из loadout
       setBoosts(inventory);
-      console.log('[useDuelSync] ✅ Boosts set in state:', inventory.length);
+      devLog('[useDuelSync] ✅ Boosts set in state:', inventory.length);
     } catch (error) {
       console.error('[useDuelSync] ❌ Error syncing boosts:', {
         error,
