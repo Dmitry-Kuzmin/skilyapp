@@ -301,14 +301,6 @@ export const useDuelStore = create<DuelState>()(
                     }
                 });
 
-                // 🔴 CRITICAL DEBUG: Логируем результат
-                console.error('[duelStore] 🔴 syncActiveExploits RESULT:', {
-                    newMapSize: newMap.size,
-                    newMapKeys: Array.from(newMap.keys()),
-                    newMapEntries: Array.from(newMap.entries()).map(([k, v]) => ({ type: k, id: v.id, expiresAt: v.expiresAt, passed: v.passed })),
-                    hasNewAttack,
-                });
-
                 return {
                     activeExploits: newMap,
                     lastAttackTimestamp: hasNewAttack ? Date.now() : state.lastAttackTimestamp
