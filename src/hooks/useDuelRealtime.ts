@@ -187,28 +187,7 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
         return;
       }
 
-      // КРИТИЧНО: Всегда логируем результат, даже если пустой
-      console.log('[useDuelRealtime] 📊📊📊 Exploit recovery query result 📊📊📊:', {
-        exploitsCount: exploits?.length || 0,
-        exploits: exploits?.map(e => ({
-          id: e.id,
-          type: e.exploit_type,
-          target_player_id: e.target_player_id,
-          attacker_player_id: e.attacker_player_id,
-          is_active: e.is_active,
-          expires_at: e.expires_at,
-          activated_at: e.activated_at,
-          effect_data: e.effect_data
-        })) || [],
-        queryParams: {
-          duelId,
-          targetPlayerId,
-          currentTime: new Date().toISOString()
-        }
-      });
-
       if (exploits && exploits.length > 0) {
-        console.log('[useDuelRealtime] ✅✅✅ Recovered active exploits:', exploits.length, exploits);
         log('[useDuelRealtime] 🔄 Recovered active exploits:', exploits.length);
 
         // Обновляем стейт (добавляем восстановленные атаки)
