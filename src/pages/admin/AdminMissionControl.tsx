@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 import { Badge } from "@/components/ui/badge";
-import { Maximize2, Minimize2, ChevronRight, TestTube2, AlertCircle, Command, Power, LayoutDashboard } from "lucide-react";
+import { Maximize2, Minimize2, ChevronRight, TestTube2, AlertCircle, Command, Power, LayoutDashboard, Copy, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { MissionSidebar } from "@/components/admin/mission-control/MissionSidebar";
 import { MissionImageControl, MissionImageControlHandle } from "@/components/admin/mission-control/MissionImageControl";
 import { MissionTestDashboard } from "@/components/admin/mission-control/MissionTestDashboard";
