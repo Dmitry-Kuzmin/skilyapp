@@ -169,6 +169,13 @@ Cluttered scene, cartoon, low poly, ugly text, huge sci-fi buildings, flying car
 
 GENERATE EXACT SCENE FROM DESCRIPTION.`;
 
+function detectSignOnly(visionAnalysis) {
+    if (typeof visionAnalysis !== 'string') return false;
+    const upper = visionAnalysis.toUpperCase();
+    // Match "IS_SIGN_ONLY: TRUE", "IS_SIGN_ONLY:TRUE", "IS_SIGN_ONLY: YES", etc.
+    return /IS_SIGN_ONLY\s*:\s*(TRUE|YES|1)\b/.test(upper);
+}
+
 // ==========================================
 // STRICT COPY PROMPT (точное копирование + живой фон Испании)
 // ==========================================
