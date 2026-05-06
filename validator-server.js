@@ -140,7 +140,7 @@ async function serveImageWithFallback(req, res, next) {
             await fs.access(testDir);
             const files = await fs.readdir(testDir);
             const cleanId = filename.includes('.') ? filename.split('.')[0] : filename;
-            const match = files.find(f => f.startsWith(cleanId) && f.endsWith('.png'));
+            const match = files.find(f => f.startsWith(cleanId) && f.match(/\.(png|webp|jpg|jpeg)$/i));
             if (match) {
                 targetPath = path.join(testDir, match);
                 fileFound = true;
