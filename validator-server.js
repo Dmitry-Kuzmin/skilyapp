@@ -32,7 +32,7 @@ dotenv.config({ path: '.env.local' });
 // IMAGE_PROVIDER=gemini → uses Gemini API (AI Studio postpay) [default]
 const IMAGE_SCRIPT = (process.env.IMAGE_PROVIDER === 'vertex')
     ? 'scripts/generate-images-vertex.js'
-    : IMAGE_SCRIPT;
+    : 'scripts/generate-images-batch.js';
 
 console.log(`🎨 Image provider: ${process.env.IMAGE_PROVIDER === 'vertex' ? 'Vertex AI (credits)' : 'Gemini API (postpay)'}`);
 console.log('Loading .env...');
