@@ -28,13 +28,20 @@ const NAMESPACE = '1b671a64-40d5-491e-99b0-da01ff1f3341'; // Deterministic Names
 dotenv.config();
 dotenv.config({ path: '.env.local' });
 
-// IMAGE_PROVIDER=vertex → uses Vertex AI (Google Cloud credits)
-// IMAGE_PROVIDER=gemini → uses Gemini API (AI Studio postpay) [default]
-const IMAGE_SCRIPT = (process.env.IMAGE_PROVIDER === 'vertex')
+// IMAGE_PROVIDER=vertex       → Vertex AI: Gemini image gen via GCP (uses GCP credits, best quality)
+// IMAGE_PROVIDER=vertex-imagen → Vertex AI: Imagen 3 via GCP (uses GCP credits, lower quality)
+// IMAGE_PROVIDER=gemini       → Gemini API: Gemini image gen via AI Studio (postpay) [default]
+const IMAGE_SCRIPT = (process.env.IMAGE_PROVIDER === 'vertex' || process.env.IMAGE_PROVIDER === 'vertex-gemini')
     ? 'scripts/generate-images-vertex.js'
     : 'scripts/generate-images-batch.js';
 
-console.log(`🎨 Image provider: ${process.env.IMAGE_PROVIDER === 'vertex' ? 'Vertex AI (credits)' : 'Gemini API (postpay)'}`);
+const providerLabel = {
+    'vertex': 'Vertex AI / Gemini (GCP credits)',
+    'vertex-gemini': 'Vertex AI / Gemini (GCP credits)',
+    'vertex-imagen': 'Vertex AI / Imagen 3 (GCP credits)',
+}[process.env.IMAGE_PROVIDER] || 'Gemini API (AI Studio postpay)';
+
+console.log(`🎨 Image provider: ${providerLabel}`);
 console.log('Loading .env...');
 const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY || process.env.VITE_SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_PUBLISHABLE_KEY;
