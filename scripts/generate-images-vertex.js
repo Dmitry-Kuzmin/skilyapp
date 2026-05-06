@@ -46,7 +46,7 @@ const auth = new GoogleAuth({
 // КОНФИГУРАЦИЯ
 // ==========================================
 const CONFIG = {
-    outputDir: './data/generated-images-vertex',
+    outputDir: './data/generated-images',
     originalsDir: './data/originals',
     checkpointFile: './data/vertex-image-checkpoint.json',
     reviewQueueFile: './data/vertex-review-queue.json',
