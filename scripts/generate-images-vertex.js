@@ -242,7 +242,13 @@ async function analyzeOriginalImage(imageUrl) {
             }
         };
 
-        const result = await visionModel.generateContent([VISION_ANALYSIS_PROMPT, imagePart]);
+        const timeout = new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('Vision timeout after 30s')), 30000)
+        );
+        const result = await Promise.race([
+            visionModel.generateContent([VISION_ANALYSIS_PROMPT, imagePart]),
+            timeout
+        ]);
         const responseData = await result.response;
         const analysis = responseData.text();
 
