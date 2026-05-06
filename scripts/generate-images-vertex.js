@@ -431,7 +431,35 @@ async function processAllQuestions() {
     const limitArg = args.find(a => a.startsWith('--limit='));
     const limit = limitArg ? parseInt(limitArg.split('=')[1]) : Infinity;
 
-    // --ids-file support (used by validator-server dashboard)
+    // Positional JSON file (single-question mode from validator dashboard)
+    const positionalFile = args.find(a => !a.startsWith('--') && a.endsWith('.json'));
+    if (positionalFile) {
+        const questions = JSON.parse(await fs.readFile(positionalFile, 'utf8'));
+        console.log(`📂 Single-question mode: ${questions.length} question(s)`);
+        for (const question of questions) {
+            const testId = question.testId || 'unknown';
+            const testOutputDir = path.join(CONFIG.outputDir, testId);
+            await fs.mkdir(testOutputDir, { recursive: true });
+            const outputPath = path.join(testOutputDir, `${question.id}.png`);
+            const progress = `[1/1]`;
+            console.log(`\n${'='.repeat(70)}`);
+            console.log(`${progress} 🚀 Vertex Processing [${question.id}]`);
+            const visionResult = await analyzeOriginalImage(question.originalUrl || question.image_url);
+            if (!visionResult) console.log(`${progress} ⚠️  Vision недоступен — генерирую только по тексту`);
+            const prompt = preparePrompt(question, visionResult?.analysis || null);
+            console.log(`${progress} 🎨 Vertex Imagen generating...`);
+            const result = await generateImageVertex(prompt);
+            if (result) {
+                await fs.writeFile(outputPath, result.buffer);
+                console.log(`${progress} ✅ SUCCESS! Saved to ${outputPath}`);
+            } else {
+                console.log(`${progress} ❌ FAILED.`);
+            }
+        }
+        return;
+    }
+
+    // --ids-file support (batch mode from validator-server dashboard)
     const idsFileArg = args.find(a => a.startsWith('--ids-file='));
     let allowedIds = null;
     if (idsFileArg) {
