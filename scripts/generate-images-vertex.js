@@ -269,50 +269,55 @@ async function analyzeOriginalImage(imageUrl) {
 }
 
 // ==========================================
-// ГЕНЕРАЦИЯ IMAGEN 3 (Vertex REST API)
+// ГЕНЕРАЦИЯ через Gemini Image Gen (Vertex AI REST API)
+// Использует GCP кредиты, качество как в Gemini API
 // ==========================================
 async function generateImageVertex(prompt, attempt = 1) {
-    console.log(`  🎨 Vertex Imagen generating...`);
+    console.log(`  🎨 Vertex Gemini image generating...`);
 
     try {
         const client = await auth.getClient();
         const accessToken = await client.getAccessToken();
 
-        const url = `https://${LOCATION}-aiplatform.googleapis.com/v1/projects/${PROJECT_ID}/locations/${LOCATION}/publishers/google/models/${IMAGEN_MODEL}:predict`;
+        const url = `https://${LOCATION}-aiplatform.googleapis.com/v1/projects/${PROJECT_ID}/locations/${LOCATION}/publishers/google/models/${GEMINI_IMAGE_MODEL}:generateContent`;
 
         const response = await axios.post(url, {
-            instances: [{ prompt: prompt }],
-            parameters: {
-                sampleCount: 1,
-                aspectRatio: "16:9",
-                safetySetting: "block_only_high",
-                personGeneration: "allow_adult"
+            contents: [
+                {
+                    role: 'user',
+                    parts: [{ text: prompt }]
+                }
+            ],
+            generationConfig: {
+                responseModalities: ['IMAGE', 'TEXT'],
+                temperature: 0.4
             }
         }, {
             headers: {
                 'Authorization': `Bearer ${accessToken.token}`,
                 'Content-Type': 'application/json; charset=utf-8'
             },
-            timeout: 60000 // 60 sec timeout
+            timeout: 90000
         });
 
-        if (response.data.predictions && response.data.predictions.length > 0) {
-            const base64Image = response.data.predictions[0].bytesBase64Encoded;
+        const parts = response.data?.candidates?.[0]?.content?.parts || [];
+        const imagePart = parts.find(p => p.inlineData);
+        if (imagePart) {
             return {
-                buffer: Buffer.from(base64Image, 'base64'),
+                buffer: Buffer.from(imagePart.inlineData.data, 'base64'),
                 prompt: prompt
             };
         } else {
-            throw new Error(`No predictions found: ${JSON.stringify(response.data)}`);
+            throw new Error(`No image in response: ${JSON.stringify(response.data).slice(0, 300)}`);
         }
 
     } catch (error) {
         if (attempt <= CONFIG.maxRetries) {
-            console.error(`   ⚠️  [Попытка ${attempt}/${CONFIG.maxRetries}] (Processing retry) Ошибка Vertex:`, error.message);
+            console.error(`   ⚠️  [Попытка ${attempt}/${CONFIG.maxRetries}] Ошибка Vertex Gemini:`, error.message);
             await new Promise(r => setTimeout(r, 10000));
             return generateImageVertex(prompt, attempt + 1);
         }
-        console.error(`  ❌ Не удалось сгенерировать изображение (Vertex): ${error.message}`);
+        console.error(`  ❌ Не удалось сгенерировать изображение (Vertex Gemini): ${error.message}`);
         return null;
     }
 }
