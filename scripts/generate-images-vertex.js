@@ -32,20 +32,13 @@ if (!GEMINI_API_KEY) {
     console.warn('⚠️ GEMINI_API_KEY не найден! Vision анализ может не работать.');
 }
 
-// Service Account for Generation
-const KEY_FILE = './google-services.json';
-if (!fsSync.existsSync(KEY_FILE)) {
-    console.error('❌ Ошибка: google-services.json не найден!');
-    process.exit(1);
-}
-
 // Инициализация Vision (API Key)
 const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
-const visionModel = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-exp' }); // Experimental 2.0 Flash is available!
+const visionModel = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
-// Инициализация Auth (Vertex Generation)
+// Инициализация Auth (Vertex Generation via ADC)
 const auth = new GoogleAuth({
-    keyFile: KEY_FILE,
+    projectId: PROJECT_ID,
     scopes: ['https://www.googleapis.com/auth/cloud-platform']
 });
 
