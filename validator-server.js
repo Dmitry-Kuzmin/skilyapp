@@ -32,7 +32,7 @@ dotenv.config({ path: '.env.local' });
 // IMAGE_PROVIDER=gemini → uses Gemini API (AI Studio postpay) [default]
 const IMAGE_SCRIPT = (process.env.IMAGE_PROVIDER === 'vertex')
     ? 'scripts/generate-images-vertex.js'
-    : 'scripts/generate-images-batch.js';
+    : IMAGE_SCRIPT;
 
 console.log(`🎨 Image provider: ${process.env.IMAGE_PROVIDER === 'vertex' ? 'Vertex AI (credits)' : 'Gemini API (postpay)'}`);
 console.log('Loading .env...');
@@ -909,7 +909,7 @@ app.post('/api/generate/start', async (req, res) => {
 
         const { limit } = req.body;
 
-        const args = ['scripts/generate-images-batch.js'];
+        const args = [IMAGE_SCRIPT];
         if (limit && limit > 0) {
             args.push('--limit=' + limit);
         }
@@ -1086,7 +1086,7 @@ app.post('/api/generate/test', async (req, res) => {
         const tempFile = './data/temp-generation-ids.json';
         await fs.writeFile(tempFile, JSON.stringify(externalIds));
 
-        generationProcess = spawn('node', ['scripts/generate-images-batch.js', `--ids-file=${tempFile}`], {
+        generationProcess = spawn('node', [IMAGE_SCRIPT, `--ids-file=${tempFile}`], {
             cwd: process.cwd()
         });
 
@@ -1149,7 +1149,7 @@ app.post('/api/generate/category', async (req, res) => {
         const tempFile = './data/temp-generation-ids.json';
         await fs.writeFile(tempFile, JSON.stringify([...new Set(allIds)])); // Deduplicate
 
-        generationProcess = spawn('node', ['scripts/generate-images-batch.js', `--ids-file=${tempFile}`], {
+        generationProcess = spawn('node', [IMAGE_SCRIPT, `--ids-file=${tempFile}`], {
             cwd: process.cwd()
         });
 
@@ -1343,7 +1343,7 @@ app.post('/api/generate/single', async (req, res) => {
 
         // Run generation script
         const genProcess = spawn('node', [
-            'scripts/generate-images-batch.js',
+            IMAGE_SCRIPT,
             tempQuestionFile
         ], {
             cwd: process.cwd(),
