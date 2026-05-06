@@ -19,7 +19,7 @@ import path from 'path';
 import dotenv from 'dotenv';
 
 // Настройки Vertex AI (Generation)
-const PROJECT_ID = 'gen-lang-client-0120490543';
+const PROJECT_ID = process.env.GOOGLE_CLOUD_PROJECT || 'project-99a9f156-e240-4933-b74';
 const LOCATION = 'us-central1';
 const IMAGEN_MODEL = 'imagen-3.0-generate-001'; // Reverting to Standard Imagen 3
 
