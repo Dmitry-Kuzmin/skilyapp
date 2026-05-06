@@ -2754,7 +2754,7 @@ app.get('/api/candidates/:testId/:uuid', async (req, res) => {
         if (bareUuid !== uuid) searchUuids.push(bareUuid);
 
         for (const file of files) {
-            if (!file.endsWith('.png')) continue; // Only source pngs are candidates
+            if (!file.match(/\.(png|webp|jpg|jpeg)$/i)) continue; // Support image formats: png, webp, jpg
 
             let isMatch = false;
             let matchedUuid = null;
