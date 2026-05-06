@@ -2760,11 +2760,12 @@ app.get('/api/candidates/:testId/:uuid', async (req, res) => {
             let matchedUuid = null;
 
             for (const searchId of searchUuids) {
-                // Check if file match: either exact searchId.png OR searchId_timestamp...
-                const isExact = file === `${searchId}.png`;
-                const isVersion = file.startsWith(searchId + '_') && file.match(new RegExp(`^${searchId}_\\d+(?:_[a-zA-Z0-9]+)?\\.png$`));
+                // Check if file match: either exact searchId.ext OR searchId_timestamp...
+                const hasExt = /\.(png|webp|jpg|jpeg)$/i;
+                const isExact = file.startsWith(searchId) && file.match(new RegExp(`^${searchId}(?:\\.[a-z0-9]+)?$`, 'i'));
+                const isVersion = file.startsWith(searchId + '_') && file.match(new RegExp(`^${searchId}_\\d+(?:_[a-zA-Z0-9]+)?\\.(png|webp|jpg|jpeg)$`, 'i'));
 
-                if (isExact || isVersion) {
+                if ((isExact || isVersion) && hasExt.test(file)) {
                     isMatch = true;
                     matchedUuid = searchId;
                     break;
