@@ -1,0 +1,146 @@
+STYLE: Unreleased Unreal Engine 5 rendering. Spanish DGT Driving Test Digital Twin.
+
+## VISUAL SPECS:
+- PROJECTION: Isometric Top-Down (45°).
+- RENDER: Photorealistic, 8K textures, Ray-traced lighting (Daylight).
+- COMPOSITION: Full-frame, edge-to-edge terrain (NO black voids).
+
+## SIGNAGE RULES (CRITICAL & STRICT):
+- **NO TEXT CODES**: NEVER, EVER write the sign code (e.g. "R-500", "P-18", "S-28") on the sign or road.
+- **NO SUPPLEMENTARY PLATES**: Do NOT draw small rectangular plates (White or Yellow) below the sign with text. The pole must be BARE.
+- **CONSTRUCTION SIGNS (Obras)**: Draw ONLY the **Yellow Triangle with Worker Symbol**. ABOLISH the yellow square plate with "Obras" or "P-18".
+- **VISUAL ONLY**: If prompt says "End of Restriction", draw a **White Circle with Black Diagonal Line**. DO NOT WRITE text.
+- **PURE SYMBOLS**: 
+    - "Stop" -> Red Octagon with "STOP" (Allowed).
+    - "Yield" -> Red/White Inverted Triangle (No text).
+    - "Speed Limit 50" -> Red Circle with "50". 
+    - "Construction" -> Yellow Triangle with Worker Icon. NO TEXT.
+- **FAIL CONDITION**: If the image contains text like "R-500", "P-18", "Obras", or a text plate, the generation is a FAILURE.
+
+## NEGATIVE PROMPT (AVOID THESE AT ALL COSTS):
+- **TEXT LABELS**: "R-500", "P-18", "Obras", "R-407a", "End", "Speed", "Limit", "Zona".
+- **FLOATING UI**: White boxes with text, HUD elements, code identifiers.
+- **SIGN CAPTIONS**: Rectangular plates (White/Yellow) attached to sign poles.
+- **AMERICAN MARKINGS**: Double yellow lines (use White).
+- **HALLUCINATED SIGNS**: Do not add random signs not requested.
+- **Watermarks, Captions, Subtitles**.
+
+## INFRASTRUCTURE:
+1. AUTOPISTA: DUAL carriageway. MUST have PHYSICAL MEDIAN (concrete/grass).
+2. CONVENTIONAL: Single carriageway. Dashed/Solid center line. Two-way traffic.
+3. URBAN: Curbs, sidewalks, buildings.
+
+## VEHICLES:
+- MODELS: Modern 2024+ European & Electric (Tesla Model 3/Y, Cupra Formentor, Polestar, Audi Q4, Renault Megane E-Tech, Seat Leon).
+- DETAIL: Realistic lights, glass, tires.
+- PLACEMENT: Strictly centered in lanes (unless overtaking/parking).
+
+## OVERLAYS:
+- ARROWS: Orange (#FF8C00), 3D projected on road, smooth curves.
+- LOGIC: Show SAFE, LEGAL paths only.
+
+## LOGIC CHECKS:
+- ONE-WAY vs TWO-WAY: Check center line consistency.
+- SIGNS vs LANES: 3-lane sign requires 3 actual lanes.
+- BARRIERS: High speed = Barrier required.
+
+## SPANISH ATMOSPHERE & MODERN INFRASTRUCTURE (MANDATORY: INCLUDE AT LEAST 1 MODERN ELEMENT IF FITTING):
+- **MODERN DGT & EU INFRASTRUCTURE (2025+)**:
+   - **V-16 Warning Beacon**: **STRICTLY CONDITIONAL**: Draw ONLY if car is BROKEN DOWN, STOPPED on shoulder, or in ACCIDENT. Small orange magnetic light on roof. **NEVER** on moving traffic.
+   - **Dragon Teeth & Broken Lines**: White triangles or zig-zag lines on lane edges ("Dientes de Dragón") to induce slowing down.
+   - **Green Lines (Markings)**: Inner paint lines parallel to shoulder to visually narrow the road (Speed reduction).
+   - **ZBE & Shared Zones**: "Zona Bajas Emisiones" signs or Blue "S-43" Shared Space signs (Pedestrian+Bike+Scooter).
+   - **Smart Roads**: Digital Matrix Signs on gantries showing variable limits or "Cyclist Detected" warnings.
+   - **EV Hubs**: Ultra-modern "Ionity/Tesla" style charging stations with green ambient lighting (Background).
+   - **Blue/Green Lanes**: "Carril Bici" or "Ciclocalle" markings with red/terracotta paint.
+
+- **STREET LIFE (Inject Life - Subtly)**:
+   - "Bar" terraces with metal tables.
+   - "Farmacia" (Green LED cross).
+   - "Tabacos" (Yellow flag).
+   - "Kiosco" (Newsstand).
+   - **Robots (Unique to Urban)**: "Goggo" 6-wheeled rovers on sidewalk.
+   - **Drones (Rare)**: High-altitude delivery drone (subtle).
+   - **Traffic**: Modern electric buses (Irizar), VMP Scooters (in bike lanes only).
+
+## 🌍 LOCATION & ATMOSPHERE (STRICTLY ENFORCE):
+- **REGION**: Galicia (Rural)
+- **VISUAL STYLE**: Stone houses with slate roofs, eucalyptus forests, hydrangeas on roadside.
+- **WEATHER**: Foggy, Misty, Soft diffused light
+
+## 🎨 SCENIC ELEMENT (DIRECTOR'S TOUCH):
+- **BACKGROUND**: Include None (Clean Sky) in the background/sky.
+
+**IMPORTANT: BE SUBTLE. DO NOT CROWD THE ROAD, BUT MAKE THE HORIZON ALIVE. TRAFFIC LOGIC IS SACRED, BACKGROUND IS ART.**
+**IMPORTANT: BE SUBTLE. DO NOT CROWD THE SCENE. LET THE AI CHOOSE THE BEST VIBE.**
+
+GENERATE EXACT SCENE FROM DESCRIPTION.
+
+## SCENE TO GENERATE:
+Based on original DGT test image analysis:
+Here is a detailed analysis of the image components for 3D recreation, from the perspective of a DGT Traffic Safety Expert:
+
+1.  **VIEWPOINT:** Driver POV (Point of View), specifically a close-up of the central console of a vehicle's dashboard. The angle is slightly from above and to the left, looking down and towards the right at the control panel.
+
+2.  **VEHICLES:**
+    *   The image is taken from *inside* a vehicle. Only a portion of its dashboard and central console is visible. No other vehicles are present in the image.
+    *   SHOULDER CHECK: Not applicable as no external vehicles or road are visible.
+
+3.  **INFRASTRUCTURE:**
+    *   Type: The visible elements are internal components of a vehicle (dashboard, central console buttons). No external road infrastructure (e.g., Autopista, Conventional road, Urban street) is visible.
+    *   Lane count & Surface: Not applicable.
+    *   TEMPORARY: Not applicable.
+
+4.  **SIGNS:** (Interpreted as symbols on vehicle controls)
+    *   **Main control:** A prominent, illuminated red equilateral triangular button. Inside, it features a white outline of a larger triangle, which in turn contains a smaller white outline of a triangle. All triangles are oriented with their bases downwards and apexes pointing upwards. This symbol represents the hazard warning lights.
+    *   **Button to the left of the main control:** A black rectangular button with a white outline symbol depicting an open padlock, facing towards the right, with a short vertical line positioned immediately to its right.
+    *   **Button further to the left (partially visible):** A black rectangular button with a white symbol of a car seat, from which three wavy lines ascend, indicating a heating function.
+    *   **Row of buttons above the main control:** Several smaller black rectangular buttons.
+        *   One button shows white text: "SCAN".
+        *   Another button shows white text: "INFO".
+        *   A third button shows white text: "SETUP".
+        *   To the far right of this row, another button features a white musical note symbol.
+
+5.  **MARKINGS:**
+    *   No road markings (center lines, dashed lines, etc.) are visible. The visible markings are the symbols and text labels on the vehicle's control buttons.
+    *   Arrows/Crosswalks: Not applicable.
+
+6.  **TRAFFIC FLOW:**
+    *   No external traffic flow is discernible as the image is confined to the vehicle's interior.
+    *   Detect contradictions: Not applicable.
+
+7.  **ENVIRONMENT:**
+    *   Lighting: The vehicle's interior appears well-lit, possibly by ambient daylight from windows or internal cabin lighting. The red hazard button is actively illuminated, suggesting it's either just been pressed or is in an active state.
+    *   Weather: Not discernible from the interior view.
+    *   Surrounding: The immediate surrounding is the interior cabin of a car. No external urban or rural environment is visible.
+
+8.  **SCENARIO:**
+    The scenario depicts a human finger, positioned to be pressing or having just pressed, the red triangular hazard warning light button located on the central console of a vehicle's dashboard. This action initiates or deactivates the vehicle's hazard lights. A metallic key ring is blurred in the background on the far left.
+
+9.  **TRAJECTORIES:**
+    *   No arrow paths or trajectories related to movement are present in the image.
+
+## CONTEXT FROM EXPERT EXPLANATION:
+"According to the General Vehicle Regulations, hazard warning lights must be used to warn of a vehicle posing a danger due to breakdown, accident, or other emergency, whether stationary or moving at an abnormally low speed. On motorways and dual carriageways, any immobilization of the vehicle on the roadway or shoulder for these reasons requires immediate signaling. Its use is mandatory for all motor vehicles, except for motorcycles, for which it is optional."
+
+
+## QUESTION CONTEXT:
+"¿Cuándo es obligatorio utilizar la luz de emergencia?"
+
+## ANSWERS CONTEXT:
+- Cuando se estacione el vehículo en doble fila.
+- [CORRECT ANSWER] Cuando se inmovilice el vehículo en una autopista.
+- Cuando se reduzca la velocidad en carretera.
+
+Recreate this EXACT scene with improvements.
+
+
+
+
+
+## CRITICAL CONSTRAINTS:
+- Road markings: WHITE ONLY
+- NO text labels
+- Trajectory arrows must show SAFE paths
+
+GENERATE EXACT SCENE.
