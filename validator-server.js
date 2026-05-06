@@ -26,7 +26,15 @@ import crypto from 'crypto';
 const NAMESPACE = '1b671a64-40d5-491e-99b0-da01ff1f3341'; // Deterministic Namespace
 
 dotenv.config();
+dotenv.config({ path: '.env.local' });
 
+// IMAGE_PROVIDER=vertex → uses Vertex AI (Google Cloud credits)
+// IMAGE_PROVIDER=gemini → uses Gemini API (AI Studio postpay) [default]
+const IMAGE_SCRIPT = (process.env.IMAGE_PROVIDER === 'vertex')
+    ? 'scripts/generate-images-vertex.js'
+    : 'scripts/generate-images-batch.js';
+
+console.log(`🎨 Image provider: ${process.env.IMAGE_PROVIDER === 'vertex' ? 'Vertex AI (credits)' : 'Gemini API (postpay)'}`);
 console.log('Loading .env...');
 const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY || process.env.VITE_SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_PUBLISHABLE_KEY;
