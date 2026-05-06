@@ -432,11 +432,21 @@ async function processAllQuestions() {
     const limitArg = args.find(a => a.startsWith('--limit='));
     const limit = limitArg ? parseInt(limitArg.split('=')[1]) : Infinity;
 
-    // Manual ID file processing (optional)
-    const inputFileArg = args.find(a => !a.startsWith('--') && a.endsWith('.json'));
-    // Simplified for now, relying on enriched scan or limit
+    // --ids-file support (used by validator-server dashboard)
+    const idsFileArg = args.find(a => a.startsWith('--ids-file='));
+    let allowedIds = null;
+    if (idsFileArg) {
+        const idsFile = idsFileArg.split('=')[1];
+        const ids = JSON.parse(await fs.readFile(idsFile, 'utf8'));
+        allowedIds = new Set(ids);
+        console.log(`📋 IDs from file: ${allowedIds.size}`);
+    }
 
-    let toProcess = Array.from(questionsMap.values()).filter(q => !checkpoint.processed.has(q.id));
+    let toProcess = Array.from(questionsMap.values()).filter(q => {
+        if (checkpoint.processed.has(q.id)) return false;
+        if (allowedIds && !allowedIds.has(q.id)) return false;
+        return true;
+    });
 
     if (limit < toProcess.length) {
         toProcess = toProcess.slice(0, limit);
