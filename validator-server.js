@@ -2786,7 +2786,7 @@ app.get('/api/candidates/:testId/:uuid', async (req, res) => {
                     url: `http://localhost:${PORT}/generated-images/${testId}/${file}`, // Use middleware URL
                     timestamp: stat.mtimeMs,
                     size: stat.size,
-                    isMain: file === `${matchedUuid}.png` || file === `${uuid}.png`,
+                    isMain: file.match(new RegExp(`^${matchedUuid}(?:\\.[a-z0-9]+)?$`, 'i')),
                     model: model
                 });
             }
