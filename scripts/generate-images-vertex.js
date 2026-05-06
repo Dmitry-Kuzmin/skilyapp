@@ -21,8 +21,7 @@ import dotenv from 'dotenv';
 // Настройки Vertex AI (Generation)
 const PROJECT_ID = process.env.GOOGLE_CLOUD_PROJECT || 'project-99a9f156-e240-4933-b74';
 const LOCATION = 'us-central1';
-// Gemini image gen via Vertex (uses GCP credits, same quality as Gemini API)
-const GEMINI_IMAGE_MODEL = 'gemini-2.0-flash-exp';
+const IMAGEN_MODEL = 'imagen-3.0-generate-001';
 
 dotenv.config();
 dotenv.config({ path: '.env.local' });
