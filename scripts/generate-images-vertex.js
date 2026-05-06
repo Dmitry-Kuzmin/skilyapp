@@ -34,7 +34,7 @@ if (!GEMINI_API_KEY) {
 
 // Инициализация Vision (API Key)
 const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
-const visionModel = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+const visionModel = genAI.getGenerativeModel({ model: 'gemini-2.5-flash-preview-05-20' });
 
 // Инициализация Auth (Vertex Generation via ADC)
 const auth = new GoogleAuth({
