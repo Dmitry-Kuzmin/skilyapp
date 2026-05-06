@@ -482,12 +482,14 @@ async function processAllQuestions() {
             continue;
         }
 
-        // 1. Vision Analysis
+        // 1. Vision Analysis (optional — skip if URL unavailable)
         const visionResult = await analyzeOriginalImage(question.originalUrl);
-        if (!visionResult) continue;
+        if (!visionResult) {
+            console.log(`${progress} ⚠️  Vision недоступен — генерирую только по тексту`);
+        }
 
         // 2. Prepare Prompt
-        const prompt = preparePrompt(question, visionResult.analysis);
+        const prompt = preparePrompt(question, visionResult?.analysis || null);
 
         // 3. Generate Image
         console.log(`${progress} 🎨 Vertex Imagen generating...`);
