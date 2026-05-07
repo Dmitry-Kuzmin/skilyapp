@@ -589,6 +589,34 @@ const TestResults = () => {
     );
   }
 
+  const handleRetry = () => {
+    if (!state) return;
+
+    // Smart retry logic based on mode
+    if (mode === 'exam' || mode === 'exam-russia') {
+      navigate('/test/' + mode, { replace: true });
+    } else if (mode === 'marathon') {
+      navigate('/games/road-race', { replace: true });
+    } else if (mode === 'mastery') {
+      navigate('/test/mastery', { replace: true });
+    } else if (mode === 'sequential' && state.testId) {
+      navigate(`/test/sequential/${state.testId}`, { replace: true });
+    } else if (mode === 'challenge-bank') {
+      navigate('/test/challenge-bank', { replace: true });
+    } else if (mode === 'error-bank') {
+      navigate('/tests/error-bank', { replace: true });
+    } else if (mode === 'favorites') {
+      navigate('/tests/favorites', { replace: true });
+    } else if (mode === 'topics' && state.questions[0]?.topics?.title_es) {
+      // For DGT topic tests, we might need a more complex redirect if we had a topic ID
+      // but usually navigating to topic list or restarting practice is a safe fallback
+      navigate('/test/practice', { replace: true });
+    } else {
+      // Default fallback
+      navigate('/test/practice', { replace: true });
+    }
+  };
+
   // Show celebration flow first (authenticated users with reward data only)
   if (!celebrationDone && !isGuest && rewardResult && totalQuestions > 0) {
     const celebrationData: CelebrationData = {
@@ -610,7 +638,8 @@ const TestResults = () => {
     return (
       <TestResultsCelebrationFlow
         data={celebrationData}
-        onDone={() => setCelebrationDone(true)}
+        onFinish={() => setCelebrationDone(true)}
+        onRetry={handleRetry}
       />
     );
   }
@@ -822,7 +851,7 @@ const TestResults = () => {
                 <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-gradient-to-r from-indigo-500 to-violet-600" />
                 <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/40 to-transparent" />
                 <span className="relative z-10 text-base font-black text-white tracking-wide flex items-center justify-center gap-2">
-                  <span>🎯</span>
+                  <Target className="w-5 h-5" />
                   {guestPlanText({
                     ru: "Сохранить план и забрать 100 монет",
                     es: "Guardar mi plan y reclamar 100 monedas",

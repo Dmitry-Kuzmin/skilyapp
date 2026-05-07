@@ -21,6 +21,7 @@ import {
   Target,
   Rocket,
   AlertCircle,
+  Clock,
 } from 'lucide-react';
 import { UserAvatar } from '@/components/UserAvatar';
 import { UserContext } from '@/contexts/UserContext';
@@ -66,7 +67,8 @@ export interface CelebrationData {
 
 interface Props {
   data: CelebrationData;
-  onDone: () => void;
+  onFinish: () => void;
+  onRetry?: () => void;
 }
 
 // ─── Safe-area constants ─────────────────────────────────────────────────────
@@ -153,15 +155,16 @@ function fmtTime(s: number) {
 
 // ─── Slide backgrounds & sounds ──────────────────────────────────────────────
 
-type SlideId = 'result' | 'sp' | 'personal_best' | 'xp' | 'topics' | 'cta';
+type SlideId = 'result' | 'sp' | 'personal_best' | 'xp' | 'exam_readiness' | 'topics' | 'cta';
 
 const SLIDE_STYLES: Record<SlideId, { bg: string; glow: string; sparkle: string }> = {
-  result:        { bg: 'from-[#050505] via-[#0a0a0c] to-[#050505]', glow: '', sparkle: 'transparent' },
-  sp:            { bg: 'from-zinc-950 via-indigo-950/40 to-zinc-950', glow: 'bg-indigo-500/20', sparkle: '#818cf8' },
-  personal_best: { bg: 'from-zinc-950 via-emerald-950/40 to-zinc-950', glow: 'bg-emerald-500/20', sparkle: '#10b981' },
-  xp:            { bg: 'from-zinc-950 via-amber-950/40 to-zinc-950',  glow: 'bg-amber-500/20',  sparkle: '#fbbf24' },
-  topics:        { bg: 'from-zinc-950 via-orange-950/40 to-zinc-950', glow: 'bg-orange-500/15', sparkle: '#fb923c' },
-  cta:           { bg: 'from-zinc-950 via-violet-950/40 to-zinc-950', glow: 'bg-violet-500/15', sparkle: '#a78bfa' },
+  result:          { bg: 'from-[#050505] via-[#0a0a0c] to-[#050505]', glow: '', sparkle: 'transparent' },
+  sp:              { bg: 'from-zinc-950 via-indigo-950/40 to-zinc-950', glow: 'bg-indigo-500/20', sparkle: '#818cf8' },
+  personal_best:   { bg: 'from-zinc-950 via-emerald-950/40 to-zinc-950', glow: 'bg-emerald-500/20', sparkle: '#10b981' },
+  xp:              { bg: 'from-zinc-950 via-amber-950/40 to-zinc-950',  glow: 'bg-amber-500/20',  sparkle: '#fbbf24' },
+  exam_readiness:  { bg: 'from-zinc-950 via-cyan-950/40 to-zinc-950',  glow: 'bg-cyan-500/20',   sparkle: '#06b6d4' },
+  topics:          { bg: 'from-zinc-950 via-orange-950/40 to-zinc-950', glow: 'bg-orange-500/15', sparkle: '#fb923c' },
+  cta:             { bg: 'from-zinc-950 via-violet-950/40 to-zinc-950', glow: 'bg-violet-500/15', sparkle: '#a78bfa' },
 };
 
 // ─── Individual slides ───────────────────────────────────────────────────────
@@ -855,15 +858,21 @@ function SlideCTA({ data, onRetry, onDetails }: { data: CelebrationData; onRetry
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.55 }} className="flex flex-col w-full gap-3 mt-4">
           <button
             onClick={onRetry}
-            className="w-full py-5 rounded-[2rem] bg-white text-zinc-950 font-black text-lg tracking-wide active:scale-95 transition-all shadow-[0_20px_40px_-10px_rgba(255,255,255,0.3)]"
+            className="w-full py-5 rounded-[2rem] bg-white text-zinc-950 font-black text-lg tracking-wide active:scale-95 transition-all shadow-[0_20px_40px_-10px_rgba(255,255,255,0.3)] flex items-center justify-center gap-3 group"
           >
-            {data.isPassed ? '🚀 Следующий тест' : '🔄 Попробовать снова'}
+            {data.isPassed ? (
+              <Rocket className="w-5 h-5 text-violet-600 group-hover:translate-x-1 transition-transform" />
+            ) : (
+              <RefreshCw className="w-5 h-5 text-indigo-600 group-hover:rotate-180 transition-transform duration-500" />
+            )}
+            <span>{data.isPassed ? 'Следующий тест' : 'Попробовать снова'}</span>
           </button>
           <button
             onClick={onDetails}
-            className="w-full py-4 rounded-[1.5rem] border border-white/10 text-white/50 font-bold text-sm hover:bg-white/5 transition-all"
+            className="w-full py-4 rounded-[1.5rem] border border-white/10 text-white/50 font-bold text-sm hover:bg-white/5 transition-all flex items-center justify-center gap-2"
           >
-            Детали теста →
+            <Clock className="w-4 h-4" />
+            <span>Детали теста</span>
           </button>
         </motion.div>
       </motion.div>
@@ -882,7 +891,7 @@ const SLIDE_SOUNDS: Record<SlideId, () => void> = {
   cta:           () => {},
 };
 
-export function TestResultsCelebrationFlow({ data, onDone }: Props) {
+export function TestResultsCelebrationFlow({ data, onFinish, onRetry }: Props) {
   const userCtx = useContext(UserContext);
   const currentUserId = userCtx?.profileId ?? undefined;
 
@@ -894,6 +903,18 @@ export function TestResultsCelebrationFlow({ data, onDone }: Props) {
     ...(data.failedTopics.length > 0 ? ['topics' as SlideId] : []),
     'cta',
   ];
+
+  const handleDone = () => {
+    onFinish();
+  };
+
+  const handleRetry = () => {
+    if (onRetry) {
+      onRetry();
+    } else {
+      onFinish();
+    }
+  };
 
   const [current, setCurrent] = useState(0);
   const [direction, setDirection] = useState(1);
@@ -1009,7 +1030,7 @@ export function TestResultsCelebrationFlow({ data, onDone }: Props) {
         <SlideDots total={slides.length} current={current} />
         {slideId !== 'cta' && (
           <button
-            onClick={(e) => { e.stopPropagation(); onDone(); }}
+            onClick={(e) => { e.stopPropagation(); handleDone(); }}
             className="text-white/30 text-sm font-medium hover:text-white/60 transition-colors"
           >
             Пропустить
@@ -1042,8 +1063,8 @@ export function TestResultsCelebrationFlow({ data, onDone }: Props) {
             )}
             {slideId === 'personal_best' && <SlidePersonalBest data={data} personalBest={personalBest} />}
             {slideId === 'xp'     && <SlideXP data={data} />}
-            {slideId === 'topics' && <SlideTopics topics={data.failedTopics} onPractice={onDone} />}
-            {slideId === 'cta'    && <SlideCTA data={data} onRetry={onDone} onDetails={onDone} />}
+            {slideId === 'topics' && <SlideTopics topics={data.failedTopics} onPractice={handleDone} />}
+            {slideId === 'cta'    && <SlideCTA data={data} onRetry={handleRetry} onDetails={handleDone} />}
           </div>
         </motion.div>
       </AnimatePresence>
