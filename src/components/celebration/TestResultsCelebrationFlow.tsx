@@ -228,7 +228,247 @@ function SlideResult({ data }: { data: CelebrationData }) {
   );
 }
 
-function SlideSP({ data }: { data: CelebrationData }) {
+// ─── Leaderboard climb mini-table ─────────────────────────────────────────────
+
+type ClimbRow = {
+  key: string;
+  isYou: boolean;
+  name: string;
+  sp: number;
+  rank: number;
+  userId?: string;
+  photoUrl?: string | null;
+};
+
+function ClimbAvatar({ row }: { row: ClimbRow }) {
+  if (row.isYou && row.userId) {
+    return (
+      <UserAvatar
+        profileId={row.userId}
+        size="sm"
+        showPremiumGlow={false}
+        avatarClassName="rounded-full"
+        className="rounded-full ring-2 ring-indigo-400 shrink-0"
+      />
+    );
+  }
+  if (row.photoUrl) {
+    return (
+      <img
+        src={row.photoUrl}
+        alt={row.name}
+        className="w-8 h-8 rounded-full ring-1 ring-white/10 object-cover shrink-0"
+        loading="lazy"
+      />
+    );
+  }
+  return (
+    <div className="w-8 h-8 rounded-full bg-white/10 ring-1 ring-white/10 shrink-0 flex items-center justify-center text-xs font-bold text-white/60">
+      {row.name.charAt(0).toUpperCase()}
+    </div>
+  );
+}
+
+function LeaderboardClimb({
+  rankChange,
+  userId,
+  onOpenLeaderboard,
+}: {
+  rankChange: RankChange;
+  userId?: string;
+  onOpenLeaderboard: () => void;
+}) {
+  const { prev_rank, new_rank, overtaken } = rankChange;
+  const climbed = new_rank < prev_rank;
+  const overtakenCount = climbed ? prev_rank - new_rank : 0;
+
+  // Build initial (pre-climb) row order: overtaken users above YOU, sorted by SP desc.
+  // After climb: YOU jumps to the top of this group.
+  const youName = 'Ты';
+  const overtakenRows: ClimbRow[] = overtaken
+    .slice(0, 2)
+    .map((u) => ({
+      key: `o-${u.user_id}`,
+      isYou: false,
+      name: u.first_name || u.username || 'Игрок',
+      sp: u.sp,
+      rank: 0,
+      userId: u.user_id,
+      photoUrl: u.photo_url,
+    }))
+    .sort((a, b) => b.sp - a.sp);
+
+  const youRow: ClimbRow = {
+    key: 'you',
+    isYou: true,
+    name: youName,
+    sp: 0,
+    rank: prev_rank,
+    userId,
+  };
+
+  // Pre-climb: overtaken rows above, YOU below (rank order)
+  const initialOrder: ClimbRow[] = climbed && overtakenRows.length > 0
+    ? [...overtakenRows, youRow]
+    : [youRow, ...overtakenRows];
+
+  // Post-climb: YOU on top, then overtaken rows below
+  const finalOrder: ClimbRow[] = climbed && overtakenRows.length > 0
+    ? [youRow, ...overtakenRows]
+    : [youRow, ...overtakenRows];
+
+  // Assign final ranks based on new_rank for YOU and consecutive ranks for overtaken
+  const withFinalRanks = finalOrder.map((row, i) => {
+    if (row.isYou) return { ...row, rank: new_rank };
+    const beforeYouCount = finalOrder.slice(0, i).filter(r => !r.isYou).length;
+    return { ...row, rank: new_rank + i - (i > finalOrder.findIndex(r => r.isYou) ? 0 : 0) + beforeYouCount + 1 };
+  });
+
+  // Simpler: derive ranks linearly — YOU is at new_rank, overtaken rows are at new_rank+1, +2 below
+  const finalRows: ClimbRow[] = finalOrder.map((row, i) => {
+    if (row.isYou) return { ...row, rank: new_rank };
+    const youIdx = finalOrder.findIndex(r => r.isYou);
+    const offsetFromYou = i - youIdx;
+    return { ...row, rank: new_rank + offsetFromYou };
+  });
+
+  const initialRows: ClimbRow[] = initialOrder.map((row) => {
+    if (row.isYou) return { ...row, rank: prev_rank };
+    const matched = overtaken.find(o => `o-${o.user_id}` === row.key);
+    if (!matched) return row;
+    // pre-climb rank of overtaken user = position based on their SP relative to prev YOU
+    const idx = overtaken.findIndex(o => `o-${o.user_id}` === row.key);
+    return { ...row, rank: prev_rank - 1 - idx };
+  });
+
+  const [order, setOrder] = useState<ClimbRow[]>(initialRows);
+  const [animating, setAnimating] = useState(false);
+  const triggeredRef = useRef(false);
+
+  useEffect(() => {
+    if (triggeredRef.current || !climbed || overtakenRows.length === 0) return;
+    triggeredRef.current = true;
+    const t = setTimeout(() => {
+      setAnimating(true);
+      setOrder(finalRows);
+      try { haptics.medium(); } catch {}
+      try { playCelebrationSoundPop(); } catch {}
+      setTimeout(() => {
+        try { haptics.success(); } catch {}
+      }, 600);
+    }, 1500);
+    return () => clearTimeout(t);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  if (!climbed && overtakenRows.length === 0) {
+    // Graceful fallback: just show current position
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.7 }}
+        className="w-full max-w-xs flex flex-col items-center gap-2"
+      >
+        <div className="px-4 py-2.5 rounded-2xl bg-white/5 border border-white/10 text-center">
+          <span className="text-white/40 text-xs uppercase tracking-widest font-bold">Твоё место</span>
+          <div className="text-white text-2xl font-black tabular-nums">#{new_rank}</div>
+        </div>
+        <button
+          onClick={onOpenLeaderboard}
+          className="text-white/50 text-xs font-semibold underline-offset-4 hover:text-white/80 transition-colors"
+        >
+          Открыть полный лидерборд →
+        </button>
+      </motion.div>
+    );
+  }
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.6 }}
+      className="w-full max-w-xs flex flex-col gap-2.5"
+    >
+      <div className="flex items-center justify-between text-[10px] uppercase tracking-widest font-black text-white/40 px-1">
+        <span>Лидерборд сезона</span>
+        <motion.span
+          key={animating ? 'after' : 'before'}
+          initial={{ opacity: 0, y: -4 }}
+          animate={{ opacity: 1, y: 0 }}
+          className={cn('font-mono', climbed && animating ? 'text-emerald-400' : 'text-white/40')}
+        >
+          {climbed && animating ? `↑ #${prev_rank} → #${new_rank}` : `#${prev_rank}`}
+        </motion.span>
+      </div>
+
+      <div className="flex flex-col gap-1.5 relative">
+        <AnimatePresence initial={false}>
+          {order.map((row) => (
+            <motion.div
+              key={row.key}
+              layout
+              layoutId={`climb-${row.key}`}
+              initial={false}
+              animate={{ opacity: 1 }}
+              transition={{
+                layout: { type: 'spring', stiffness: 380, damping: 30 },
+                opacity: { duration: 0.2 },
+              }}
+              className={cn(
+                'flex items-center gap-3 px-3 py-2 rounded-xl border',
+                row.isYou
+                  ? 'bg-gradient-to-r from-indigo-500/30 via-violet-500/25 to-indigo-500/30 border-indigo-400/40 shadow-[0_8px_24px_-8px_rgba(99,102,241,0.5)]'
+                  : 'bg-white/[0.03] border-white/[0.06]'
+              )}
+            >
+              <span className={cn(
+                'w-7 text-center text-xs font-black tabular-nums',
+                row.isYou ? 'text-white' : 'text-white/40'
+              )}>
+                #{row.rank}
+              </span>
+              <ClimbAvatar row={row} />
+              <span className={cn(
+                'flex-1 text-sm font-semibold truncate',
+                row.isYou ? 'text-white' : 'text-white/70'
+              )}>
+                {row.name}
+              </span>
+              <span className={cn(
+                'text-xs font-mono font-black tabular-nums shrink-0',
+                row.isYou ? 'text-indigo-200' : 'text-white/50'
+              )}>
+                {row.isYou && animating ? `${(rankChange.overtaken[0]?.sp ?? 0) + 1}+` : row.sp.toLocaleString('ru-RU')}
+                <span className="opacity-50 ml-0.5 text-[9px]">SP</span>
+              </span>
+            </motion.div>
+          ))}
+        </AnimatePresence>
+      </div>
+
+      {climbed && animating && overtakenCount > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+          className="text-center text-emerald-400/90 text-xs font-bold mt-1"
+        >
+          Ты обогнал {overtakenCount} {overtakenCount === 1 ? 'игрока' : 'игроков'} 🚀
+        </motion.div>
+      )}
+
+      <button
+        onClick={onOpenLeaderboard}
+        className="text-white/50 text-xs font-semibold underline-offset-4 hover:text-white/80 transition-colors mt-1"
+      >
+        Открыть полный лидерборд →
+      </button>
+    </motion.div>
+  );
+}
+
+function SlideSP({ data, onOpenLeaderboard, currentUserId }: { data: CelebrationData; onOpenLeaderboard: () => void; currentUserId?: string }) {
   const sp = useCountUp(data.spAwarded, 400);
   const nextLevelSP = (data.currentLevel + 1) * 100;
   const prevSP = data.currentSP - data.spAwarded;
@@ -236,14 +476,14 @@ function SlideSP({ data }: { data: CelebrationData }) {
   const fillAfter = Math.min(data.currentSP % 100, 100) || (data.currentSP >= nextLevelSP ? 100 : 0);
 
   return (
-    <div className="flex flex-col items-center justify-center h-full gap-8 px-8 text-center">
+    <div className="flex flex-col items-center justify-start h-full gap-5 px-6 text-center">
       <motion.div
         initial={{ scale: 0 }}
         animate={{ scale: 1 }}
         transition={{ type: 'spring', stiffness: 300, damping: 20, delay: 0.1 }}
         className="relative"
       >
-        <div className="w-32 h-32 rounded-full bg-indigo-500/20 ring-4 ring-indigo-500/40 flex items-center justify-center text-6xl">
+        <div className="w-24 h-24 rounded-full bg-indigo-500/20 ring-4 ring-indigo-500/40 flex items-center justify-center text-5xl">
           🏅
         </div>
         <motion.div
@@ -253,19 +493,19 @@ function SlideSP({ data }: { data: CelebrationData }) {
         />
       </motion.div>
 
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="flex flex-col items-center gap-1">
-        <span className="text-sm font-black uppercase tracking-[0.2em] text-indigo-400">Season Points</span>
-        <div className="flex items-baseline gap-1 mt-1">
-          <span className="text-2xl font-bold text-white/40">+</span>
-          <span className="text-8xl font-black text-white tabular-nums leading-none">{sp}</span>
-          <span className="text-3xl font-bold text-indigo-400 ml-1">SP</span>
+      <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="flex flex-col items-center gap-1">
+        <span className="text-xs font-black uppercase tracking-[0.2em] text-indigo-400">Season Points</span>
+        <div className="flex items-baseline gap-1">
+          <span className="text-xl font-bold text-white/40">+</span>
+          <span className="text-6xl font-black text-white tabular-nums leading-none">{sp}</span>
+          <span className="text-2xl font-bold text-indigo-400 ml-1">SP</span>
         </div>
         {data.spAwarded > 8 && (
           <motion.span
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.9 }}
-            className="text-xs font-bold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30"
+            className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30"
           >
             +{data.spAwarded - data.correctCount * 2} бонус 🎯
           </motion.span>
@@ -273,12 +513,12 @@ function SlideSP({ data }: { data: CelebrationData }) {
       </motion.div>
 
       {/* Level progress */}
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }} className="w-full max-w-xs flex flex-col gap-3">
-        <div className="flex justify-between text-xs text-white/40 font-medium">
+      <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.45 }} className="w-full max-w-xs flex flex-col gap-1.5">
+        <div className="flex justify-between text-[10px] text-white/40 font-bold uppercase tracking-wider">
           <span>Уровень {data.currentLevel}</span>
-          <span>{data.currentSP} / {nextLevelSP} SP</span>
+          <span className="tabular-nums">{data.currentSP} / {nextLevelSP}</span>
         </div>
-        <div className="h-3 rounded-full bg-white/10 overflow-hidden relative">
+        <div className="h-2.5 rounded-full bg-white/10 overflow-hidden relative">
           <motion.div
             className="absolute left-0 top-0 h-full rounded-full bg-gradient-to-r from-indigo-500 to-violet-500"
             initial={{ width: `${fillBefore}%` }}
@@ -286,10 +526,16 @@ function SlideSP({ data }: { data: CelebrationData }) {
             transition={{ delay: 0.7, duration: 0.8, ease: 'easeOut' }}
           />
         </div>
-        <span className="text-xs text-white/40 text-center">
-          До уровня {data.currentLevel + 1}: {Math.max(0, nextLevelSP - data.currentSP)} SP
-        </span>
       </motion.div>
+
+      {/* Climb mini-leaderboard */}
+      {data.rankChange && (
+        <LeaderboardClimb
+          rankChange={data.rankChange}
+          userId={currentUserId}
+          onOpenLeaderboard={onOpenLeaderboard}
+        />
+      )}
     </div>
   );
 }
