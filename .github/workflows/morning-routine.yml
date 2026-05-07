@@ -70,29 +70,8 @@ jobs:
             exit 1
           fi
 
-      - name: Trigger email-morning-routine (Email quiz for non-Telegram users)
-        run: |
-          echo "📧 Sending email daily quiz at $(date -u)"
-
-          response=$(curl -s -w "\n%{http_code}" -X POST \
-            "${{ secrets.SUPABASE_URL }}/functions/v1/email-morning-routine" \
-            -H "Authorization: Bearer ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" \
-            -H "Content-Type: application/json" \
-            -d '{"source": "github_actions"}' \
-            --max-time 600)
-
-          http_code=$(echo "$response" | tail -n1)
-          body=$(echo "$response" | sed '$d')
-
-          echo "Response: $body"
-          echo "HTTP Code: $http_code"
-
-          if [ "$http_code" -ge 200 ] && [ "$http_code" -lt 300 ]; then
-            echo "✅ Email quiz sent successfully"
-          else
-            echo "⚠️ Email quiz failed with code $http_code (non-blocking)"
-            # Не завершаем pipeline — email не критичен
-          fi
+      # email-morning-routine (3 вопроса) — отключено, заменено на license-points-reminder
+      # - name: Trigger email-morning-routine (Email quiz for non-Telegram users)
 
       - name: Send license points reminder (browser users who missed 1-2 days)
         run: |
