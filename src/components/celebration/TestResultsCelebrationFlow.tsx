@@ -352,10 +352,10 @@ function LeaderboardClimb({
     const t = setTimeout(() => {
       setAnimating(true);
       setOrder(finalRows);
-      try { haptics.medium(); } catch {}
-      try { playCelebrationSoundPop(); } catch {}
+      try { haptics.medium(); } catch { /* noop */ }
+      try { playCelebrationSoundPop(); } catch { /* noop */ }
       setTimeout(() => {
-        try { haptics.success(); } catch {}
+        try { haptics.success(); } catch { /* noop */ }
       }, 600);
     }, 1500);
     return () => clearTimeout(t);
