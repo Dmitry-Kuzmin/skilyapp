@@ -313,7 +313,7 @@ async function sendReminderEmail(
       from: FROM_EMAIL,
       to: [to],
       subject,
-      html: buildEmailHtml(lang, firstName, points, daysMissed, APP_URL),
+      html: buildEmailHtml(lang, firstName, points, daysMissed, APP_URL, to),
     }),
   });
 
