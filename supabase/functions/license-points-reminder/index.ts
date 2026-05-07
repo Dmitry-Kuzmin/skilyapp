@@ -15,8 +15,8 @@ const LOGO_URL       = 'https://skilyapp.com/apple-touch-icon.png';
 type Lang = 'ru' | 'es' | 'en';
 
 interface DailyQuest { title: string; reward_sp: number; target_type: string; target_value: number; }
-interface SeasonInfo  { name: string; daysLeft: number; }
-interface UserStats   { dpXp: number; dpLevel: number; dpRank: number; totalPlayers: number; }
+interface SeasonInfo  { id: number; name: string; daysLeft: number; }
+interface UserStats   { dpXp: number; dpLevel: number; dpRank: number; }
 
 function getUserLang(profile: any): Lang {
   const s = profile?.settings?.language;
