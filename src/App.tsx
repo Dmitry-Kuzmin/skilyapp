@@ -56,6 +56,7 @@ const Purchase = lazy(() => import("./pages/Purchase").then(m => ({ default: m.d
 const Login = lazy(() => import("./pages/Login"));
 const CourseLanding = lazy(() => import("./pages/CourseLanding"));
 const CoursePayment = lazy(() => import("./pages/CoursePayment"));
+const Unsubscribe = lazy(() => import("./pages/Unsubscribe"));
 
 // Обработка ошибок для lazy loading Index (dashboard)
 const IndexErrorFallback = () => {
