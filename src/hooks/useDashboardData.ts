@@ -209,24 +209,21 @@ export function useDashboardData() {
         return null;
       }
 
-      // SUPER ОПТИМИЗАЦИЯ: Пробуем новый Super RPC
-
+      // Single round-trip dashboard. v3 = honest accuracy from user_progress + folded duels/mistakes.
       try {
-        const promise = (supabase as any).rpc('get_dashboard_super_v2', { p_user_id: profileId });
         const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('TIMEOUT')), 10000));
 
-        const response: any = await Promise.race([promise, timeoutPromise]);
-
-        if (!response.error && response.data && !response.data.error) {
-          return response.data as DashboardData;
+        const promiseV3 = (supabase as any).rpc('get_dashboard_super_v3', { p_user_id: profileId });
+        const responseV3: any = await Promise.race([promiseV3, timeoutPromise]);
+        if (!responseV3.error && responseV3.data && !responseV3.data.error) {
+          return responseV3.data as DashboardData;
         }
 
-        // Fallback to v1 if v2 is not yet deployed or fails
-        const promiseV1 = (supabase as any).rpc('get_dashboard_super', { p_user_id: profileId });
-        const responseV1: any = await Promise.race([promiseV1, timeoutPromise]);
-
-        if (!responseV1.error && responseV1.data && !responseV1.data.error) {
-          return responseV1.data as DashboardData;
+        // Fallback to v2 (deployed) if v3 hasn't been migrated yet.
+        const promiseV2 = (supabase as any).rpc('get_dashboard_super_v2', { p_user_id: profileId });
+        const responseV2: any = await Promise.race([promiseV2, timeoutPromise]);
+        if (!responseV2.error && responseV2.data && !responseV2.data.error) {
+          return responseV2.data as DashboardData;
         }
       } catch (e: any) {
       }
