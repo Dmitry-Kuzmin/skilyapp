@@ -13,6 +13,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { haptics } from '@/lib/haptics';
 import { UserAvatar } from '@/components/UserAvatar';
 import { UserContext } from '@/contexts/UserContext';
+import { RankIcon, getRankFromLevel } from '@/components/ranking/RankBadge';
 
 const DuelPassLeaderboardView = lazy(() =>
   import('@/components/leaderboard/DuelPassLeaderboardModal').then(m => ({
