@@ -63,13 +63,33 @@ interface DashboardStats {
     correct_answers: number;
     accuracy: number;
     recent_performance?: number;
+    // v3 fields
+    lifetime_attempts?: number;
+    lifetime_correct?: number;
+    recent_accuracy?: number | null;
+    recent_sample?: number;
+    unique_questions?: number;
+    unique_correct?: number;
+    total_in_bank?: number;
+    last_active_at?: string | null;
+    attempts_last_7d?: number;
   };
   readiness?: {
     topics_covered_percent: number;
     unique_questions_answered: number;
     topics_with_answers: number;
     country?: string;
+    // v3 fields
+    hard_topics_mastered?: number;
+    weak_topics_count?: number;
+    worst_topic_acc?: number | null;
   };
+  duels?: {
+    total: number;
+    wins: number;
+    winrate: number;
+  };
+  mistakes_count?: number;
   daily_bonus: {
     id: string | null;
     current_streak: number;
