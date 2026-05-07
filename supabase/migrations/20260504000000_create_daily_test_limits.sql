@@ -34,7 +34,7 @@ BEGIN
   SELECT
     COALESCE(is_premium, FALSE),
     subscription_status,
-    subscription_end_date
+    subscription_expires_at
   INTO v_is_premium, v_status, v_end_date
   FROM profiles WHERE id = p_user_id;
 
