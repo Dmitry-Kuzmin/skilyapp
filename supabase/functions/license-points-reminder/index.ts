@@ -337,8 +337,7 @@ function buildEmailHtml(
               <a href="${utmUrl}" style="display:inline-block;background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#ffffff;font-size:15px;font-weight:700;text-decoration:none;border-radius:12px;padding:14px 36px;">${escapeHtml(t.ctaText)}</a>
             </td></tr>
 
-            <!-- Season block -->
-            <tr><td style="padding:16px 28px 0;">&nbsp;</td></tr>
+            <!-- Season + Duel Pass block -->
             ${seasonBlock}
 
             <!-- Quests -->
