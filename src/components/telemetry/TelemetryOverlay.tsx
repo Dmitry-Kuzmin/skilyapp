@@ -1,19 +1,18 @@
-import React, { useMemo, useCallback, useState } from 'react';
+import React, { useMemo, useCallback } from 'react';
 import {
     RadarChart, Radar, PolarGrid, PolarAngleAxis, ResponsiveContainer
 } from 'recharts';
 import { motion } from '@/components/optimized/Motion';
 import {
-    Gauge, Zap, Trophy, Target, AlertTriangle,
-    Flame, Swords, BookOpen, TrendingUp, X, Loader2, Rocket, Award, Sparkles, Activity as ActivityIcon, CheckCircle
+    Gauge, Target, AlertTriangle,
+    Flame, Swords, BookOpen, TrendingUp, Loader2, Sparkles, Activity as ActivityIcon, CheckCircle
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { supabase } from '@/integrations/supabase/client';
 import { useUserContext } from '@/contexts/UserContext';
 import { useDashboardData } from '@/hooks/useDashboardData';
 import { useExamReadiness } from '@/hooks/useExamReadiness';
-import { useQuery } from '@tanstack/react-query';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { EXAM_PASS_TARGET_PERCENT } from '@/lib/exam-config';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useAnalytics } from '@/hooks/useAnalytics';
