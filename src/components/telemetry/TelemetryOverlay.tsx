@@ -349,7 +349,7 @@ export function TelemetryContent({ onClose }: { onClose: () => void }) {
                 </div>
 
                 <div className="md:col-span-2 space-y-4">
-                    {(mistakesCount ?? 0) > 0 ? (
+                    {mistakesCount > 0 ? (
                         <div className="h-full rounded-2xl border border-red-500/20 bg-red-500/5 p-6 flex flex-col justify-center transition-all hover:bg-red-500/10 cursor-pointer" onClick={() => { onClose(); navigate('/tests/challenge-bank'); }}>
                             <div className="flex items-center gap-4 mb-4">
                                 <div className="w-12 h-12 rounded-xl bg-red-500/20 border border-red-500/30 flex items-center justify-center flex-shrink-0">
