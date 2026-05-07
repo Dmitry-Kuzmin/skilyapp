@@ -286,34 +286,39 @@ serve(async (req) => {
       return new Response(JSON.stringify({ ok: true, message: 'No users', sent: 0 }));
     }
 
-    let sent = 0;
-    let skipped = 0;
-    let failed = 0;
+    // Запускаем рассылку в фоне — возвращаем ответ сразу, чтобы не словить IDLE_TIMEOUT
+    const bulkTask = async () => {
+      let sent = 0;
+      let skipped = 0;
+      let failed = 0;
 
-    for (const tid of telegramIds) {
-      try {
-        await sendMorningQuiz(supabase, tid);
-        sent++;
-      } catch (e) {
-        const msg = (e as Error).message;
-        if (msg.includes('blocked') || msg.includes('Profile not found')) {
-          skipped++;
-        } else {
-          failed++;
-          console.error(`[Morning] Error for ${tid}:`, msg);
+      for (const tid of telegramIds) {
+        try {
+          await sendMorningQuiz(supabase, tid);
+          sent++;
+        } catch (e) {
+          const msg = (e as Error).message;
+          if (msg.includes('blocked') || msg.includes('Profile not found')) {
+            skipped++;
+          } else {
+            failed++;
+            console.error(`[Morning] Error for ${tid}:`, msg);
+          }
         }
+        // Telegram limit: max 30 msgs/sec к разным чатам
+        // С задержкой 50ms = ~20/sec, безопасно
+        await new Promise(r => setTimeout(r, 50));
       }
-      // Telegram limit: max 30 msgs/sec к разным чатам
-      // С задержкой 50ms = ~20/sec, безопасно
-      await new Promise(r => setTimeout(r, 50));
-    }
 
-    console.log(`[Morning] Bulk complete: sent=${sent} skipped=${skipped} failed=${failed}`);
+      console.log(`[Morning] Bulk complete: sent=${sent} skipped=${skipped} failed=${failed}`);
+    };
+
+    // @ts-ignore — Deno Deploy / Supabase Edge Runtime API
+    EdgeRuntime.waitUntil(bulkTask());
+
     return new Response(JSON.stringify({
       ok: true,
-      sent,
-      skipped,
-      failed,
+      message: 'Bulk send started in background',
       total: telegramIds.length,
     }));
 
