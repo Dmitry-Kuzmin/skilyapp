@@ -147,14 +147,27 @@ serve(async (req) => {
     }
 
     // Если SP=0 — всё равно нужно вызвать challenges-track (для квестов)
-    // но не пишем в БД season_points, просто возвращаем
+    // но не пишем в БД season_points, просто возвращаем реальный накопленный total_sp
     if (spGain === 0) {
       try {
         await supabase.functions.invoke("season-challenges-track", { body: { user_id, source_type, metadata: metadata || {} } });
       } catch (err) {
         console.warn("[season-sp] challenge tracking error", err);
       }
-      return new Response(JSON.stringify({ success: true, sp_added: 0, total_sp: 0, level: 0, level_up: false, reason: 'no_sp_earned' }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      // Возвращаем реальный total_sp чтобы фронтенд показал правильные очки
+      let currentSP = 0;
+      let currentLevel = 0;
+      try {
+        const { data: activeSeason } = await supabase.rpc("get_active_season");
+        if (activeSeason?.length > 0) {
+          const { data: progressData } = await supabase.rpc("get_or_create_season_progress", { p_user_id: user_id, p_season_id: activeSeason[0].id });
+          if (progressData?.length > 0) {
+            currentSP = progressData[0].season_points || 0;
+            currentLevel = progressData[0].level || 0;
+          }
+        }
+      } catch { /* noop — вернём 0 если не удалось */ }
+      return new Response(JSON.stringify({ success: true, sp_added: 0, total_sp: currentSP, level: currentLevel, level_up: false, reason: 'no_sp_earned' }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
     // Soft-cap
