@@ -570,6 +570,7 @@ function SlideSP({ data, onOpenLeaderboard, currentUserId }: { data: Celebration
         <LeaderboardClimb
           rankChange={effectiveRankChange}
           userId={currentUserId}
+          currentSP={data.currentSP}
           onOpenLeaderboard={onOpenLeaderboard}
         />
       ) : (
