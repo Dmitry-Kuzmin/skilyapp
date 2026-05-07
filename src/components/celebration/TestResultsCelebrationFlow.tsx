@@ -965,12 +965,13 @@ function SlideCTA({ data, onRetry, onDetails, todayTestCount }: { data: Celebrat
 // ─── Main component ───────────────────────────────────────────────────────────
 
 const SLIDE_SOUNDS: Record<SlideId, () => void> = {
-  result:        () => {},
-  sp:            playSuccessSound,
-  personal_best: playSuccessSound,
-  xp:            playSuccessSound,
-  topics:        () => {},
-  cta:           () => {},
+  result:          () => {},
+  sp:              playSuccessSound,
+  personal_best:   playSuccessSound,
+  xp:              playSuccessSound,
+  exam_readiness:  playSuccessSound,
+  topics:          () => {},
+  cta:             () => {},
 };
 
 export function TestResultsCelebrationFlow({ data, onFinish, onRetry }: Props) {
