@@ -1065,6 +1065,44 @@ export function TestResultsCelebrationFlow({ data, onFinish, onRetry }: Props) {
     })();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Prefetch daily momentum count + exam readiness delta on mount
+  useEffect(() => {
+    if (!currentUserId) return;
+    (async () => {
+      try {
+        // Daily Momentum: count today's sessions
+        const todayStart = new Date();
+        todayStart.setHours(0, 0, 0, 0);
+        const { count } = await supabase
+          .from('game_sessions')
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id', currentUserId)
+          .gte('created_at', todayStart.toISOString());
+        if (count !== null) setTodayTestCount(count);
+      } catch { /* noop */ }
+
+      try {
+        // Exam Readiness: compute accuracy delta from recent sessions
+        const { data: rows } = await supabase
+          .from('game_sessions')
+          .select('score, total_questions')
+          .eq('user_id', currentUserId)
+          .order('created_at', { ascending: false })
+          .limit(20);
+        if (rows && rows.length >= 2) {
+          const toAcc = (r: { score: number; total_questions: number }) =>
+            r.total_questions > 0 ? (r.score / r.total_questions) * 100 : 0;
+          const afterAvg = rows.reduce((s, r) => s + toAcc(r), 0) / rows.length;
+          const beforeRows = rows.slice(1);
+          const beforeAvg = beforeRows.reduce((s, r) => s + toAcc(r), 0) / beforeRows.length;
+          const before = Math.round(beforeAvg);
+          const after = Math.round(afterAvg);
+          if (after - before >= 2) setExamReadinessData({ before, after });
+        }
+      } catch { /* noop */ }
+    })();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   // Fire sounds on slide entry (once per slide type)
   useEffect(() => {
     if (soundFiredRef.current.has(slideId)) return;
