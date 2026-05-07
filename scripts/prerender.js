@@ -348,7 +348,10 @@ async function prerender() {
     // routes off a shared queue. With concurrency=4 we cut total wall-time
     // ~3-4× compared to the previous serial loop without exhausting RAM
     // (each page is ~30-60MB; well within Vercel's 8GB build machine).
-    const CONCURRENCY = Number(process.env.PRERENDER_CONCURRENCY) || 6;
+    // On hosted Vercel (2-core build machine) fewer workers prevent CPU starvation
+    // that causes heavy article/guide pages to timeout before content hydrates.
+    const defaultConcurrency = isHostedVercel || isCI ? 3 : 6;
+    const CONCURRENCY = Number(process.env.PRERENDER_CONCURRENCY) || defaultConcurrency;
     const routeQueue = [...routesToRender];
 
     async function renderWorker() {
@@ -385,7 +388,7 @@ async function prerender() {
                 const text = root.textContent?.replace(/\s+/g, ' ').trim() || '';
                 return text.length > min;
               },
-              { timeout: 15000, polling: 200 },
+              { timeout: 25000, polling: 200 },
               minChars
             );
             console.log(`[Prerender] ✅ React content detected in #root (>${minChars} chars)`);
@@ -402,7 +405,7 @@ async function prerender() {
 
           await page.waitForFunction(
             (expectedRoute) => window.location.pathname + window.location.search === expectedRoute,
-            { timeout: 15000 },
+            { timeout: 25000 },
             route
           );
 
