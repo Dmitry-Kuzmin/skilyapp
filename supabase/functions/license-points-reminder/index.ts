@@ -199,34 +199,41 @@ function buildEmailHtml(
   const subject     = daysMissed === 1 ? t.subject1 : t.subject2;
   const preheader   = daysMissed === 1 ? t.preheader1 : t.preheader2;
 
-  // Stats row (XP, level, rank)
-  const statsRow = `
-    <tr><td style="padding:14px 28px 0;">
-      <table border="0" cellpadding="0" cellspacing="0" width="100%">
+  // Единый Season + Duel Pass блок
+  const seasonBlock = season ? `
+    <tr><td style="padding:16px 28px 0;">
+      <table border="0" cellpadding="0" cellspacing="0" width="100%"
+        style="background:linear-gradient(135deg,#fffbeb,#fef3c7);border:1px solid #fde68a;border-radius:16px;overflow:hidden;">
+        <!-- Season header -->
+        <tr><td style="padding:14px 20px 12px;border-bottom:1px solid #fde68a;">
+          <div style="font-size:13px;font-weight:800;color:#78350f;">${escapeHtml(t.seasonTitle(season.name, season.daysLeft))}</div>
+        </td></tr>
+        <!-- 3 stats -->
         <tr>
-          <td align="center" style="border-right:1px solid #e2e8f0;padding:10px 0;">
-            <div style="font-size:11px;color:#94a3b8;margin-bottom:3px;text-transform:uppercase;letter-spacing:0.05em;">XP</div>
-            <div style="font-size:15px;font-weight:800;color:#0f172a;">${escapeHtml(t.xpLabel(stats.xp))}</div>
+          <td align="center" style="padding:14px 0 12px;border-right:1px solid #fde68a;">
+            <div style="font-size:10px;font-weight:700;color:#b45309;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px;">${escapeHtml(t.dpRankLabel)}</div>
+            <div style="font-size:22px;font-weight:900;color:#78350f;">#${stats.dpRank}</div>
+            <div style="font-size:10px;color:#b45309;">из ${stats.totalPlayers}</div>
           </td>
-          <td align="center" style="border-right:1px solid #e2e8f0;padding:10px 0;">
-            <div style="font-size:11px;color:#94a3b8;margin-bottom:3px;text-transform:uppercase;letter-spacing:0.05em;">Duel Pass</div>
-            <div style="font-size:15px;font-weight:800;color:#0f172a;">${escapeHtml(t.levelLabel(stats.dpLevel))}</div>
+          <td align="center" style="padding:14px 0 12px;border-right:1px solid #fde68a;">
+            <div style="font-size:10px;font-weight:700;color:#b45309;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px;">${escapeHtml(t.dpLevelLabel)}</div>
+            <div style="font-size:22px;font-weight:900;color:#78350f;">${stats.dpLevel}</div>
+            <div style="font-size:10px;color:#b45309;">Duel Pass</div>
           </td>
-          <td align="center" style="padding:10px 0;">
-            <div style="font-size:11px;color:#94a3b8;margin-bottom:3px;text-transform:uppercase;letter-spacing:0.05em;">Рейтинг</div>
-            <div style="font-size:15px;font-weight:800;color:#0f172a;">${escapeHtml(t.rankLabel(stats.rank, stats.totalPlayers))}</div>
+          <td align="center" style="padding:14px 0 12px;">
+            <div style="font-size:10px;font-weight:700;color:#b45309;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px;">${escapeHtml(t.dpSpLabel)}</div>
+            <div style="font-size:22px;font-weight:900;color:#78350f;">${stats.dpXp}</div>
+            <div style="font-size:10px;color:#b45309;">очков</div>
           </td>
         </tr>
+        <!-- Prize + link -->
+        <tr><td colspan="3" style="padding:10px 20px 14px;border-top:1px solid #fde68a;">
+          <table border="0" cellpadding="0" cellspacing="0" width="100%"><tr>
+            <td style="font-size:12px;color:#92400e;">${escapeHtml(t.seasonPrize)}</td>
+            <td align="right"><a href="${utmUrl}" style="font-size:12px;color:#b45309;text-decoration:none;font-weight:700;">${escapeHtml(t.leaderboardLink)}</a></td>
+          </tr></table>
+        </td></tr>
       </table>
-    </td></tr>`;
-
-  // Season block
-  const seasonBlock = season ? `
-    <tr><td style="padding:0 28px 0;">
-      <div style="background:linear-gradient(135deg,#fef3c7,#fde68a);border:1px solid #fbbf24;border-radius:12px;padding:14px 18px;">
-        <div style="font-size:13px;font-weight:700;color:#92400e;margin-bottom:4px;">${escapeHtml(t.seasonLabel(season.name, season.daysLeft))}</div>
-        <div style="font-size:12px;color:#b45309;">🎁 ${escapeHtml(t.seasonPrize)}</div>
-      </div>
     </td></tr>` : '';
 
   // Quests block
