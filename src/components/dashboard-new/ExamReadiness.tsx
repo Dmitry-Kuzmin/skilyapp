@@ -5,6 +5,7 @@ import { Info, X, Rocket, TrendingUp, Target, Award, Sparkles, AlertCircle, Acti
 import { usePDDContext } from '@/contexts/PDDContext';
 import { motion } from "@/components/optimized/Motion";
 import { getReadinessStatus } from '@/utils/examReadiness';
+import { EXAM_PASS_TARGET_PERCENT } from '@/lib/exam-config';
 import { useAnalytics } from '@/hooks/useAnalytics';
 import { AnalyticsPanel } from './AnalyticsPanel';
 import { useTheme } from 'next-themes';
