@@ -1,7 +1,7 @@
 'use client';
 
 import { Crown, X, Check, ArrowLeft } from "lucide-react";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { UnifiedModal } from "@/components/ui/unified-modal";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
@@ -82,90 +82,87 @@ function CellValue({ value, isPremium }: { value: string | boolean; isPremium: b
 
 export function PlanComparisonModal({ open, onOpenChange, onSelectPlan }: PlanComparisonModalProps) {
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent
-        hideCloseButton
-        modalType="default"
-        className="sm:max-w-lg p-0 bg-[#0F121E] border-slate-800 overflow-hidden rounded-[2rem]"
-      >
-        {/* Header */}
-        <div className="flex items-start justify-between px-6 pt-6 pb-4">
-          <div>
-            <p className="text-[10px] font-bold tracking-[0.25em] uppercase text-slate-500 mb-2">
-              Детальное сравнение
-            </p>
-            <h2 className="text-2xl font-black text-white flex items-center gap-2">
-              <span className="text-slate-400 font-bold">Free</span>
-              <span className="text-slate-600 text-base font-normal">vs</span>
-              <Crown className="w-5 h-5 text-amber-400 fill-amber-400/20" />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-fuchsia-400">
-                Premium
-              </span>
-            </h2>
+    <UnifiedModal
+      open={open}
+      onOpenChange={onOpenChange}
+      showTitleBar={false}
+      className="sm:max-w-lg"
+    >
+      {/* Header */}
+      <div className="flex items-start justify-between px-1 pt-2 pb-4">
+        <div>
+          <p className="text-[10px] font-bold tracking-[0.25em] uppercase text-slate-500 mb-2">
+            Детальное сравнение
+          </p>
+          <h2 className="text-2xl font-black text-white flex items-center gap-2">
+            <span className="text-slate-400 font-bold">Free</span>
+            <span className="text-slate-600 text-base font-normal">vs</span>
+            <Crown className="w-5 h-5 text-amber-400 fill-amber-400/20" />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-fuchsia-400">
+              Premium
+            </span>
+          </h2>
+        </div>
+        <button
+          onClick={() => onOpenChange(false)}
+          className="mt-1 p-2 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-slate-400 hover:text-white transition-all"
+        >
+          <X className="w-4 h-4" />
+        </button>
+      </div>
+
+      {/* Column headers */}
+      <div className="grid grid-cols-[1fr_80px_100px] gap-2 px-1 mb-3">
+        <div className="text-[10px] font-bold uppercase tracking-widest text-slate-600">Функция</div>
+        <div className="text-[10px] font-bold uppercase tracking-widest text-slate-600 text-center">Free</div>
+        <div className="text-[10px] font-bold uppercase tracking-widest text-violet-400 text-center flex items-center justify-center gap-1">
+          <Crown className="w-3 h-3 fill-violet-400/30" /> Premium
+        </div>
+      </div>
+
+      {/* Table sections */}
+      {SECTIONS.map((section) => (
+        <div key={section.title} className="mb-4">
+          <div className="flex items-center gap-2 mb-2 py-1.5">
+            <span className="text-base leading-none">{section.emoji}</span>
+            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">{section.title}</span>
           </div>
-          <button
-            onClick={() => onOpenChange(false)}
-            className="mt-1 p-2 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-slate-400 hover:text-white transition-all"
-          >
-            <X className="w-4 h-4" />
-          </button>
-        </div>
 
-        {/* Table */}
-        <div className="overflow-y-auto max-h-[60vh] px-6 pb-2">
-          {/* Column headers */}
-          <div className="grid grid-cols-[1fr_80px_100px] gap-2 mb-3 px-1">
-            <div className="text-[10px] font-bold uppercase tracking-widest text-slate-600">Функция</div>
-            <div className="text-[10px] font-bold uppercase tracking-widest text-slate-600 text-center">Free</div>
-            <div className="text-[10px] font-bold uppercase tracking-widest text-violet-400 text-center flex items-center justify-center gap-1">
-              <Crown className="w-3 h-3 fill-violet-400/30" /> Premium
-            </div>
+          <div className="rounded-2xl overflow-hidden border border-white/5 bg-white/[0.02]">
+            {section.rows.map((row, i) => (
+              <div
+                key={row.label}
+                className={cn(
+                  "grid grid-cols-[1fr_80px_100px] gap-2 items-center px-4 py-3",
+                  i < section.rows.length - 1 && "border-b border-white/5"
+                )}
+              >
+                <span className="text-sm text-slate-300">{row.label}</span>
+                <div className="flex justify-center">
+                  <CellValue value={row.free} isPremium={false} />
+                </div>
+                <div className="flex justify-center">
+                  <CellValue value={row.premium} isPremium={true} />
+                </div>
+              </div>
+            ))}
           </div>
-
-          {SECTIONS.map((section) => (
-            <div key={section.title} className="mb-4">
-              <div className="flex items-center gap-2 mb-2 py-1.5">
-                <span className="text-base leading-none">{section.emoji}</span>
-                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">{section.title}</span>
-              </div>
-
-              <div className="rounded-2xl overflow-hidden border border-white/5 bg-white/[0.02]">
-                {section.rows.map((row, i) => (
-                  <div
-                    key={row.label}
-                    className={cn(
-                      "grid grid-cols-[1fr_80px_100px] gap-2 items-center px-4 py-3",
-                      i < section.rows.length - 1 && "border-b border-white/5"
-                    )}
-                  >
-                    <span className="text-sm text-slate-300">{row.label}</span>
-                    <div className="flex justify-center">
-                      <CellValue value={row.free} isPremium={false} />
-                    </div>
-                    <div className="flex justify-center">
-                      <CellValue value={row.premium} isPremium={true} />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          ))}
         </div>
+      ))}
 
-        {/* Footer CTA */}
-        <div className="px-6 pb-6 pt-2">
-          <Button
-            onClick={() => {
-              onOpenChange(false);
-              onSelectPlan?.();
-            }}
-            className="w-full h-12 rounded-2xl bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 text-white font-bold text-sm border-0 shadow-lg shadow-violet-900/30 flex items-center justify-center gap-2"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Выбрать план
-          </Button>
-        </div>
-      </DialogContent>
-    </Dialog>
+      {/* Footer CTA */}
+      <div className="pt-2 pb-4">
+        <Button
+          onClick={() => {
+            onOpenChange(false);
+            onSelectPlan?.();
+          }}
+          className="w-full h-12 rounded-2xl bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 text-white font-bold text-sm border-0 shadow-lg shadow-violet-900/30 flex items-center justify-center gap-2"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Выбрать план
+        </Button>
+      </div>
+    </UnifiedModal>
   );
 }
