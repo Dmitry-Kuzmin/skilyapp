@@ -43,62 +43,84 @@ const copy: Record<Lang, {
   subject2: string;
   preheader1: string;
   preheader2: string;
+  badge1: string;
+  badge2: string;
   greeting: (name?: string) => string;
+  whatArePoints: string;
   body1: (pts: number) => string;
   body2: (pts: number) => string;
+  consequence: string;
   pointsLabel: string;
   ctaText: string;
   footerText: string;
   unsubText: string;
 }> = {
   ru: {
-    subject1: '🚗 Сегодня спишется балл — не пропусти занятие',
-    subject2: '⚠️ Ещё один балл под угрозой — войди в Skily',
-    preheader1: 'Войди сегодня и сохрани свой счёт водительского удостоверения.',
-    preheader2: 'Вчера списался балл. Сегодня ещё один — если не зайдёшь.',
-    greeting: (n?: string) => n ? `${n}, не теряй баллы!` : 'Не теряй баллы!',
+    subject1: '🚗 Зайди сегодня — иначе потеряешь балл в Skily',
+    subject2: '⚡ Второй день пропуска — балл спишется снова',
+    preheader1: 'Один раз зайти — и прогресс сохранится.',
+    preheader2: 'Вчера ушёл балл. Сегодня — ещё один, если не зайдёшь.',
+    badge1: '☀️ День 1 — загляни на минутку',
+    badge2: '⚡ День 2 — ещё не поздно',
+    greeting: (n?: string) => n ? `${n}, твои баллы ждут тебя!` : 'Твои баллы ждут тебя!',
+    whatArePoints:
+      'В Skily есть <b>шкала прогресса из 15 баллов</b> — как настоящая система баллов испанских прав. Каждый день занятий = +1 балл. Пропускаешь день — балл уходит. Это помогает тебе учиться регулярно и не растерять знания перед экзаменом.',
     body1: (pts: number) =>
-      `У тебя сейчас <b>${pts} из 15 баллов</b> водительского удостоверения. Если не зайдёшь сегодня — спишется 1 балл. Достаточно одного упражнения, чтобы сохранить прогресс.`,
+      `Сейчас у тебя <b>${pts}/15 баллов</b>. Если не зайдёшь сегодня — спишется 1. Не нужно много: пара вопросов или один дуэль — и балл твой.`,
     body2: (pts: number) =>
-      `Вчера списался 1 балл, и сегодня та же история, если ты не вернёшься. Сейчас у тебя <b>${pts} из 15 баллов</b>. Одна сессия — и счётчик остановится.`,
-    pointsLabel: 'баллов вод. уд.',
-    ctaText: 'Войти и сохранить балл →',
-    footerText: 'Ты получаешь это письмо, потому что зарегистрировался на Skily.',
+      `Вчера ушёл 1 балл. Сегодня та же история, если не вернёшься. У тебя сейчас <b>${pts}/15</b>. Одна короткая сессия — и счётчик остановится.`,
+    consequence:
+      'Когда баллы падают до нуля — шкала сбрасывается и ты теряешь свой уровень прогресса. Не критично, но обидно — особенно перед экзаменом.',
+    pointsLabel: 'баллов прогресса',
+    ctaText: 'Зайти в Skily →',
+    footerText: 'Ты получаешь это, потому что зарегистрировался на Skily.',
     unsubText: 'Отписаться от напоминаний',
   },
   es: {
-    subject1: '🚗 Hoy perderás un punto — no pierdas tu racha',
-    subject2: '⚠️ Otro punto en riesgo — entra a Skily hoy',
-    preheader1: 'Entra hoy y conserva tus puntos del carnet de conducir.',
+    subject1: '🚗 Entra hoy — o perderás un punto en Skily',
+    subject2: '⚡ Segundo día sin estudiar — otro punto en riesgo',
+    preheader1: 'Solo un momento en la app y tu progreso se mantiene.',
     preheader2: 'Ayer perdiste un punto. Hoy otro, si no entras.',
-    greeting: (n?: string) => n ? `${n}, ¡no pierdas tus puntos!` : '¡No pierdas tus puntos!',
+    badge1: '☀️ Día 1 — asómate un momento',
+    badge2: '⚡ Día 2 — aún estás a tiempo',
+    greeting: (n?: string) => n ? `${n}, ¡tus puntos te esperan!` : '¡Tus puntos te esperan!',
+    whatArePoints:
+      'En Skily tienes una <b>barra de progreso de 15 puntos</b> — igual que el sistema de puntos del carnet real. Un día de estudio = +1 punto. Si no entras, pierdes 1. Así te ayudamos a estudiar con regularidad y no perder ritmo antes del examen.',
     body1: (pts: number) =>
-      `Ahora tienes <b>${pts} de 15 puntos</b> del carnet de conducir. Si no entras hoy, perderás 1 punto. Con un ejercicio corto puedes mantener tu progreso.`,
+      `Ahora tienes <b>${pts}/15 puntos</b>. Si no entras hoy, perderás 1. No hace falta mucho: un par de preguntas o un duelo — y el punto es tuyo.`,
     body2: (pts: number) =>
-      `Ayer perdiste 1 punto, y hoy lo mismo si no vuelves. Ahora tienes <b>${pts} de 15 puntos</b>. Una sesión y el contador se detiene.`,
-    pointsLabel: 'puntos carnet',
-    ctaText: 'Entrar y conservar el punto →',
-    footerText: 'Recibes este correo porque te registraste en Skily.',
+      `Ayer perdiste 1 punto. Hoy lo mismo si no vuelves. Tienes <b>${pts}/15</b>. Una sesión corta y el contador se detiene.`,
+    consequence:
+      'Cuando los puntos llegan a cero, la barra se reinicia y pierdes tu nivel de progreso. No es grave, pero duele — sobre todo antes del examen.',
+    pointsLabel: 'puntos de progreso',
+    ctaText: 'Entrar a Skily →',
+    footerText: 'Recibes esto porque te registraste en Skily.',
     unsubText: 'Cancelar recordatorios',
   },
   en: {
-    subject1: '🚗 You\'ll lose a point today — don\'t skip your session',
-    subject2: '⚠️ Another point at risk — log in to Skily',
-    preheader1: 'Log in today and keep your driving licence points.',
+    subject1: '🚗 Log in today — or lose a point in Skily',
+    subject2: '⚡ Day 2 without practice — another point at risk',
+    preheader1: 'Just one visit to the app keeps your progress safe.',
     preheader2: 'You lost a point yesterday. Today another, if you don\'t log in.',
-    greeting: (n?: string) => n ? `${n}, don\'t lose your points!` : 'Don\'t lose your points!',
+    badge1: '☀️ Day 1 — just a quick check-in',
+    badge2: '⚡ Day 2 — still not too late',
+    greeting: (n?: string) => n ? `${n}, your points are waiting!` : 'Your points are waiting!',
+    whatArePoints:
+      'Skily has a <b>15-point progress bar</b> — modelled on the real Spanish driving licence system. Study daily = +1 point. Skip a day = −1 point. It keeps you on track and consistent before your exam.',
     body1: (pts: number) =>
-      `You currently have <b>${pts} of 15 licence points</b>. If you don't log in today, 1 point will be deducted. One short exercise is enough to keep your progress.`,
+      `You have <b>${pts}/15 points</b> right now. Skip today and you'll lose 1. You don't need much — a few questions or a quick duel keeps the streak alive.`,
     body2: (pts: number) =>
-      `You lost 1 point yesterday, and the same will happen today if you don't return. You have <b>${pts} of 15 points</b>. One session stops the counter.`,
-    pointsLabel: 'licence points',
-    ctaText: 'Log in and keep the point →',
+      `You lost 1 point yesterday. Same again today if you don't come back. You're at <b>${pts}/15</b>. One short session and the counter stops.`,
+    consequence:
+      'When points reach zero, your bar resets and you lose your progress level. Not the end of the world — but frustrating right before an exam.',
+    pointsLabel: 'progress points',
+    ctaText: 'Open Skily →',
     footerText: 'You\'re receiving this because you registered at Skily.',
     unsubText: 'Unsubscribe from reminders',
   },
 };
 
-// ── Генерация HTML письма ─────────────────────────────────────────────────────
+// ── Points bar ────────────────────────────────────────────────────────────────
 
 function buildPointsBar(points: number): string {
   const max = 15;
@@ -107,7 +129,7 @@ function buildPointsBar(points: number): string {
   const dots = Array.from({ length: max }, (_, i) => {
     const filled = i < points;
     return `<td style="padding:0 2px;">
-      <div style="width:14px;height:14px;border-radius:50%;background:${filled ? color : 'rgba(255,255,255,0.1)'};">&nbsp;</div>
+      <div style="width:13px;height:13px;border-radius:50%;background:${filled ? color : 'rgba(255,255,255,0.1)'};">&nbsp;</div>
     </td>`;
   }).join('');
 
@@ -115,10 +137,12 @@ function buildPointsBar(points: number): string {
     <table border="0" cellpadding="0" cellspacing="0" style="margin:0 auto;">
       <tr>${dots}</tr>
     </table>
-    <div style="margin-top:8px;height:6px;border-radius:3px;background:rgba(255,255,255,0.08);overflow:hidden;">
+    <div style="margin-top:10px;height:6px;border-radius:3px;background:rgba(255,255,255,0.08);overflow:hidden;">
       <div style="height:6px;border-radius:3px;background:${color};width:${pct}%;"></div>
     </div>`;
 }
+
+// ── Email HTML ────────────────────────────────────────────────────────────────
 
 function buildEmailHtml(
   lang: Lang,
@@ -128,11 +152,11 @@ function buildEmailHtml(
   appUrl: string,
 ): string {
   const t = copy[lang];
-  const subject  = daysMissed === 1 ? t.subject1  : t.subject2;
-  const preheader = daysMissed === 1 ? t.preheader1 : t.preheader2;
-  const bodyText  = daysMissed === 1 ? t.body1(points) : t.body2(points);
-  const alertColor = daysMissed === 1 ? '#f59e0b' : '#ef4444';
-  const alertIcon  = daysMissed === 1 ? '⚠️' : '🚨';
+  const subject    = daysMissed === 1 ? t.subject1 : t.subject2;
+  const preheader  = daysMissed === 1 ? t.preheader1 : t.preheader2;
+  const badge      = daysMissed === 1 ? t.badge1 : t.badge2;
+  const bodyText   = daysMissed === 1 ? t.body1(points) : t.body2(points);
+  const accentColor = daysMissed === 1 ? '#f59e0b' : '#ef4444';
 
   const utmUrl = `${appUrl}/dashboard?utm_source=email&utm_medium=points-reminder&utm_campaign=day${daysMissed}`;
 
@@ -145,7 +169,7 @@ function buildEmailHtml(
 </head>
 <body style="margin:0;padding:0;background-color:#0f172a;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
 
-  <div style="display:none;max-height:0;overflow:hidden;">${escapeHtml(preheader)}&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;</div>
+  <div style="display:none;max-height:0;overflow:hidden;">${escapeHtml(preheader)}&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;</div>
 
   <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background:#0f172a;min-width:100%;">
     <tr>
@@ -173,33 +197,42 @@ function buildEmailHtml(
             <td style="background:#1e293b;border-radius:20px;border:1px solid rgba(255,255,255,0.08);overflow:hidden;">
               <table border="0" cellpadding="0" cellspacing="0" width="100%">
 
-                <!-- Alert accent bar -->
+                <!-- Accent bar -->
                 <tr>
-                  <td style="height:4px;background:${alertColor};font-size:0;line-height:0;">&nbsp;</td>
+                  <td style="height:4px;background:${accentColor};font-size:0;line-height:0;">&nbsp;</td>
                 </tr>
 
-                <!-- Alert badge -->
+                <!-- Badge -->
                 <tr>
                   <td style="padding:24px 32px 0;text-align:center;">
-                    <div style="display:inline-block;background:rgba(245,158,11,0.1);border:1px solid ${alertColor}40;border-radius:20px;padding:6px 16px;">
-                      <span style="color:${alertColor};font-size:12px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;">${alertIcon} День ${daysMissed} без занятий</span>
+                    <div style="display:inline-block;background:rgba(255,255,255,0.05);border:1px solid ${accentColor}55;border-radius:20px;padding:6px 16px;">
+                      <span style="color:${accentColor};font-size:12px;font-weight:700;letter-spacing:0.06em;">${escapeHtml(badge)}</span>
                     </div>
                   </td>
                 </tr>
 
                 <!-- Greeting -->
                 <tr>
-                  <td style="padding:20px 32px 0;text-align:center;">
-                    <h1 style="margin:0;font-size:24px;font-weight:800;color:#f8fafc;line-height:1.2;">${escapeHtml(t.greeting(firstName ?? undefined))}</h1>
+                  <td style="padding:16px 32px 0;text-align:center;">
+                    <h1 style="margin:0;font-size:22px;font-weight:800;color:#f8fafc;line-height:1.3;">${escapeHtml(t.greeting(firstName ?? undefined))}</h1>
+                  </td>
+                </tr>
+
+                <!-- What are points explanation -->
+                <tr>
+                  <td style="padding:16px 32px 0;">
+                    <div style="background:rgba(99,102,241,0.08);border:1px solid rgba(99,102,241,0.2);border-radius:12px;padding:14px 18px;">
+                      <p style="margin:0;font-size:13px;color:#94a3b8;line-height:1.65;">${t.whatArePoints}</p>
+                    </div>
                   </td>
                 </tr>
 
                 <!-- Points widget -->
                 <tr>
-                  <td style="padding:24px 32px;">
+                  <td style="padding:20px 32px 0;">
                     <div style="background:#0f172a;border-radius:16px;border:1px solid rgba(255,255,255,0.06);padding:20px 24px;text-align:center;">
-                      <div style="font-size:12px;font-weight:600;color:#64748b;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:8px;">${escapeHtml(t.pointsLabel)}</div>
-                      <div style="font-size:48px;font-weight:900;color:#f8fafc;line-height:1;margin-bottom:16px;">${points}<span style="font-size:20px;color:#64748b;font-weight:400;">/15</span></div>
+                      <div style="font-size:11px;font-weight:700;color:#64748b;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px;">${escapeHtml(t.pointsLabel)}</div>
+                      <div style="font-size:52px;font-weight:900;color:#f8fafc;line-height:1;margin-bottom:16px;">${points}<span style="font-size:20px;color:#475569;font-weight:400;">/15</span></div>
                       ${buildPointsBar(points)}
                     </div>
                   </td>
@@ -207,15 +240,22 @@ function buildEmailHtml(
 
                 <!-- Body text -->
                 <tr>
-                  <td style="padding:0 32px 28px;">
+                  <td style="padding:20px 32px 0;">
                     <p style="margin:0;font-size:15px;color:#94a3b8;line-height:1.7;text-align:center;">${bodyText}</p>
+                  </td>
+                </tr>
+
+                <!-- Consequence -->
+                <tr>
+                  <td style="padding:12px 32px 0;">
+                    <p style="margin:0;font-size:12px;color:#475569;line-height:1.6;text-align:center;font-style:italic;">${escapeHtml(t.consequence)}</p>
                   </td>
                 </tr>
 
                 <!-- CTA Button -->
                 <tr>
-                  <td style="padding:0 32px 32px;text-align:center;">
-                    <a href="${utmUrl}" style="display:inline-block;background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#ffffff;font-size:15px;font-weight:700;text-decoration:none;border-radius:12px;padding:14px 32px;letter-spacing:-0.2px;">${escapeHtml(t.ctaText)}</a>
+                  <td style="padding:24px 32px 32px;text-align:center;">
+                    <a href="${utmUrl}" style="display:inline-block;background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#ffffff;font-size:15px;font-weight:700;text-decoration:none;border-radius:12px;padding:14px 36px;letter-spacing:-0.2px;">${escapeHtml(t.ctaText)}</a>
                   </td>
                 </tr>
 
@@ -292,13 +332,44 @@ serve(async (req) => {
     const testEmail: string | undefined = body?.test_email;
     const dryRun: boolean               = body?.dry_run === true;
 
-    const today     = new Date().toISOString().slice(0, 10);
-    const yesterday = new Date(Date.now() - 86400_000).toISOString().slice(0, 10);
+    const today      = new Date().toISOString().slice(0, 10);
+    const yesterday  = new Date(Date.now() - 86400_000).toISOString().slice(0, 10);
     const twoDaysAgo = new Date(Date.now() - 2 * 86400_000).toISOString().slice(0, 10);
 
-    // ── Кто попадает в окно напоминания ──────────────────────────────────────
-    // last_daily_point_at = вчера (1 день пропуска) или позавчера (2 дня)
-    // Только браузерные пользователи (telegram_id IS NULL)
+    // ── Test-режим: ищем профиль по email, чтобы показать реальные данные ─────
+    if (testEmail) {
+      const { data: authData } = await supabase.auth.admin.listUsers({ perPage: 1000 });
+      const authUser = (authData?.users ?? []).find((u: any) => u.email?.toLowerCase() === testEmail.toLowerCase());
+
+      let firstName: string | null = 'Test';
+      let points = 15;
+      let lang: Lang = 'ru';
+
+      if (authUser) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('first_name, license_points, settings, language_code')
+          .eq('user_id', authUser.id)
+          .single();
+
+        if (profile) {
+          firstName = profile.first_name ?? firstName;
+          points    = profile.license_points ?? points;
+          lang      = getUserLang(profile);
+        }
+      }
+
+      console.log(`[PointsReminder] Test → ${testEmail} name=${firstName} pts=${points} lang=${lang}`);
+
+      if (dryRun) {
+        return new Response(JSON.stringify({ ok: true, dry_run: true, lang, pts: points, firstName }));
+      }
+
+      const result = await sendReminderEmail(testEmail, lang, firstName, points, 1);
+      return new Response(JSON.stringify({ ok: result.ok, error: result.error, lang, pts: points, firstName }));
+    }
+
+    // ── Bulk-режим ────────────────────────────────────────────────────────────
     const { data: profiles, error: pErr } = await supabase
       .from('profiles')
       .select('id, user_id, first_name, license_points, last_daily_point_at, settings, language_code')
@@ -311,8 +382,6 @@ serve(async (req) => {
       return new Response(JSON.stringify({ ok: true, sent: 0, message: 'No users in reminder window' }));
     }
 
-    // Получаем email из auth.users
-    const userIds = profiles.map((p: any) => p.user_id).filter(Boolean);
     const { data: authData } = await supabase.auth.admin.listUsers({ perPage: 1000 });
     const emailMap = new Map<string, string>();
     for (const u of (authData?.users ?? [])) {
@@ -321,19 +390,6 @@ serve(async (req) => {
       }
     }
 
-    // ── Test-режим ────────────────────────────────────────────────────────────
-    if (testEmail) {
-      const profile = profiles[0];
-      const lang = getUserLang(profile);
-      const pts  = profile.license_points ?? 12;
-      if (dryRun) {
-        return new Response(JSON.stringify({ ok: true, dry_run: true, lang, pts, would_send_to: testEmail }));
-      }
-      const result = await sendReminderEmail(testEmail, lang, profile.first_name, pts, 1);
-      return new Response(JSON.stringify({ ok: result.ok, error: result.error, lang, pts }));
-    }
-
-    // ── Bulk-режим ────────────────────────────────────────────────────────────
     console.log(`[PointsReminder] ${profiles.length} candidates in window`);
 
     let sent = 0, skipped = 0, failed = 0;
@@ -342,7 +398,6 @@ serve(async (req) => {
       const email = profile.user_id ? emailMap.get(profile.user_id) : undefined;
       if (!email) { skipped++; continue; }
 
-      // Не отправляли сегодня?
       const lastSent = profile.settings?.points_reminder_sent_date;
       if (lastSent === today) { skipped++; continue; }
 
@@ -368,7 +423,7 @@ serve(async (req) => {
         console.error(`[PointsReminder] ✗ ${email}: ${result.error}`);
       }
 
-      await new Promise(r => setTimeout(r, 120)); // Resend rate limit
+      await new Promise(r => setTimeout(r, 120));
     }
 
     console.log(`[PointsReminder] Done: sent=${sent} skipped=${skipped} failed=${failed}`);
