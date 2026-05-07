@@ -691,7 +691,7 @@ const Tests = () => {
                           <span className="text-amber-500 font-bold ml-0.5">→</span>
                         </button>
                       </TooltipTrigger>
-                      <TooltipContent side="bottom" sideOffset={8} avoidCollisions={false} className="bg-slate-900 border-white/15 text-slate-100 max-w-xs text-xs z-[99999]">
+                      <TooltipContent side="bottom" align="end" sideOffset={8} className="bg-slate-900 border-white/15 text-slate-100 max-w-xs text-xs z-[99999]">
                         {localeText(
                           `Доступно ${FREE_QUESTION_LIMIT} из 2157 вопросов. Открой всю базу чтобы быстрее вырасти.`,
                           `Tienes acceso a ${FREE_QUESTION_LIMIT} de 2157 preguntas. Desbloquea todo para mejorar más rápido.`,
