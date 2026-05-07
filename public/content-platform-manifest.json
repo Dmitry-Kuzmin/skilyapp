@@ -93,7 +93,8 @@
     {
       "route": "/legal/privacy",
       "outputPath": "legal/privacy.html",
-      "canonical": "https://skilyapp.com/legal/privacy"
+      "canonical": "https://skilyapp.com/legal/privacy",
+      "minBodyChars": 300
     },
     {
       "route": "/guides/kak-sdat-teoriyu-dgt",
