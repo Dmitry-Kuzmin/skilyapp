@@ -550,10 +550,10 @@ function SlideSP({ data, onOpenLeaderboard, currentUserId }: { data: Celebration
         </div>
       </motion.div>
 
-      {/* Climb mini-leaderboard */}
-      {data.rankChange && (
+      {/* Climb mini-leaderboard (server-powered or client fallback) */}
+      {effectiveRankChange && (
         <LeaderboardClimb
-          rankChange={data.rankChange}
+          rankChange={effectiveRankChange}
           userId={currentUserId}
           onOpenLeaderboard={onOpenLeaderboard}
         />
