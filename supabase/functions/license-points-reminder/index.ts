@@ -162,10 +162,10 @@ async function loadDailyQuests(supabase: any, lang: Lang): Promise<DailyQuest[]>
 
 async function loadSeasonInfo(supabase: any, lang: Lang): Promise<SeasonInfo | null> {
   const field = lang === 'ru' ? 'name_ru' : lang === 'es' ? 'name_es' : 'name_en';
-  const { data } = await supabase.from('duel_pass_seasons').select('name_ru,name_es,name_en,end_date').eq('is_active', true).limit(1).single();
+  const { data } = await supabase.from('duel_pass_seasons').select('id,name_ru,name_es,name_en,end_date').eq('is_active', true).limit(1).single();
   if (!data) return null;
   const daysLeft = Math.max(0, Math.ceil((new Date(data.end_date).getTime() - Date.now()) / 86400000));
-  return { name: data[field] || data.name_en || 'Season', daysLeft };
+  return { id: data.id, name: data[field] || data.name_en || 'Season', daysLeft };
 }
 
 // ── Points bar ────────────────────────────────────────────────────────────────
