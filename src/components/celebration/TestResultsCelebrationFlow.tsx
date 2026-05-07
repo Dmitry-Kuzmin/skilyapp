@@ -244,13 +244,32 @@ type ClimbRow = {
   photoUrl?: string | null;
 };
 
+// Rank position circle — same colors as DuelPass leaderboard
+function RankCircle({ rank }: { rank: number }) {
+  return (
+    <div className="w-10 flex items-center justify-center shrink-0">
+      <span className={cn(
+        'w-7 h-7 rounded-full flex items-center justify-center text-xs font-black shadow-lg shadow-black/20',
+        rank === 1 ? 'bg-yellow-400 text-yellow-950' :
+          rank === 2 ? 'bg-slate-300 text-slate-800' :
+            rank === 3 ? 'bg-orange-500 text-orange-50' :
+              'bg-white/5 text-white/50'
+      )}>
+        {rank}
+      </span>
+    </div>
+  );
+}
+
 function LeaderboardClimb({
   rankChange,
   userId,
+  currentSP,
   onOpenLeaderboard,
 }: {
   rankChange: RankChange;
   userId?: string;
+  currentSP: number;
   onOpenLeaderboard: () => void;
 }) {
   const { prev_rank, new_rank, overtaken } = rankChange;
@@ -261,12 +280,13 @@ function LeaderboardClimb({
     key: 'you',
     isYou: true,
     name: 'Ты',
-    sp: 0,
+    sp: currentSP,
     rank: prev_rank,
+    level: 0,
     userId,
   };
 
-  // Rows for context/overtaken users — sorted by SP desc (best SP = lowest rank number first)
+  // Context rows (overtaken in climb; neighbors above in static) — sorted by SP desc
   const overtakenRows: ClimbRow[] = overtaken
     .slice(0, 2)
     .map((u) => ({
@@ -275,31 +295,28 @@ function LeaderboardClimb({
       name: u.first_name || u.username || 'Игрок',
       sp: u.sp,
       rank: 0,
+      level: u.level ?? 0,
       userId: u.user_id,
       photoUrl: u.photo_url,
     }))
     .sort((a, b) => b.sp - a.sp);
 
-  // Initial order: context rows ABOVE you (better rank), YOU at bottom
+  // Initial: context rows ABOVE you, YOU at bottom
   const initialOrder: ClimbRow[] = overtakenRows.length > 0
     ? [...overtakenRows, youRow]
     : [youRow];
 
-  // After climb: YOU jumps to top, context rows fall below
+  // After climb: YOU on top, context rows below
   const finalOrder: ClimbRow[] = [youRow, ...overtakenRows];
 
-  // Assign ranks to initial state
   const initialRows: ClimbRow[] = initialOrder.map((row) => {
     if (row.isYou) return { ...row, rank: prev_rank };
     const idx = overtakenRows.findIndex(r => r.key === row.key);
-    // Users above YOU: rank = prev_rank - 1, prev_rank - 2, …
     return { ...row, rank: prev_rank - 1 - idx };
   });
 
-  // Assign ranks to final state (after climb)
   const finalRows: ClimbRow[] = finalOrder.map((row, i) => {
     if (row.isYou) return { ...row, rank: new_rank };
-    // Overtaken users shift down: rank = new_rank + offset from YOU
     const youIdx = finalOrder.findIndex(r => r.isYou);
     return { ...row, rank: new_rank + (i - youIdx) };
   });
@@ -316,45 +333,21 @@ function LeaderboardClimb({
       setOrder(finalRows);
       try { haptics.medium(); } catch { /* noop */ }
       try { playCelebrationSoundPop(); } catch { /* noop */ }
-      setTimeout(() => {
-        try { haptics.success(); } catch { /* noop */ }
-      }, 600);
+      setTimeout(() => { try { haptics.success(); } catch { /* noop */ } }, 600);
     }, 1500);
     return () => clearTimeout(t);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-  if (!climbed && overtakenRows.length === 0) {
-    // Graceful fallback: just show current position
-    return (
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.7 }}
-        className="w-full max-w-xs flex flex-col items-center gap-2"
-      >
-        <div className="px-4 py-2.5 rounded-2xl bg-white/5 border border-white/10 text-center">
-          <span className="text-white/40 text-xs uppercase tracking-widest font-bold">Твоё место</span>
-          <div className="text-white text-2xl font-black tabular-nums">#{new_rank}</div>
-        </div>
-        <button
-          onClick={onOpenLeaderboard}
-          className="text-white/50 text-xs font-semibold underline-offset-4 hover:text-white/80 transition-colors"
-        >
-          Открыть полный лидерборд →
-        </button>
-      </motion.div>
-    );
-  }
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.6 }}
-      className="w-full max-w-xs flex flex-col gap-2.5"
+      className="w-full max-w-sm flex flex-col gap-3"
     >
-      <div className="flex items-center justify-between text-[10px] uppercase tracking-widest font-black text-white/40 px-1">
-        <span>Лидерборд сезона</span>
+      {/* Header */}
+      <div className="flex items-center justify-between px-1 text-[10px] uppercase tracking-widest font-black text-white/40">
+        <span>Сезонный рейтинг</span>
         <motion.span
           key={animating ? 'after' : 'before'}
           initial={{ opacity: 0, y: -4 }}
@@ -365,7 +358,8 @@ function LeaderboardClimb({
         </motion.span>
       </div>
 
-      <div className="flex flex-col gap-1.5 relative">
+      {/* Rows — DuelPass style */}
+      <div className="flex flex-col gap-1.5">
         <AnimatePresence initial={false}>
           {order.map((row) => (
             <motion.div
@@ -375,57 +369,89 @@ function LeaderboardClimb({
               initial={false}
               animate={{ opacity: 1 }}
               transition={{
-                layout: { type: 'spring', stiffness: 380, damping: 30 },
+                layout: { type: 'spring', stiffness: 380, damping: 32 },
                 opacity: { duration: 0.2 },
               }}
               className={cn(
-                'flex items-center gap-3 px-3 py-2 rounded-xl border',
+                'flex items-center p-3 rounded-2xl transition-all backdrop-blur-md',
                 row.isYou
-                  ? 'bg-gradient-to-r from-indigo-500/30 via-violet-500/25 to-indigo-500/30 border-indigo-400/40 shadow-[0_8px_24px_-8px_rgba(99,102,241,0.5)]'
-                  : 'bg-white/[0.03] border-white/[0.06]'
+                  ? 'bg-gradient-to-r from-indigo-600/80 to-blue-600/80 border border-white/10 shadow-[0_8px_32px_rgba(79,70,229,0.35)]'
+                  : 'bg-white/[0.03] border border-white/[0.05]'
               )}
             >
-              <span className={cn(
-                'w-7 text-center text-xs font-black tabular-nums',
-                row.isYou ? 'text-white' : 'text-white/40'
-              )}>
-                #{row.rank}
-              </span>
-              <ClimbAvatar row={row} />
-              <span className={cn(
-                'flex-1 text-sm font-semibold truncate',
-                row.isYou ? 'text-white' : 'text-white/70'
-              )}>
-                {row.name}
-              </span>
-              <span className={cn(
-                'text-xs font-mono font-black tabular-nums shrink-0',
-                row.isYou ? 'text-indigo-200' : 'text-white/50'
-              )}>
-                {row.isYou && animating ? `${(rankChange.overtaken[0]?.sp ?? 0) + 1}+` : row.sp.toLocaleString('ru-RU')}
-                <span className="opacity-50 ml-0.5 text-[9px]">SP</span>
-              </span>
+              {/* Rank circle */}
+              <RankCircle rank={row.rank} />
+
+              {/* Avatar + name + rank icon */}
+              <div className="flex-1 ml-3 flex items-center gap-2.5 min-w-0">
+                {row.isYou && row.userId ? (
+                  <UserAvatar
+                    profileId={row.userId}
+                    size="sm"
+                    showPremiumGlow={false}
+                    avatarClassName="rounded-full"
+                    className="rounded-full ring-2 ring-white/30 shrink-0"
+                  />
+                ) : row.photoUrl ? (
+                  <img
+                    src={row.photoUrl}
+                    alt={row.name}
+                    className="w-8 h-8 rounded-full ring-1 ring-white/10 object-cover shrink-0"
+                    loading="lazy"
+                  />
+                ) : (
+                  <div className="w-8 h-8 rounded-full bg-white/10 ring-1 ring-white/10 shrink-0 flex items-center justify-center text-xs font-bold text-white/60">
+                    {row.name.charAt(0).toUpperCase()}
+                  </div>
+                )}
+                <div className="min-w-0 flex-1 flex items-center gap-2">
+                  <p className={cn(
+                    'font-bold text-sm truncate',
+                    row.isYou ? 'text-white' : 'text-white/80'
+                  )}>
+                    {row.name}
+                  </p>
+                  {row.level > 0 && (
+                    <div className="shrink-0">
+                      <RankIcon rank={getRankFromLevel(row.level)} size="xs" />
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* SP */}
+              <div className="shrink-0 text-right pl-2">
+                <span className={cn(
+                  'font-mono font-black tabular-nums tracking-tighter',
+                  row.isYou ? 'text-white text-base' : 'text-white/70 text-sm'
+                )}>
+                  {row.sp > 0 ? row.sp.toLocaleString('ru-RU') : '—'}
+                  <span className="text-[9px] ml-1 opacity-50 uppercase font-black">SP</span>
+                </span>
+              </div>
             </motion.div>
           ))}
         </AnimatePresence>
       </div>
 
+      {/* Climb result message */}
       {climbed && animating && overtakenCount > 0 && (
         <motion.div
           initial={{ opacity: 0, y: 6 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-          className="text-center text-emerald-400/90 text-xs font-bold mt-1"
+          transition={{ delay: 0.35 }}
+          className="text-center text-emerald-400 text-xs font-black tracking-wide"
         >
-          Ты обогнал {overtakenCount} {overtakenCount === 1 ? 'игрока' : 'игроков'} 🚀
+          🚀 Ты обогнал {overtakenCount} {overtakenCount === 1 ? 'игрока' : 'игроков'}!
         </motion.div>
       )}
 
+      {/* CTA */}
       <button
         onClick={onOpenLeaderboard}
-        className="text-white/50 text-xs font-semibold underline-offset-4 hover:text-white/80 transition-colors mt-1"
+        className="text-white/50 text-xs font-semibold text-center hover:text-white/80 transition-colors"
       >
-        Открыть полный лидерборд →
+        Полный рейтинг →
       </button>
     </motion.div>
   );
