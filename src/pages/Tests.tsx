@@ -628,7 +628,7 @@ const Tests = () => {
                 <AIInsightsLibrary isPremium={isPremium} />
 
                 {/* Streak */}
-                <CompactStreakJewel streak={streakDays} size="sm" />
+                <CompactStreakJewel streak={streakDays} size="sm" hasClaimedToday={false} />
 
                 {/* Readiness % — prominent circle + number */}
                 {readinessPct !== null && (
