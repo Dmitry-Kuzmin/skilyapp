@@ -672,8 +672,12 @@ const Tests = () => {
                         </div>
                       </button>
                     </TooltipTrigger>
-                    <TooltipContent side="top" className="bg-purple-950/90 border-purple-500/30 text-purple-100 max-w-xs text-xs">
-                      Твой прогресс к сдаче экзамена. Достигни 85%+ чтобы быть уверенным в успехе.
+                    <TooltipContent side="bottom" sideOffset={8} avoidCollisions={false} className="bg-purple-950/90 border-purple-500/30 text-purple-100 max-w-xs text-xs z-[9999]">
+                      {localeText(
+                        'Твой прогресс к сдаче экзамена. Достигни 85%+ чтобы быть уверенным в успехе.',
+                        'Tu progreso hacia el examen. Alcanza el 85%+ para estar seguro del éxito.',
+                        'Your exam readiness. Reach 85%+ to be confident in passing.'
+                      )}
                     </TooltipContent>
                   </Tooltip>
                 )}
