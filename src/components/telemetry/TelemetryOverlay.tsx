@@ -35,10 +35,6 @@ import { PremiumGatedSection } from '@/components/monetization/PremiumGatedSecti
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-function formatDate(date: Date): string {
-    return date.toISOString().split('T')[0];
-}
-
 function getStatusColor(status: string) {
     switch (status) {
         case 'legend': return { fill: '#3b82f6', label: 'Легенда' };
