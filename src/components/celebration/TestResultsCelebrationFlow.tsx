@@ -13,9 +13,9 @@ import { supabase } from '@/integrations/supabase/client';
 import { haptics } from '@/lib/haptics';
 import { UserAvatar } from '@/components/UserAvatar';
 
-const DuelPassLeaderboardModal = lazy(() =>
+const DuelPassLeaderboardView = lazy(() =>
   import('@/components/leaderboard/DuelPassLeaderboardModal').then(m => ({
-    default: m.DuelPassLeaderboardModal ?? m.default,
+    default: m.DuelPassLeaderboardView,
   }))
 );
 
