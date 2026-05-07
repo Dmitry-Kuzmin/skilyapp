@@ -173,7 +173,7 @@ export function UserAvatar({
                     activeSkin?.rarity === "legendary" && "bg-amber-950",
                     activeSkin?.rarity === "epic" && "bg-indigo-950",
                     activeSkin?.rarity === "rare" && "bg-blue-950",
-                    !isProfilePremium && !activeSkin && "bg-primary/20 text-primary"
+                    !isProfilePremium && !activeSkin && "bg-gradient-to-br from-indigo-500 to-violet-600 text-white"
                 )}>
                     {/* Fallback Mesh Gradient Layer */}
                     {isProfilePremium && !activeSkin && (
