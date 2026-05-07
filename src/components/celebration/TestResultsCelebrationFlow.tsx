@@ -144,88 +144,146 @@ function fmtTime(s: number) {
 type SlideId = 'result' | 'sp' | 'time' | 'xp' | 'topics' | 'cta';
 
 const SLIDE_STYLES: Record<SlideId, { bg: string; glow: string; sparkle: string }> = {
-  result:  { bg: 'from-zinc-950 via-zinc-900 to-zinc-950', glow: '', sparkle: 'transparent' },
-  sp:      { bg: 'from-zinc-950 via-indigo-950/60 to-zinc-950', glow: 'bg-indigo-500/20', sparkle: '#818cf8' },
-  time:    { bg: 'from-zinc-950 via-cyan-950/60 to-zinc-950',   glow: 'bg-cyan-500/20',   sparkle: '#22d3ee' },
-  xp:      { bg: 'from-zinc-950 via-amber-950/50 to-zinc-950',  glow: 'bg-amber-500/20',  sparkle: '#fbbf24' },
-  topics:  { bg: 'from-zinc-950 via-orange-950/50 to-zinc-950', glow: 'bg-orange-500/15', sparkle: '#fb923c' },
-  cta:     { bg: 'from-zinc-950 via-violet-950/50 to-zinc-950', glow: 'bg-violet-500/15', sparkle: '#a78bfa' },
+  result:  { bg: 'from-[#050505] via-[#0a0a0c] to-[#050505]', glow: '', sparkle: 'transparent' },
+  sp:      { bg: 'from-zinc-950 via-indigo-950/40 to-zinc-950', glow: 'bg-indigo-500/20', sparkle: '#818cf8' },
+  time:    { bg: 'from-zinc-950 via-cyan-950/40 to-zinc-950',   glow: 'bg-cyan-500/20',   sparkle: '#22d3ee' },
+  xp:      { bg: 'from-zinc-950 via-amber-950/40 to-zinc-950',  glow: 'bg-amber-500/20',  sparkle: '#fbbf24' },
+  topics:  { bg: 'from-zinc-950 via-orange-950/40 to-zinc-950', glow: 'bg-orange-500/15', sparkle: '#fb923c' },
+  cta:     { bg: 'from-zinc-950 via-violet-950/40 to-zinc-950', glow: 'bg-violet-500/15', sparkle: '#a78bfa' },
 };
 
 // ─── Individual slides ───────────────────────────────────────────────────────
 
 function SlideResult({ data }: { data: CelebrationData }) {
-  const score = useCountUp(data.correctCount, 600, 1000);
+  const scoreCount = useCountUp(data.correctCount, 600, 1000);
   const isPassed = data.isPassed;
+  
+  // Рассчитываем длину дуги для кругового прогресса
+  const radius = 70;
+  const circumference = 2 * Math.PI * radius;
+  const progressOffset = circumference - (data.score / 100) * circumference;
+
   return (
-    <div className="flex flex-col items-center justify-center h-full gap-6 px-8 text-center">
+    <div className="flex flex-col items-center justify-center h-full gap-8 px-8 text-center relative">
       {isPassed && (
         <Confetti
           width={window.innerWidth}
           height={window.innerHeight}
           recycle={false}
-          numberOfPieces={220}
-          gravity={0.25}
-          colors={['#22c55e', '#86efac', '#4ade80', '#ffffff', '#fbbf24']}
+          numberOfPieces={250}
+          gravity={0.2}
+          colors={['#22c55e', '#86efac', '#4ade80', '#ffffff', '#fbbf24', '#3b82f6']}
           style={{ position: 'fixed', top: 0, left: 0, zIndex: 5 }}
         />
       )}
 
-      {/* Icon */}
+      {/* Main Score Glass Card */}
       <motion.div
-        initial={{ scale: 0, rotate: -20 }}
-        animate={{ scale: 1, rotate: 0 }}
-        transition={{ type: 'spring', stiffness: 280, damping: 18, delay: 0.1 }}
-        className="relative"
+        initial={{ opacity: 0, scale: 0.9, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        transition={{ type: 'spring', stiffness: 260, damping: 20 }}
+        className="relative p-10 rounded-[3rem] bg-white/[0.03] border border-white/10 backdrop-blur-2xl shadow-[0_32px_64px_-16px_rgba(0,0,0,0.6)] flex flex-col items-center gap-6"
       >
+        {/* Animated Glow behind everything */}
         <div className={cn(
-          'w-36 h-36 rounded-full flex items-center justify-center text-7xl',
-          isPassed ? 'bg-green-500/20 ring-4 ring-green-500/40' : 'bg-red-500/15 ring-4 ring-red-500/30',
-        )}>
-          {isPassed ? '🏆' : '💪'}
-        </div>
-        {isPassed && (
+          "absolute inset-0 rounded-[3rem] blur-[60px] opacity-20 -z-10",
+          isPassed ? "bg-green-500" : "bg-red-500"
+        )} />
+
+        {/* Circular Progress & Emoji */}
+        <div className="relative w-48 h-48 flex items-center justify-center">
+          <svg className="absolute inset-0 w-full h-full -rotate-90">
+            {/* Background circle */}
+            <circle
+              cx="96"
+              cy="96"
+              r={radius}
+              fill="transparent"
+              stroke="currentColor"
+              strokeWidth="8"
+              className="text-white/5"
+            />
+            {/* Progress circle */}
+            <motion.circle
+              cx="96"
+              cy="96"
+              r={radius}
+              fill="transparent"
+              stroke={isPassed ? "#22c55e" : "#ef4444"}
+              strokeWidth="10"
+              strokeDasharray={circumference}
+              initial={{ strokeDashoffset: circumference }}
+              animate={{ strokeDashoffset: progressOffset }}
+              transition={{ duration: 1.5, ease: "easeOut", delay: 0.5 }}
+              strokeLinecap="round"
+            />
+          </svg>
+
           <motion.div
-            className="absolute inset-0 rounded-full bg-green-500/10"
-            animate={{ scale: [1, 1.5, 1], opacity: [0.5, 0, 0.5] }}
-            transition={{ duration: 2, repeat: Infinity }}
-          />
-        )}
-      </motion.div>
-
-      {/* Status */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.35 }}
-        className="flex flex-col items-center gap-2"
-      >
-        <span className={cn(
-          'text-sm font-black uppercase tracking-[0.2em]',
-          isPassed ? 'text-green-400' : 'text-red-400',
-        )}>
-          {isPassed ? '✓ Тест сдан' : '✗ Попробуй снова'}
-        </span>
-
-        {/* Score */}
-        <div className="flex items-baseline gap-2 mt-2">
-          <span className="text-8xl font-black text-white tabular-nums leading-none">{score}</span>
-          <span className="text-3xl font-bold text-white/40">/{data.totalQuestions}</span>
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 15, delay: 0.2 }}
+            className={cn(
+              'w-32 h-32 rounded-full flex items-center justify-center text-6xl z-10 shadow-inner',
+              isPassed ? 'bg-green-500/10' : 'bg-red-500/10',
+            )}
+          >
+            {isPassed ? '🏆' : '💪'}
+          </motion.div>
         </div>
-        <span className="text-lg text-white/50 font-medium">
-          {data.score}% точность
-        </span>
+
+        {/* Status & Stats */}
+        <div className="space-y-4">
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="flex flex-col items-center gap-1"
+          >
+            <span className={cn(
+              'text-xs font-black uppercase tracking-[0.4em] px-4 py-1 rounded-full border',
+              isPassed 
+                ? 'text-green-400 border-green-500/30 bg-green-500/5 shadow-[0_0_20px_rgba(34,197,94,0.1)]' 
+                : 'text-red-400 border-red-500/30 bg-red-500/5 shadow-[0_0_20px_rgba(239,68,68,0.1)]',
+            )}>
+              {isPassed ? 'Тест сдан' : 'Попробуй снова'}
+            </span>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.7 }}
+            className="flex flex-col items-center"
+          >
+            <div className="flex items-baseline gap-2">
+              <span className="text-7xl font-black text-white tabular-nums tracking-tighter leading-none">
+                {scoreCount}
+              </span>
+              <span className="text-2xl font-bold text-white/30">/{data.totalQuestions}</span>
+            </div>
+            <p className="text-sm font-bold text-white/50 tracking-wider uppercase mt-1">
+              правильных ответов
+            </p>
+          </motion.div>
+        </div>
       </motion.div>
 
-      {/* Time badge */}
+      {/* Accuracy & Time Row */}
       <motion.div
-        initial={{ opacity: 0, scale: 0.8 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ delay: 0.6 }}
-        className="px-4 py-2 rounded-full bg-white/5 border border-white/10 text-white/60 text-sm font-medium flex items-center gap-2"
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 1 }}
+        className="flex gap-4"
       >
-        <span>⏱</span>
-        <span>{fmtTime(data.timeSeconds)}</span>
+        <div className="px-6 py-3 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md flex flex-col items-center gap-0.5">
+          <span className="text-[10px] font-black uppercase tracking-widest text-white/30">Точность</span>
+          <span className="text-xl font-black text-white">{data.score}%</span>
+        </div>
+        <div className="px-6 py-3 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md flex flex-col items-center gap-0.5">
+          <span className="text-[10px] font-black uppercase tracking-widest text-white/30">Время</span>
+          <span className="text-xl font-black text-white">{fmtTime(data.timeSeconds)}</span>
+        </div>
       </motion.div>
     </div>
   );
@@ -471,7 +529,12 @@ function SlideSP({ data, onOpenLeaderboard, currentUserId, prefetchedRank, userR
   return (
     <div className="flex flex-col items-center justify-start h-full gap-5 px-6 text-center">
       {hasSpData ? (
-        <>
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9, y: 20 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          transition={{ type: 'spring', stiffness: 260, damping: 20 }}
+          className="relative w-full max-w-sm p-8 rounded-[2.5rem] bg-white/[0.03] border border-white/10 backdrop-blur-2xl shadow-[0_32px_64px_-16px_rgba(0,0,0,0.4)] flex flex-col items-center gap-6"
+        >
           <motion.div
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
@@ -489,10 +552,10 @@ function SlideSP({ data, onOpenLeaderboard, currentUserId, prefetchedRank, userR
           </motion.div>
 
           <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="flex flex-col items-center gap-1">
-            <span className="text-xs font-black uppercase tracking-[0.2em] text-indigo-400">Season Points</span>
+            <span className="text-[10px] font-black uppercase tracking-[0.4em] text-indigo-400">Season Points</span>
             <div className="flex items-baseline gap-1">
               <span className="text-xl font-bold text-white/40">+</span>
-              <span className="text-6xl font-black text-white tabular-nums leading-none">{sp}</span>
+              <span className="text-7xl font-black text-white tabular-nums leading-none">{sp}</span>
               <span className="text-2xl font-bold text-indigo-400 ml-1">SP</span>
             </div>
             {data.spAwarded > 8 && (
@@ -500,7 +563,7 @@ function SlideSP({ data, onOpenLeaderboard, currentUserId, prefetchedRank, userR
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.9 }}
-                className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30"
+                className="text-[10px] font-bold px-3 py-1 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30 mt-2"
               >
                 +{data.spAwarded - data.correctCount * 2} бонус 🎯
               </motion.span>
@@ -508,12 +571,12 @@ function SlideSP({ data, onOpenLeaderboard, currentUserId, prefetchedRank, userR
           </motion.div>
 
           {/* Level progress */}
-          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.45 }} className="w-full max-w-xs flex flex-col gap-1.5">
-            <div className="flex justify-between text-[10px] text-white/40 font-bold uppercase tracking-wider">
+          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.45 }} className="w-full flex flex-col gap-2 bg-white/5 p-4 rounded-2xl border border-white/5">
+            <div className="flex justify-between text-[10px] text-white/50 font-black uppercase tracking-wider">
               <span>Уровень {data.currentLevel}</span>
               <span className="tabular-nums">{data.currentSP} / {nextLevelSP}</span>
             </div>
-            <div className="h-2.5 rounded-full bg-white/10 overflow-hidden relative">
+            <div className="h-3 rounded-full bg-black/40 overflow-hidden relative border border-white/5">
               <motion.div
                 className="absolute left-0 top-0 h-full rounded-full bg-gradient-to-r from-indigo-500 to-violet-500"
                 initial={{ width: `${fillBefore}%` }}
@@ -522,7 +585,7 @@ function SlideSP({ data, onOpenLeaderboard, currentUserId, prefetchedRank, userR
               />
             </div>
           </motion.div>
-        </>
+        </motion.div>
       ) : (
         /* SP=0 case: show season leaderboard header instead */
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="flex flex-col items-center gap-2">
@@ -566,50 +629,66 @@ function SlideTime({ data, percentile }: { data: CelebrationData; percentile: nu
   return (
     <div className="flex flex-col items-center justify-center h-full gap-8 px-8 text-center">
       <motion.div
-        initial={{ scale: 0 }}
-        animate={{ scale: 1 }}
-        transition={{ type: 'spring', stiffness: 300, damping: 20, delay: 0.1 }}
-        className="w-32 h-32 rounded-full bg-cyan-500/20 ring-4 ring-cyan-500/40 flex items-center justify-center text-6xl"
+        initial={{ opacity: 0, scale: 0.9, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        transition={{ type: 'spring', stiffness: 260, damping: 20 }}
+        className="relative w-full max-w-sm p-10 rounded-[3rem] bg-white/[0.03] border border-white/10 backdrop-blur-2xl shadow-[0_32px_64px_-16px_rgba(0,0,0,0.4)] flex flex-col items-center gap-8"
       >
-        ⚡
-      </motion.div>
+        <motion.div
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{ type: 'spring', stiffness: 300, damping: 20, delay: 0.1 }}
+          className="w-32 h-32 rounded-full bg-cyan-500/20 ring-4 ring-cyan-500/40 flex items-center justify-center text-6xl"
+        >
+          ⚡
+        </motion.div>
 
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="flex flex-col items-center gap-2">
-        <span className="text-sm font-black uppercase tracking-[0.2em] text-cyan-400">Твоё время</span>
-        <span className="text-7xl font-black text-white tabular-nums">{fmtTime(data.timeSeconds)}</span>
-        {percentile !== null ? (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.7 }}
-            className="flex flex-col items-center gap-1 mt-2"
-          >
-            <span className={cn('text-2xl font-black', percentile >= 50 ? 'text-cyan-300' : 'text-white/60')}>
-              {percentile >= 50 ? '🚀 ' : ''}Быстрее чем {percentile}%
-            </span>
-            <span className="text-white/40 text-sm">пользователей этого теста</span>
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="flex flex-col items-center gap-2">
+          <span className="text-[10px] font-black uppercase tracking-[0.4em] text-cyan-400">Твоё время</span>
+          <span className="text-7xl font-black text-white tabular-nums">{fmtTime(data.timeSeconds)}</span>
+          {percentile !== null ? (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.7 }}
+              className="flex flex-col items-center gap-1 mt-4"
+            >
+              {percentile >= 50 ? (
+                <span className="text-2xl font-black px-4 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-300">
+                  🚀 Быстрее чем {percentile}%
+                </span>
+              ) : percentile >= 30 ? (
+                <span className="text-lg font-bold text-white/50 px-4 py-1">
+                  Есть куда ускориться ⚡
+                </span>
+              ) : (
+                <span className="text-lg font-bold text-white/40 px-4 py-1">
+                  Главное — правильные ответы 🎯
+                </span>
+              )}
+            </motion.div>
+          ) : (
+            <span className="text-white/30 text-sm mt-2">Анализируем результаты...</span>
+          )}
+        </motion.div>
+
+        {/* Speed bar */}
+        {percentile !== null && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.9 }} className="w-full flex flex-col gap-3 bg-white/5 p-4 rounded-2xl border border-white/5">
+            <div className="h-3 rounded-full bg-black/40 overflow-hidden border border-white/5">
+              <motion.div
+                className="h-full rounded-full bg-gradient-to-r from-cyan-500 to-blue-500"
+                initial={{ width: 0 }}
+                animate={{ width: `${percentile}%` }}
+                transition={{ delay: 1, duration: 0.8, ease: 'easeOut' }}
+              />
+            </div>
+            <div className="flex justify-between text-[10px] font-black uppercase tracking-widest text-white/20">
+              <span>Медленнее</span><span>Быстрее</span>
+            </div>
           </motion.div>
-        ) : (
-          <span className="text-white/30 text-sm mt-2">Анализируем результаты...</span>
         )}
       </motion.div>
-
-      {/* Speed bar */}
-      {percentile !== null && (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.9 }} className="w-full max-w-xs flex flex-col gap-2">
-          <div className="h-2.5 rounded-full bg-white/10 overflow-hidden">
-            <motion.div
-              className="h-full rounded-full bg-gradient-to-r from-cyan-500 to-blue-500"
-              initial={{ width: 0 }}
-              animate={{ width: `${percentile}%` }}
-              transition={{ delay: 1, duration: 0.8, ease: 'easeOut' }}
-            />
-          </div>
-          <div className="flex justify-between text-[10px] text-white/30">
-            <span>Медленнее</span><span>Быстрее</span>
-          </div>
-        </motion.div>
-      )}
     </div>
   );
 }
@@ -619,29 +698,36 @@ function SlideXP({ data }: { data: CelebrationData }) {
   return (
     <div className="flex flex-col items-center justify-center h-full gap-8 px-8 text-center">
       <motion.div
-        initial={{ scale: 0, rotate: 20 }}
-        animate={{ scale: 1, rotate: 0 }}
-        transition={{ type: 'spring', stiffness: 280, damping: 18, delay: 0.1 }}
-        className="relative"
+        initial={{ opacity: 0, scale: 0.9, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        transition={{ type: 'spring', stiffness: 260, damping: 20 }}
+        className="relative w-full max-w-sm p-10 rounded-[3rem] bg-white/[0.03] border border-white/10 backdrop-blur-2xl shadow-[0_32px_64px_-16px_rgba(0,0,0,0.4)] flex flex-col items-center gap-8"
       >
-        <div className="w-32 h-32 rounded-full bg-amber-500/20 ring-4 ring-amber-500/40 flex items-center justify-center text-6xl">
-          ⚡
-        </div>
         <motion.div
-          className="absolute inset-0 rounded-full bg-amber-400/10"
-          animate={{ scale: [1, 1.7, 1], opacity: [0.5, 0, 0.5] }}
-          transition={{ duration: 2, repeat: Infinity }}
-        />
-      </motion.div>
+          initial={{ scale: 0, rotate: 20 }}
+          animate={{ scale: 1, rotate: 0 }}
+          transition={{ type: 'spring', stiffness: 280, damping: 18, delay: 0.1 }}
+          className="relative"
+        >
+          <div className="w-32 h-32 rounded-full bg-amber-500/20 ring-4 ring-amber-500/40 flex items-center justify-center text-6xl shadow-inner">
+            ⚡
+          </div>
+          <motion.div
+            className="absolute inset-0 rounded-full bg-amber-400/10"
+            animate={{ scale: [1, 1.7, 1], opacity: [0.5, 0, 0.5] }}
+            transition={{ duration: 2, repeat: Infinity }}
+          />
+        </motion.div>
 
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="flex flex-col items-center gap-1">
-        <span className="text-sm font-black uppercase tracking-[0.2em] text-amber-400">Опыт заработан</span>
-        <div className="flex items-baseline gap-1 mt-1">
-          <span className="text-2xl font-bold text-white/40">+</span>
-          <span className="text-8xl font-black text-white tabular-nums leading-none">{xp}</span>
-          <span className="text-3xl font-bold text-amber-400 ml-1">XP</span>
-        </div>
-        <p className="text-white/40 text-sm mt-2">Ты продвигаешься к мастерству 🎓</p>
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="flex flex-col items-center gap-1">
+          <span className="text-[10px] font-black uppercase tracking-[0.4em] text-amber-400">Опыт заработан</span>
+          <div className="flex items-baseline gap-1 mt-1">
+            <span className="text-2xl font-bold text-white/40">+</span>
+            <span className="text-8xl font-black text-white tabular-nums leading-none">{xp}</span>
+            <span className="text-3xl font-bold text-amber-400 ml-1">XP</span>
+          </div>
+          <p className="text-white/40 text-xs font-bold uppercase tracking-widest mt-4">Ты продвигаешься к мастерству 🎓</p>
+        </motion.div>
       </motion.div>
     </div>
   );
@@ -652,33 +738,42 @@ function SlideTopics({ topics, onPractice }: { topics: string[]; onPractice: () 
   return (
     <div className="flex flex-col items-center justify-center h-full gap-7 px-8 text-center">
       <motion.div
-        initial={{ scale: 0 }}
-        animate={{ scale: 1 }}
-        transition={{ type: 'spring', stiffness: 280, damping: 20, delay: 0.1 }}
-        className="w-24 h-24 rounded-full bg-orange-500/15 ring-4 ring-orange-500/30 flex items-center justify-center text-5xl"
+        initial={{ opacity: 0, scale: 0.9, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        transition={{ type: 'spring', stiffness: 260, damping: 20 }}
+        className="relative w-full max-w-sm p-8 rounded-[3rem] bg-white/[0.03] border border-white/10 backdrop-blur-2xl shadow-[0_32px_64px_-16px_rgba(0,0,0,0.4)] flex flex-col items-center gap-7"
       >
-        🎯
-      </motion.div>
+        <motion.div
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{ type: 'spring', stiffness: 280, damping: 20, delay: 0.1 }}
+          className="w-24 h-24 rounded-full bg-orange-500/15 ring-4 ring-orange-500/30 flex items-center justify-center text-5xl"
+        >
+          🎯
+        </motion.div>
 
-      <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="flex flex-col items-center gap-2">
-        <span className="text-sm font-black uppercase tracking-[0.2em] text-orange-400">Поработай над</span>
-        <p className="text-white/50 text-sm">Эти темы стоит повторить</p>
-      </motion.div>
+        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="flex flex-col items-center gap-1">
+          <span className="text-[10px] font-black uppercase tracking-[0.4em] text-orange-400">Поработай над</span>
+          <p className="text-white/40 text-xs font-bold tracking-widest uppercase">Эти темы стоит повторить</p>
+        </motion.div>
 
-      <motion.ul initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.45 }} className="w-full max-w-xs flex flex-col gap-2">
-        {shown.map((topic, i) => (
-          <motion.li
-            key={i}
-            initial={{ opacity: 0, x: -16 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.5 + i * 0.08 }}
-            className="flex items-center gap-3 px-4 py-3 rounded-xl bg-white/5 border border-orange-500/20 text-left"
-          >
-            <span className="w-5 h-5 rounded-full bg-orange-500/30 text-orange-400 text-[10px] font-black flex items-center justify-center shrink-0">{i + 1}</span>
-            <span className="text-sm text-white/80 font-medium leading-tight">{topic}</span>
-          </motion.li>
-        ))}
-      </motion.ul>
+        <motion.ul initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.45 }} className="w-full flex flex-col gap-3">
+          {shown.map((topic, i) => (
+            <motion.li
+              key={i}
+              initial={{ opacity: 0, x: -16 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.5 + i * 0.08 }}
+              className="flex items-center gap-4 px-4 py-4 rounded-2xl bg-white/5 border border-white/5 text-left group hover:bg-white/10 transition-colors"
+            >
+              <span className="w-6 h-6 rounded-lg bg-orange-500/20 text-orange-400 text-xs font-black flex items-center justify-center shrink-0">
+                {i + 1}
+              </span>
+              <span className="text-sm text-white/90 font-bold leading-tight flex-1">{topic}</span>
+            </motion.li>
+          ))}
+        </motion.ul>
+      </motion.div>
     </div>
   );
 }
@@ -687,38 +782,45 @@ function SlideCTA({ data, onRetry, onDetails }: { data: CelebrationData; onRetry
   return (
     <div className="flex flex-col items-center justify-center h-full gap-8 px-8 text-center">
       <motion.div
-        initial={{ scale: 0 }}
-        animate={{ scale: 1 }}
-        transition={{ type: 'spring', stiffness: 250, damping: 18, delay: 0.1 }}
-        className="text-8xl"
+        initial={{ opacity: 0, scale: 0.9, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        transition={{ type: 'spring', stiffness: 260, damping: 20 }}
+        className="relative w-full max-w-sm p-10 rounded-[3rem] bg-white/[0.03] border border-white/10 backdrop-blur-2xl shadow-[0_32px_64px_-16px_rgba(0,0,0,0.4)] flex flex-col items-center gap-8"
       >
-        {data.isPassed ? '🎉' : '🔥'}
-      </motion.div>
-
-      <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }} className="flex flex-col gap-2">
-        <h2 className="text-3xl font-black text-white">
-          {data.isPassed ? 'Отличная работа!' : 'Не сдавайся!'}
-        </h2>
-        <p className="text-white/50 text-base leading-relaxed max-w-[260px]">
-          {data.isPassed
-            ? 'Ты отлично справился с этим тестом. Продолжай в том же духе!'
-            : 'Каждая попытка делает тебя сильнее. Повтори темы и попробуй снова!'}
-        </p>
-      </motion.div>
-
-      <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.55 }} className="flex flex-col w-full max-w-xs gap-3">
-        <button
-          onClick={onRetry}
-          className="w-full py-4 rounded-2xl bg-white text-zinc-950 font-black text-base tracking-wide active:scale-95 transition-transform"
+        <motion.div
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{ type: 'spring', stiffness: 250, damping: 18, delay: 0.1 }}
+          className="text-8xl drop-shadow-2xl"
         >
-          {data.isPassed ? '🚀 Следующий тест' : '🔄 Попробовать снова'}
-        </button>
-        <button
-          onClick={onDetails}
-          className="w-full py-3.5 rounded-2xl border border-white/15 text-white/60 font-semibold text-sm active:scale-95 transition-transform"
-        >
-          Детали теста →
-        </button>
+          {data.isPassed ? '🎉' : '🔥'}
+        </motion.div>
+
+        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }} className="flex flex-col gap-3">
+          <h2 className="text-4xl font-black text-white tracking-tight">
+            {data.isPassed ? 'Отличная работа!' : 'Не сдавайся!'}
+          </h2>
+          <p className="text-white/40 text-sm font-medium leading-relaxed max-w-[260px] mx-auto uppercase tracking-widest">
+            {data.isPassed
+              ? 'Ты отлично справился с этим тестом. Продолжай в том же духе!'
+              : 'Каждая попытка делает тебя сильнее. Повтори темы и попробуй снова!'}
+          </p>
+        </motion.div>
+
+        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.55 }} className="flex flex-col w-full gap-3 mt-4">
+          <button
+            onClick={onRetry}
+            className="w-full py-5 rounded-[2rem] bg-white text-zinc-950 font-black text-lg tracking-wide active:scale-95 transition-all shadow-[0_20px_40px_-10px_rgba(255,255,255,0.3)]"
+          >
+            {data.isPassed ? '🚀 Следующий тест' : '🔄 Попробовать снова'}
+          </button>
+          <button
+            onClick={onDetails}
+            className="w-full py-4 rounded-[1.5rem] border border-white/10 text-white/50 font-bold text-sm hover:bg-white/5 transition-all"
+          >
+            Детали теста →
+          </button>
+        </motion.div>
       </motion.div>
     </div>
   );
@@ -903,18 +1005,26 @@ export function TestResultsCelebrationFlow({ data, onDone }: Props) {
       {/* Bottom CTA — wide, mobile-friendly, safe-area-aware */}
       {slideId !== 'cta' && (
         <motion.div
-          initial={{ opacity: 0, y: 24 }}
+          initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6, type: 'spring', stiffness: 300, damping: 28 }}
-          className="absolute bottom-0 left-0 right-0 z-30 px-5 pt-4"
+          transition={{ delay: 1.2, type: 'spring', stiffness: 260, damping: 30 }}
+          className="absolute bottom-0 left-0 right-0 z-30 px-6 pt-4"
           style={{ paddingBottom: SAFE_BOTTOM }}
           onClick={(e) => e.stopPropagation()}
         >
           <button
             onClick={advance}
-            className="w-full py-4 rounded-2xl bg-white text-zinc-950 font-black text-base tracking-wide active:scale-[0.97] transition-transform shadow-[0_10px_40px_-12px_rgba(255,255,255,0.55)]"
+            className="w-full py-5 rounded-[2rem] bg-white text-zinc-950 font-black text-lg tracking-wide active:scale-[0.96] transition-all duration-300 shadow-[0_20px_50px_-12px_rgba(255,255,255,0.4)] flex items-center justify-center gap-3 group overflow-hidden relative"
           >
-            Дальше →
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-zinc-200/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+            <span className="relative z-10">Дальше</span>
+            <motion.span 
+              className="relative z-10"
+              animate={{ x: [0, 5, 0] }}
+              transition={{ repeat: Infinity, duration: 1.5 }}
+            >
+              →
+            </motion.span>
           </button>
         </motion.div>
       )}
