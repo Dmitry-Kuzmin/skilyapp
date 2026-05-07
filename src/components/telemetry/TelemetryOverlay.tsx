@@ -179,18 +179,8 @@ export function TelemetryContent({ onClose }: { onClose: () => void }) {
     const duelStats = dashData?.duels ?? null;
     const mistakesCount = dashData?.mistakes_count ?? 0;
 
-    // Real dynamic radar data
     const radarData = useMemo(() => {
-        if (!analytics?.topicStats || analytics.topicStats.length === 0) {
-            return [
-                { subject: 'Знаки', accuracy: 0 },
-                { subject: 'Разметка', accuracy: 0 },
-                { subject: 'Приоритет', accuracy: 0 },
-                { subject: 'Обгон', accuracy: 0 },
-                { subject: 'Медицина', accuracy: 0 },
-                { subject: 'Техника', accuracy: 0 },
-            ];
-        }
+        if (!analytics?.topicStats || analytics.topicStats.length === 0) return [];
         return analytics.topicStats.slice(0, 6).map(t => ({
             subject: t.topic_title ? t.topic_title.split(' ')[0] : 'Tema',
             accuracy: t.accuracy || 0
