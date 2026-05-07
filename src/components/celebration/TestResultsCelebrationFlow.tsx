@@ -799,8 +799,11 @@ export function TestResultsCelebrationFlow({ data, onDone }: Props) {
       {/* Sparkles */}
       {style.sparkle !== 'transparent' && <Sparkles color={style.sparkle} />}
 
-      {/* Top bar */}
-      <div className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between px-6 pt-safe pt-4 pb-3">
+      {/* Top bar — safe-area-aware */}
+      <div
+        className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between px-6 pb-3"
+        style={{ paddingTop: SAFE_TOP }}
+      >
         <SlideDots total={slides.length} current={current} />
         {slideId !== 'cta' && (
           <button
@@ -824,9 +827,15 @@ export function TestResultsCelebrationFlow({ data, onDone }: Props) {
           transition={{ type: 'spring', stiffness: 350, damping: 35 }}
           className="absolute inset-0 flex flex-col"
         >
-          <div className="flex-1 flex flex-col pt-16 pb-24">
+          <div className="flex-1 flex flex-col pt-20 pb-32 overflow-y-auto">
             {slideId === 'result' && <SlideResult data={data} />}
-            {slideId === 'sp'     && <SlideSP data={data} />}
+            {slideId === 'sp'     && (
+              <SlideSP
+                data={data}
+                onOpenLeaderboard={() => setLeaderboardOpen(true)}
+                currentUserId={currentUserId}
+              />
+            )}
             {slideId === 'time'   && <SlideTime data={data} percentile={percentile} />}
             {slideId === 'xp'     && <SlideXP data={data} />}
             {slideId === 'topics' && <SlideTopics topics={data.failedTopics} onPractice={onDone} />}
@@ -835,23 +844,55 @@ export function TestResultsCelebrationFlow({ data, onDone }: Props) {
         </motion.div>
       </AnimatePresence>
 
-      {/* Tap hint */}
+      {/* Bottom CTA — wide, mobile-friendly, safe-area-aware */}
       {slideId !== 'cta' && (
         <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1.2 }}
-          className="absolute bottom-10 left-0 right-0 flex justify-center pointer-events-none"
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6, type: 'spring', stiffness: 300, damping: 28 }}
+          className="absolute bottom-0 left-0 right-0 z-30 px-5 pt-4"
+          style={{ paddingBottom: SAFE_BOTTOM }}
+          onClick={(e) => e.stopPropagation()}
         >
-          <motion.div
-            animate={{ y: [0, 6, 0] }}
-            transition={{ duration: 1.4, repeat: Infinity, ease: 'easeInOut' }}
-            className="flex flex-col items-center gap-1.5 text-white/25"
+          <button
+            onClick={advance}
+            className="w-full py-4 rounded-2xl bg-white text-zinc-950 font-black text-base tracking-wide active:scale-[0.97] transition-transform shadow-[0_10px_40px_-12px_rgba(255,255,255,0.55)]"
           >
-            <span className="text-xs font-medium tracking-widest uppercase">Нажми</span>
-            <span className="text-base">↓</span>
-          </motion.div>
+            Дальше →
+          </button>
         </motion.div>
+      )}
+
+      {/* Lazy leaderboard overlay */}
+      {leaderboardOpen && (
+        <div
+          className="absolute inset-0 z-40 bg-zinc-950/95 backdrop-blur-md flex flex-col"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div
+            className="flex items-center justify-between px-4 pb-2"
+            style={{ paddingTop: SAFE_TOP }}
+          >
+            <span className="text-white font-black text-base">Лидерборд сезона</span>
+            <button
+              onClick={() => setLeaderboardOpen(false)}
+              className="px-3 py-1.5 rounded-xl bg-white/10 text-white/80 text-sm font-semibold active:scale-95"
+            >
+              ✕ Закрыть
+            </button>
+          </div>
+          <div className="flex-1 overflow-y-auto">
+            <Suspense fallback={
+              <div className="flex items-center justify-center h-40 text-white/40 text-sm">Загрузка…</div>
+            }>
+              <DuelPassLeaderboardView
+                onBack={() => setLeaderboardOpen(false)}
+                onOpenHallOfFame={() => {}}
+                embedded
+              />
+            </Suspense>
+          </div>
+        </div>
       )}
     </div>
   );
