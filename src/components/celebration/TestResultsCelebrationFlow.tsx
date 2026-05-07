@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, lazy, Suspense } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Confetti from 'react-confetti';
 import { cn } from '@/lib/utils';
@@ -10,8 +10,28 @@ import {
   playLevelUpSound,
 } from '@/services/audioService';
 import { supabase } from '@/integrations/supabase/client';
+import { haptics } from '@/lib/haptics';
+import { UserAvatar } from '@/components/UserAvatar';
+
+const DuelPassLeaderboardModal = lazy(() =>
+  import('@/components/leaderboard/DuelPassLeaderboardModal').then(m => ({
+    default: m.DuelPassLeaderboardModal ?? m.default,
+  }))
+);
 
 // ─── Types ────────────────────────────────────────────────────────────────────
+
+export interface RankChange {
+  prev_rank: number;
+  new_rank: number;
+  overtaken: Array<{
+    user_id: string;
+    sp: number;
+    first_name: string | null;
+    username: string | null;
+    photo_url: string | null;
+  }>;
+}
 
 export interface CelebrationData {
   score: number;           // 0–100 percent
@@ -26,12 +46,18 @@ export interface CelebrationData {
   mode: string;
   failedTopics: string[];  // topic titles of wrong answers
   leveledUp: boolean;
+  rankChange?: RankChange;
 }
 
 interface Props {
   data: CelebrationData;
   onDone: () => void;
 }
+
+// ─── Safe-area constants ─────────────────────────────────────────────────────
+
+const SAFE_TOP = 'max(env(safe-area-inset-top), var(--tg-content-safe-area-inset-top, 0px), 16px)';
+const SAFE_BOTTOM = 'max(env(safe-area-inset-bottom), 20px)';
 
 // ─── Count-up hook ────────────────────────────────────────────────────────────
 
