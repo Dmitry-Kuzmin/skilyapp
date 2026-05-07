@@ -64,11 +64,11 @@ function KpiCard({ icon: Icon, label, value, sub, accent = false }: any) {
 
 function FlightNavigation({ currentStatus, t }: { currentStatus: string, t: any }) {
     const levels = [
-        { id: 'start', title: t('dashboard.examReadiness.levels.start.title'), desc: t('dashboard.examReadiness.levels.start.desc'), range: '0-30%', color: '#ef4444', bgColor: 'bg-red-500/10' },
-        { id: 'progress', title: t('dashboard.examReadiness.levels.progress.title'), desc: t('dashboard.examReadiness.levels.progress.desc'), range: '31-70%', color: '#f59e0b', bgColor: 'bg-orange-500/10' },
-        { id: 'near', title: t('dashboard.examReadiness.levels.near.title'), desc: t('dashboard.examReadiness.levels.near.desc'), range: '71-84%', color: '#f59e0b', bgColor: 'bg-orange-500/10' },
-        { id: 'ready', title: t('dashboard.examReadiness.levels.ready.title'), desc: t('dashboard.examReadiness.levels.ready.desc'), range: '85-95%', color: '#10b981', bgColor: 'bg-emerald-500/10' },
-        { id: 'legend', title: t('dashboard.examReadiness.levels.legend.title'), desc: t('dashboard.examReadiness.levels.legend.desc'), range: '96-100%', color: '#3b82f6', bgColor: 'bg-blue-500/10' }
+        { id: 'start', title: t('dashboard.examReadiness.levels.start.title'), desc: t('dashboard.examReadiness.levels.start.desc'), range: '0-20%', color: '#ef4444', bgColor: 'bg-red-500/10' },
+        { id: 'progress', title: t('dashboard.examReadiness.levels.progress.title'), desc: t('dashboard.examReadiness.levels.progress.desc'), range: '21-50%', color: '#f59e0b', bgColor: 'bg-orange-500/10' },
+        { id: 'near', title: t('dashboard.examReadiness.levels.near.title'), desc: t('dashboard.examReadiness.levels.near.desc'), range: '51-75%', color: '#eab308', bgColor: 'bg-yellow-500/10' },
+        { id: 'ready', title: t('dashboard.examReadiness.levels.ready.title'), desc: t('dashboard.examReadiness.levels.ready.desc'), range: '76-90%', color: '#10b981', bgColor: 'bg-emerald-500/10' },
+        { id: 'legend', title: t('dashboard.examReadiness.levels.legend.title'), desc: t('dashboard.examReadiness.levels.legend.desc'), range: '91-100%', color: '#a855f7', bgColor: 'bg-purple-500/10' }
     ];
 
     const currentIndex = levels.findIndex(l => l.id === currentStatus);
