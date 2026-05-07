@@ -914,7 +914,7 @@ function SlideCTA({ data, onRetry, onDetails, todayTestCount }: { data: Celebrat
           <Rocket className="w-16 h-16 text-violet-400 drop-shadow-[0_0_20px_rgba(167,139,250,0.5)]" />
         </motion.div>
 
-        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }} className="flex flex-col gap-3">
+        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }} className="flex flex-col gap-3 items-center">
           <h2 className="text-4xl font-black text-white tracking-tight">
             {data.isPassed ? 'Отличная работа!' : 'Не сдавайся!'}
           </h2>
@@ -923,6 +923,18 @@ function SlideCTA({ data, onRetry, onDetails, todayTestCount }: { data: Celebrat
               ? 'Ты отлично справился с этим тестом. Продолжай в том же духе!'
               : 'Каждая попытка делает тебя сильнее. Повтори темы и попробуй снова!'}
           </p>
+          {todayTestCount >= 2 && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.85 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.6, type: 'spring', stiffness: 300, damping: 20 }}
+              className="flex items-center gap-2 px-4 py-2 rounded-full bg-orange-500/10 border border-orange-500/20 mt-1"
+            >
+              <span className="text-orange-400 font-black text-sm">
+                🔥 Это твой {todayTestCount}-й тест сегодня!
+              </span>
+            </motion.div>
+          )}
         </motion.div>
 
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.55 }} className="flex flex-col w-full gap-3 mt-4">
