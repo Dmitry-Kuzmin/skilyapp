@@ -25,6 +25,18 @@ import { useUserContext } from "@/contexts/UserContext";
 import { useModalStore } from "@/store/modalStore";
 import { TestResultsCelebrationFlow, type CelebrationData } from "@/components/celebration/TestResultsCelebrationFlow";
 
+type RankChangePayload = {
+  prev_rank: number;
+  new_rank: number;
+  overtaken: Array<{
+    user_id: string;
+    sp: number;
+    first_name: string | null;
+    username: string | null;
+    photo_url: string | null;
+  }>;
+};
+
 type TestRewardPayload = {
   coins_awarded?: number;
   sp_awarded?: number;
@@ -36,6 +48,7 @@ type TestRewardPayload = {
   level_up?: boolean;
   new_level?: number;
   total_sp?: number;
+  rank_change?: RankChangePayload;
   message?: string;
 };
 
