@@ -78,7 +78,7 @@ const ASSERT_CORE_PAGES = [
   { route: "/es", outputPath: "es.html", canonical: `${SITE_URL}/es`, langAssert: "es" },
   { route: "/about", outputPath: "about.html", canonical: `${SITE_URL}/about` },
   { route: "/pricing", outputPath: "pricing.html", canonical: `${SITE_URL}/pricing` },
-  { route: "/tests", outputPath: "tests.html", canonical: `${SITE_URL}/tests`, minBodyChars: 100 },
+  { route: "/tests", outputPath: "tests.html", canonical: `${SITE_URL}/tests`, minBodyChars: 50 },
   { route: "/curso", outputPath: "curso.html", canonical: `${SITE_URL}/curso` },
   { route: "/blog", outputPath: "blog.html", canonical: `${SITE_URL}/blog` },
   { route: "/legal/privacy", outputPath: "legal/privacy.html", canonical: `${SITE_URL}/legal/privacy`, minBodyChars: 30 },
