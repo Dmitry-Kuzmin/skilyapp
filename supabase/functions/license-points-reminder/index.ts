@@ -466,17 +466,17 @@ serve(async (req) => {
       const daysMissed = profile.last_daily_point_at === yesterday ? 1 : 2;
       const lang       = getUserLang(profile);
       const points     = profile.license_points ?? 12;
-      const userXp     = profile.xp ?? 0;
-      const stats: UserStats = { xp: userXp, dpLevel: profile.duel_pass_level ?? 1, rank: getRank(userXp), totalPlayers };
+      const dpXp       = profile.duel_pass_xp ?? 0;
+      const stats: UserStats = { dpXp, dpLevel: profile.duel_pass_level ?? 1, dpRank: getDpRank(dpXp), totalPlayers };
       const [quests, season] = await Promise.all([getQuests(lang), getSeason(lang)]);
 
-      if (dryRun) { console.log(`[PointsReminder] DRY RUN: ${email} day=${daysMissed} rank=${stats.rank}`); sent++; continue; }
+      if (dryRun) { console.log(`[PointsReminder] DRY RUN: ${email} day=${daysMissed} dpRank=${stats.dpRank}`); sent++; continue; }
 
       const result = await sendReminderEmail(email, lang, profile.first_name, points, daysMissed as 1 | 2, quests, season, stats);
       if (result.ok) {
         sent++;
         await supabase.from('profiles').update({ settings: { ...(profile.settings ?? {}), points_reminder_sent_date: today } }).eq('id', profile.id);
-        console.log(`[PointsReminder] ✅ ${email} day=${daysMissed} rank=${stats.rank}/${totalPlayers}`);
+        console.log(`[PointsReminder] ✅ ${email} day=${daysMissed} dpRank=${stats.dpRank}/${totalPlayers}`);
       } else {
         failed++;
         console.error(`[PointsReminder] ✗ ${email}: ${result.error}`);
