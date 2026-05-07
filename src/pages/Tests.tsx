@@ -590,48 +590,27 @@ const Tests = () => {
           <div className="max-w-[1370px] mx-auto space-y-8">
 
             {/* Page Header */}
-            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 animate-fade-in">
-              <div className="w-full md:w-auto">
-                <div className="mb-4 flex md:hidden">
-                  <ContextSwitcher className="h-9 rounded-xl bg-background/75 border-border/60 shadow-sm" />
+            <div className="flex flex-col gap-3 animate-fade-in">
+              <div className="flex items-start justify-between">
+                <div>
+                  <div className="mb-3 flex md:hidden">
+                    <ContextSwitcher className="h-9 rounded-xl bg-background/75 border-border/60 shadow-sm" />
+                  </div>
+                  <h1 className="text-3xl md:text-4xl font-black text-foreground tracking-tight">
+                    {selectedCountry === 'russia' ? 'Билеты ПДД' : t('testsPage.title')}
+                  </h1>
                 </div>
-                <h1 className="text-3xl md:text-4xl font-black text-foreground tracking-tight mb-2">
-                  {selectedCountry === 'russia' ? 'Билеты ПДД' : t('testsPage.title')}
-                </h1>
-                <p className="text-muted-foreground font-medium text-lg">
-                  {selectedCountry === 'russia' ? 'Выберите билет для изучения' : t('testsPage.subtitle')}
-                </p>
+                {/* AI Insights — only button stays top-right */}
+                <AIInsightsLibrary isPremium={isPremium} />
               </div>
 
-              {/* Stats Badges - Style from Dashboard - Always on one line */}
-              <div className="flex flex-col items-end gap-2 min-w-0">
-              {!isPremium && !isGuest && selectedCountry === 'spain' && (
-                <button
-                  onClick={() => openModal('PAYWALL')}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/25 hover:bg-amber-500/20 transition-colors whitespace-nowrap"
-                >
-                  <Lock className="w-3 h-3 text-amber-500 shrink-0" />
-                  <span className="text-xs font-medium text-amber-600 dark:text-amber-400">
-                    {localeText(
-                      `${FREE_QUESTION_LIMIT} из 2157 вопросов`,
-                      `${FREE_QUESTION_LIMIT} de 2157 preguntas`,
-                      `${FREE_QUESTION_LIMIT} of 2157 questions`
-                    )}
-                  </span>
-                  <span className="text-xs font-bold text-amber-500">·</span>
-                  <span className="text-xs font-bold text-amber-500">
-                    {localeText('Открыть', 'Desbloquear', 'Unlock')} →
-                  </span>
-                </button>
-              )}
-              <div className="flex items-center gap-1.5">
-                {/* AI Insights shortcut */}
-                <AIInsightsLibrary isPremium={isPremium} />
+              {/* Status row — single line under title */}
+              <div className="flex items-center gap-2 flex-wrap">
 
                 {/* Streak */}
                 <Tooltip delayDuration={300}>
                   <TooltipTrigger asChild>
-                    <button className="cursor-help p-0 h-auto bg-transparent border-0 hover:opacity-80 transition-opacity">
+                    <button className="p-0 h-auto bg-transparent border-0 hover:opacity-80 transition-opacity">
                       <CompactStreakJewel streak={streakDays} size="sm" hasClaimedToday={false} />
                     </button>
                   </TooltipTrigger>
@@ -650,23 +629,17 @@ const Tests = () => {
                   </TooltipContent>
                 </Tooltip>
 
-                {/* Readiness % — prominent circle + number */}
+                {/* Readiness % */}
                 {readinessPct !== null && (
                   <Tooltip delayDuration={300}>
                     <TooltipTrigger asChild>
-                      <button className="cursor-help p-0 h-auto bg-transparent border-0 hover:opacity-80 transition-opacity">
-                        <div className="flex items-center gap-2 h-10 px-3.5 rounded-full bg-gradient-to-r from-purple-500/15 to-indigo-500/15 border border-purple-500/30 text-sm font-bold text-purple-200 flex-shrink-0 whitespace-nowrap shadow-lg shadow-purple-500/10">
-                          <svg viewBox="0 0 36 36" className="w-6 h-6 -rotate-90 flex-shrink-0">
-                            <defs>
-                              <linearGradient id="readiness-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-                                <stop offset="0%" style={{ stopColor: '#c084fc', stopOpacity: 0.3 }} />
-                                <stop offset="100%" style={{ stopColor: '#a78bfa', stopOpacity: 0.3 }} />
-                              </linearGradient>
-                            </defs>
-                            <circle cx="18" cy="18" r="14" fill="none" stroke="url(#readiness-grad)" strokeWidth="2.5" />
-                            <circle cx="18" cy="18" r="14" fill="none" stroke="#c084fc" strokeWidth="2.5"
+                      <button className="p-0 h-auto bg-transparent border-0 hover:opacity-80 transition-opacity">
+                        <div className="flex items-center gap-2 h-9 px-3 rounded-full bg-purple-500/10 border border-purple-500/25 text-sm font-bold text-purple-300 whitespace-nowrap">
+                          <svg viewBox="0 0 36 36" className="w-5 h-5 -rotate-90 flex-shrink-0">
+                            <circle cx="18" cy="18" r="14" fill="none" stroke="currentColor" strokeOpacity="0.25" strokeWidth="3" />
+                            <circle cx="18" cy="18" r="14" fill="none" stroke="currentColor" strokeWidth="3"
                               strokeDasharray={`${(readinessPct / 100) * 87.96} 87.96`}
-                              strokeLinecap="round" style={{ opacity: 0.9 }} />
+                              strokeLinecap="round" />
                           </svg>
                           <span>{readinessPct}%</span>
                         </div>
@@ -682,13 +655,13 @@ const Tests = () => {
                   </Tooltip>
                 )}
 
-                {/* Error queue — bold standout */}
+                {/* Errors */}
                 {challengeStats.errors > 0 && (
                   <Tooltip delayDuration={300}>
                     <TooltipTrigger asChild>
-                      <button className="cursor-help p-0 h-auto bg-transparent border-0 hover:opacity-80 transition-opacity">
-                        <div className="flex items-center gap-1.5 h-10 px-3.5 rounded-full bg-gradient-to-r from-amber-500/15 to-orange-500/15 border border-amber-500/40 text-sm font-bold text-amber-200 flex-shrink-0 whitespace-nowrap shadow-lg shadow-amber-500/10">
-                          <span className="text-lg">⚠️</span>
+                      <button className="p-0 h-auto bg-transparent border-0 hover:opacity-80 transition-opacity">
+                        <div className="flex items-center gap-1.5 h-9 px-3 rounded-full bg-amber-500/10 border border-amber-500/30 text-sm font-bold text-amber-300 whitespace-nowrap">
+                          <AlertTriangle className="w-3.5 h-3.5 flex-shrink-0" />
                           <span>{challengeStats.errors}</span>
                         </div>
                       </button>
@@ -702,7 +675,32 @@ const Tests = () => {
                     </TooltipContent>
                   </Tooltip>
                 )}
-              </div>
+
+                {/* Divider + Questions access — only for free users */}
+                {!isPremium && !isGuest && selectedCountry === 'spain' && (
+                  <>
+                    <div className="w-px h-5 bg-white/10 mx-1" />
+                    <Tooltip delayDuration={300}>
+                      <TooltipTrigger asChild>
+                        <button
+                          onClick={() => openModal('PAYWALL')}
+                          className="flex items-center gap-1.5 h-9 px-3 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 hover:border-amber-500/30 transition-all text-sm font-medium text-muted-foreground whitespace-nowrap"
+                        >
+                          <Lock className="w-3.5 h-3.5 text-amber-500 flex-shrink-0" />
+                          <span>{FREE_QUESTION_LIMIT} / 2157</span>
+                          <span className="text-amber-500 font-bold ml-0.5">→</span>
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent side="bottom" sideOffset={8} avoidCollisions={false} className="max-w-xs text-xs z-[9999]">
+                        {localeText(
+                          `Доступно ${FREE_QUESTION_LIMIT} из 2157 вопросов. Открой всю базу чтобы быстрее вырасти.`,
+                          `Tienes acceso a ${FREE_QUESTION_LIMIT} de 2157 preguntas. Desbloquea todo para mejorar más rápido.`,
+                          `You have access to ${FREE_QUESTION_LIMIT} of 2157 questions. Unlock all to improve faster.`
+                        )}
+                      </TooltipContent>
+                    </Tooltip>
+                  </>
+                )}
               </div>
             </div>
 
