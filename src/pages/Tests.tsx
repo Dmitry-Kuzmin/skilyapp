@@ -614,7 +614,7 @@ const Tests = () => {
                       <CompactStreakJewel streak={streakDays} size="sm" hasClaimedToday={false} />
                     </button>
                   </TooltipTrigger>
-                  <TooltipContent side="bottom" sideOffset={8} avoidCollisions={false} className="bg-orange-950/90 border-orange-500/30 text-orange-100 text-xs z-[9999]">
+                  <TooltipContent side="top" sideOffset={8} avoidCollisions={false} className="bg-orange-950/90 border-orange-500/30 text-orange-100 text-xs">
                     {streakDays > 0
                       ? localeText(
                           `${streakDays}-дневный стрик! Продолжай решать каждый день.`,
@@ -645,7 +645,7 @@ const Tests = () => {
                         </div>
                       </button>
                     </TooltipTrigger>
-                    <TooltipContent side="bottom" sideOffset={8} avoidCollisions={false} className="bg-purple-950/90 border-purple-500/30 text-purple-100 max-w-xs text-xs z-[9999]">
+                    <TooltipContent side="top" sideOffset={8} avoidCollisions={false} className="bg-purple-950/90 border-purple-500/30 text-purple-100 max-w-xs text-xs">
                       {localeText(
                         'Твой прогресс к сдаче экзамена. Достигни 85%+ чтобы быть уверенным в успехе.',
                         'Tu progreso hacia el examen. Alcanza el 85%+ para estar seguro del éxito.',
@@ -666,7 +666,7 @@ const Tests = () => {
                         </div>
                       </button>
                     </TooltipTrigger>
-                    <TooltipContent side="bottom" sideOffset={8} avoidCollisions={false} className="bg-amber-950/90 border-amber-500/30 text-amber-100 max-w-xs text-xs z-[9999]">
+                    <TooltipContent side="top" sideOffset={8} avoidCollisions={false} className="bg-amber-950/90 border-amber-500/30 text-amber-100 max-w-xs text-xs">
                       {localeText(
                         `${challengeStats.errors} вопросов требуют повторения. Открой карточку «Ошибки» чтобы их закрыть.`,
                         `${challengeStats.errors} preguntas necesitan repaso. Abre «Errores» para repasarlas.`,
@@ -691,7 +691,7 @@ const Tests = () => {
                           <span className="text-amber-500 font-bold ml-0.5">→</span>
                         </button>
                       </TooltipTrigger>
-                      <TooltipContent side="bottom" align="end" sideOffset={8} className="bg-slate-900 border-white/15 text-slate-100 max-w-xs text-xs z-[99999]">
+                      <TooltipContent side="top" align="end" sideOffset={8} className="bg-slate-900 border-white/15 text-slate-100 max-w-xs text-xs">
                         {localeText(
                           `Доступно ${FREE_QUESTION_LIMIT} из 2157 вопросов. Открой всю базу чтобы быстрее вырасти.`,
                           `Tienes acceso a ${FREE_QUESTION_LIMIT} de 2157 preguntas. Desbloquea todo para mejorar más rápido.`,
@@ -707,7 +707,7 @@ const Tests = () => {
             {/* КОМАНДНЫЙ ЦЕНТР */}
             {selectedCountry !== 'russia' ? (
               /* Spain: Two banners side by side — Random + Smart */
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              <div className="relative z-0 grid grid-cols-1 lg:grid-cols-2 gap-4">
 
                 {/* Banner 1: Random Test */}
                 <motion.div
