@@ -625,6 +625,12 @@ const App = () => {
                   </AppProviders>
                 </Suspense>
               } />
+              {/* Отписка от email рассылок — публичная, без авторизации */}
+              <Route path="/unsubscribe" element={
+                <Suspense fallback={null}>
+                  <Unsubscribe />
+                </Suspense>
+              } />
               {/* Лендинг курса — публичный, без AppProviders (быстрая загрузка для рекламы) */}
               <Route path="/curso" element={
                 <Suspense fallback={null}>
