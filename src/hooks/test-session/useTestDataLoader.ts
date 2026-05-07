@@ -476,6 +476,8 @@ export const useTestDataLoader = ({
         pddTopicQuestions,
         pddRandomQuestions,
         topic,
+        topicId,
+        topicByIdQuestions,
         ticketNumber,
         redemptionQuestions,
         smartTestQuestions,
