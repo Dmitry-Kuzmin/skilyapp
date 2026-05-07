@@ -641,64 +641,100 @@ function SlideSP({ data, onOpenLeaderboard, currentUserId, prefetchedRank, userR
   );
 }
 
-function SlideRank({ data }: { data: CelebrationData }) {
-  // Логика расчета прогресса до следующего ранга
-  const currentSP = data.currentSP;
-  const rankLevels = [
-    { name: 'Бронза', min: 0, color: 'text-orange-400' },
-    { name: 'Серебро', min: 500, color: 'text-zinc-300' },
-    { name: 'Золото', min: 1500, color: 'text-yellow-400' },
-    { name: 'Платина', min: 3500, color: 'text-cyan-400' },
-    { name: 'Мастер', min: 7000, color: 'text-violet-400' }
-  ];
+type PersonalBestData = { best: number; attempts: number } | null;
 
-  const nextRank = rankLevels.find(r => r.min > currentSP) || rankLevels[rankLevels.length - 1];
-  const prevRank = [...rankLevels].reverse().find(r => r.min <= currentSP) || rankLevels[0];
-  
-  const range = nextRank.min - prevRank.min;
-  const progress = range > 0 ? ((currentSP - prevRank.min) / range) * 100 : 100;
-  const remaining = nextRank.min - currentSP;
+function SlidePersonalBest({ data, personalBest }: { data: CelebrationData; personalBest: PersonalBestData }) {
+  const { correctCount, totalQuestions } = data;
+  const isFirst   = !personalBest || personalBest.attempts <= 1;
+  const isRecord  = !isFirst && correctCount >= personalBest!.best;
+  const prevBest  = personalBest?.best ?? correctCount;
+  const gap       = prevBest - correctCount; // > 0 means below record
+
+  const scoreCount = useCountUp(correctCount, 300, 800);
+  const prevCount  = useCountUp(isRecord && !isFirst ? prevBest : 0, 200, 600);
 
   return (
-    <div className="flex flex-col items-center justify-center h-full gap-8 px-8 text-center">
+    <div className="flex flex-col items-center justify-center h-full gap-6 px-8 text-center">
       <motion.div
         initial={{ opacity: 0, scale: 0.9, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         transition={{ type: 'spring', stiffness: 260, damping: 20 }}
-        className="relative w-full max-w-sm p-10 rounded-[3rem] bg-white/[0.03] border border-white/10 backdrop-blur-2xl shadow-[0_32px_64px_-16px_rgba(0,0,0,0.4)] flex flex-col items-center gap-8"
+        className="relative w-full max-w-sm p-10 rounded-[3rem] bg-white/[0.03] border border-white/10 backdrop-blur-2xl shadow-[0_32px_64px_-16px_rgba(0,0,0,0.4)] flex flex-col items-center gap-7"
       >
+        {/* Ambient glow */}
+        <div className={cn(
+          "absolute inset-0 rounded-[3rem] blur-[60px] opacity-15 -z-10",
+          isRecord || isFirst ? "bg-emerald-500" : "bg-white"
+        )} />
+
+        {/* Icon */}
         <motion.div
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          transition={{ type: 'spring', stiffness: 300, damping: 20, delay: 0.1 }}
-          className="w-32 h-32 rounded-full bg-emerald-500/20 ring-4 ring-emerald-500/40 flex items-center justify-center"
+          initial={{ scale: 0, rotate: -15 }}
+          animate={{ scale: 1, rotate: 0 }}
+          transition={{ type: 'spring', stiffness: 300, damping: 18, delay: 0.1 }}
+          className={cn(
+            "w-28 h-28 rounded-full flex items-center justify-center text-6xl",
+            isRecord || isFirst
+              ? "bg-emerald-500/20 ring-4 ring-emerald-500/40"
+              : "bg-white/5 ring-4 ring-white/10"
+          )}
         >
-          <TrendingUp className="w-16 h-16 text-emerald-400 drop-shadow-[0_0_15px_rgba(16,185,129,0.5)]" />
+          {isFirst ? '✨' : isRecord ? '🏆' : '🎯'}
         </motion.div>
 
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="flex flex-col items-center gap-2 w-full">
-          <span className="text-[10px] font-black uppercase tracking-[0.4em] text-emerald-400">Путь к званию</span>
-          <h4 className={cn("text-4xl font-black tracking-tight", nextRank.color)}>
-            {nextRank.name}
-          </h4>
-          
-          <div className="mt-4 w-full flex flex-col gap-3 bg-white/5 p-5 rounded-2xl border border-white/5">
-            <div className="flex justify-between text-[10px] font-black uppercase tracking-widest">
-              <span className="text-white/40">Текущий SP: {currentSP}</span>
-              <span className="text-emerald-400">Осталось: {remaining} SP</span>
+        {/* Label */}
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }} className="flex flex-col items-center gap-1">
+          <span className={cn(
+            "text-[10px] font-black uppercase tracking-[0.35em]",
+            isRecord || isFirst ? "text-emerald-400" : "text-white/40"
+          )}>
+            {isFirst ? 'Первый результат' : isRecord ? 'Новый рекорд' : 'Личный рекорд'}
+          </span>
+
+          {/* Score display */}
+          {isRecord && !isFirst ? (
+            /* Animated: old → new */
+            <div className="flex items-center gap-3 mt-1">
+              <span className="text-3xl font-black text-white/30 tabular-nums line-through">{prevCount}/{totalQuestions}</span>
+              <span className="text-white/40 text-xl">→</span>
+              <span className="text-5xl font-black text-emerald-300 tabular-nums">{scoreCount}/{totalQuestions}</span>
             </div>
-            <div className="h-3 rounded-full bg-black/40 overflow-hidden border border-white/5 relative">
-              <motion.div
-                className="h-full rounded-full bg-gradient-to-r from-emerald-600 to-teal-500"
-                initial={{ width: 0 }}
-                animate={{ width: `${progress}%` }}
-                transition={{ delay: 0.8, duration: 1, ease: 'easeOut' }}
-              />
+          ) : (
+            <span className={cn(
+              "tabular-nums font-black leading-none mt-1",
+              isFirst ? "text-6xl text-white" : "text-5xl text-white/50"
+            )}>
+              {scoreCount}<span className="text-white/30 font-bold text-3xl">/{totalQuestions}</span>
+            </span>
+          )}
+        </motion.div>
+
+        {/* Bottom context */}
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6 }} className="w-full">
+          {isFirst && (
+            <p className="text-white/40 text-sm">Рекорд установлен — теперь есть что побить 🔥</p>
+          )}
+          {isRecord && !isFirst && (
+            <div className="flex items-center justify-center gap-2 px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/20">
+              <span className="text-emerald-400 font-black text-sm">+{correctCount - prevBest} к рекорду 🎉</span>
             </div>
-            <p className="text-[10px] text-white/30 font-bold uppercase tracking-tighter">
-              Твой ранг растет с каждым успешным тестом 🚀
-            </p>
-          </div>
+          )}
+          {!isFirst && !isRecord && (
+            <div className="w-full bg-white/5 rounded-2xl border border-white/5 p-4 flex flex-col gap-3">
+              <div className="flex justify-between text-sm font-bold">
+                <span className="text-white/40">Сегодня</span>
+                <span className="text-white/80">{correctCount}/{totalQuestions}</span>
+              </div>
+              <div className="flex justify-between text-sm font-bold">
+                <span className="text-emerald-400">Рекорд</span>
+                <span className="text-emerald-300">{prevBest}/{totalQuestions}</span>
+              </div>
+              <div className="h-px bg-white/5" />
+              <p className="text-[11px] text-white/30 font-bold uppercase tracking-wider">
+                Ещё {gap} {gap === 1 ? 'ответ' : gap < 5 ? 'ответа' : 'ответов'} до рекорда
+              </p>
+            </div>
+          )}
         </motion.div>
       </motion.div>
     </div>
