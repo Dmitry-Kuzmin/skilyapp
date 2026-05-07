@@ -223,6 +223,85 @@ serve(async (req) => {
 
     console.log(`[complete-test-and-award] ✅ SP: ${spAwarded} (base ${baseSp} + bonus ${bonusSp}), level_up=${levelUp}, newLevel=${newLevel}`);
 
+    // ============================================
+    // RANK CHANGE: позиция в лидерборде + обогнанные
+    // ============================================
+    type OvertakenUser = { user_id: string; sp: number; first_name: string | null; username: string | null; photo_url: string | null };
+    let rankChange: { prev_rank: number; new_rank: number; overtaken: OvertakenUser[] } | undefined;
+
+    if (!isTooFast && spAwarded > 0 && totalSp > 0) {
+      try {
+        const { data: activeSeason } = await supabase
+          .from('duel_pass_seasons')
+          .select('id')
+          .eq('is_active', true)
+          .order('season_number', { ascending: false })
+          .limit(1)
+          .maybeSingle();
+
+        if (activeSeason?.id) {
+          const seasonId = activeSeason.id;
+          const newSp = totalSp;
+          const prevSp = Math.max(0, totalSp - spAwarded);
+
+          const [prevRes, newRes] = await Promise.all([
+            supabase
+              .from('user_season_progress')
+              .select('*', { count: 'exact', head: true })
+              .eq('season_id', seasonId)
+              .gt('season_points', prevSp),
+            supabase
+              .from('user_season_progress')
+              .select('*', { count: 'exact', head: true })
+              .eq('season_id', seasonId)
+              .gt('season_points', newSp),
+          ]);
+
+          const prev_rank = (prevRes.count ?? 0) + 1;
+          const new_rank = (newRes.count ?? 0) + 1;
+
+          let overtaken: OvertakenUser[] = [];
+          if (new_rank < prev_rank) {
+            const { data: overtakenRows } = await supabase
+              .from('user_season_progress')
+              .select('user_id, season_points')
+              .eq('season_id', seasonId)
+              .gt('season_points', prevSp)
+              .lte('season_points', newSp)
+              .neq('user_id', user_id)
+              .order('season_points', { ascending: true })
+              .limit(3);
+
+            if (overtakenRows && overtakenRows.length > 0) {
+              const userIds = overtakenRows.map((r: { user_id: string }) => r.user_id);
+              const { data: profiles } = await supabase
+                .from('profiles')
+                .select('id, first_name, username, photo_url')
+                .in('id', userIds);
+              const profileMap = new Map(
+                (profiles ?? []).map((p: { id: string; first_name: string | null; username: string | null; photo_url: string | null }) => [p.id, p])
+              );
+              overtaken = overtakenRows.map((r: { user_id: string; season_points: number }) => {
+                const p = profileMap.get(r.user_id);
+                return {
+                  user_id: r.user_id,
+                  sp: r.season_points,
+                  first_name: p?.first_name ?? null,
+                  username: p?.username ?? null,
+                  photo_url: p?.photo_url ?? null,
+                };
+              });
+            }
+          }
+
+          rankChange = { prev_rank, new_rank, overtaken };
+          console.log(`[complete-test-and-award] 📈 rank ${prev_rank} → ${new_rank}, overtaken=${overtaken.length}`);
+        }
+      } catch (err) {
+        console.error('[complete-test-and-award] ⚠️ rank_change error:', err);
+      }
+    }
+
     return new Response(
       JSON.stringify({
         success: true,
@@ -235,6 +314,7 @@ serve(async (req) => {
         level_up: levelUp,
         new_level: newLevel,
         total_sp: totalSp,
+        rank_change: rankChange,
         speed_cheat_detected: isTooFast ? true : undefined,
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
