@@ -476,8 +476,12 @@ function SlideSP({ data, onOpenLeaderboard, currentUserId }: { data: Celebration
           body: { type: 'user_position', user_id: currentUserId, neighbors_count: 4 },
         });
         if (res?.position) {
-          const neighbors: Array<{ user_id: string; season_points?: number; profile?: { first_name?: string | null; username?: string | null; photo_url?: string | null } }> =
-            res.neighbors ?? [];
+          const neighbors: Array<{
+            user_id: string;
+            season_points?: number;
+            duel_pass_level?: number;
+            profile?: { first_name?: string | null; username?: string | null; photo_url?: string | null };
+          }> = res.neighbors ?? [];
           // Берём только игроков выше (лучше) пользователя, до 2 штук
           const above = neighbors
             .filter((n) => n.user_id !== currentUserId)
@@ -485,6 +489,7 @@ function SlideSP({ data, onOpenLeaderboard, currentUserId }: { data: Celebration
             .map((n) => ({
               user_id: n.user_id,
               sp: n.season_points ?? 0,
+              level: n.duel_pass_level ?? 0,
               first_name: n.profile?.first_name ?? null,
               username: n.profile?.username ?? null,
               photo_url: n.profile?.photo_url ?? null,
