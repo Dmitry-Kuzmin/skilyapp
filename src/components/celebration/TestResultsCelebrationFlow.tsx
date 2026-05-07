@@ -983,6 +983,7 @@ export function TestResultsCelebrationFlow({ data, onFinish, onRetry }: Props) {
     'sp',
     ...(data.testId ? ['personal_best' as SlideId] : []),
     'xp',
+    ...(examReadinessData ? ['exam_readiness' as SlideId] : []),
     ...(data.failedTopics.length > 0 ? ['topics' as SlideId] : []),
     'cta',
   ];
