@@ -646,7 +646,7 @@ const Tests = () => {
                 {readinessPct !== null && (
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <div className="cursor-help">
+                      <button className="cursor-help p-0 h-auto bg-transparent border-0 hover:opacity-80 transition-opacity">
                         <div className="flex items-center gap-2 h-10 px-3.5 rounded-full bg-gradient-to-r from-purple-500/15 to-indigo-500/15 border border-purple-500/30 text-sm font-bold text-purple-200 flex-shrink-0 whitespace-nowrap shadow-lg shadow-purple-500/10">
                           <svg viewBox="0 0 36 36" className="w-6 h-6 -rotate-90 flex-shrink-0">
                             <defs>
@@ -662,7 +662,7 @@ const Tests = () => {
                           </svg>
                           <span>{readinessPct}%</span>
                         </div>
-                      </div>
+                      </button>
                     </TooltipTrigger>
                     <TooltipContent side="bottom" className="bg-purple-950/90 border-purple-500/30 text-purple-100 max-w-xs">
                       Твой прогресс к сдаче экзамена. Достигни 85%+ чтобы быть уверенным в успехе.
