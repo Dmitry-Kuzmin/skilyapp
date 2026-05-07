@@ -161,7 +161,7 @@ export function TelemetryContent({ onClose }: { onClose: () => void }) {
     const { selectedCountry } = usePDDContext();
     const { t, language } = useLanguage();
 
-    const score = readiness?.percent ?? (dashData?.stats?.accuracy || 0);
+    const score = readiness?.percent ?? 0;
     const overlay = useCallback((path: string, params?: Record<string, string | number>) => t(`dashboard.examReadiness.overlay.${path}`, params), [t]);
     const readinessStatus = readiness?.status || 'start';
     const verdictTitle = t(`dashboard.examReadiness.levels.${readinessStatus}.title`);
@@ -171,37 +171,13 @@ export function TelemetryContent({ onClose }: { onClose: () => void }) {
     const { analytics, loading: analyticsLoading } = useAnalytics(
         profileId || null,
         score,
-        85, // Target level
+        EXAM_PASS_TARGET_PERCENT,
         selectedCountry === 'spain' ? 'es' : selectedCountry === 'russia' ? 'ru' : 'sk',
         language
     );
 
-    // Duel statistics
-    const { data: duelStats } = useQuery({
-        queryKey: ['user-duel-stats', profileId],
-        queryFn: async () => {
-            if (!profileId) return null;
-            const { data: pDuels } = await supabase.from('duel_players').select('duel_id').eq('user_id', profileId);
-            if (!pDuels || pDuels.length === 0) return { total: 0, wins: 0, winrate: 0 };
-            const ids = (pDuels as any[]).map(p => p.duel_id);
-            const { data } = await supabase.from('duels').select('id, winner_id').in('id', ids).eq('status', 'finished');
-            const total = data?.length ?? 0;
-            const wins = data?.filter((d: any) => d.winner_id === profileId).length ?? 0;
-            return { total, wins, winrate: total > 0 ? Math.round((wins / total) * 100) : 0 };
-        },
-        enabled: !!profileId,
-    });
-
-    // Mistakes count
-    const { data: mistakesCount } = useQuery({
-        queryKey: ['mistakes-count', profileId],
-        queryFn: async () => {
-            if (!profileId) return 0;
-            const { count } = await supabase.from('user_challenge_questions').select('*', { count: 'exact', head: true }).eq('user_id', profileId).eq('mastered', false);
-            return count ?? 0;
-        },
-        enabled: !!profileId,
-    });
+    const duelStats = dashData?.duels ?? null;
+    const mistakesCount = dashData?.mistakes_count ?? 0;
 
     // Real dynamic radar data
     const radarData = useMemo(() => {
