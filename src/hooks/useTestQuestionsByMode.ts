@@ -99,15 +99,20 @@ export function useDGTQuestions(category: string | null, limit: number = 30) {
       console.log(`[useDGTQuestions] Loading ${limit} questions from questions_new for Spain`);
 
       // NEW: Load from questions_new (spain unified table) instead of old dgt_questions
-      const { data: questions, error } = await supabase
+      let query = supabase
         .from('questions_new')
         .select(`
           *,
           topics (title_ru, title_es),
           answer_options (*)
         `)
-        .eq('country', 'es')
-        .limit(Math.max(limit * 2, 100)); // Load extra for shuffling
+        .eq('country', 'es');
+
+      if (!hasFullQuestionPoolForStrategy()) {
+        query = (query as any).eq('is_premium', false);
+      }
+
+      const { data: questions, error } = await (query as any).limit(Math.max(limit * 2, 100)); // Load extra for shuffling
 
       if (error) {
         console.error('[useDGTQuestions] Error:', error);
