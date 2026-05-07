@@ -629,33 +629,62 @@ const Tests = () => {
                 <AIInsightsLibrary isPremium={isPremium} />
 
                 {/* Streak */}
-                <CompactStreakJewel streak={streakDays} size="sm" hasClaimedToday={false} />
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="cursor-help">
+                      <CompactStreakJewel streak={streakDays} size="sm" hasClaimedToday={false} />
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom" className="bg-orange-950/90 border-orange-500/30 text-orange-100">
+                    {streakDays > 0
+                      ? `${streakDays}-дневный стрик! Продолжай решать каждый день.`
+                      : 'Начни решать задачи чтобы запустить стрик.'}
+                  </TooltipContent>
+                </Tooltip>
 
                 {/* Readiness % — prominent circle + number */}
                 {readinessPct !== null && (
-                  <div className="flex items-center gap-2 h-10 px-3.5 rounded-full bg-gradient-to-r from-purple-500/15 to-indigo-500/15 border border-purple-500/30 text-sm font-bold text-purple-200 flex-shrink-0 whitespace-nowrap shadow-lg shadow-purple-500/10">
-                    <svg viewBox="0 0 36 36" className="w-6 h-6 -rotate-90 flex-shrink-0">
-                      <defs>
-                        <linearGradient id="readiness-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-                          <stop offset="0%" style={{ stopColor: '#c084fc', stopOpacity: 0.3 }} />
-                          <stop offset="100%" style={{ stopColor: '#a78bfa', stopOpacity: 0.3 }} />
-                        </linearGradient>
-                      </defs>
-                      <circle cx="18" cy="18" r="14" fill="none" stroke="url(#readiness-grad)" strokeWidth="2.5" />
-                      <circle cx="18" cy="18" r="14" fill="none" stroke="#c084fc" strokeWidth="2.5"
-                        strokeDasharray={`${(readinessPct / 100) * 87.96} 87.96`}
-                        strokeLinecap="round" style={{ opacity: 0.9 }} />
-                    </svg>
-                    <span>{readinessPct}%</span>
-                  </div>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div className="cursor-help">
+                        <div className="flex items-center gap-2 h-10 px-3.5 rounded-full bg-gradient-to-r from-purple-500/15 to-indigo-500/15 border border-purple-500/30 text-sm font-bold text-purple-200 flex-shrink-0 whitespace-nowrap shadow-lg shadow-purple-500/10">
+                          <svg viewBox="0 0 36 36" className="w-6 h-6 -rotate-90 flex-shrink-0">
+                            <defs>
+                              <linearGradient id="readiness-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style={{ stopColor: '#c084fc', stopOpacity: 0.3 }} />
+                                <stop offset="100%" style={{ stopColor: '#a78bfa', stopOpacity: 0.3 }} />
+                              </linearGradient>
+                            </defs>
+                            <circle cx="18" cy="18" r="14" fill="none" stroke="url(#readiness-grad)" strokeWidth="2.5" />
+                            <circle cx="18" cy="18" r="14" fill="none" stroke="#c084fc" strokeWidth="2.5"
+                              strokeDasharray={`${(readinessPct / 100) * 87.96} 87.96`}
+                              strokeLinecap="round" style={{ opacity: 0.9 }} />
+                          </svg>
+                          <span>{readinessPct}%</span>
+                        </div>
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom" className="bg-purple-950/90 border-purple-500/30 text-purple-100 max-w-xs">
+                      Твой прогресс к сдаче экзамена. Достигни 85%+ чтобы быть уверенным в успехе.
+                    </TooltipContent>
+                  </Tooltip>
                 )}
 
                 {/* Error queue — bold standout */}
                 {challengeStats.errors > 0 && (
-                  <div className="flex items-center gap-1.5 h-10 px-3.5 rounded-full bg-gradient-to-r from-amber-500/15 to-orange-500/15 border border-amber-500/40 text-sm font-bold text-amber-200 flex-shrink-0 whitespace-nowrap shadow-lg shadow-amber-500/10">
-                    <span className="text-lg">⚠️</span>
-                    <span>{challengeStats.errors}</span>
-                  </div>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div className="cursor-help">
+                        <div className="flex items-center gap-1.5 h-10 px-3.5 rounded-full bg-gradient-to-r from-amber-500/15 to-orange-500/15 border border-amber-500/40 text-sm font-bold text-amber-200 flex-shrink-0 whitespace-nowrap shadow-lg shadow-amber-500/10">
+                          <span className="text-lg">⚠️</span>
+                          <span>{challengeStats.errors}</span>
+                        </div>
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom" className="bg-amber-950/90 border-amber-500/30 text-amber-100 max-w-xs">
+                      {challengeStats.errors} вопросов требуют повторения. Кликай на карточку «Ошибки» чтобы их закрыть.
+                    </TooltipContent>
+                  </Tooltip>
                 )}
               </div>
               </div>
