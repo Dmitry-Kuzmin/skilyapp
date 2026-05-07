@@ -422,18 +422,27 @@ serve(async (req) => {
       const authUser = (authData?.users ?? []).find((u: any) => u.email?.toLowerCase() === testEmail.toLowerCase());
 
       let firstName: string | null = 'Test';
-      let points = 15, dpXp = 100, dpLevel = 1;
+      let points = 15, dpXp = 0, dpLevel = 1;
       let lang: Lang = 'ru';
+      let profileId: string | null = null;
 
       if (authUser) {
         const { data: p } = await supabase
-          .from('profiles').select('first_name, license_points, duel_pass_xp, duel_pass_level, settings, language_code')
+          .from('profiles').select('id, first_name, license_points, settings, language_code')
           .eq('user_id', authUser.id).single();
-        if (p) { firstName = p.first_name ?? firstName; points = p.license_points ?? points; dpXp = p.duel_pass_xp ?? dpXp; dpLevel = p.duel_pass_level ?? dpLevel; lang = getUserLang(p); }
+        if (p) { profileId = p.id; firstName = p.first_name ?? firstName; points = p.license_points ?? points; lang = getUserLang(p); }
+      }
+
+      // Season progress for test user
+      if (profileId && activeSeasonId) {
+        const { data: sp } = await supabase
+          .from('user_season_progress').select('season_points, level')
+          .eq('user_id', profileId).eq('season_id', activeSeasonId).single();
+        if (sp) { dpXp = sp.season_points ?? 0; dpLevel = sp.level ?? 1; }
       }
 
       const [quests, season] = await Promise.all([loadDailyQuests(supabase, lang), loadSeasonInfo(supabase, lang)]);
-      const stats: UserStats = { dpXp, dpLevel, dpRank: getDpRank(dpXp), totalPlayers };
+      const stats: UserStats = { dpXp, dpLevel, dpRank: getDpRank(dpXp) };
 
       if (dryRun) return new Response(JSON.stringify({ ok: true, dry_run: true, lang, pts: points, firstName, quests: quests.length, season: !!season, stats }));
 
