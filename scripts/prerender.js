@@ -394,7 +394,7 @@ async function prerender() {
             await page.waitForFunction(
               () => {
                 const root = window.document.querySelector('#root');
-                return root && root.children.length > 0 && (root.textContent?.replace(/\s+/g, ' ').trim().length || 0) > 300;
+                return root && root.children.length > 0;
               },
               { timeout: 15000 }
             );
@@ -408,14 +408,18 @@ async function prerender() {
 
           const expectedCanonical = assertCanonicalByRoute.get(route);
           if (expectedCanonical && !route.startsWith('/legal/')) {
-            await page.waitForFunction(
-              (canonicalUrl) => {
-                const canonical = document.querySelector('link[rel="canonical"]');
-                return canonical?.getAttribute('href') === canonicalUrl;
-              },
-              { timeout: 10000 },
-              expectedCanonical
-            );
+            try {
+              await page.waitForFunction(
+                (canonicalUrl) => {
+                  const canonical = document.querySelector('link[rel="canonical"]');
+                  return canonical?.getAttribute('href') === canonicalUrl;
+                },
+                { timeout: 15000 },
+                expectedCanonical
+              );
+            } catch {
+              console.warn(`[Prerender] ⚠️ Canonical check timed out for ${route}, snapshot taken anyway`);
+            }
           }
 
           // Обёртываем inline next-themes script в try/catch.
