@@ -826,7 +826,77 @@ function SlideTopics({ topics, onPractice }: { topics: string[]; onPractice: () 
   );
 }
 
-function SlideCTA({ data, onRetry, onDetails }: { data: CelebrationData; onRetry: () => void; onDetails: () => void }) {
+function SlideExamReadiness({ before, after }: { before: number; after: number }) {
+  const delta = after - before;
+  const afterCount = useCountUp(after, 500, 1000);
+
+  const label =
+    after >= 90 ? 'Ты готов к экзамену! 🏆' :
+    after >= 70 ? 'Отличный прогресс! Продолжай так' :
+    'Каждый тест повышает готовность';
+
+  return (
+    <div className="flex flex-col items-center justify-center h-full gap-6 px-8 text-center">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        transition={{ type: 'spring', stiffness: 260, damping: 20 }}
+        className="relative w-full max-w-sm p-10 rounded-[3rem] bg-white/[0.03] border border-white/10 backdrop-blur-2xl shadow-[0_32px_64px_-16px_rgba(0,0,0,0.4)] flex flex-col items-center gap-7"
+      >
+        <div className="absolute inset-0 rounded-[3rem] blur-[60px] opacity-10 -z-10 bg-cyan-500" />
+
+        <motion.div
+          initial={{ scale: 0, rotate: -15 }}
+          animate={{ scale: 1, rotate: 0 }}
+          transition={{ type: 'spring', stiffness: 300, damping: 18, delay: 0.1 }}
+          className="w-28 h-28 rounded-full bg-cyan-500/20 ring-4 ring-cyan-500/40 flex items-center justify-center text-5xl"
+        >
+          🎓
+        </motion.div>
+
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }} className="flex flex-col items-center gap-2">
+          <span className="text-[10px] font-black uppercase tracking-[0.35em] text-cyan-400">Готовность к экзамену</span>
+
+          <div className="flex items-center gap-3 mt-1">
+            <span className="text-3xl font-black text-white/30 tabular-nums">{before}%</span>
+            <span className="text-white/40 text-xl">→</span>
+            <span className="text-6xl font-black text-cyan-300 tabular-nums leading-none">{afterCount}%</span>
+          </div>
+
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.9 }}
+            className="flex items-center gap-1 px-4 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/30 mt-1"
+          >
+            <span className="text-cyan-400 font-black text-sm">+{delta}% к готовности ↑</span>
+          </motion.div>
+        </motion.div>
+
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }} className="w-full flex flex-col gap-2">
+          <div className="h-3 rounded-full bg-black/40 overflow-hidden border border-white/5">
+            <motion.div
+              className="h-full rounded-full bg-gradient-to-r from-cyan-500 to-teal-400"
+              initial={{ width: `${before}%` }}
+              animate={{ width: `${after}%` }}
+              transition={{ delay: 0.65, duration: 0.9, ease: 'easeOut' }}
+            />
+          </div>
+          <div className="flex justify-between text-[10px] text-white/30 font-bold uppercase tracking-wider">
+            <span>0%</span>
+            <span>100%</span>
+          </div>
+        </motion.div>
+
+        <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.7 }} className="text-white/40 text-sm font-medium max-w-[220px] leading-relaxed">
+          {label}
+        </motion.p>
+      </motion.div>
+    </div>
+  );
+}
+
+function SlideCTA({ data, onRetry, onDetails, todayTestCount }: { data: CelebrationData; onRetry: () => void; onDetails: () => void; todayTestCount: number }) {
   return (
     <div className="flex flex-col items-center justify-center h-full gap-8 px-8 text-center">
       <motion.div
