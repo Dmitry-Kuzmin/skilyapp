@@ -301,7 +301,7 @@ export const ru = {
         probability: "ВЕРОЯТНОСТЬ",
         systemVerdict: "СИСТЕМНЫЙ ВЕРДИКТ",
         analyzing: "Анализ...",
-        confidence: "УВЕРЕННОСТЬ",
+        sample: "ОПЫТ",
         target: "ЦЕЛЬ",
         rank: "РАНГ",
         extendedTelemetry: "РАСШИРЕННАЯ ТЕЛЕМЕТРИЯ",
