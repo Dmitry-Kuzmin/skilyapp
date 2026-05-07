@@ -752,10 +752,43 @@ export function TestResultsCelebrationFlow({ data, onDone }: Props) {
   const [direction, setDirection] = useState(1);
   const [percentile, setPercentile] = useState<number | null>(null);
   const [leaderboardOpen, setLeaderboardOpen] = useState(false);
+  const [prefetchedRank, setPrefetchedRank] = useState<RankChange | null>(null);
   const soundFiredRef = useRef<Set<SlideId>>(new Set());
 
   const slideId = slides[current];
   const style = SLIDE_STYLES[slideId];
+
+  // Prefetch user position on mount so SP slide has data immediately
+  useEffect(() => {
+    if (!currentUserId || data.rankChange) return;
+    (async () => {
+      try {
+        const { data: res } = await supabase.functions.invoke('duel-pass-leaderboard', {
+          body: { type: 'user_position', user_id: currentUserId, neighbors_count: 4 },
+        });
+        if (res?.position) {
+          const above = (res.neighbors ?? [] as Array<{
+            user_id: string;
+            position?: number;
+            season_points?: number;
+            duel_pass_level?: number;
+            profile?: { first_name?: string | null; username?: string | null; photo_url?: string | null };
+          }>)
+            .filter((n) => n.user_id !== currentUserId && (n.position ?? Infinity) < res.position)
+            .slice(0, 2)
+            .map((n) => ({
+              user_id: n.user_id,
+              sp: n.season_points ?? 0,
+              level: n.duel_pass_level ?? 0,
+              first_name: n.profile?.first_name ?? null,
+              username: n.profile?.username ?? null,
+              photo_url: n.profile?.photo_url ?? null,
+            }));
+          setPrefetchedRank({ prev_rank: res.position, new_rank: res.position, overtaken: above });
+        }
+      } catch { /* noop */ }
+    })();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Fetch time percentile when time slide is about to show
   useEffect(() => {
