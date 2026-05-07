@@ -753,6 +753,7 @@ export function TestResultsCelebrationFlow({ data, onDone }: Props) {
   const [percentile, setPercentile] = useState<number | null>(null);
   const [leaderboardOpen, setLeaderboardOpen] = useState(false);
   const [prefetchedRank, setPrefetchedRank] = useState<RankChange | null>(null);
+  const [userRealSP, setUserRealSP] = useState<number | null>(null);
   const soundFiredRef = useRef<Set<SlideId>>(new Set());
 
   const slideId = slides[current];
