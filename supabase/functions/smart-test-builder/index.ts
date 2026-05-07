@@ -48,12 +48,28 @@ Deno.serve(async (req) => {
     // Normalize just in case: 'spain' → 'es', 'ru' → 'russia'
     const countryCode = country === 'spain' ? 'es' : country === 'ru' ? 'russia' : country;
 
-    // Fetch all questions for this country
-    const { data: allQuestions, error: qErr } = await supabase
+    // Check if user has premium (premium_until > now)
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('premium_until, trial_until')
+      .eq('id', profile_id)
+      .single();
+    const now = new Date().toISOString();
+    const hasPremium = (profile?.premium_until && profile.premium_until > now) ||
+                       (profile?.trial_until && profile.trial_until > now);
+
+    // Fetch questions for this country (free users only see is_premium=false)
+    let questionsQuery = supabase
       .from('questions_new')
       .select('id, topic_id, difficulty, percent_correct')
       .eq('country', countryCode)
       .not('topic_id', 'is', null);
+
+    if (!hasPremium) {
+      questionsQuery = questionsQuery.eq('is_premium', false);
+    }
+
+    const { data: allQuestions, error: qErr } = await questionsQuery;
 
     if (qErr) throw qErr;
     if (!allQuestions?.length) {
