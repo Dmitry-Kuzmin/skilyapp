@@ -300,7 +300,7 @@ export const en = {
         probability: "PROBABILITY",
         systemVerdict: "SYSTEM VERDICT",
         analyzing: "Analyzing...",
-        confidence: "CONFIDENCE",
+        sample: "EXPERIENCE",
         target: "TARGET",
         rank: "RANK",
         extendedTelemetry: "EXTENDED TELEMETRY",
