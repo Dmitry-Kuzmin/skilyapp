@@ -1005,6 +1005,8 @@ export function TestResultsCelebrationFlow({ data, onFinish, onRetry }: Props) {
   const [prefetchedRank, setPrefetchedRank] = useState<RankChange | null>(null);
   const [userRealSP, setUserRealSP] = useState<number | null>(null);
   const [personalBest, setPersonalBest] = useState<PersonalBestData>(null);
+  const [todayTestCount, setTodayTestCount] = useState<number>(0);
+  const [examReadinessData, setExamReadinessData] = useState<{ before: number; after: number } | null>(null);
   const soundFiredRef = useRef<Set<SlideId>>(new Set());
 
   const slideId = slides[current];
