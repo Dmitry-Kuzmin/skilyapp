@@ -64,7 +64,7 @@ export function TopicDetailDialog({
             return;
         }
         const levelParam = ticket.index > 0 ? `&level=${ticket.index + 1}` : '';
-        navigate(`/test/by-topic?topicId=${topicId}&topic=${encodeURIComponent(topicName)}&count=${QUESTIONS_PER_TICKET}&country=${country}${levelParam}`);
+        navigate(`/test/practice?topicId=${topicId}&topic=${encodeURIComponent(topicName)}&count=${QUESTIONS_PER_TICKET}&country=${country}${levelParam}`);
         onOpenChange(false);
     };
 
