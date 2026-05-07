@@ -150,6 +150,7 @@ function buildEmailHtml(
   points: number,
   daysMissed: 1 | 2,
   appUrl: string,
+  email: string = '',
 ): string {
   const t = copy[lang];
   const subject    = daysMissed === 1 ? t.subject1 : t.subject2;
