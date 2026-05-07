@@ -623,33 +623,37 @@ const Tests = () => {
                   </span>
                 </button>
               )}
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5">
                 {/* AI Insights shortcut */}
                 <AIInsightsLibrary isPremium={isPremium} />
 
                 {/* Streak */}
-                {streakDays > 0 && (
-                  <CompactStreakJewel streak={streakDays} size="sm" />
-                )}
+                <CompactStreakJewel streak={streakDays} size="sm" />
 
-                {/* Readiness % — compact circle + number */}
+                {/* Readiness % — prominent circle + number */}
                 {readinessPct !== null && (
-                  <div className="flex items-center gap-1.5 h-9 px-3 rounded-full bg-purple-500/10 border border-purple-500/20 text-sm font-semibold text-purple-300 flex-shrink-0 whitespace-nowrap">
-                    <svg viewBox="0 0 36 36" className="w-5 h-5 -rotate-90 flex-shrink-0">
-                      <circle cx="18" cy="18" r="14" fill="none" stroke="currentColor" strokeOpacity="0.25" strokeWidth="3" />
-                      <circle cx="18" cy="18" r="14" fill="none" stroke="currentColor" strokeWidth="3"
+                  <div className="flex items-center gap-2 h-10 px-3.5 rounded-full bg-gradient-to-r from-purple-500/15 to-indigo-500/15 border border-purple-500/30 text-sm font-bold text-purple-200 flex-shrink-0 whitespace-nowrap shadow-lg shadow-purple-500/10">
+                    <svg viewBox="0 0 36 36" className="w-6 h-6 -rotate-90 flex-shrink-0">
+                      <defs>
+                        <linearGradient id="readiness-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" style={{ stopColor: '#c084fc', stopOpacity: 0.3 }} />
+                          <stop offset="100%" style={{ stopColor: '#a78bfa', stopOpacity: 0.3 }} />
+                        </linearGradient>
+                      </defs>
+                      <circle cx="18" cy="18" r="14" fill="none" stroke="url(#readiness-grad)" strokeWidth="2.5" />
+                      <circle cx="18" cy="18" r="14" fill="none" stroke="#c084fc" strokeWidth="2.5"
                         strokeDasharray={`${(readinessPct / 100) * 87.96} 87.96`}
-                        strokeLinecap="round" />
+                        strokeLinecap="round" style={{ opacity: 0.9 }} />
                     </svg>
-                    {readinessPct}%
+                    <span>{readinessPct}%</span>
                   </div>
                 )}
 
-                {/* Error queue */}
+                {/* Error queue — bold standout */}
                 {challengeStats.errors > 0 && (
-                  <div className="flex items-center gap-1.5 h-9 px-3 rounded-full bg-amber-500/10 border border-amber-500/20 text-sm font-semibold text-amber-300 flex-shrink-0 whitespace-nowrap">
-                    <AlertTriangle className="w-4 h-4 flex-shrink-0" />
-                    {challengeStats.errors}
+                  <div className="flex items-center gap-1.5 h-10 px-3.5 rounded-full bg-gradient-to-r from-amber-500/15 to-orange-500/15 border border-amber-500/40 text-sm font-bold text-amber-200 flex-shrink-0 whitespace-nowrap shadow-lg shadow-amber-500/10">
+                    <span className="text-lg">⚠️</span>
+                    <span>{challengeStats.errors}</span>
                   </div>
                 )}
               </div>
