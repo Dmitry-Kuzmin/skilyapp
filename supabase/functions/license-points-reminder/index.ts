@@ -16,7 +16,7 @@ type Lang = 'ru' | 'es' | 'en';
 
 interface DailyQuest { title: string; reward_sp: number; target_type: string; target_value: number; }
 interface SeasonInfo  { name: string; daysLeft: number; }
-interface UserStats   { xp: number; dpLevel: number; rank: number; totalPlayers: number; }
+interface UserStats   { dpXp: number; dpLevel: number; dpRank: number; totalPlayers: number; }
 
 function getUserLang(profile: any): Lang {
   const s = profile?.settings?.language;
