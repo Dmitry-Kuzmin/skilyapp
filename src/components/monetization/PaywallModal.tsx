@@ -19,6 +19,7 @@ import type { Paddle } from "@paddle/paddle-js";
 
 import { StarsPaymentButton } from "@/components/monetization/StarsPaymentButton";
 import { TonPaymentWidget } from "@/components/monetization/LazyTonPaymentWidget";
+import { PlanComparisonModal } from "@/components/monetization/PlanComparisonModal";
 
 interface PaywallModalProps {
   open: boolean;
@@ -103,6 +104,7 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
   const [paymentMethod, setPaymentMethod] = useState<'paddle' | 'cryptomus' | 'ton'>(
     showPaddlePayment ? 'paddle' : (showCryptomusPayment ? 'cryptomus' : 'ton')
   );
+  const [showComparison, setShowComparison] = useState(false);
 
   useEffect(() => {
     if (!open || !showPaddlePayment) return;
@@ -324,12 +326,23 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
                 Разблокируй <span className="text-white font-semibold">AI-технологии</span> обучения и получи unfair advantage перед другими кандидатами.
               </motion.p>
 
-              <div className="space-y-5 mb-8">
+              <div className="space-y-5 mb-6">
                 <BenefitItem icon={Zap} text="AI-Помощник с мгновенными объяснениями" color="text-amber-400" delay={0.5} />
                 <BenefitItem icon={ShieldCheck} text="Гарантия сдачи (Smart Score)" color="text-emerald-400" delay={0.6} />
                 <BenefitItem icon={Trophy} text="Premium-турниры и x2 опыт" color="text-violet-400" delay={0.7} />
                 <BenefitItem icon={Sparkles} text="Без рекламы, полная концентрация" color="text-sky-400" delay={0.8} />
               </div>
+
+              <motion.button
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.9 }}
+                onClick={() => setShowComparison(true)}
+                className="text-sm text-slate-400 hover:text-white transition-colors flex items-center gap-1.5 group mb-8"
+              >
+                Подробное сравнение
+                <span className="group-hover:translate-x-0.5 transition-transform inline-block">→</span>
+              </motion.button>
             </div>
 
             {/* Social Proof */}
@@ -635,6 +648,12 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
       >
         <div id="paddle-checkout-container" className="w-full h-full" />
       </CheckoutModal>
+
+      <PlanComparisonModal
+        open={showComparison}
+        onOpenChange={setShowComparison}
+        onSelectPlan={() => setShowComparison(false)}
+      />
     </>
   );
 }
