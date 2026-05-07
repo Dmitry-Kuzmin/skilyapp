@@ -156,15 +156,15 @@ function fmtTime(s: number) {
 
 // ─── Slide backgrounds & sounds ──────────────────────────────────────────────
 
-type SlideId = 'result' | 'sp' | 'time' | 'xp' | 'topics' | 'cta';
+type SlideId = 'result' | 'sp' | 'personal_best' | 'xp' | 'topics' | 'cta';
 
 const SLIDE_STYLES: Record<SlideId, { bg: string; glow: string; sparkle: string }> = {
-  result:  { bg: 'from-[#050505] via-[#0a0a0c] to-[#050505]', glow: '', sparkle: 'transparent' },
-  sp:      { bg: 'from-zinc-950 via-indigo-950/40 to-zinc-950', glow: 'bg-indigo-500/20', sparkle: '#818cf8' },
-  rank:    { bg: 'from-zinc-950 via-emerald-950/40 to-zinc-950', glow: 'bg-emerald-500/20', sparkle: '#10b981' },
-  xp:      { bg: 'from-zinc-950 via-amber-950/40 to-zinc-950',  glow: 'bg-amber-500/20',  sparkle: '#fbbf24' },
-  topics:  { bg: 'from-zinc-950 via-orange-950/40 to-zinc-950', glow: 'bg-orange-500/15', sparkle: '#fb923c' },
-  cta:     { bg: 'from-zinc-950 via-violet-950/40 to-zinc-950', glow: 'bg-violet-500/15', sparkle: '#a78bfa' },
+  result:        { bg: 'from-[#050505] via-[#0a0a0c] to-[#050505]', glow: '', sparkle: 'transparent' },
+  sp:            { bg: 'from-zinc-950 via-indigo-950/40 to-zinc-950', glow: 'bg-indigo-500/20', sparkle: '#818cf8' },
+  personal_best: { bg: 'from-zinc-950 via-emerald-950/40 to-zinc-950', glow: 'bg-emerald-500/20', sparkle: '#10b981' },
+  xp:            { bg: 'from-zinc-950 via-amber-950/40 to-zinc-950',  glow: 'bg-amber-500/20',  sparkle: '#fbbf24' },
+  topics:        { bg: 'from-zinc-950 via-orange-950/40 to-zinc-950', glow: 'bg-orange-500/15', sparkle: '#fb923c' },
+  cta:           { bg: 'from-zinc-950 via-violet-950/40 to-zinc-950', glow: 'bg-violet-500/15', sparkle: '#a78bfa' },
 };
 
 // ─── Individual slides ───────────────────────────────────────────────────────
