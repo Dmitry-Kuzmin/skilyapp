@@ -399,12 +399,22 @@ serve(async (req) => {
     const yesterday  = new Date(Date.now() - 86400_000).toISOString().slice(0, 10);
     const twoDaysAgo = new Date(Date.now() - 2 * 86400_000).toISOString().slice(0, 10);
 
-    // Ранг по duel_pass_xp — один запрос, вычисляем в памяти
-    const { data: allDpData } = await supabase
-      .from('profiles').select('id, duel_pass_xp').gt('duel_pass_xp', 0);
-    const allDpXp = (allDpData || []).map((p: any) => p.duel_pass_xp as number).sort((a: number, b: number) => b - a);
-    const totalPlayers = Math.max(allDpXp.length, 1);
-    const getDpRank = (dpXp: number) => allDpXp.filter((x: number) => x > dpXp).length + 1;
+    // Активный сезон для ранга
+    const { data: activeSeason } = await supabase
+      .from('duel_pass_seasons').select('id').eq('is_active', true).limit(1).single();
+    const activeSeasonId: number | null = activeSeason?.id ?? null;
+
+    // Ранг по season_points текущего сезона — один запрос, вычисляем в памяти
+    const seasonProgressMap = new Map<string, { sp: number; level: number }>();
+    if (activeSeasonId) {
+      const { data: allSp } = await supabase
+        .from('user_season_progress').select('user_id, season_points, level').eq('season_id', activeSeasonId);
+      for (const row of (allSp || [])) {
+        seasonProgressMap.set(row.user_id, { sp: row.season_points ?? 0, level: row.level ?? 1 });
+      }
+    }
+    const allSeasonPoints = Array.from(seasonProgressMap.values()).map(v => v.sp).sort((a, b) => b - a);
+    const getDpRank = (sp: number) => allSeasonPoints.filter((x) => x > sp).length + 1;
 
     // ── Test-режим ────────────────────────────────────────────────────────────
     if (testEmail) {
