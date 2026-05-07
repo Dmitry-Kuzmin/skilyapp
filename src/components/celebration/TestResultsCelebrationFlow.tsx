@@ -1043,7 +1043,7 @@ export function TestResultsCelebrationFlow({ data, onDone }: Props) {
                 userRealSP={userRealSP}
               />
             )}
-            {slideId === 'rank'   && <SlideRank data={data} />}
+            {slideId === 'personal_best' && <SlidePersonalBest data={data} personalBest={personalBest} />}
             {slideId === 'xp'     && <SlideXP data={data} />}
             {slideId === 'topics' && <SlideTopics topics={data.failedTopics} onPractice={onDone} />}
             {slideId === 'cta'    && <SlideCTA data={data} onRetry={onDone} onDetails={onDone} />}
