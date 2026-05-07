@@ -98,12 +98,23 @@ export function ResponsiveModal({
             if (isExternalPortal || preventClose) e.preventDefault();
           }}
         >
+          {/* Floating × when no title — overlays handle area, no extra height */}
+          {!title && showCloseBtn && (
+            <button
+              onClick={() => onOpenChange(false)}
+              className="absolute top-2.5 left-4 z-10 w-9 h-9 flex items-center justify-center rounded-full bg-white/10 text-foreground active:bg-white/20 transition-colors"
+              aria-label="Закрыть"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          )}
+          {!title && <DrawerTitle className="sr-only">Modal</DrawerTitle>}
+
           <div className="flex-1 flex flex-col w-full overflow-hidden min-h-0">
 
-            {/* iOS-style nav bar: × | title | right-icon */}
-            {(title || showCloseBtn) && (
+            {/* iOS nav bar: × | title | right-icon (only when title exists) */}
+            {title && (
               <div className="flex items-center shrink-0 px-3 pt-1 pb-2">
-                {/* Left: close button or spacer */}
                 <div className="w-9 h-9 flex items-center justify-center shrink-0">
                   {showCloseBtn && (
                     <button
@@ -115,19 +126,12 @@ export function ResponsiveModal({
                     </button>
                   )}
                 </div>
-
-                {/* Center: title */}
-                <DrawerTitle className={cn(
-                  "flex-1 text-center px-1 leading-tight",
-                  title ? "text-base font-semibold text-foreground" : "sr-only"
-                )}>
-                  {title ?? "Modal"}
+                <DrawerTitle className="flex-1 text-center text-base font-semibold text-foreground px-1 leading-tight">
+                  {title}
                 </DrawerTitle>
                 {description && (
                   <DrawerDescription className="sr-only">{description}</DrawerDescription>
                 )}
-
-                {/* Right: optional icon or spacer */}
                 <div className="w-9 h-9 flex items-center justify-center shrink-0">
                   {headerRight}
                 </div>

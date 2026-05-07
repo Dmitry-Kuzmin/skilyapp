@@ -84,9 +84,7 @@ const DrawerContent = React.forwardRef<
       <div style={{ display: 'contents' }} onContextMenu={e => e.stopPropagation()} onPointerOut={e => e.stopPropagation()}>
         {/* Handle sits below Dynamic Island when modal reaches top of screen */}
         {!hideHandle && (
-          <div className="flex-shrink-0" style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}>
-            <DrawerPrimitive.Handle style={{ marginTop: '10px', marginBottom: '6px' }} />
-          </div>
+          <DrawerPrimitive.Handle style={{ marginTop: '10px', marginBottom: '6px' }} />
         )}
         {children}
       </div>
