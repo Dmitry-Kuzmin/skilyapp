@@ -943,23 +943,24 @@ export function TestResultsCelebrationFlow({ data, onDone }: Props) {
     })();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Fetch time percentile when time slide is about to show
+  // Prefetch personal best for this test on mount
   useEffect(() => {
-    if (!slides.includes('time')) return;
+    if (!currentUserId || !data.testId) return;
     (async () => {
       try {
         const { data: rows } = await supabase
           .from('game_sessions')
-          .select('duration_seconds')
-          .eq('total_questions', data.totalQuestions)
-          .gt('duration_seconds', 0)
-          .limit(200);
-        if (!rows || rows.length < 3) return;
-        const slower = rows.filter(r => r.duration_seconds > data.timeSeconds).length;
-        setPercentile(Math.round((slower / rows.length) * 100));
-      } catch { /* silent */ }
+          .select('score')
+          .eq('user_id', currentUserId)
+          .eq('game_type', data.testId)
+          .eq('total_questions', data.totalQuestions);
+        if (rows?.length) {
+          const best = Math.max(...rows.map(r => r.score as number));
+          setPersonalBest({ best, attempts: rows.length });
+        }
+      } catch { /* noop */ }
     })();
-  }, [data.totalQuestions, data.timeSeconds]);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Fire sounds on slide entry (once per slide type)
   useEffect(() => {
