@@ -278,7 +278,7 @@ function buildEmailHtml(
           <tr>
             <td align="center" style="padding-top:20px;">
               <p style="margin:0 0 6px;font-size:12px;color:#334155;">${escapeHtml(t.footerText)}</p>
-              <a href="${appUrl}/unsubscribe?utm_source=email&type=points-reminder" style="font-size:11px;color:#334155;">${escapeHtml(t.unsubText)}</a>
+              <a href="${unsubUrl}" style="font-size:11px;color:#334155;">${escapeHtml(t.unsubText)}</a>
             </td>
           </tr>
 
