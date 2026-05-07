@@ -604,6 +604,7 @@ const TestResults = () => {
       mode,
       failedTopics,
       leveledUp: rewardResult.level_up ?? false,
+      rankChange: rewardResult.rank_change,
     };
     return (
       <TestResultsCelebrationFlow
