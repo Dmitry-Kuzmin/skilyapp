@@ -213,7 +213,7 @@ function buildEmailHtml(
           <td align="center" style="padding:14px 0 12px;border-right:1px solid #fde68a;">
             <div style="font-size:10px;font-weight:700;color:#b45309;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px;">${escapeHtml(t.dpRankLabel)}</div>
             <div style="font-size:22px;font-weight:900;color:#78350f;">#${stats.dpRank}</div>
-            <div style="font-size:10px;color:#b45309;">из ${stats.totalPlayers}</div>
+            <div style="font-size:10px;color:#b45309;">&nbsp;</div>
           </td>
           <td align="center" style="padding:14px 0 12px;border-right:1px solid #fde68a;">
             <div style="font-size:10px;font-weight:700;color:#b45309;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px;">${escapeHtml(t.dpLevelLabel)}</div>
