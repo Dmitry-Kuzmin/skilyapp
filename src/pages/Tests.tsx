@@ -614,7 +614,7 @@ const Tests = () => {
                       <CompactStreakJewel streak={streakDays} size="sm" hasClaimedToday={false} />
                     </button>
                   </TooltipTrigger>
-                  <TooltipContent side="bottom" sideOffset={8} avoidCollisions={false} className="bg-orange-950/90 border-orange-500/30 text-orange-100 text-xs">
+                  <TooltipContent side="bottom" sideOffset={8} className="bg-orange-950/90 border-orange-500/30 text-orange-100 text-xs">
                     {streakDays > 0
                       ? localeText(
                           `${streakDays}-дневный стрик! Продолжай решать каждый день.`,
@@ -645,7 +645,7 @@ const Tests = () => {
                         </div>
                       </button>
                     </TooltipTrigger>
-                    <TooltipContent side="bottom" sideOffset={8} avoidCollisions={false} className="bg-purple-950/90 border-purple-500/30 text-purple-100 max-w-xs text-xs">
+                    <TooltipContent side="bottom" sideOffset={8} className="bg-purple-950/90 border-purple-500/30 text-purple-100 max-w-xs text-xs">
                       {localeText(
                         'Твой прогресс к сдаче экзамена. Достигни 85%+ чтобы быть уверенным в успехе.',
                         'Tu progreso hacia el examen. Alcanza el 85%+ para estar seguro del éxito.',
@@ -666,7 +666,7 @@ const Tests = () => {
                         </div>
                       </button>
                     </TooltipTrigger>
-                    <TooltipContent side="bottom" sideOffset={8} avoidCollisions={false} className="bg-amber-950/90 border-amber-500/30 text-amber-100 max-w-xs text-xs">
+                    <TooltipContent side="bottom" sideOffset={8} className="bg-amber-950/90 border-amber-500/30 text-amber-100 max-w-xs text-xs">
                       {localeText(
                         `${challengeStats.errors} вопросов требуют повторения. Открой карточку «Ошибки» чтобы их закрыть.`,
                         `${challengeStats.errors} preguntas necesitan repaso. Abre «Errores» para repasarlas.`,

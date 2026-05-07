@@ -283,9 +283,16 @@ function LeaderboardClimb({
   const climbed = new_rank < prev_rank;
   const overtakenCount = climbed ? prev_rank - new_rank : 0;
 
-  // Build initial (pre-climb) row order: overtaken users above YOU, sorted by SP desc.
-  // After climb: YOU jumps to the top of this group.
-  const youName = 'Ты';
+  const youRow: ClimbRow = {
+    key: 'you',
+    isYou: true,
+    name: 'Ты',
+    sp: 0,
+    rank: prev_rank,
+    userId,
+  };
+
+  // Rows for context/overtaken users — sorted by SP desc (best SP = lowest rank number first)
   const overtakenRows: ClimbRow[] = overtaken
     .slice(0, 2)
     .map((u) => ({
@@ -299,47 +306,28 @@ function LeaderboardClimb({
     }))
     .sort((a, b) => b.sp - a.sp);
 
-  const youRow: ClimbRow = {
-    key: 'you',
-    isYou: true,
-    name: youName,
-    sp: 0,
-    rank: prev_rank,
-    userId,
-  };
-
-  // Pre-climb: overtaken rows above, YOU below (rank order)
-  const initialOrder: ClimbRow[] = climbed && overtakenRows.length > 0
+  // Initial order: context rows ABOVE you (better rank), YOU at bottom
+  const initialOrder: ClimbRow[] = overtakenRows.length > 0
     ? [...overtakenRows, youRow]
-    : [youRow, ...overtakenRows];
+    : [youRow];
 
-  // Post-climb: YOU on top, then overtaken rows below
-  const finalOrder: ClimbRow[] = climbed && overtakenRows.length > 0
-    ? [youRow, ...overtakenRows]
-    : [youRow, ...overtakenRows];
+  // After climb: YOU jumps to top, context rows fall below
+  const finalOrder: ClimbRow[] = [youRow, ...overtakenRows];
 
-  // Assign final ranks based on new_rank for YOU and consecutive ranks for overtaken
-  const withFinalRanks = finalOrder.map((row, i) => {
-    if (row.isYou) return { ...row, rank: new_rank };
-    const beforeYouCount = finalOrder.slice(0, i).filter(r => !r.isYou).length;
-    return { ...row, rank: new_rank + i - (i > finalOrder.findIndex(r => r.isYou) ? 0 : 0) + beforeYouCount + 1 };
-  });
-
-  // Simpler: derive ranks linearly — YOU is at new_rank, overtaken rows are at new_rank+1, +2 below
-  const finalRows: ClimbRow[] = finalOrder.map((row, i) => {
-    if (row.isYou) return { ...row, rank: new_rank };
-    const youIdx = finalOrder.findIndex(r => r.isYou);
-    const offsetFromYou = i - youIdx;
-    return { ...row, rank: new_rank + offsetFromYou };
-  });
-
+  // Assign ranks to initial state
   const initialRows: ClimbRow[] = initialOrder.map((row) => {
     if (row.isYou) return { ...row, rank: prev_rank };
-    const matched = overtaken.find(o => `o-${o.user_id}` === row.key);
-    if (!matched) return row;
-    // pre-climb rank of overtaken user = position based on their SP relative to prev YOU
-    const idx = overtaken.findIndex(o => `o-${o.user_id}` === row.key);
+    const idx = overtakenRows.findIndex(r => r.key === row.key);
+    // Users above YOU: rank = prev_rank - 1, prev_rank - 2, …
     return { ...row, rank: prev_rank - 1 - idx };
+  });
+
+  // Assign ranks to final state (after climb)
+  const finalRows: ClimbRow[] = finalOrder.map((row, i) => {
+    if (row.isYou) return { ...row, rank: new_rank };
+    // Overtaken users shift down: rank = new_rank + offset from YOU
+    const youIdx = finalOrder.findIndex(r => r.isYou);
+    return { ...row, rank: new_rank + (i - youIdx) };
   });
 
   const [order, setOrder] = useState<ClimbRow[]>(initialRows);
