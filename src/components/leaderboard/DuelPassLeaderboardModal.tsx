@@ -5,13 +5,13 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Trophy, Crown, Sparkles, Award, Star, TrendingUp, Search, Globe, Users, MapPin, ChevronLeft, ChevronRight, Flame, Coins } from "lucide-react";
+import { Trophy, Crown, Sparkles, Award, Star, TrendingUp, Search, Globe, Users, MapPin, ChevronLeft, ChevronRight, Flame, Coins, Info } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { UserAvatar } from "@/components/UserAvatar";
 import { cn } from "@/lib/utils";
 import { UserContext } from "@/contexts/UserContext";
 import { RankBadge, RankIcon, RankFrame, getRankFromLevel, type RankType } from "@/components/ranking/RankBadge";
-import { motion } from "@/components/optimized/Motion";
+import { motion, AnimatePresence } from "@/components/optimized/Motion";
 import { LeaderboardRewardsModal } from "@/components/leaderboard/LeaderboardRewardsModal";
 import { useModalRoute } from "@/hooks/useModalRoute";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -138,6 +138,7 @@ export function DuelPassLeaderboardView({
     total_pages: 0,
   });
   const [showMyPosition, setShowMyPosition] = useState(false);
+  const [infoOpen, setInfoOpen] = useState(false);
 
   // Кэшируем ID и дату активного сезона, чтобы не дергать базу при каждой смене вкладки/страницы
   // ОПТИМИЗАЦИЯ СКОРОСТИ
@@ -336,19 +337,58 @@ export function DuelPassLeaderboardView({
             <header className="space-y-4 text-left relative flex flex-col pt-2">
               {/* Кнопка Назад и Плашка на одном уровне */}
               <div className="flex items-center gap-3">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="w-10 h-10 rounded-full bg-slate-900/50 hover:bg-slate-800 text-white border border-white/5 backdrop-blur-md shrink-0"
+                <motion.button
+                  className="relative w-10 h-10 rounded-full bg-slate-900/50 hover:bg-slate-800 text-white border border-white/5 backdrop-blur-md shrink-0 flex items-center justify-center"
+                  whileTap={{ scale: 0.82 }}
+                  transition={{ type: "spring", stiffness: 500, damping: 20 }}
                   onClick={onBack}
                 >
                   <ChevronLeft className="w-6 h-6" />
-                </Button>
+                  <motion.span
+                    className="absolute inset-0 rounded-full border border-white/30 pointer-events-none"
+                    initial={false}
+                    whileTap={{ scale: 1.6, opacity: 0 }}
+                    transition={{ duration: 0.35, ease: "easeOut" }}
+                  />
+                </motion.button>
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] uppercase tracking-wider font-bold">
                   <Trophy className="w-3 h-3" />
                   Соревновательный сезон
                 </div>
+                <motion.button
+                  className="relative ml-auto w-10 h-10 rounded-full bg-slate-900/50 hover:bg-slate-800 text-white border border-white/5 backdrop-blur-md flex items-center justify-center"
+                  whileTap={{ scale: 0.82 }}
+                  transition={{ type: "spring", stiffness: 500, damping: 20 }}
+                  onClick={() => setInfoOpen((v) => !v)}
+                  aria-label="Информация о рейтинге"
+                >
+                  <Info className="w-5 h-5" />
+                  <motion.span
+                    className="absolute inset-0 rounded-full border border-primary/40 pointer-events-none"
+                    initial={false}
+                    whileTap={{ scale: 1.6, opacity: 0 }}
+                    transition={{ duration: 0.35, ease: "easeOut" }}
+                  />
+                </motion.button>
               </div>
+
+              <AnimatePresence>
+                {infoOpen && (
+                  <motion.div
+                    key="info-panel"
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                    className="overflow-hidden"
+                  >
+                    <div className="p-4 rounded-2xl bg-white/5 border border-white/10 text-sm text-muted-foreground space-y-1.5">
+                      <p className="font-semibold text-foreground">Как работает рейтинг?</p>
+                      <p>Зарабатывай очки сезона (SP) в дуэлях и поднимайся выше. В конце сезона топ-3 игрока получают призы.</p>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
 
               <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-5 pt-4 md:pt-2">
                 <div className="space-y-2 flex-1 min-w-0">

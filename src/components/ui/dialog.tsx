@@ -1,10 +1,33 @@
 import * as React from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { X } from "lucide-react";
+import { m, LazyMotion, domAnimation } from "framer-motion";
 
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { getModalConfig, type ModalType } from "@/lib/modal-config";
+
+/** Анимированная кнопка закрытия — scale + pulse-кольцо при тапе */
+function AnimatedCloseButton({ className, children }: { className?: string; children: React.ReactNode }) {
+  return (
+    <LazyMotion features={domAnimation}>
+      <m.span
+        className={cn("relative inline-flex items-center justify-center", className)}
+        whileTap={{ scale: 0.78 }}
+        transition={{ type: "spring", stiffness: 500, damping: 20, duration: 0.15 }}
+      >
+        {children}
+        {/* pulse-кольцо при тапе */}
+        <m.span
+          className="absolute inset-0 rounded-full border border-white/40 pointer-events-none"
+          initial={false}
+          whileTap={{ scale: 1.6, opacity: 0 }}
+          transition={{ duration: 0.35, ease: "easeOut" }}
+        />
+      </m.span>
+    </LazyMotion>
+  );
+}
 
 const Dialog = ({ modal = true, ...props }: React.ComponentPropsWithoutRef<typeof DialogPrimitive.Root>) => (
   <DialogPrimitive.Root modal={modal} {...props} />
@@ -126,10 +149,12 @@ const DialogContent = React.forwardRef<
           )}
           {children}
           {!hideCloseButton && (
-            <DialogPrimitive.Close className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none z-10">
-              <X className="h-4 w-4" />
-              <span className="sr-only">Close</span>
-            </DialogPrimitive.Close>
+            <AnimatedCloseButton className="absolute right-4 top-4 z-10">
+              <DialogPrimitive.Close className="rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none">
+                <X className="h-4 w-4" />
+                <span className="sr-only">Close</span>
+              </DialogPrimitive.Close>
+            </AnimatedCloseButton>
           )}
         </DialogPrimitive.Content>
       </DialogPortal>
@@ -184,10 +209,12 @@ const DialogContent = React.forwardRef<
           {children}
 
           {!hideCloseButton && (
-            <DialogPrimitive.Close className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none z-10">
-              <X className="h-5 w-5" />
-              <span className="sr-only">Close</span>
-            </DialogPrimitive.Close>
+            <AnimatedCloseButton className="absolute right-4 top-4 z-10">
+              <DialogPrimitive.Close className="rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none">
+                <X className="h-5 w-5" />
+                <span className="sr-only">Close</span>
+              </DialogPrimitive.Close>
+            </AnimatedCloseButton>
           )}
         </DialogPrimitive.Content>
       </DialogPortal>
@@ -242,14 +269,16 @@ const DialogContent = React.forwardRef<
 
         {children}
         {!hideCloseButton && (
-          <DialogPrimitive.Close
-            className="absolute right-6 top-6 z-50 flex items-center justify-center h-10 w-10 bg-white/5 border border-white/10 rounded-full text-zinc-400 opacity-60 transition-all duration-300 hover:opacity-100 hover:bg-white/10 hover:text-white hover:scale-110 active:scale-95 shadow-[0_4px_15px_rgba(0,0,0,0.3)] group backdrop-blur-md focus:outline-none"
-            aria-label="Закрыть модальное окно"
-          >
-            <X className="h-5 w-5 transition-transform duration-500 group-hover:rotate-180" />
-            <div className="absolute inset-0 rounded-full border border-white/0 group-hover:border-white/20 transition-all duration-300 scale-125 group-hover:scale-100" />
-            <span className="sr-only">Закрыть</span>
-          </DialogPrimitive.Close>
+          <AnimatedCloseButton className="absolute right-6 top-6 z-50">
+            <DialogPrimitive.Close
+              className="flex items-center justify-center h-10 w-10 bg-white/5 border border-white/10 rounded-full text-zinc-400 opacity-60 transition-all duration-300 hover:opacity-100 hover:bg-white/10 hover:text-white hover:scale-110 active:scale-95 shadow-[0_4px_15px_rgba(0,0,0,0.3)] group backdrop-blur-md focus:outline-none"
+              aria-label="Закрыть модальное окно"
+            >
+              <X className="h-5 w-5 transition-transform duration-500 group-hover:rotate-180" />
+              <div className="absolute inset-0 rounded-full border border-white/0 group-hover:border-white/20 transition-all duration-300 scale-125 group-hover:scale-100" />
+              <span className="sr-only">Закрыть</span>
+            </DialogPrimitive.Close>
+          </AnimatedCloseButton>
         )}
       </DialogPrimitive.Content>
     </DialogPortal>
