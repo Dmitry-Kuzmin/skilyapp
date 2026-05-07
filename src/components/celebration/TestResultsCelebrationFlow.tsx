@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef, lazy, Suspense } from 'react';
+import { useState, useEffect, useCallback, useRef, useContext, lazy, Suspense } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Confetti from 'react-confetti';
 import { cn } from '@/lib/utils';
@@ -12,6 +12,7 @@ import {
 import { supabase } from '@/integrations/supabase/client';
 import { haptics } from '@/lib/haptics';
 import { UserAvatar } from '@/components/UserAvatar';
+import { UserContext } from '@/contexts/UserContext';
 
 const DuelPassLeaderboardView = lazy(() =>
   import('@/components/leaderboard/DuelPassLeaderboardModal').then(m => ({
