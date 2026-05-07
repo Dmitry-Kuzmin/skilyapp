@@ -1,6 +1,7 @@
 import * as React from "react";
+import { X } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription } from "@/components/ui/drawer";
+import { Drawer, DrawerContent, DrawerTitle, DrawerDescription } from "@/components/ui/drawer";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useExternalOverlay } from "@/hooks/useExternalOverlay";
 import { cn } from "@/lib/utils";
@@ -16,24 +17,19 @@ interface ResponsiveModalProps {
   hideCloseButton?: boolean;
   preventClose?: boolean;
   headerContent?: React.ReactNode;
-  /** Snap points для Vaul (0-1). Например [0.5, 0.85, 1] */
+  /** Right slot in mobile nav bar (e.g. info icon) */
+  headerRight?: React.ReactNode;
   snapPoints?: (number | string)[];
-  /** Snap point по умолчанию при открытии */
   activeSnapPoint?: number | string | null;
-  /** Callback при изменении snap point */
   onSnapPointChange?: (snapPoint: number | string | null) => void;
-  /** Скрыть ручку на мобильных */
   hideHandle?: boolean;
-  /** Fade из эффект при закрытии */
   fadeFromIndex?: number;
-  /** Fullscreen режим */
   fullscreen?: boolean;
-  /** Fullscreen только на мобильных */
   mobileFullscreen?: boolean;
   dismissible?: boolean;
 }
 
-/** Mobile: Vaul bottom-sheet. Desktop: centered Dialog. */
+/** Mobile: Vaul bottom-sheet with iOS-style nav bar. Desktop: centered Dialog. */
 export function ResponsiveModal({
   open,
   onOpenChange,
@@ -45,6 +41,7 @@ export function ResponsiveModal({
   hideCloseButton = false,
   preventClose = false,
   headerContent,
+  headerRight,
   snapPoints,
   activeSnapPoint,
   onSnapPointChange,
@@ -59,7 +56,8 @@ export function ResponsiveModal({
   // so their portals receive pointer events.
   const isExternalOverlay = useExternalOverlay(open);
 
-  // На мобильных используем Vaul Drawer с нативной физикой
+  const showCloseBtn = !hideCloseButton && !preventClose;
+
   if (isMobile) {
     return (
       <Drawer
@@ -71,7 +69,7 @@ export function ResponsiveModal({
         activeSnapPoint={activeSnapPoint}
         setActiveSnapPoint={onSnapPointChange}
         {...(snapPoints ? { fadeFromIndex } as any : {})}
-        modal={!isExternalOverlay} // Dynamic: disabled when TonConnect/Paddle overlay is open
+        modal={!isExternalOverlay}
         shouldScaleBackground={false}
         repositionInputs={true}
       >
@@ -85,12 +83,10 @@ export function ResponsiveModal({
           )}
           hideHandle={hideHandle}
           onInteractOutside={(e) => {
-            // TonConnect body lock or active custom event → block dismiss
             if (document.body.classList.contains('tc-disable-scroll') || isExternalOverlay) {
               e.preventDefault();
               return;
             }
-            // Check if the click landed on any external widget portal
             const isExternalPortal = (e.composedPath() as Element[]).some(el => {
               if (!el?.tagName) return false;
               const id = (el instanceof HTMLElement ? el.id : '') || '';
@@ -103,18 +99,39 @@ export function ResponsiveModal({
           }}
         >
           <div className="flex-1 flex flex-col w-full overflow-hidden min-h-0">
-            {/* Header Tray */}
+
+            {/* iOS-style nav bar: × | title | right-icon */}
             {title && (
-              <DrawerHeader className="text-left shrink-0 pb-2 px-8">
-                <DrawerTitle className="text-foreground text-xl font-bold">{title}</DrawerTitle>
+              <div className="flex items-center shrink-0 px-3 pt-1 pb-2">
+                {/* Left: close button or spacer */}
+                <div className="w-9 h-9 flex items-center justify-center shrink-0">
+                  {showCloseBtn && (
+                    <button
+                      onClick={() => onOpenChange(false)}
+                      className="w-9 h-9 flex items-center justify-center rounded-full bg-white/10 text-foreground active:bg-white/20 transition-colors"
+                      aria-label="Закрыть"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+
+                {/* Center: title */}
+                <DrawerTitle className="flex-1 text-center text-base font-semibold text-foreground px-1 leading-tight">
+                  {title}
+                </DrawerTitle>
                 {description && (
-                  <DrawerDescription className="text-muted-foreground">
-                    {description}
-                  </DrawerDescription>
+                  <DrawerDescription className="sr-only">{description}</DrawerDescription>
                 )}
-              </DrawerHeader>
+
+                {/* Right: optional icon or spacer */}
+                <div className="w-9 h-9 flex items-center justify-center shrink-0">
+                  {headerRight}
+                </div>
+              </div>
             )}
 
+            {/* Optional full-width section below nav bar */}
             {headerContent && (
               <div className="shrink-0">
                 {headerContent}
@@ -201,7 +218,6 @@ export function ResponsiveModal({
 export function ModalSkeleton({ rows = 3 }: { rows?: number }) {
   return (
     <div className="p-4 space-y-4 animate-pulse">
-      {/* Header skeleton */}
       <div className="flex items-center gap-3">
         <div className="w-12 h-12 bg-muted rounded-xl" />
         <div className="space-y-2 flex-1">
@@ -209,8 +225,6 @@ export function ModalSkeleton({ rows = 3 }: { rows?: number }) {
           <div className="h-3 bg-muted rounded w-1/2" />
         </div>
       </div>
-
-      {/* Content skeleton */}
       {Array.from({ length: rows }).map((_, i) => (
         <div key={i} className="space-y-2">
           <div className="h-20 bg-muted rounded-xl" />

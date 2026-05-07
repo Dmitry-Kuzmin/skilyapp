@@ -14,6 +14,8 @@ interface UnifiedModalProps {
   description?: string;
   modalType?: ModalType;
   hideCloseButton?: boolean;
+  /** Right slot in mobile nav bar (e.g. info icon button) */
+  headerRight?: React.ReactNode;
   snapPoints?: (number | string)[];
   initialSnap?: number | string;
   showTitleBar?: boolean;
@@ -46,6 +48,7 @@ export function UnifiedModal({
   description,
   modalType = 'default',
   hideCloseButton = false,
+  headerRight,
   snapPoints,
   initialSnap,
   showTitleBar = true,
@@ -103,6 +106,7 @@ export function UnifiedModal({
       className={className}
       contentClassName={contentClassName}
       hideCloseButton={hideCloseButton}
+      headerRight={headerRight}
       preventClose={preventClose}
       snapPoints={snapPoints}
       activeSnapPoint={initialSnap}
