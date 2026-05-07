@@ -453,7 +453,7 @@ serve(async (req) => {
     // ── Bulk-режим ────────────────────────────────────────────────────────────
     const { data: profiles, error: pErr } = await supabase
       .from('profiles')
-      .select('id, user_id, first_name, license_points, duel_pass_xp, duel_pass_level, last_daily_point_at, settings, language_code')
+      .select('id, user_id, first_name, license_points, last_daily_point_at, settings, language_code')
       .is('telegram_id', null)
       .in('last_daily_point_at', [yesterday, twoDaysAgo])
       .gt('license_points', 0);
