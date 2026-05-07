@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { CountryCode } from '@/types/pdd';
+import { hasFullQuestionPoolForStrategy } from '@/lib/premiumState';
 
 /**
  * Хук для загрузки вопросов темы по topic_id из questions_new
