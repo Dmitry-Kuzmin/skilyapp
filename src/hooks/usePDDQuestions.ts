@@ -34,6 +34,9 @@ export function usePDDRandomQuestions(country: CountryCode, count: number = 20, 
       return strategy.getRandomQuestions(country, count, category);
     },
     enabled: !!country && count > 0,
+    staleTime: 0,
+    gcTime: 0, // Отключаем кэширование — случайные вопросы должны быть всегда свежие
+    refetchOnWindowFocus: false,
   });
 }
 
