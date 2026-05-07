@@ -399,12 +399,12 @@ serve(async (req) => {
     const yesterday  = new Date(Date.now() - 86400_000).toISOString().slice(0, 10);
     const twoDaysAgo = new Date(Date.now() - 2 * 86400_000).toISOString().slice(0, 10);
 
-    // Загружаем все XP для расчёта рангов в памяти (один запрос)
-    const { data: allXpData } = await supabase
-      .from('profiles').select('id, xp').gt('xp', 0);
-    const allXp = (allXpData || []).map((p: any) => p.xp as number).sort((a: number, b: number) => b - a);
-    const totalPlayers = allXp.length || 1;
-    const getRank = (userXp: number) => allXp.filter((x: number) => x > userXp).length + 1;
+    // Ранг по duel_pass_xp — один запрос, вычисляем в памяти
+    const { data: allDpData } = await supabase
+      .from('profiles').select('id, duel_pass_xp').gt('duel_pass_xp', 0);
+    const allDpXp = (allDpData || []).map((p: any) => p.duel_pass_xp as number).sort((a: number, b: number) => b - a);
+    const totalPlayers = Math.max(allDpXp.length, 1);
+    const getDpRank = (dpXp: number) => allDpXp.filter((x: number) => x > dpXp).length + 1;
 
     // ── Test-режим ────────────────────────────────────────────────────────────
     if (testEmail) {
@@ -412,18 +412,18 @@ serve(async (req) => {
       const authUser = (authData?.users ?? []).find((u: any) => u.email?.toLowerCase() === testEmail.toLowerCase());
 
       let firstName: string | null = 'Test';
-      let points = 15, userXp = 100, dpLevel = 1;
+      let points = 15, dpXp = 100, dpLevel = 1;
       let lang: Lang = 'ru';
 
       if (authUser) {
         const { data: p } = await supabase
-          .from('profiles').select('first_name, license_points, xp, duel_pass_level, settings, language_code')
+          .from('profiles').select('first_name, license_points, duel_pass_xp, duel_pass_level, settings, language_code')
           .eq('user_id', authUser.id).single();
-        if (p) { firstName = p.first_name ?? firstName; points = p.license_points ?? points; userXp = p.xp ?? userXp; dpLevel = p.duel_pass_level ?? dpLevel; lang = getUserLang(p); }
+        if (p) { firstName = p.first_name ?? firstName; points = p.license_points ?? points; dpXp = p.duel_pass_xp ?? dpXp; dpLevel = p.duel_pass_level ?? dpLevel; lang = getUserLang(p); }
       }
 
       const [quests, season] = await Promise.all([loadDailyQuests(supabase, lang), loadSeasonInfo(supabase, lang)]);
-      const stats: UserStats = { xp: userXp, dpLevel, rank: getRank(userXp), totalPlayers };
+      const stats: UserStats = { dpXp, dpLevel, dpRank: getDpRank(dpXp), totalPlayers };
 
       if (dryRun) return new Response(JSON.stringify({ ok: true, dry_run: true, lang, pts: points, firstName, quests: quests.length, season: !!season, stats }));
 
