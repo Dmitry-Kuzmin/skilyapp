@@ -693,8 +693,12 @@ const Tests = () => {
                         </div>
                       </button>
                     </TooltipTrigger>
-                    <TooltipContent side="top" className="bg-amber-950/90 border-amber-500/30 text-amber-100 max-w-xs text-xs">
-                      {challengeStats.errors} вопросов требуют повторения. Кликай на карточку «Ошибки» чтобы их закрыть.
+                    <TooltipContent side="bottom" sideOffset={8} avoidCollisions={false} className="bg-amber-950/90 border-amber-500/30 text-amber-100 max-w-xs text-xs z-[9999]">
+                      {localeText(
+                        `${challengeStats.errors} вопросов требуют повторения. Открой карточку «Ошибки» чтобы их закрыть.`,
+                        `${challengeStats.errors} preguntas necesitan repaso. Abre «Errores» para repasarlas.`,
+                        `${challengeStats.errors} questions need review. Open the «Errors» card to go through them.`
+                      )}
                     </TooltipContent>
                   </Tooltip>
                 )}
