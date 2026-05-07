@@ -1186,9 +1186,12 @@ export function TestResultsCelebrationFlow({ data, onFinish, onRetry }: Props) {
               />
             )}
             {slideId === 'personal_best' && <SlidePersonalBest data={data} personalBest={personalBest} />}
-            {slideId === 'xp'     && <SlideXP data={data} />}
+            {slideId === 'xp'            && <SlideXP data={data} />}
+            {slideId === 'exam_readiness' && examReadinessData && (
+              <SlideExamReadiness before={examReadinessData.before} after={examReadinessData.after} />
+            )}
             {slideId === 'topics' && <SlideTopics topics={data.failedTopics} onPractice={handleDone} />}
-            {slideId === 'cta'    && <SlideCTA data={data} onRetry={handleRetry} onDetails={handleDone} />}
+            {slideId === 'cta'    && <SlideCTA data={data} onRetry={handleRetry} onDetails={handleDone} todayTestCount={todayTestCount} />}
           </div>
         </motion.div>
       </AnimatePresence>
