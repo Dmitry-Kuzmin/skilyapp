@@ -46,11 +46,10 @@ const copy: Record<Lang, {
   consequence: string;
   pointsLabel: string;
   ctaText: string;
-  rankLabel: (rank: number, total: number) => string;
-  levelLabel: (lvl: number) => string;
-  xpLabel: (xp: number) => string;
-  seasonLabel: (name: string, days: number) => string;
+  seasonTitle: (name: string, days: number) => string;
   seasonPrize: string;
+  dpRankLabel: string; dpLevelLabel: string; dpSpLabel: string;
+  leaderboardLink: string;
   questsTitle: string;
   questTargets: Record<string, (v: number) => string>;
   questsLink: string;
@@ -70,11 +69,10 @@ const copy: Record<Lang, {
     consequence: 'Когда баллы падают до нуля — шкала сбрасывается и ты теряешь уровень прогресса. Не критично, но обидно перед экзаменом.',
     pointsLabel: 'баллов прогресса',
     ctaText: 'Зайти в Skily →',
-    rankLabel: (r, t) => `🏆 ${r} место из ${t}`,
-    levelLabel: (l) => `⭐ Уровень ${l}`,
-    xpLabel: (x) => `✨ ${x} XP`,
-    seasonLabel: (name, days) => `🏁 ${name} · осталось ${days} дн.`,
-    seasonPrize: 'Топ-3 получают Skily Premium',
+    seasonTitle: (name, days) => `🏁 ${name} — осталось ${days} дн.`,
+    seasonPrize: '🎁 Топ-3 получают Skily Premium',
+    dpRankLabel: 'Место', dpLevelLabel: 'Уровень', dpSpLabel: 'SP',
+    leaderboardLink: 'Смотреть рейтинг →',
     questsTitle: '🎯 Задачи на сегодня',
     questTargets: {
       duels_won:          (v) => `Выиграй ${v} дуэль`,
