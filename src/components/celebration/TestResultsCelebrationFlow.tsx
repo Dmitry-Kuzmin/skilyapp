@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Confetti from 'react-confetti';
 import { cn } from '@/lib/utils';
@@ -125,69 +125,6 @@ const SLIDE_STYLES: Record<SlideId, { bg: string; glow: string; sparkle: string 
 
 // ─── Individual slides ───────────────────────────────────────────────────────
 
-function LeaderboardOvertake({ prevSP, spAwarded }: { prevSP: number; spAwarded: number }) {
-  const sp = useCountUp(spAwarded, 400);
-  const animatedUserSP = prevSP + sp;
-
-  const competitors = useMemo(() => {
-    // We want the user to overtake exactly one person if possible.
-    const overtakeDistance = Math.max(1, Math.floor(spAwarded * 0.4));
-    const unreachableDistance = Math.max(spAwarded + 25, Math.floor(spAwarded * 1.5));
-    
-    return [
-      { id: 'c1', name: 'Alex M.', avatar: '🦊', sp: prevSP + unreachableDistance },
-      { id: 'c2', name: 'Maria S.', avatar: '🐱', sp: prevSP + overtakeDistance },
-      { id: 'c3', name: 'Juan D.', avatar: '🐼', sp: prevSP - 15 },
-    ];
-  }, [prevSP, spAwarded]);
-
-  const players = useMemo(() => {
-    return [
-      ...competitors,
-      { id: 'user', name: 'Ты', avatar: '😎', sp: animatedUserSP, isUser: true }
-    ].sort((a, b) => b.sp - a.sp);
-  }, [competitors, animatedUserSP]);
-
-  return (
-    <div className="w-full max-w-xs flex flex-col gap-2 mt-4">
-      {players.map((p, index) => (
-        <motion.div
-          layout
-          key={p.id}
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ 
-            layout: { type: "spring", stiffness: 300, damping: 25 },
-            opacity: { delay: index * 0.1 } 
-          }}
-          className={cn(
-            "flex items-center justify-between px-4 py-3 rounded-2xl border transition-colors",
-            p.isUser 
-              ? "bg-indigo-500/20 border-indigo-500/50 shadow-[0_0_15px_rgba(99,102,241,0.2)]" 
-              : "bg-white/5 border-white/10"
-          )}
-        >
-          <div className="flex items-center gap-3">
-            <span className={cn(
-              "text-xs font-black w-4 text-center",
-              index === 0 ? "text-amber-400" : index === 1 ? "text-zinc-300" : index === 2 ? "text-amber-600" : "text-white/30"
-            )}>
-              {index + 1}
-            </span>
-            <span className="text-xl">{p.avatar}</span>
-            <span className={cn("text-sm font-bold", p.isUser ? "text-indigo-300" : "text-white/80")}>
-              {p.name}
-            </span>
-          </div>
-          <span className={cn("text-sm font-black tabular-nums", p.isUser ? "text-indigo-400" : "text-white/50")}>
-            {Math.floor(p.sp)}
-          </span>
-        </motion.div>
-      ))}
-    </div>
-  );
-}
-
 function SlideResult({ data }: { data: CelebrationData }) {
   const score = useCountUp(data.correctCount, 600, 1000);
   const isPassed = data.isPassed;
@@ -273,35 +210,36 @@ function SlideSP({ data }: { data: CelebrationData }) {
   const fillAfter = Math.min(data.currentSP % 100, 100) || (data.currentSP >= nextLevelSP ? 100 : 0);
 
   return (
-    <div className="flex flex-col items-center justify-center h-full gap-4 px-6 text-center">
+    <div className="flex flex-col items-center justify-center h-full gap-8 px-8 text-center">
       <motion.div
         initial={{ scale: 0 }}
         animate={{ scale: 1 }}
         transition={{ type: 'spring', stiffness: 300, damping: 20, delay: 0.1 }}
-        className="relative mt-4"
+        className="relative"
       >
-        <div className="w-20 h-20 rounded-full bg-indigo-500/20 ring-4 ring-indigo-500/40 flex items-center justify-center text-4xl z-10 relative">
+        <div className="w-32 h-32 rounded-full bg-indigo-500/20 ring-4 ring-indigo-500/40 flex items-center justify-center text-6xl">
           🏅
         </div>
         <motion.div
-          className="absolute inset-0 rounded-full bg-indigo-400/20"
+          className="absolute inset-0 rounded-full bg-indigo-400/10"
           animate={{ scale: [1, 1.6, 1], opacity: [0.6, 0, 0.6] }}
           transition={{ duration: 2.5, repeat: Infinity }}
         />
       </motion.div>
 
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="flex flex-col items-center">
-        <div className="flex items-baseline gap-1">
-          <span className="text-xl font-bold text-white/40">+</span>
-          <span className="text-6xl font-black text-white tabular-nums leading-none">{sp}</span>
-          <span className="text-xl font-bold text-indigo-400 ml-1">SP</span>
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="flex flex-col items-center gap-1">
+        <span className="text-sm font-black uppercase tracking-[0.2em] text-indigo-400">Season Points</span>
+        <div className="flex items-baseline gap-1 mt-1">
+          <span className="text-2xl font-bold text-white/40">+</span>
+          <span className="text-8xl font-black text-white tabular-nums leading-none">{sp}</span>
+          <span className="text-3xl font-bold text-indigo-400 ml-1">SP</span>
         </div>
         {data.spAwarded > 8 && (
           <motion.span
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.9 }}
-            className="text-[10px] font-bold px-2 py-0.5 mt-1 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30"
+            className="text-xs font-bold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30"
           >
             +{data.spAwarded - data.correctCount * 2} бонус 🎯
           </motion.span>
@@ -309,23 +247,23 @@ function SlideSP({ data }: { data: CelebrationData }) {
       </motion.div>
 
       {/* Level progress */}
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }} className="w-full max-w-xs flex flex-col gap-1.5 mt-2">
-        <div className="flex justify-between text-[10px] text-white/50 font-semibold uppercase tracking-wider">
-          <span>Ур. {data.currentLevel}</span>
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }} className="w-full max-w-xs flex flex-col gap-3">
+        <div className="flex justify-between text-xs text-white/40 font-medium">
+          <span>Уровень {data.currentLevel}</span>
           <span>{data.currentSP} / {nextLevelSP} SP</span>
         </div>
-        <div className="h-2 rounded-full bg-white/10 overflow-hidden relative">
+        <div className="h-3 rounded-full bg-white/10 overflow-hidden relative">
           <motion.div
-            className="absolute left-0 top-0 h-full rounded-full bg-gradient-to-r from-indigo-500 to-violet-400"
+            className="absolute left-0 top-0 h-full rounded-full bg-gradient-to-r from-indigo-500 to-violet-500"
             initial={{ width: `${fillBefore}%` }}
             animate={{ width: `${fillAfter}%` }}
             transition={{ delay: 0.7, duration: 0.8, ease: 'easeOut' }}
           />
         </div>
+        <span className="text-xs text-white/40 text-center">
+          До уровня {data.currentLevel + 1}: {Math.max(0, nextLevelSP - data.currentSP)} SP
+        </span>
       </motion.div>
-
-      {/* Leaderboard Animation */}
-      <LeaderboardOvertake prevSP={prevSP} spAwarded={data.spAwarded} />
     </div>
   );
 }
@@ -477,18 +415,18 @@ function SlideCTA({ data, onRetry, onDetails }: { data: CelebrationData; onRetry
         </p>
       </motion.div>
 
-      <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.55 }} className="flex flex-col w-full max-w-xs gap-4">
+      <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.55 }} className="flex flex-col w-full max-w-xs gap-3">
         <button
           onClick={onRetry}
-          className="w-full py-4 rounded-2xl bg-white text-zinc-950 font-black text-lg tracking-wide uppercase shadow-[0_4px_0_0_rgb(209,213,219)] hover:bg-zinc-50 active:shadow-none active:translate-y-[4px] transition-all"
+          className="w-full py-4 rounded-2xl bg-white text-zinc-950 font-black text-base tracking-wide active:scale-95 transition-transform"
         >
-          {data.isPassed ? '🚀 Следующий тест' : '🔄 Ещё раз'}
+          {data.isPassed ? '🚀 Следующий тест' : '🔄 Попробовать снова'}
         </button>
         <button
           onClick={onDetails}
-          className="w-full py-4 rounded-2xl bg-white/10 text-white font-black text-lg tracking-wide uppercase shadow-[0_4px_0_0_rgba(255,255,255,0.1)] hover:bg-white/15 active:shadow-none active:translate-y-[4px] transition-all"
+          className="w-full py-3.5 rounded-2xl border border-white/15 text-white/60 font-semibold text-sm active:scale-95 transition-transform"
         >
-          Детали теста
+          Детали теста →
         </button>
       </motion.div>
     </div>
@@ -573,6 +511,7 @@ export function TestResultsCelebrationFlow({ data, onDone }: Props) {
   return (
     <div
       className={cn('fixed inset-0 z-50 bg-gradient-to-b', style.bg)}
+      onClick={slideId !== 'cta' ? advance : undefined}
     >
       {/* Ambient glow */}
       {style.glow && (
@@ -583,12 +522,12 @@ export function TestResultsCelebrationFlow({ data, onDone }: Props) {
       {style.sparkle !== 'transparent' && <Sparkles color={style.sparkle} />}
 
       {/* Top bar */}
-      <div className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between px-6 pb-3 pt-[max(env(safe-area-inset-top),2rem)]">
+      <div className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between px-6 pt-safe pt-4 pb-3">
         <SlideDots total={slides.length} current={current} />
         {slideId !== 'cta' && (
           <button
             onClick={(e) => { e.stopPropagation(); onDone(); }}
-            className="text-white/40 font-bold uppercase text-xs tracking-wider hover:text-white/80 transition-colors"
+            className="text-white/30 text-sm font-medium hover:text-white/60 transition-colors"
           >
             Пропустить
           </button>
@@ -607,7 +546,7 @@ export function TestResultsCelebrationFlow({ data, onDone }: Props) {
           transition={{ type: 'spring', stiffness: 350, damping: 35 }}
           className="absolute inset-0 flex flex-col"
         >
-          <div className="flex-1 flex flex-col pt-20 pb-[120px] overflow-y-auto overflow-x-hidden">
+          <div className="flex-1 flex flex-col pt-16 pb-24">
             {slideId === 'result' && <SlideResult data={data} />}
             {slideId === 'sp'     && <SlideSP data={data} />}
             {slideId === 'time'   && <SlideTime data={data} percentile={percentile} />}
@@ -618,26 +557,24 @@ export function TestResultsCelebrationFlow({ data, onDone }: Props) {
         </motion.div>
       </AnimatePresence>
 
-      {/* Bottom Action Button (Duolingo Style) */}
-      <AnimatePresence>
-        {slideId !== 'cta' && (
+      {/* Tap hint */}
+      {slideId !== 'cta' && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.2 }}
+          className="absolute bottom-10 left-0 right-0 flex justify-center pointer-events-none"
+        >
           <motion.div
-            key="bottom-bar"
-            initial={{ y: 100, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ y: 100, opacity: 0 }}
-            transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-            className="absolute bottom-0 left-0 right-0 px-6 pt-6 pb-[max(env(safe-area-inset-bottom),2rem)] bg-gradient-to-t from-zinc-950 via-zinc-950/90 to-transparent z-30"
+            animate={{ y: [0, 6, 0] }}
+            transition={{ duration: 1.4, repeat: Infinity, ease: 'easeInOut' }}
+            className="flex flex-col items-center gap-1.5 text-white/25"
           >
-            <button
-              onClick={advance}
-              className="w-full py-4 rounded-2xl bg-white text-zinc-950 font-black text-lg tracking-wide uppercase shadow-[0_4px_0_0_rgb(209,213,219)] hover:bg-zinc-50 active:shadow-none active:translate-y-[4px] transition-all"
-            >
-              Продолжить
-            </button>
+            <span className="text-xs font-medium tracking-widest uppercase">Нажми</span>
+            <span className="text-base">↓</span>
           </motion.div>
-        )}
-      </AnimatePresence>
+        </motion.div>
+      )}
     </div>
   );
 }

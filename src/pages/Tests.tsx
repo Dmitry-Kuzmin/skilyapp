@@ -30,6 +30,8 @@ import { useDashboardData } from "@/hooks/useDashboardData";
 import { PageLoader } from "@/components/PageLoader";
 import { SeoHead } from "@/components/seo/SeoHead";
 import { ContextSwitcher } from "@/components/shared/ContextSwitcher";
+import CompactStreakJewel from "@/components/shared/CompactStreakJewel";
+import { useExamReadiness } from "@/hooks/useExamReadiness";
 
 // --- Types ---
 type Topic = {
