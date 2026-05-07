@@ -602,6 +602,7 @@ const TestResults = () => {
       currentLevel: rewardResult.new_level ?? 1,
       isPassed: passed,
       mode,
+      testId: state?.testId,
       failedTopics,
       leveledUp: rewardResult.level_up ?? false,
       rankChange: rewardResult.rank_change,
