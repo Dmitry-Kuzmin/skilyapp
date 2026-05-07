@@ -885,6 +885,7 @@ export function TestResultsCelebrationFlow({ data, onDone }: Props) {
                 data={data}
                 onOpenLeaderboard={() => setLeaderboardOpen(true)}
                 currentUserId={currentUserId}
+                prefetchedRank={prefetchedRank}
               />
             )}
             {slideId === 'time'   && <SlideTime data={data} percentile={percentile} />}
