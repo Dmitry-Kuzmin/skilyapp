@@ -105,13 +105,11 @@ export const ExamReadiness = React.memo<ExamReadinessProps>(({
   const hasNoData = averageScore === 0 && testsCompleted === 0;
 
   const { selectedCountry } = usePDDContext();
-  const TARGET_READINESS_SCORE = 85;
 
-  // Загружаем аналитические данные
   const { analytics, loading: analyticsLoading } = useAnalytics(
     profileId || null,
     averageScore,
-    TARGET_READINESS_SCORE, // Целевой уровень 85%
+    EXAM_PASS_TARGET_PERCENT,
     selectedCountry,
     language
   );
