@@ -457,7 +457,7 @@ function LeaderboardClimb({
   );
 }
 
-function SlideSP({ data, onOpenLeaderboard, currentUserId, prefetchedRank }: { data: CelebrationData; onOpenLeaderboard: () => void; currentUserId?: string; prefetchedRank: RankChange | null }) {
+function SlideSP({ data, onOpenLeaderboard, currentUserId, prefetchedRank, userRealSP }: { data: CelebrationData; onOpenLeaderboard: () => void; currentUserId?: string; prefetchedRank: RankChange | null; userRealSP: number | null }) {
   const sp = useCountUp(data.spAwarded, 400);
   const nextLevelSP = (data.currentLevel + 1) * 100;
   const prevSP = data.currentSP - data.spAwarded;
