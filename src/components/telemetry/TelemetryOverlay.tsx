@@ -268,18 +268,20 @@ export function TelemetryContent({ onClose }: { onClose: () => void }) {
 
                                 <div className="flex items-center gap-8 pt-2">
                                     <div className="flex flex-col gap-1">
-                                        <span className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">{overlay('confidence')}</span>
+                                        <span className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">{overlay('sample')}</span>
                                         <span className="text-2xl font-black text-foreground dark:text-white tabular-nums drop-shadow-sm">
-                                            {readiness?.confidenceFactor ? Math.round(readiness.confidenceFactor * 100) : 0}%
+                                            {readiness?.sampleScore ? Math.round(readiness.sampleScore * 100) : 0}%
                                         </span>
                                     </div>
                                     <div className="flex flex-col gap-1">
                                         <span className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">{overlay('target')}</span>
-                                        <span className="text-2xl font-black text-emerald-600 dark:text-emerald-400 tabular-nums">75%</span>
+                                        <span className="text-2xl font-black text-emerald-600 dark:text-emerald-400 tabular-nums">{EXAM_PASS_TARGET_PERCENT}%</span>
                                     </div>
                                     <div className="flex flex-col gap-1">
                                         <span className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">{overlay('rank')}</span>
-                                        <span className="text-2xl font-black text-amber-600 dark:text-amber-500 tabular-nums">#420</span>
+                                        <span className="text-2xl font-black text-amber-600 dark:text-amber-500 tabular-nums">
+                                            {dashData?.profile?.rank ? `#${dashData.profile.rank}` : '—'}
+                                        </span>
                                     </div>
                                 </div>
                             </div>
