@@ -539,7 +539,7 @@ function SlideSP({ data, onOpenLeaderboard, currentUserId, prefetchedRank, userR
         <LeaderboardClimb
           rankChange={effectiveRankChange}
           userId={currentUserId}
-          currentSP={data.currentSP}
+          currentSP={userRealSP ?? data.currentSP}
           onOpenLeaderboard={onOpenLeaderboard}
         />
       ) : (
