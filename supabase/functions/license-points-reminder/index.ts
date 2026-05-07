@@ -400,6 +400,7 @@ serve(async (req) => {
       const email = profile.user_id ? emailMap.get(profile.user_id) : undefined;
       if (!email) { skipped++; continue; }
 
+      if (profile.settings?.email_points_reminder_disabled || profile.settings?.email_all_disabled) { skipped++; continue; }
       const lastSent = profile.settings?.points_reminder_sent_date;
       if (lastSent === today) { skipped++; continue; }
 
