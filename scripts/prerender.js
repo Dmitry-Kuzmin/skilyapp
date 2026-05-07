@@ -348,7 +348,7 @@ async function prerender() {
     // routes off a shared queue. With concurrency=4 we cut total wall-time
     // ~3-4× compared to the previous serial loop without exhausting RAM
     // (each page is ~30-60MB; well within Vercel's 8GB build machine).
-    const CONCURRENCY = Number(process.env.PRERENDER_CONCURRENCY) || 3;
+    const CONCURRENCY = Number(process.env.PRERENDER_CONCURRENCY) || 6;
     const routeQueue = [...routesToRender];
 
     async function renderWorker() {
@@ -446,7 +446,7 @@ async function prerender() {
           // NOTE: no hasContent re-check after settling — some pages (e.g. /tests) legitimately
           // re-render to an auth-empty state after initial data load. The waitForFunction above
           // already confirmed >900 chars at the peak-content moment, which is the right snapshot.
-          await new Promise((resolve) => setTimeout(resolve, 300));
+          await new Promise((resolve) => setTimeout(resolve, 100));
 
           // КРИТИЧНО для LCP/мобилок: убрать runtime-инъецированные modulepreload теги.
           // Когда React.lazy() триггерит загрузку чанков, Vite вставляет в <head>
