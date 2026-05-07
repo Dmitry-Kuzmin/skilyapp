@@ -400,7 +400,7 @@ function LeaderboardClimb({
                     loading="lazy"
                   />
                 ) : (
-                  <div className="w-8 h-8 rounded-full bg-white/10 ring-1 ring-white/10 shrink-0 flex items-center justify-center text-xs font-bold text-white/60">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-violet-600 ring-1 ring-white/20 shrink-0 flex items-center justify-center text-xs font-black text-white">
                     {row.name.charAt(0).toUpperCase()}
                   </div>
                 )}
