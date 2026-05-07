@@ -629,13 +629,13 @@ const Tests = () => {
                 <AIInsightsLibrary isPremium={isPremium} />
 
                 {/* Streak */}
-                <Tooltip>
+                <Tooltip delayDuration={300}>
                   <TooltipTrigger asChild>
                     <button className="cursor-help p-0 h-auto bg-transparent border-0 hover:opacity-80 transition-opacity">
                       <CompactStreakJewel streak={streakDays} size="sm" hasClaimedToday={false} />
                     </button>
                   </TooltipTrigger>
-                  <TooltipContent side="bottom" className="bg-orange-950/90 border-orange-500/30 text-orange-100">
+                  <TooltipContent side="top" className="bg-orange-950/90 border-orange-500/30 text-orange-100 text-xs">
                     {streakDays > 0
                       ? `${streakDays}-дневный стрик! Продолжай решать каждый день.`
                       : 'Начни решать задачи чтобы запустить стрик.'}
