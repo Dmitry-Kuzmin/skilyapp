@@ -644,7 +644,7 @@ const Tests = () => {
 
                 {/* Readiness % — prominent circle + number */}
                 {readinessPct !== null && (
-                  <Tooltip>
+                  <Tooltip delayDuration={300}>
                     <TooltipTrigger asChild>
                       <button className="cursor-help p-0 h-auto bg-transparent border-0 hover:opacity-80 transition-opacity">
                         <div className="flex items-center gap-2 h-10 px-3.5 rounded-full bg-gradient-to-r from-purple-500/15 to-indigo-500/15 border border-purple-500/30 text-sm font-bold text-purple-200 flex-shrink-0 whitespace-nowrap shadow-lg shadow-purple-500/10">
@@ -664,7 +664,7 @@ const Tests = () => {
                         </div>
                       </button>
                     </TooltipTrigger>
-                    <TooltipContent side="bottom" className="bg-purple-950/90 border-purple-500/30 text-purple-100 max-w-xs">
+                    <TooltipContent side="top" className="bg-purple-950/90 border-purple-500/30 text-purple-100 max-w-xs text-xs">
                       Твой прогресс к сдаче экзамена. Достигни 85%+ чтобы быть уверенным в успехе.
                     </TooltipContent>
                   </Tooltip>
