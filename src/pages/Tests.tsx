@@ -623,33 +623,35 @@ const Tests = () => {
                   </span>
                 </button>
               )}
-              <div className="flex items-center gap-1.5 xs:gap-2 sm:gap-3">
+              <div className="flex items-center gap-2">
                 {/* AI Insights shortcut */}
                 <AIInsightsLibrary isPremium={isPremium} />
 
-                {/* Accuracy Badge */}
-                <div className="flex items-center gap-1 xs:gap-1.5 px-2 xs:px-2.5 sm:px-4 py-1.5 xs:py-2 rounded-full bg-gradient-to-r from-blue-500/20 to-indigo-500/20 border border-blue-500/30 backdrop-blur-sm shadow-lg shadow-blue-500/10 flex-shrink-0 whitespace-nowrap">
-                  <Target className="w-3.5 h-3.5 xs:w-4 xs:h-4 text-blue-600 dark:text-blue-400 flex-shrink-0" />
-                  <span className="text-xs xs:text-sm font-bold text-blue-700 dark:text-blue-100">
-                    {safeStats.accuracy}% <span className="text-blue-600/70 dark:text-blue-300/70 font-normal">{localeText('точн.', 'prec.', 'acc.')}</span>
-                  </span>
-                </div>
+                {/* Streak */}
+                {streakDays > 0 && (
+                  <CompactStreakJewel streak={streakDays} size="sm" />
+                )}
 
-                {/* Answered Badge */}
-                <div className="flex items-center gap-1 xs:gap-1.5 px-2 xs:px-2.5 sm:px-4 py-1.5 xs:py-2 rounded-full bg-gradient-to-r from-emerald-500/20 to-teal-500/20 border border-emerald-500/30 backdrop-blur-sm shadow-lg shadow-emerald-500/10 flex-shrink-0 whitespace-nowrap">
-                  <TrendingUp className="w-3.5 h-3.5 xs:w-4 xs:h-4 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
-                  <span className="text-xs xs:text-sm font-bold text-emerald-700 dark:text-emerald-100">
-                    {safeStats.totalAnswered} <span className="text-emerald-600/70 dark:text-emerald-300/70 font-normal">{localeText('отв.', 'resp.', 'ans.')}</span>
-                  </span>
-                </div>
+                {/* Readiness % — compact circle + number */}
+                {readinessPct !== null && (
+                  <div className="flex items-center gap-1.5 h-9 px-3 rounded-full bg-purple-500/10 border border-purple-500/20 text-sm font-semibold text-purple-300 flex-shrink-0 whitespace-nowrap">
+                    <svg viewBox="0 0 36 36" className="w-5 h-5 -rotate-90 flex-shrink-0">
+                      <circle cx="18" cy="18" r="14" fill="none" stroke="currentColor" strokeOpacity="0.25" strokeWidth="3" />
+                      <circle cx="18" cy="18" r="14" fill="none" stroke="currentColor" strokeWidth="3"
+                        strokeDasharray={`${(readinessPct / 100) * 87.96} 87.96`}
+                        strokeLinecap="round" />
+                    </svg>
+                    {readinessPct}%
+                  </div>
+                )}
 
-                {/* Errors Badge */}
-                <div className="flex items-center gap-1 xs:gap-1.5 px-2 xs:px-2.5 sm:px-4 py-1.5 xs:py-2 rounded-full bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/30 backdrop-blur-sm shadow-lg shadow-amber-500/10 flex-shrink-0 whitespace-nowrap">
-                  <AlertTriangle className="w-3.5 h-3.5 xs:w-4 xs:h-4 text-amber-600 dark:text-amber-400 flex-shrink-0" />
-                  <span className="text-xs xs:text-sm font-bold text-amber-700 dark:text-amber-100">
-                    {challengeStats.errors} <span className="text-amber-600/70 dark:text-amber-300/70 font-normal">{localeText('ошиб.', 'err.', 'err.')}</span>
-                  </span>
-                </div>
+                {/* Error queue */}
+                {challengeStats.errors > 0 && (
+                  <div className="flex items-center gap-1.5 h-9 px-3 rounded-full bg-amber-500/10 border border-amber-500/20 text-sm font-semibold text-amber-300 flex-shrink-0 whitespace-nowrap">
+                    <AlertTriangle className="w-4 h-4 flex-shrink-0" />
+                    {challengeStats.errors}
+                  </div>
+                )}
               </div>
               </div>
             </div>
