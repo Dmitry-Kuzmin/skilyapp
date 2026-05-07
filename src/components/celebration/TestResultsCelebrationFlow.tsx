@@ -239,38 +239,10 @@ type ClimbRow = {
   name: string;
   sp: number;
   rank: number;
+  level: number;
   userId?: string;
   photoUrl?: string | null;
 };
-
-function ClimbAvatar({ row }: { row: ClimbRow }) {
-  if (row.isYou && row.userId) {
-    return (
-      <UserAvatar
-        profileId={row.userId}
-        size="sm"
-        showPremiumGlow={false}
-        avatarClassName="rounded-full"
-        className="rounded-full ring-2 ring-indigo-400 shrink-0"
-      />
-    );
-  }
-  if (row.photoUrl) {
-    return (
-      <img
-        src={row.photoUrl}
-        alt={row.name}
-        className="w-8 h-8 rounded-full ring-1 ring-white/10 object-cover shrink-0"
-        loading="lazy"
-      />
-    );
-  }
-  return (
-    <div className="w-8 h-8 rounded-full bg-white/10 ring-1 ring-white/10 shrink-0 flex items-center justify-center text-xs font-bold text-white/60">
-      {row.name.charAt(0).toUpperCase()}
-    </div>
-  );
-}
 
 function LeaderboardClimb({
   rankChange,
