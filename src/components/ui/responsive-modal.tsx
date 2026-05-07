@@ -102,7 +102,7 @@ export function ResponsiveModal({
         setActiveSnapPoint={onSnapPointChange}
         {...(snapPoints ? { fadeFromIndex } as any : {})}
         modal={!isExternalOverlay} // Dynamic: disabled when TonConnect/Paddle overlay is open
-        shouldScaleBackground={false}
+        shouldScaleBackground={true}
         repositionInputs={true}
       >
         <DrawerContent
@@ -110,7 +110,7 @@ export function ResponsiveModal({
             "flex flex-col fixed left-0 right-0 z-[99999] outline-none",
             mobileFullscreen
               ? "inset-x-0 bottom-0 top-0 h-[100dvh] max-h-[100dvh] rounded-none"
-              : "bottom-0 max-h-[97vh] h-auto",
+              : "bottom-0 max-h-[100dvh] h-auto",
             className
           )}
           hideHandle={hideHandle}
@@ -195,7 +195,10 @@ export function ResponsiveModal({
                 scrollbarWidth: 'none',
               }}
             >
-              <div className={cn("flex flex-col min-h-full justify-start", mobileFullscreen ? "pt-2 pb-6" : "pt-2 pb-10")}>
+              <div
+                className={cn("flex flex-col min-h-full justify-start", mobileFullscreen ? "pt-2 pb-6" : "pt-2")}
+                style={{ paddingBottom: 'max(2.5rem, calc(env(safe-area-inset-bottom, 0px) + 1.5rem))' }}
+              >
                 {children}
               </div>
             </div>

@@ -836,8 +836,11 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
                   ))}
                 </div>
 
-                {/* CTA — fixed bottom */}
-                <div className="flex-shrink-0 px-5 py-4 border-t border-white/5">
+                {/* CTA — fixed bottom, respects home indicator */}
+                <div
+                  className="flex-shrink-0 px-5 pt-4 border-t border-white/5"
+                  style={{ paddingBottom: 'max(1rem, env(safe-area-inset-bottom, 1rem))' }}
+                >
                   <button
                     onClick={() => setShowComparison(false)}
                     className="w-full h-12 rounded-2xl bg-gradient-to-r from-violet-600 to-indigo-600 text-white text-sm font-bold hover:opacity-90 active:scale-[0.99] transition-all shadow-lg shadow-violet-900/30"

@@ -70,9 +70,9 @@ const DrawerContent = React.forwardRef<
       ref={ref}
       className={cn(
         "fixed bottom-0 left-0 right-0 z-50 flex h-auto flex-col w-full",
-        "rounded-t-[20px] border-t border-white/8",
+        "rounded-t-[28px] border-t border-white/[0.06]",
         "bg-background",
-        "shadow-[0_-4px_30px_rgba(0,0,0,0.6)]",
+        "shadow-[0_-8px_40px_rgba(0,0,0,0.7)]",
         className,
       )}
       {...props}
@@ -82,10 +82,13 @@ const DrawerContent = React.forwardRef<
           which can be null, causing TypeError: Cannot read properties of null (reading 'target').
           Stopping propagation from children prevents vaul's handlers on Content from firing. */}
       <div style={{ display: 'contents' }} onContextMenu={e => e.stopPropagation()} onPointerOut={e => e.stopPropagation()}>
-        {/* Handle — compact, seamless with content */}
+        {/* Handle — sits below Dynamic Island on full-height sheets */}
         {!hideHandle && (
-          <div className="flex justify-center pt-2.5 pb-1.5">
-            <div className="h-[5px] w-10 rounded-full bg-white/20" />
+          <div
+            className="flex justify-center pb-1.5 flex-shrink-0"
+            style={{ paddingTop: 'max(12px, env(safe-area-inset-top, 12px))' }}
+          >
+            <div className="h-[5px] w-12 rounded-full bg-white/25" />
           </div>
         )}
         {children}
