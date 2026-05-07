@@ -264,11 +264,11 @@ function buildEmailHtml(
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>${escapeHtml(subject)}</title>
 </head>
-<body style="margin:0;padding:0;background:#f1f5f9;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
+<body style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
 
   <div style="display:none;max-height:0;overflow:hidden;">${escapeHtml(preheader)}&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;</div>
 
-  <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background:#f1f5f9;">
+  <table border="0" cellpadding="0" cellspacing="0" width="100%">
     <tr><td align="center" style="padding:32px 16px 40px;">
       <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width:520px;">
 
