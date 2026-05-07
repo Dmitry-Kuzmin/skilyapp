@@ -892,7 +892,7 @@ export function TestResultsCelebrationFlow({ data, onDone }: Props) {
   const slides: SlideId[] = [
     'result',
     'sp',
-    'rank',
+    ...(data.testId ? ['personal_best' as SlideId] : []),
     'xp',
     ...(data.failedTopics.length > 0 ? ['topics' as SlideId] : []),
     'cta',
@@ -900,10 +900,10 @@ export function TestResultsCelebrationFlow({ data, onDone }: Props) {
 
   const [current, setCurrent] = useState(0);
   const [direction, setDirection] = useState(1);
-  const [percentile, setPercentile] = useState<number | null>(null);
   const [leaderboardOpen, setLeaderboardOpen] = useState(false);
   const [prefetchedRank, setPrefetchedRank] = useState<RankChange | null>(null);
   const [userRealSP, setUserRealSP] = useState<number | null>(null);
+  const [personalBest, setPersonalBest] = useState<PersonalBestData>(null);
   const soundFiredRef = useRef<Set<SlideId>>(new Set());
 
   const slideId = slides[current];
