@@ -354,7 +354,7 @@ export const landingTranslations: Record<Language, LandingCopy> = {
       menu: [
         { label: "Acerca de", href: "/about" },
         { label: "Términos", href: "/legal/terms" },
-        { label: "Privacidad", href: "/legal/privacy" },
+        { label: "Privacidad", href: "/privacy" },
         { label: "Cookies", href: "/legal/cookies" },
         { label: "Términos de suscripción", href: "/legal/subscription" },
         { label: "Política de reembolso", href: "/legal/refund" },
@@ -563,7 +563,7 @@ export const landingTranslations: Record<Language, LandingCopy> = {
       menu: [
         { label: "About", href: "/about" },
         { label: "Terms", href: "/legal/terms" },
-        { label: "Privacy", href: "/legal/privacy" },
+        { label: "Privacy", href: "/privacy" },
         { label: "Cookies", href: "/legal/cookies" },
         { label: "Subscription Terms", href: "/legal/subscription" },
         { label: "Refund Policy", href: "/legal/refund" },
@@ -773,7 +773,7 @@ export const landingTranslations: Record<Language, LandingCopy> = {
         { label: "О нас", href: "/about" },
         { label: "Живой курс", href: "/curso" },
         { label: "Условия", href: "/legal/terms" },
-        { label: "Политика", href: "/legal/privacy" },
+        { label: "Политика", href: "/privacy" },
         { label: "Cookies", href: "/legal/cookies" },
         { label: "Условия подписки", href: "/legal/subscription" },
         { label: "Политика возврата", href: "/legal/refund" },
