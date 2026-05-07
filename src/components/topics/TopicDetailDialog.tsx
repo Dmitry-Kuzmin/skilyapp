@@ -63,7 +63,8 @@ export function TopicDetailDialog({
             openModal('PAYWALL');
             return;
         }
-        navigate(`/test/practice?topic=${topicId}&count=${QUESTIONS_PER_TICKET}&country=${country}`);
+        const levelParam = ticket.index > 0 ? `&level=${ticket.index + 1}` : '';
+        navigate(`/test/by-topic?topicId=${topicId}&topic=${encodeURIComponent(topicName)}&count=${QUESTIONS_PER_TICKET}&country=${country}${levelParam}`);
         onOpenChange(false);
     };
 
