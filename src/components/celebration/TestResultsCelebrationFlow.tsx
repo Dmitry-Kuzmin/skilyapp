@@ -11,6 +11,20 @@ import {
 } from '@/services/audioService';
 import { supabase } from '@/integrations/supabase/client';
 import { haptics } from '@/lib/haptics';
+import { 
+  Loader2, 
+  ShieldCheck, 
+  RefreshCw, 
+  Trophy, 
+  Zap, 
+  Star, 
+  Target, 
+  Rocket, 
+  TrendingUp, 
+  AlertCircle,
+  Medal,
+  Clock
+} from 'lucide-react';
 import { UserAvatar } from '@/components/UserAvatar';
 import { UserContext } from '@/contexts/UserContext';
 import { RankIcon, getRankFromLevel } from '@/components/ranking/RankBadge';
@@ -47,6 +61,7 @@ export interface CelebrationData {
   currentLevel: number;    // level after this test
   isPassed: boolean;
   mode: string;
+  testId?: string;
   failedTopics: string[];  // topic titles of wrong answers
   leveledUp: boolean;
   rankChange?: RankChange;
@@ -146,7 +161,7 @@ type SlideId = 'result' | 'sp' | 'time' | 'xp' | 'topics' | 'cta';
 const SLIDE_STYLES: Record<SlideId, { bg: string; glow: string; sparkle: string }> = {
   result:  { bg: 'from-[#050505] via-[#0a0a0c] to-[#050505]', glow: '', sparkle: 'transparent' },
   sp:      { bg: 'from-zinc-950 via-indigo-950/40 to-zinc-950', glow: 'bg-indigo-500/20', sparkle: '#818cf8' },
-  time:    { bg: 'from-zinc-950 via-cyan-950/40 to-zinc-950',   glow: 'bg-cyan-500/20',   sparkle: '#22d3ee' },
+  rank:    { bg: 'from-zinc-950 via-emerald-950/40 to-zinc-950', glow: 'bg-emerald-500/20', sparkle: '#10b981' },
   xp:      { bg: 'from-zinc-950 via-amber-950/40 to-zinc-950',  glow: 'bg-amber-500/20',  sparkle: '#fbbf24' },
   topics:  { bg: 'from-zinc-950 via-orange-950/40 to-zinc-950', glow: 'bg-orange-500/15', sparkle: '#fb923c' },
   cta:     { bg: 'from-zinc-950 via-violet-950/40 to-zinc-950', glow: 'bg-violet-500/15', sparkle: '#a78bfa' },
@@ -224,11 +239,15 @@ function SlideResult({ data }: { data: CelebrationData }) {
             animate={{ scale: 1 }}
             transition={{ type: 'spring', stiffness: 300, damping: 15, delay: 0.2 }}
             className={cn(
-              'w-32 h-32 rounded-full flex items-center justify-center text-6xl z-10 shadow-inner',
+              'w-32 h-32 rounded-full flex items-center justify-center z-10 shadow-inner relative group',
               isPassed ? 'bg-green-500/10' : 'bg-red-500/10',
             )}
           >
-            {isPassed ? '🏆' : '💪'}
+            {isPassed ? (
+              <Trophy className="w-16 h-16 text-green-400 drop-shadow-[0_0_15px_rgba(34,197,94,0.5)]" />
+            ) : (
+              <AlertCircle className="w-16 h-16 text-red-400 drop-shadow-[0_0_15px_rgba(239,68,68,0.5)]" />
+            )}
           </motion.div>
         </div>
 
@@ -541,8 +560,8 @@ function SlideSP({ data, onOpenLeaderboard, currentUserId, prefetchedRank, userR
             transition={{ type: 'spring', stiffness: 300, damping: 20, delay: 0.1 }}
             className="relative"
           >
-            <div className="w-24 h-24 rounded-full bg-indigo-500/20 ring-4 ring-indigo-500/40 flex items-center justify-center text-5xl">
-              🏅
+            <div className="w-24 h-24 rounded-full bg-indigo-500/20 ring-4 ring-indigo-500/40 flex items-center justify-center shadow-lg shadow-indigo-500/10">
+              <Star className="w-12 h-12 text-indigo-400 fill-indigo-400/20" />
             </div>
             <motion.div
               className="absolute inset-0 rounded-full bg-indigo-400/10"
@@ -589,8 +608,8 @@ function SlideSP({ data, onOpenLeaderboard, currentUserId, prefetchedRank, userR
       ) : (
         /* SP=0 case: show season leaderboard header instead */
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="flex flex-col items-center gap-2">
-          <div className="w-20 h-20 rounded-full bg-indigo-500/15 ring-3 ring-indigo-500/30 flex items-center justify-center text-4xl mt-2">
-            🏆
+          <div className="w-20 h-20 rounded-full bg-indigo-500/15 ring-3 ring-indigo-500/30 flex items-center justify-center mt-2">
+            <Trophy className="w-10 h-10 text-indigo-400/60" />
           </div>
           <span className="text-xs font-black uppercase tracking-[0.2em] text-indigo-400 mt-1">Сезонный лидерборд</span>
           <p className="text-white/40 text-xs max-w-[220px]">Твоя текущая позиция в сезоне</p>
@@ -622,9 +641,23 @@ function SlideSP({ data, onOpenLeaderboard, currentUserId, prefetchedRank, userR
   );
 }
 
-function SlideTime({ data, percentile }: { data: CelebrationData; percentile: number | null }) {
-  const avgSec = 180; // fallback average 3 min
-  const isFaster = data.timeSeconds < avgSec;
+function SlideRank({ data }: { data: CelebrationData }) {
+  // Логика расчета прогресса до следующего ранга
+  const currentSP = data.currentSP;
+  const rankLevels = [
+    { name: 'Бронза', min: 0, color: 'text-orange-400' },
+    { name: 'Серебро', min: 500, color: 'text-zinc-300' },
+    { name: 'Золото', min: 1500, color: 'text-yellow-400' },
+    { name: 'Платина', min: 3500, color: 'text-cyan-400' },
+    { name: 'Мастер', min: 7000, color: 'text-violet-400' }
+  ];
+
+  const nextRank = rankLevels.find(r => r.min > currentSP) || rankLevels[rankLevels.length - 1];
+  const prevRank = [...rankLevels].reverse().find(r => r.min <= currentSP) || rankLevels[0];
+  
+  const range = nextRank.min - prevRank.min;
+  const progress = range > 0 ? ((currentSP - prevRank.min) / range) * 100 : 100;
+  const remaining = nextRank.min - currentSP;
 
   return (
     <div className="flex flex-col items-center justify-center h-full gap-8 px-8 text-center">
@@ -638,56 +671,35 @@ function SlideTime({ data, percentile }: { data: CelebrationData; percentile: nu
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
           transition={{ type: 'spring', stiffness: 300, damping: 20, delay: 0.1 }}
-          className="w-32 h-32 rounded-full bg-cyan-500/20 ring-4 ring-cyan-500/40 flex items-center justify-center text-6xl"
+          className="w-32 h-32 rounded-full bg-emerald-500/20 ring-4 ring-emerald-500/40 flex items-center justify-center"
         >
-          ⚡
+          <TrendingUp className="w-16 h-16 text-emerald-400 drop-shadow-[0_0_15px_rgba(16,185,129,0.5)]" />
         </motion.div>
 
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="flex flex-col items-center gap-2">
-          <span className="text-[10px] font-black uppercase tracking-[0.4em] text-cyan-400">Твоё время</span>
-          <span className="text-7xl font-black text-white tabular-nums">{fmtTime(data.timeSeconds)}</span>
-          {percentile !== null ? (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.7 }}
-              className="flex flex-col items-center gap-1 mt-4"
-            >
-              {percentile >= 50 ? (
-                <span className="text-2xl font-black px-4 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-300">
-                  🚀 Быстрее чем {percentile}%
-                </span>
-              ) : percentile >= 30 ? (
-                <span className="text-lg font-bold text-white/50 px-4 py-1">
-                  Есть куда ускориться ⚡
-                </span>
-              ) : (
-                <span className="text-lg font-bold text-white/40 px-4 py-1">
-                  Главное — правильные ответы 🎯
-                </span>
-              )}
-            </motion.div>
-          ) : (
-            <span className="text-white/30 text-sm mt-2">Анализируем результаты...</span>
-          )}
-        </motion.div>
-
-        {/* Speed bar */}
-        {percentile !== null && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.9 }} className="w-full flex flex-col gap-3 bg-white/5 p-4 rounded-2xl border border-white/5">
-            <div className="h-3 rounded-full bg-black/40 overflow-hidden border border-white/5">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="flex flex-col items-center gap-2 w-full">
+          <span className="text-[10px] font-black uppercase tracking-[0.4em] text-emerald-400">Путь к званию</span>
+          <h4 className={cn("text-4xl font-black tracking-tight", nextRank.color)}>
+            {nextRank.name}
+          </h4>
+          
+          <div className="mt-4 w-full flex flex-col gap-3 bg-white/5 p-5 rounded-2xl border border-white/5">
+            <div className="flex justify-between text-[10px] font-black uppercase tracking-widest">
+              <span className="text-white/40">Текущий SP: {currentSP}</span>
+              <span className="text-emerald-400">Осталось: {remaining} SP</span>
+            </div>
+            <div className="h-3 rounded-full bg-black/40 overflow-hidden border border-white/5 relative">
               <motion.div
-                className="h-full rounded-full bg-gradient-to-r from-cyan-500 to-blue-500"
+                className="h-full rounded-full bg-gradient-to-r from-emerald-600 to-teal-500"
                 initial={{ width: 0 }}
-                animate={{ width: `${percentile}%` }}
-                transition={{ delay: 1, duration: 0.8, ease: 'easeOut' }}
+                animate={{ width: `${progress}%` }}
+                transition={{ delay: 0.8, duration: 1, ease: 'easeOut' }}
               />
             </div>
-            <div className="flex justify-between text-[10px] font-black uppercase tracking-widest text-white/20">
-              <span>Медленнее</span><span>Быстрее</span>
-            </div>
-          </motion.div>
-        )}
+            <p className="text-[10px] text-white/30 font-bold uppercase tracking-tighter">
+              Твой ранг растет с каждым успешным тестом 🚀
+            </p>
+          </div>
+        </motion.div>
       </motion.div>
     </div>
   );
@@ -709,8 +721,8 @@ function SlideXP({ data }: { data: CelebrationData }) {
           transition={{ type: 'spring', stiffness: 280, damping: 18, delay: 0.1 }}
           className="relative"
         >
-          <div className="w-32 h-32 rounded-full bg-amber-500/20 ring-4 ring-amber-500/40 flex items-center justify-center text-6xl shadow-inner">
-            ⚡
+          <div className="w-32 h-32 rounded-full bg-amber-500/20 ring-4 ring-amber-500/40 flex items-center justify-center shadow-inner">
+            <Zap className="w-16 h-16 text-amber-400 fill-amber-400/20 drop-shadow-[0_0_15px_rgba(251,191,36,0.5)]" />
           </div>
           <motion.div
             className="absolute inset-0 rounded-full bg-amber-400/10"
@@ -747,9 +759,9 @@ function SlideTopics({ topics, onPractice }: { topics: string[]; onPractice: () 
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
           transition={{ type: 'spring', stiffness: 280, damping: 20, delay: 0.1 }}
-          className="w-24 h-24 rounded-full bg-orange-500/15 ring-4 ring-orange-500/30 flex items-center justify-center text-5xl"
+          className="w-24 h-24 rounded-full bg-orange-500/15 ring-4 ring-orange-500/30 flex items-center justify-center"
         >
-          🎯
+          <Target className="w-12 h-12 text-orange-400 drop-shadow-[0_0_15px_rgba(251,146,60,0.5)]" />
         </motion.div>
 
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="flex flex-col items-center gap-1">
@@ -791,9 +803,9 @@ function SlideCTA({ data, onRetry, onDetails }: { data: CelebrationData; onRetry
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
           transition={{ type: 'spring', stiffness: 250, damping: 18, delay: 0.1 }}
-          className="text-8xl drop-shadow-2xl"
+          className="w-32 h-32 rounded-full bg-violet-500/10 border border-violet-500/20 flex items-center justify-center shadow-2xl"
         >
-          {data.isPassed ? '🎉' : '🔥'}
+          <Rocket className="w-16 h-16 text-violet-400 drop-shadow-[0_0_20px_rgba(167,139,250,0.5)]" />
         </motion.div>
 
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }} className="flex flex-col gap-3">
@@ -844,7 +856,7 @@ export function TestResultsCelebrationFlow({ data, onDone }: Props) {
   const slides: SlideId[] = [
     'result',
     'sp',
-    ...(data.timeSeconds > 0 ? ['time' as SlideId] : []),
+    'rank',
     'xp',
     ...(data.failedTopics.length > 0 ? ['topics' as SlideId] : []),
     'cta',
@@ -994,7 +1006,7 @@ export function TestResultsCelebrationFlow({ data, onDone }: Props) {
                 userRealSP={userRealSP}
               />
             )}
-            {slideId === 'time'   && <SlideTime data={data} percentile={percentile} />}
+            {slideId === 'rank'   && <SlideRank data={data} />}
             {slideId === 'xp'     && <SlideXP data={data} />}
             {slideId === 'topics' && <SlideTopics topics={data.failedTopics} onPractice={onDone} />}
             {slideId === 'cta'    && <SlideCTA data={data} onRetry={onDone} onDetails={onDone} />}
