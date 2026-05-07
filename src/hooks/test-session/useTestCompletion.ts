@@ -292,8 +292,8 @@ export const useTestCompletion = ({
                                     : mode === "module"
                                         ? "test_module"
                                         : "test_practice",
-                        score: Math.min(Math.max(0, score), 100), // Ensure 0-100 range
-                        total_questions: Math.min(Math.max(1, questions.length), 100), // Ensure 1-100 range
+                        score: Math.min(Math.max(0, correctCount), currentQuestions.length),
+                        total_questions: Math.min(Math.max(1, currentQuestions.length), 100),
                         duration_seconds: Math.min(Math.max(0, duration), 7200), // Ensure 0-7200 range
                     };
 
