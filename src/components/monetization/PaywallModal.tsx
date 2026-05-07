@@ -424,6 +424,16 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
     }
   };
 
+  // On mobile: plain div (Vaul handles the spring animation)
+  // On desktop: motion.div with scale/fade entrance
+  const ContentWrapper = isMobile ? 'div' : motion.div;
+  const wrapperAnimProps = isMobile ? {} : {
+    initial: { opacity: 0, scale: 0.95 },
+    animate: { opacity: 1, scale: 1 },
+    exit: { opacity: 0, scale: 0.95 },
+    transition: { duration: 0.4, ease: "easeOut" },
+  };
+
   return (
     <>
       <UnifiedModal
@@ -431,20 +441,19 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
         onOpenChange={onOpenChange}
         modalRouteKey="paywall"
         showTitleBar={false}
+        showHandle={true}
+        preventClose={showComparison}
         className={cn(
-          "sm:max-w-[950px] p-0 overflow-hidden border-0",
-          !isMobile && "bg-transparent shadow-none"
+          "p-0 border-0",
+          !isMobile && "sm:max-w-[950px] overflow-hidden bg-transparent shadow-none"
         )}
         contentClassName="p-0 bg-transparent border-0"
       >
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.95 }}
-          transition={{ duration: 0.4, ease: "easeOut" }}
+        <ContentWrapper
+          {...wrapperAnimProps}
           className={cn(
-            "relative overflow-hidden flex flex-col md:flex-row bg-white dark:bg-slate-950 rounded-[32px] shadow-2xl",
-            "min-h-[85vh] md:min-h-[650px] md:max-h-[85vh]"
+            "relative flex flex-col md:flex-row bg-white dark:bg-slate-950",
+            !isMobile && "overflow-hidden rounded-[32px] shadow-2xl min-h-[650px] max-h-[85vh]"
           )}
         >
           {/* LEFTSIDE (PREMIUM DARK) */}
@@ -496,7 +505,7 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
           </div>
 
           {/* RIGHTSIDE (PLANS) */}
-          <div className="flex-1 bg-[#FDFDFF] dark:bg-[#0F121E] p-4 md:p-8 md:pl-10 flex flex-col overflow-y-auto relative">
+          <div className={cn("flex-1 bg-[#FDFDFF] dark:bg-[#0F121E] p-4 md:p-8 md:pl-10 flex flex-col relative", !isMobile && "overflow-y-auto")}>
             <div className="absolute top-0 right-0 w-64 h-64 bg-violet-500/[0.03] dark:bg-violet-500/5 rounded-full blur-[80px] pointer-events-none" />
             <div className="flex-1 relative z-10">
               <motion.div
@@ -686,7 +695,7 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
               </p>
             </motion.div>
           </div>
-        </motion.div>
+        </ContentWrapper>
       </UnifiedModal>
 
       <CheckoutModal
@@ -706,20 +715,26 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
+              exit={{ opacity: 0, transition: { duration: 0.15 } }}
+              transition={{ duration: 0.2 }}
               className="fixed inset-0 flex items-end sm:items-center justify-center sm:p-6"
-              style={{ zIndex: 99999, background: 'rgba(0,0,0,0.82)', backdropFilter: 'blur(18px)' }}
+              style={{ zIndex: 200000, background: 'rgba(0,0,0,0.82)', backdropFilter: 'blur(18px)' }}
               onClick={() => setShowComparison(false)}
             >
               <motion.div
-                initial={{ y: 50, opacity: 0 }}
+                initial={{ y: '100%', opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
-                exit={{ y: 50, opacity: 0 }}
-                transition={{ type: 'spring', stiffness: 320, damping: 28 }}
+                exit={{ y: '100%', opacity: 0 }}
+                transition={{ type: 'spring', stiffness: 420, damping: 36, mass: 0.8 }}
                 onClick={(e) => e.stopPropagation()}
                 className="relative w-full sm:max-w-[540px] bg-[#0a0d1a] rounded-t-3xl sm:rounded-3xl shadow-2xl flex flex-col"
                 style={{ maxHeight: '88vh', border: '1px solid rgba(255,255,255,0.07)' }}
               >
+                {/* Drag handle visual */}
+                <div className="flex justify-center pt-3 pb-0 flex-shrink-0">
+                  <div className="h-[5px] w-10 rounded-full bg-white/20" />
+                </div>
+
                 {/* Close — fixed top-right, always above scroll */}
                 <button
                   onClick={() => setShowComparison(false)}
@@ -729,7 +744,7 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
                 </button>
 
                 {/* Header — fixed, not scrollable */}
-                <div className="flex-shrink-0 px-6 pt-6 pb-4">
+                <div className="flex-shrink-0 px-6 pt-4 pb-4">
                   <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-500 mb-2">
                     {isRu ? 'Детальное сравнение' : isEs ? 'Comparación detallada' : 'Detailed comparison'}
                   </p>
@@ -758,7 +773,10 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
                 </div>
 
                 {/* Scrollable body */}
-                <div className="overflow-y-auto flex-1 px-5 pb-2">
+                <div
+                  className="overflow-y-auto flex-1 px-5 pb-2"
+                  style={{ WebkitOverflowScrolling: 'touch', overscrollBehavior: 'contain' }}
+                >
                   {TABLE_SECTIONS.map((section, si) => (
                     <div key={si} className="mb-1">
                       {/* Section title */}

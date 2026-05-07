@@ -107,7 +107,7 @@ export function ResponsiveModal({
       >
         <DrawerContent
           className={cn(
-            "flex flex-col fixed left-0 right-0 z-[99999] outline-none transition-transform duration-200",
+            "flex flex-col fixed left-0 right-0 z-[99999] outline-none",
             mobileFullscreen
               ? "inset-x-0 bottom-0 top-0 h-[100dvh] max-h-[100dvh] rounded-none"
               : "bottom-0 max-h-[97vh] h-auto",
@@ -164,7 +164,7 @@ export function ResponsiveModal({
             }
           }}
         >
-          <div className="flex-1 flex flex-col w-full overflow-hidden">
+          <div className="flex-1 flex flex-col w-full overflow-hidden min-h-0">
             {/* Header Tray */}
             {title && (
               <DrawerHeader className="text-left shrink-0 pb-2 px-8">
@@ -186,7 +186,7 @@ export function ResponsiveModal({
             {/* Scrollable content */}
             <div
               className={cn(
-                "flex-1 overflow-y-auto min-h-0 overscroll-contain outline-none w-full",
+                "flex-1 overflow-y-auto min-h-0 outline-none w-full",
                 mobileFullscreen ? "px-4 pb-4" : "px-3",
                 contentClassName
               )}
