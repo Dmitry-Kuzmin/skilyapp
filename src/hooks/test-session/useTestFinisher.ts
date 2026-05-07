@@ -217,7 +217,7 @@ export function useTestFinisher(options: UseTestFinisherOptions): UseTestFinishe
                                                     : mode === "module"
                                                         ? "test_module"
                                                         : "test_practice",
-                            score: mode === "blitz" ? Math.max(0, score) : Math.min(Math.max(0, score), 100),
+                            score: Math.min(Math.max(0, correctCount), questions.length),
                             total_questions: Math.min(Math.max(1, questions.length), 100),
                             duration_seconds: Math.min(Math.max(0, timeSpent), 7200),
                         };
