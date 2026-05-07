@@ -52,7 +52,7 @@ export const ExamReadiness = React.memo<ExamReadinessProps>(({
   const readinessLevels = useMemo(() => [
     {
       status: 'start' as const,
-      range: '0-30%',
+      range: '0-20%',
       title: t('dashboard.examReadiness.levels.start.title'),
       titleColor: 'text-red-400',
       description: t('dashboard.examReadiness.levels.start.desc'),
@@ -62,7 +62,7 @@ export const ExamReadiness = React.memo<ExamReadinessProps>(({
     },
     {
       status: 'progress' as const,
-      range: '31-70%',
+      range: '21-50%',
       title: t('dashboard.examReadiness.levels.progress.title'),
       titleColor: 'text-orange-400',
       description: t('dashboard.examReadiness.levels.progress.desc'),
@@ -72,7 +72,7 @@ export const ExamReadiness = React.memo<ExamReadinessProps>(({
     },
     {
       status: 'near' as const,
-      range: '71-84%',
+      range: '51-75%',
       title: t('dashboard.examReadiness.levels.near.title'),
       titleColor: 'text-yellow-400',
       description: t('dashboard.examReadiness.levels.near.desc'),
@@ -82,7 +82,7 @@ export const ExamReadiness = React.memo<ExamReadinessProps>(({
     },
     {
       status: 'ready' as const,
-      range: '85-95%',
+      range: '76-90%',
       title: t('dashboard.examReadiness.levels.ready.title'),
       titleColor: 'text-emerald-400',
       description: t('dashboard.examReadiness.levels.ready.desc'),
@@ -92,7 +92,7 @@ export const ExamReadiness = React.memo<ExamReadinessProps>(({
     },
     {
       status: 'legend' as const,
-      range: '96-100%',
+      range: '91-100%',
       title: t('dashboard.examReadiness.levels.legend.title'),
       titleColor: 'text-purple-400',
       description: t('dashboard.examReadiness.levels.legend.desc'),
