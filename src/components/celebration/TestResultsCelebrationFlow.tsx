@@ -768,6 +768,8 @@ export function TestResultsCelebrationFlow({ data, onDone }: Props) {
           body: { type: 'user_position', user_id: currentUserId, neighbors_count: 4 },
         });
         if (res?.position) {
+          const realSP: number | null = res.user_data?.season_points ?? null;
+          if (realSP !== null) setUserRealSP(realSP);
           const above = (res.neighbors ?? [] as Array<{
             user_id: string;
             position?: number;
