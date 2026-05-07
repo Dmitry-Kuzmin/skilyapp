@@ -485,8 +485,10 @@ serve(async (req) => {
       const daysMissed = profile.last_daily_point_at === yesterday ? 1 : 2;
       const lang       = getUserLang(profile);
       const points     = profile.license_points ?? 12;
-      const dpXp       = profile.duel_pass_xp ?? 0;
-      const stats: UserStats = { dpXp, dpLevel: profile.duel_pass_level ?? 1, dpRank: getDpRank(dpXp), totalPlayers };
+      const sp         = seasonProgressMap.get(profile.id);
+      const dpXp       = sp?.sp ?? 0;
+      const dpLevel    = sp?.level ?? 1;
+      const stats: UserStats = { dpXp, dpLevel, dpRank: getDpRank(dpXp) };
       const [quests, season] = await Promise.all([getQuests(lang), getSeason(lang)]);
 
       if (dryRun) { console.log(`[PointsReminder] DRY RUN: ${email} day=${daysMissed} dpRank=${stats.dpRank}`); sent++; continue; }
