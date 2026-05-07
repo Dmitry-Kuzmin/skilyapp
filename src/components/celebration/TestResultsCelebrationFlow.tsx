@@ -497,66 +497,93 @@ function SlideSP({ data, onOpenLeaderboard, currentUserId }: { data: Celebration
 
   const effectiveRankChange = data.rankChange ?? fallbackRank;
 
+  const hasSpData = data.spAwarded > 0;
+
   return (
     <div className="flex flex-col items-center justify-start h-full gap-5 px-6 text-center">
-      <motion.div
-        initial={{ scale: 0 }}
-        animate={{ scale: 1 }}
-        transition={{ type: 'spring', stiffness: 300, damping: 20, delay: 0.1 }}
-        className="relative"
-      >
-        <div className="w-24 h-24 rounded-full bg-indigo-500/20 ring-4 ring-indigo-500/40 flex items-center justify-center text-5xl">
-          🏅
-        </div>
-        <motion.div
-          className="absolute inset-0 rounded-full bg-indigo-400/10"
-          animate={{ scale: [1, 1.6, 1], opacity: [0.6, 0, 0.6] }}
-          transition={{ duration: 2.5, repeat: Infinity }}
-        />
-      </motion.div>
-
-      <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="flex flex-col items-center gap-1">
-        <span className="text-xs font-black uppercase tracking-[0.2em] text-indigo-400">Season Points</span>
-        <div className="flex items-baseline gap-1">
-          <span className="text-xl font-bold text-white/40">+</span>
-          <span className="text-6xl font-black text-white tabular-nums leading-none">{sp}</span>
-          <span className="text-2xl font-bold text-indigo-400 ml-1">SP</span>
-        </div>
-        {data.spAwarded > 8 && (
-          <motion.span
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.9 }}
-            className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30"
-          >
-            +{data.spAwarded - data.correctCount * 2} бонус 🎯
-          </motion.span>
-        )}
-      </motion.div>
-
-      {/* Level progress */}
-      <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.45 }} className="w-full max-w-xs flex flex-col gap-1.5">
-        <div className="flex justify-between text-[10px] text-white/40 font-bold uppercase tracking-wider">
-          <span>Уровень {data.currentLevel}</span>
-          <span className="tabular-nums">{data.currentSP} / {nextLevelSP}</span>
-        </div>
-        <div className="h-2.5 rounded-full bg-white/10 overflow-hidden relative">
+      {hasSpData ? (
+        <>
           <motion.div
-            className="absolute left-0 top-0 h-full rounded-full bg-gradient-to-r from-indigo-500 to-violet-500"
-            initial={{ width: `${fillBefore}%` }}
-            animate={{ width: `${fillAfter}%` }}
-            transition={{ delay: 0.7, duration: 0.8, ease: 'easeOut' }}
-          />
-        </div>
-      </motion.div>
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 20, delay: 0.1 }}
+            className="relative"
+          >
+            <div className="w-24 h-24 rounded-full bg-indigo-500/20 ring-4 ring-indigo-500/40 flex items-center justify-center text-5xl">
+              🏅
+            </div>
+            <motion.div
+              className="absolute inset-0 rounded-full bg-indigo-400/10"
+              animate={{ scale: [1, 1.6, 1], opacity: [0.6, 0, 0.6] }}
+              transition={{ duration: 2.5, repeat: Infinity }}
+            />
+          </motion.div>
+
+          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="flex flex-col items-center gap-1">
+            <span className="text-xs font-black uppercase tracking-[0.2em] text-indigo-400">Season Points</span>
+            <div className="flex items-baseline gap-1">
+              <span className="text-xl font-bold text-white/40">+</span>
+              <span className="text-6xl font-black text-white tabular-nums leading-none">{sp}</span>
+              <span className="text-2xl font-bold text-indigo-400 ml-1">SP</span>
+            </div>
+            {data.spAwarded > 8 && (
+              <motion.span
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.9 }}
+                className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30"
+              >
+                +{data.spAwarded - data.correctCount * 2} бонус 🎯
+              </motion.span>
+            )}
+          </motion.div>
+
+          {/* Level progress */}
+          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.45 }} className="w-full max-w-xs flex flex-col gap-1.5">
+            <div className="flex justify-between text-[10px] text-white/40 font-bold uppercase tracking-wider">
+              <span>Уровень {data.currentLevel}</span>
+              <span className="tabular-nums">{data.currentSP} / {nextLevelSP}</span>
+            </div>
+            <div className="h-2.5 rounded-full bg-white/10 overflow-hidden relative">
+              <motion.div
+                className="absolute left-0 top-0 h-full rounded-full bg-gradient-to-r from-indigo-500 to-violet-500"
+                initial={{ width: `${fillBefore}%` }}
+                animate={{ width: `${fillAfter}%` }}
+                transition={{ delay: 0.7, duration: 0.8, ease: 'easeOut' }}
+              />
+            </div>
+          </motion.div>
+        </>
+      ) : (
+        /* SP=0 case: show season leaderboard header instead */
+        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="flex flex-col items-center gap-2">
+          <div className="w-20 h-20 rounded-full bg-indigo-500/15 ring-3 ring-indigo-500/30 flex items-center justify-center text-4xl mt-2">
+            🏆
+          </div>
+          <span className="text-xs font-black uppercase tracking-[0.2em] text-indigo-400 mt-1">Сезонный лидерборд</span>
+          <p className="text-white/40 text-xs max-w-[220px]">Твоя текущая позиция в сезоне</p>
+        </motion.div>
+      )}
 
       {/* Climb mini-leaderboard (server-powered or client fallback) */}
-      {effectiveRankChange && (
+      {effectiveRankChange ? (
         <LeaderboardClimb
           rankChange={effectiveRankChange}
           userId={currentUserId}
           onOpenLeaderboard={onOpenLeaderboard}
         />
+      ) : (
+        /* Loading state while fetching fallback position */
+        currentUserId && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5 }}
+            className="text-white/30 text-xs"
+          >
+            Загружаем позицию…
+          </motion.div>
+        )
       )}
     </div>
   );
