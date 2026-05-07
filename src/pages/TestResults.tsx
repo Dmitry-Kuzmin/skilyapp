@@ -593,7 +593,13 @@ const TestResults = () => {
   const handleRetry = () => {
     if (!state) return;
 
-    // Smart retry logic based on mode
+    // Use the exact URL that started this session (preserves count, category, topic, mode, etc.)
+    if (state.retryUrl) {
+      navigate(state.retryUrl, { replace: true });
+      return;
+    }
+
+    // Legacy fallback for sessions started before retryUrl was added
     if (mode === 'exam' || mode === 'exam-russia') {
       navigate('/test/' + mode, { replace: true });
     } else if (mode === 'marathon') {
@@ -608,12 +614,7 @@ const TestResults = () => {
       navigate('/tests/error-bank', { replace: true });
     } else if (mode === 'favorites') {
       navigate('/tests/favorites', { replace: true });
-    } else if (mode === 'topics' && state.questions[0]?.topics?.title_es) {
-      // For DGT topic tests, we might need a more complex redirect if we had a topic ID
-      // but usually navigating to topic list or restarting practice is a safe fallback
-      navigate('/test/practice', { replace: true });
     } else {
-      // Default fallback
       navigate('/test/practice', { replace: true });
     }
   };
