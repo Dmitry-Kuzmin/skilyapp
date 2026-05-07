@@ -214,8 +214,9 @@ const TestResults = () => {
     mode: string;
     timeSpent: number;
     testId?: string;
+    retryUrl?: string;
     rewardResult?: TestRewardPayload | null;
-    russiaExamStats?: { totalQuestions: number; totalErrors: number; status?: string; timeSpent?: number; }; // Add stats support
+    russiaExamStats?: { totalQuestions: number; totalErrors: number; status?: string; timeSpent?: number; };
     country?: string;
     isRedemptionSuccess?: boolean;
     isRussianFailed?: boolean;
