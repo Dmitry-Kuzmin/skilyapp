@@ -80,7 +80,7 @@ export function ResponsiveModal({
             "flex flex-col fixed left-0 right-0 z-[99999] outline-none",
             mobileFullscreen
               ? "inset-x-0 bottom-0 top-0 h-[100dvh] max-h-[100dvh] rounded-none"
-              : "bottom-0 max-h-[100dvh] h-auto",
+              : "bottom-0 max-h-[calc(100dvh-env(safe-area-inset-top,0px)-12px)] h-auto",
             className
           )}
           hideHandle={hideHandle}
@@ -121,9 +121,8 @@ export function ResponsiveModal({
               </div>
             )}
 
-            {/* Scrollable content — data-vaul-no-drag prevents accidental dismiss while scrolling */}
+            {/* Scrollable content */}
             <div
-              data-vaul-no-drag
               className={cn(
                 "flex-1 overflow-y-auto min-h-0 outline-none w-full",
                 mobileFullscreen ? "px-4 pb-4" : "px-3",
