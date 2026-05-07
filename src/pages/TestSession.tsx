@@ -482,7 +482,8 @@ const TestSession = () => {
         testInfo,
         timeSpent,
         isRussianFailed,
-        country: pddCountry
+        country: pddCountry,
+        retryUrl: location.pathname + location.search,
       }
     });
   }, [navigate, activeState, questionsState, answers, mode, testInfo, pddCountry]);
