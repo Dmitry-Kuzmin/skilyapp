@@ -718,6 +718,9 @@ const SLIDE_SOUNDS: Record<SlideId, () => void> = {
 };
 
 export function TestResultsCelebrationFlow({ data, onDone }: Props) {
+  const userCtx = useContext(UserContext);
+  const currentUserId = userCtx?.profileId ?? undefined;
+
   const slides: SlideId[] = [
     'result',
     'sp',
@@ -730,6 +733,7 @@ export function TestResultsCelebrationFlow({ data, onDone }: Props) {
   const [current, setCurrent] = useState(0);
   const [direction, setDirection] = useState(1);
   const [percentile, setPercentile] = useState<number | null>(null);
+  const [leaderboardOpen, setLeaderboardOpen] = useState(false);
   const soundFiredRef = useRef<Set<SlideId>>(new Set());
 
   const slideId = slides[current];
