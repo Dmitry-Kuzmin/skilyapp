@@ -2,6 +2,7 @@ import * as React from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription } from "@/components/ui/drawer";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useExternalOverlay } from "@/hooks/useExternalOverlay";
 import { cn } from "@/lib/utils";
 
 interface ResponsiveModalProps {
@@ -32,21 +33,7 @@ interface ResponsiveModalProps {
   dismissible?: boolean;
 }
 
-/**
- * 🏆 GOLD STANDARD - ResponsiveModal с Vaul + iOS Keyboard Fix v2
- * 
- * - Mobile: Vaul Drawer с нативной физикой iOS + поддержка клавиатуры
- * - Desktop: Dialog (центрированная модалка)
- * 
- * Особенности:
- * - Visual Viewport API для iOS клавиатуры
- * - CSS-переменная --visual-viewport-height
- * - meta tag interactive-widget=resizes-content
- * - repositionInputs={false} для Vaul
- * - Адаптивный layout: убираются отступы когда клавиатура открыта
- * - justify-start вместо center для скролла
- * - Спейсер для прокрутки над клавиатурой
- */
+/** Mobile: Vaul bottom-sheet. Desktop: centered Dialog. */
 export function ResponsiveModal({
   open,
   onOpenChange,
@@ -68,26 +55,9 @@ export function ResponsiveModal({
   dismissible,
 }: ResponsiveModalProps) {
   const isMobile = useIsMobile();
-  
-  // КРИТИЧНО: Если открыт TonConnect или Paddle — отключаем 'modal' режим у Radix,
-  // чтобы он не блокировал pointer-events у внешних оверлеев.
-  const [isExternalOverlay, setIsExternalOverlay] = React.useState(false);
-
-  React.useEffect(() => {
-    if (!open) return;
-
-    const handleOverlayEvent = (e: Event) => {
-      const isOpen = !!(e as CustomEvent).detail?.open;
-      setIsExternalOverlay(isOpen);
-    };
-    document.addEventListener('tonconnect-modal', handleOverlayEvent);
-    document.addEventListener('paddle-checkout', handleOverlayEvent);
-
-    return () => {
-      document.removeEventListener('tonconnect-modal', handleOverlayEvent);
-      document.removeEventListener('paddle-checkout', handleOverlayEvent);
-    };
-  }, [open]);
+  // Disable Vaul/Radix modal mode when TonConnect or Paddle overlay is open,
+  // so their portals receive pointer events.
+  const isExternalOverlay = useExternalOverlay(open);
 
   // На мобильных используем Vaul Drawer с нативной физикой
   if (isMobile) {
@@ -115,53 +85,21 @@ export function ResponsiveModal({
           )}
           hideHandle={hideHandle}
           onInteractOutside={(e) => {
-            // Если TonConnect модал открыт — он добавляет 'tc-disable-scroll' к body
-            if (document.body.classList.contains('tc-disable-scroll')) {
+            // TonConnect body lock or active custom event → block dismiss
+            if (document.body.classList.contains('tc-disable-scroll') || isExternalOverlay) {
               e.preventDefault();
               return;
             }
-
-            const path = e.composedPath();
-            // СВЕРХнадежная проверка (Учитывает SVG-иконки и теневые узлы)
-            const isExternalPortal = path.some((el: any) => {
-              if (!el || !el.tagName) return false;
-              
-              const tagName = (el.tagName || '').toLowerCase();
-              const id = typeof el.id === 'string' ? el.id.toLowerCase() : '';
-              
-              // Безопасное получение класса (если кликнули на SVG, SVGPath и т.д.)
-              let className = '';
-              if (typeof el.className === 'string') {
-                className = el.className.toLowerCase();
-              } else if (el.className && typeof el.className.baseVal === 'string') {
-                className = el.className.baseVal.toLowerCase();
-              }
-              
-              // Собираем все признаки элемента в одну строку
-              const elString = `${tagName} ${id} ${className}`;
-              
-              // TonConnect CSS-in-JS classes are purely numeric after 'go', e.g. .go12345
-              const hasTonConnectCssClass = /\bgo\d+/.test(className);
-
-              return (
-                elString.includes('tc-') ||
-                elString.includes('ton-') ||
-                elString.includes('tonconnect') ||
-                elString.includes('appkit') ||
-                elString.includes('sonner') ||
-                elString.includes('paddle') ||
-                hasTonConnectCssClass
-              );
+            // Check if the click landed on any external widget portal
+            const isExternalPortal = (e.composedPath() as Element[]).some(el => {
+              if (!el?.tagName) return false;
+              const id = (el instanceof HTMLElement ? el.id : '') || '';
+              const cls = typeof el.className === 'string'
+                ? el.className
+                : ((el as SVGElement).className?.baseVal ?? '');
+              return /tc-|ton-|tonconnect|appkit|sonner|paddle|\bgo\d{4,}/.test(`${id} ${cls}`);
             });
-            
-            // Если кликнули по чему-то из виджетов TON - отменяем закрытие модалки
-            if (isExternalPortal) {
-              e.preventDefault();
-              return;
-            }
-            if (preventClose) {
-              e.preventDefault();
-            }
+            if (isExternalPortal || preventClose) e.preventDefault();
           }}
         >
           <div className="flex-1 flex flex-col w-full overflow-hidden min-h-0">
@@ -183,8 +121,9 @@ export function ResponsiveModal({
               </div>
             )}
 
-            {/* Scrollable content */}
+            {/* Scrollable content — data-vaul-no-drag prevents accidental dismiss while scrolling */}
             <div
+              data-vaul-no-drag
               className={cn(
                 "flex-1 overflow-y-auto min-h-0 outline-none w-full",
                 mobileFullscreen ? "px-4 pb-4" : "px-3",
