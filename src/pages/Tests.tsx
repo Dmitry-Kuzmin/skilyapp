@@ -674,12 +674,12 @@ const Tests = () => {
                 {challengeStats.errors > 0 && (
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <div className="cursor-help">
+                      <button className="cursor-help p-0 h-auto bg-transparent border-0 hover:opacity-80 transition-opacity">
                         <div className="flex items-center gap-1.5 h-10 px-3.5 rounded-full bg-gradient-to-r from-amber-500/15 to-orange-500/15 border border-amber-500/40 text-sm font-bold text-amber-200 flex-shrink-0 whitespace-nowrap shadow-lg shadow-amber-500/10">
                           <span className="text-lg">⚠️</span>
                           <span>{challengeStats.errors}</span>
                         </div>
-                      </div>
+                      </button>
                     </TooltipTrigger>
                     <TooltipContent side="bottom" className="bg-amber-950/90 border-amber-500/30 text-amber-100 max-w-xs">
                       {challengeStats.errors} вопросов требуют повторения. Кликай на карточку «Ошибки» чтобы их закрыть.
