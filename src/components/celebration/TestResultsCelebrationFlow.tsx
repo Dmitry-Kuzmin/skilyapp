@@ -877,12 +877,12 @@ function SlideCTA({ data, onRetry, onDetails }: { data: CelebrationData; onRetry
 // ─── Main component ───────────────────────────────────────────────────────────
 
 const SLIDE_SOUNDS: Record<SlideId, () => void> = {
-  result:  () => { /* fired externally based on pass/fail */ },
-  sp:      playSuccessSound,
-  time:    () => {},
-  xp:      playSuccessSound,
-  topics:  () => {},
-  cta:     () => {},
+  result:        () => {},
+  sp:            playSuccessSound,
+  personal_best: playSuccessSound,
+  xp:            playSuccessSound,
+  topics:        () => {},
+  cta:           () => {},
 };
 
 export function TestResultsCelebrationFlow({ data, onDone }: Props) {
