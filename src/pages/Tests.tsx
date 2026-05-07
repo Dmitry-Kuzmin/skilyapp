@@ -635,10 +635,18 @@ const Tests = () => {
                       <CompactStreakJewel streak={streakDays} size="sm" hasClaimedToday={false} />
                     </button>
                   </TooltipTrigger>
-                  <TooltipContent side="top" className="bg-orange-950/90 border-orange-500/30 text-orange-100 text-xs">
+                  <TooltipContent side="bottom" sideOffset={8} avoidCollisions={false} className="bg-orange-950/90 border-orange-500/30 text-orange-100 text-xs z-[9999]">
                     {streakDays > 0
-                      ? `${streakDays}-дневный стрик! Продолжай решать каждый день.`
-                      : 'Начни решать задачи чтобы запустить стрик.'}
+                      ? localeText(
+                          `${streakDays}-дневный стрик! Продолжай решать каждый день.`,
+                          `¡Racha de ${streakDays} días! Sigue practicando cada día.`,
+                          `${streakDays}-day streak! Keep practicing every day.`
+                        )
+                      : localeText(
+                          'Начни решать задачи чтобы запустить стрик.',
+                          'Empieza a practicar para iniciar tu racha.',
+                          'Start solving questions to begin your streak.'
+                        )}
                   </TooltipContent>
                 </Tooltip>
 
