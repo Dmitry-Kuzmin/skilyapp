@@ -77,10 +77,14 @@ export function ResponsiveModal({
           className={cn(
             "flex flex-col fixed left-0 right-0 z-[99999] outline-none",
             mobileFullscreen
-              ? "inset-x-0 bottom-0 top-0 h-[100dvh] max-h-[100dvh] rounded-none"
-              : "bottom-0 max-h-[100dvh] h-auto",
+              ? "inset-x-0 bottom-0 top-0 rounded-none"
+              : "bottom-0 h-auto",
             className
           )}
+          style={mobileFullscreen
+            ? { height: '100dvh', maxHeight: '100dvh' }
+            : { maxHeight: 'calc(100dvh - max(var(--tg-safe-area-inset-top, 0px), env(safe-area-inset-top, 0px)) - 8px)' }
+          }
           hideHandle={hideHandle}
           onInteractOutside={(e) => {
             if (document.body.classList.contains('tc-disable-scroll') || isExternalOverlay) {
@@ -102,10 +106,10 @@ export function ResponsiveModal({
           {!title && showCloseBtn && (
             <button
               onClick={() => onOpenChange(false)}
-              className="absolute top-2.5 left-4 z-10 w-9 h-9 flex items-center justify-center rounded-full bg-white/10 text-foreground active:bg-white/20 transition-colors"
+              className="absolute top-2 left-3 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-white/[0.12] text-foreground active:scale-[0.82] active:bg-white/[0.18] transition-all duration-100"
               aria-label="Закрыть"
             >
-              <X className="w-4 h-4" />
+              <X className="w-5 h-5" />
             </button>
           )}
           {!title && <DrawerTitle className="sr-only">Modal</DrawerTitle>}
@@ -114,25 +118,25 @@ export function ResponsiveModal({
 
             {/* iOS nav bar: × | title | right-icon (only when title exists) */}
             {title && (
-              <div className="flex items-center shrink-0 px-3 pt-1 pb-2">
-                <div className="w-9 h-9 flex items-center justify-center shrink-0">
+              <div className="flex items-center shrink-0 px-3 pt-2 pb-3 gap-2">
+                <div className="w-10 h-10 flex items-center justify-center shrink-0">
                   {showCloseBtn && (
                     <button
                       onClick={() => onOpenChange(false)}
-                      className="w-9 h-9 flex items-center justify-center rounded-full bg-white/10 text-foreground active:bg-white/20 transition-colors"
+                      className="w-10 h-10 flex items-center justify-center rounded-full bg-white/[0.12] text-foreground active:scale-[0.82] active:bg-white/[0.18] transition-all duration-100"
                       aria-label="Закрыть"
                     >
-                      <X className="w-4 h-4" />
+                      <X className="w-5 h-5" />
                     </button>
                   )}
                 </div>
-                <DrawerTitle className="flex-1 text-center text-base font-semibold text-foreground px-1 leading-tight">
+                <DrawerTitle className="flex-1 text-center text-[15px] font-semibold text-foreground leading-tight truncate">
                   {title}
                 </DrawerTitle>
                 {description && (
                   <DrawerDescription className="sr-only">{description}</DrawerDescription>
                 )}
-                <div className="w-9 h-9 flex items-center justify-center shrink-0">
+                <div className="w-10 h-10 flex items-center justify-center shrink-0">
                   {headerRight}
                 </div>
               </div>
