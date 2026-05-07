@@ -347,8 +347,9 @@ export const useTestDataLoader = ({
                     const isRussia = pddCountry === 'russia';
                     // Приоритет: новая система (по UUID) > старая система (по названию) > PDD система
                     let data;
-                    if (topicId && topicByIdQuestions.data && topicByIdQuestions.data.length > 0) {
-                        // Используем новую систему (questions_new по UUID)
+                    if (topicId) {
+                        // Новая система (questions_new по UUID) — используем всегда когда есть UUID,
+                        // включая состояние загрузки (isLoading: true)
                         data = topicByIdQuestions;
                     } else if (isRussia) {
                         // Россия: используем PDD систему
