@@ -776,7 +776,7 @@ export function TestResultsCelebrationFlow({ data, onDone }: Props) {
     if (current < slides.length - 1) {
       setDirection(1);
       setCurrent(c => c + 1);
-      try { haptics.light(); } catch {}
+      try { haptics.light(); } catch { /* noop */ }
     }
   }, [current, slides.length]);
 
