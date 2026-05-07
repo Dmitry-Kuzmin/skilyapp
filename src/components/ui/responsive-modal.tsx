@@ -102,7 +102,7 @@ export function ResponsiveModal({
         setActiveSnapPoint={onSnapPointChange}
         {...(snapPoints ? { fadeFromIndex } as any : {})}
         modal={!isExternalOverlay} // Dynamic: disabled when TonConnect/Paddle overlay is open
-        shouldScaleBackground={true}
+        shouldScaleBackground={false}
         repositionInputs={true}
       >
         <DrawerContent

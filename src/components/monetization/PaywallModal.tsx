@@ -720,6 +720,7 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
               className="fixed inset-0 flex items-end sm:items-center justify-center sm:p-6"
               style={{ zIndex: 200000, background: 'rgba(0,0,0,0.82)', backdropFilter: 'blur(18px)' }}
               onClick={() => setShowComparison(false)}
+              onPointerDown={(e) => e.stopPropagation()}
             >
               <motion.div
                 initial={{ y: '100%', opacity: 0 }}
@@ -727,6 +728,7 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
                 exit={{ y: '100%', opacity: 0 }}
                 transition={{ type: 'spring', stiffness: 420, damping: 36, mass: 0.8 }}
                 onClick={(e) => e.stopPropagation()}
+                onPointerDown={(e) => e.stopPropagation()}
                 className="relative w-full sm:max-w-[540px] bg-[#0a0d1a] rounded-t-3xl sm:rounded-3xl shadow-2xl flex flex-col"
                 style={{ maxHeight: '88vh', border: '1px solid rgba(255,255,255,0.07)' }}
               >
