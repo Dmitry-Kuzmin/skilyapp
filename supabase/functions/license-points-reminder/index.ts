@@ -306,12 +306,6 @@ function buildEmailHtml(
               <h1 style="margin:0;font-size:22px;font-weight:800;color:#0f172a;line-height:1.3;">${escapeHtml(t.greeting(firstName ?? undefined))}</h1>
             </td></tr>
 
-            <!-- Stats row -->
-            ${statsRow}
-
-            <!-- Divider -->
-            <tr><td style="padding:14px 28px 0;"><div style="height:1px;background:#f1f5f9;"></div></td></tr>
-
             <!-- What are points -->
             <tr><td style="padding:14px 28px 0;">
               <div style="background:#f8fafc;border-radius:12px;padding:14px 16px;">
