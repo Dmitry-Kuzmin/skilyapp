@@ -32,6 +32,7 @@ import { SeoHead } from "@/components/seo/SeoHead";
 import { ContextSwitcher } from "@/components/shared/ContextSwitcher";
 import { CompactStreakJewel } from "@/components/shared/CompactStreakJewel";
 import { useExamReadiness } from "@/hooks/useExamReadiness";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 // --- Types ---
 type Topic = {
