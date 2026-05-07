@@ -206,12 +206,17 @@ export const useTestDataLoader = ({
 
             let drill: any[] = [];
             if (topicIds.length > 0) {
-                const { data: drilled, error: drillError } = await supabase
+                let drillQuery = supabase
                     .from("questions_new")
                     .select("*, topics (title_ru, title_es), answer_options (*)")
                     .in("topic_id", topicIds)
-                    .not("id", "in", `(${redemptionData.failedIds.join(',')})`)
-                    .limit(redemptionData.failedIds.length * 2);
+                    .not("id", "in", `(${redemptionData.failedIds.join(',')})`);
+
+                if (!hasFullQuestionPoolForStrategy()) {
+                    drillQuery = (drillQuery as any).eq('is_premium', false);
+                }
+
+                const { data: drilled, error: drillError } = await (drillQuery as any).limit(redemptionData.failedIds.length * 2);
 
                 if (drillError) throw drillError;
                 drill = drilled || [];
