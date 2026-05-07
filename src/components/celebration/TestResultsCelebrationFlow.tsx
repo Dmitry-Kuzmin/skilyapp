@@ -29,6 +29,7 @@ export interface RankChange {
   overtaken: Array<{
     user_id: string;
     sp: number;
+    level?: number;
     first_name: string | null;
     username: string | null;
     photo_url: string | null;
