@@ -631,9 +631,9 @@ const Tests = () => {
                 {/* Streak */}
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <div className="cursor-help">
+                    <button className="cursor-help p-0 h-auto bg-transparent border-0 hover:opacity-80 transition-opacity">
                       <CompactStreakJewel streak={streakDays} size="sm" hasClaimedToday={false} />
-                    </div>
+                    </button>
                   </TooltipTrigger>
                   <TooltipContent side="bottom" className="bg-orange-950/90 border-orange-500/30 text-orange-100">
                     {streakDays > 0
