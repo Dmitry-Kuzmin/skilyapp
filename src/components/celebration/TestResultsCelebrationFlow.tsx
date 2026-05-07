@@ -17,13 +17,10 @@ import {
   RefreshCw, 
   Trophy, 
   Zap, 
-  Star, 
-  Target, 
-  Rocket, 
-  TrendingUp, 
+  Star,
+  Target,
+  Rocket,
   AlertCircle,
-  Medal,
-  Clock
 } from 'lucide-react';
 import { UserAvatar } from '@/components/UserAvatar';
 import { UserContext } from '@/contexts/UserContext';
