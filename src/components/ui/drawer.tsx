@@ -82,9 +82,11 @@ const DrawerContent = React.forwardRef<
           which can be null, causing TypeError: Cannot read properties of null (reading 'target').
           Stopping propagation from children prevents vaul's handlers on Content from firing. */}
       <div style={{ display: 'contents' }} onContextMenu={e => e.stopPropagation()} onPointerOut={e => e.stopPropagation()}>
-        {/* Native Vaul handle — tap to close, proper touch-action:pan-y, expanded hit area */}
+        {/* Handle sits below Dynamic Island when modal reaches top of screen */}
         {!hideHandle && (
-          <DrawerPrimitive.Handle style={{ marginTop: '10px', marginBottom: '6px' }} />
+          <div className="flex-shrink-0" style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}>
+            <DrawerPrimitive.Handle style={{ marginTop: '10px', marginBottom: '6px' }} />
+          </div>
         )}
         {children}
       </div>

@@ -80,7 +80,7 @@ export function ResponsiveModal({
             "flex flex-col fixed left-0 right-0 z-[99999] outline-none",
             mobileFullscreen
               ? "inset-x-0 bottom-0 top-0 h-[100dvh] max-h-[100dvh] rounded-none"
-              : "bottom-0 max-h-[calc(100dvh-env(safe-area-inset-top,0px)-12px)] h-auto",
+              : "bottom-0 max-h-[100dvh] h-auto",
             className
           )}
           hideHandle={hideHandle}
