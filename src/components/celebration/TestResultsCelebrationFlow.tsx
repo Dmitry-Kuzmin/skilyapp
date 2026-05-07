@@ -744,7 +744,7 @@ export function TestResultsCelebrationFlow({ data, onDone }: Props) {
 
   const slides: SlideId[] = [
     'result',
-    'sp',
+    ...(data.spAwarded > 0 ? ['sp' as SlideId] : []),
     ...(data.timeSeconds > 0 ? ['time' as SlideId] : []),
     'xp',
     ...(data.failedTopics.length > 0 ? ['topics' as SlideId] : []),
