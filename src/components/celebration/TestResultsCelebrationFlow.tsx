@@ -978,6 +978,17 @@ export function TestResultsCelebrationFlow({ data, onFinish, onRetry }: Props) {
   const userCtx = useContext(UserContext);
   const currentUserId = userCtx?.profileId ?? undefined;
 
+  // State must be declared before slides array (which depends on examReadinessData)
+  const [current, setCurrent] = useState(0);
+  const [direction, setDirection] = useState(1);
+  const [leaderboardOpen, setLeaderboardOpen] = useState(false);
+  const [prefetchedRank, setPrefetchedRank] = useState<RankChange | null>(null);
+  const [userRealSP, setUserRealSP] = useState<number | null>(null);
+  const [personalBest, setPersonalBest] = useState<PersonalBestData>(null);
+  const [todayTestCount, setTodayTestCount] = useState<number>(0);
+  const [examReadinessData, setExamReadinessData] = useState<{ before: number; after: number } | null>(null);
+  const soundFiredRef = useRef<Set<SlideId>>(new Set());
+
   const slides: SlideId[] = [
     'result',
     'sp',
@@ -999,16 +1010,6 @@ export function TestResultsCelebrationFlow({ data, onFinish, onRetry }: Props) {
       onFinish();
     }
   };
-
-  const [current, setCurrent] = useState(0);
-  const [direction, setDirection] = useState(1);
-  const [leaderboardOpen, setLeaderboardOpen] = useState(false);
-  const [prefetchedRank, setPrefetchedRank] = useState<RankChange | null>(null);
-  const [userRealSP, setUserRealSP] = useState<number | null>(null);
-  const [personalBest, setPersonalBest] = useState<PersonalBestData>(null);
-  const [todayTestCount, setTodayTestCount] = useState<number>(0);
-  const [examReadinessData, setExamReadinessData] = useState<{ before: number; after: number } | null>(null);
-  const soundFiredRef = useRef<Set<SlideId>>(new Set());
 
   const slideId = slides[current];
   const style = SLIDE_STYLES[slideId];
