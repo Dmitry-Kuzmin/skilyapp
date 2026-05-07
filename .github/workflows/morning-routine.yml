@@ -93,3 +93,26 @@ jobs:
             echo "⚠️ Email quiz failed with code $http_code (non-blocking)"
             # Не завершаем pipeline — email не критичен
           fi
+
+      - name: Send license points reminder (browser users who missed 1-2 days)
+        run: |
+          echo "🚗 Sending license points reminder at $(date -u)"
+
+          response=$(curl -s -w "\n%{http_code}" -X POST \
+            "${{ secrets.SUPABASE_URL }}/functions/v1/license-points-reminder" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" \
+            -H "Content-Type: application/json" \
+            -d '{"source": "github_actions"}' \
+            --max-time 120)
+
+          http_code=$(echo "$response" | tail -n1)
+          body=$(echo "$response" | sed '$d')
+
+          echo "Response: $body"
+          echo "HTTP Code: $http_code"
+
+          if [ "$http_code" -ge 200 ] && [ "$http_code" -lt 300 ]; then
+            echo "✅ License points reminders sent"
+          else
+            echo "⚠️ License points reminder failed with code $http_code (non-blocking)"
+          fi
