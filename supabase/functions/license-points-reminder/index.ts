@@ -205,29 +205,26 @@ function buildEmailHtml(
       <table border="0" cellpadding="0" cellspacing="0" width="100%"
         style="background:linear-gradient(135deg,#fffbeb,#fef3c7);border:1px solid #fde68a;border-radius:16px;overflow:hidden;">
         <!-- Season header -->
-        <tr><td style="padding:14px 20px 12px;border-bottom:1px solid #fde68a;">
+        <tr><td colspan="3" style="padding:13px 20px 12px;border-bottom:1px solid #fde68a;">
           <div style="font-size:13px;font-weight:800;color:#78350f;">${escapeHtml(t.seasonTitle(season.name, season.daysLeft))}</div>
         </td></tr>
-        <!-- 3 stats -->
+        <!-- 3 stats — equal 33% columns -->
         <tr>
-          <td align="center" style="padding:14px 0 12px;border-right:1px solid #fde68a;">
-            <div style="font-size:10px;font-weight:700;color:#b45309;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px;">${escapeHtml(t.dpRankLabel)}</div>
-            <div style="font-size:22px;font-weight:900;color:#78350f;">#${stats.dpRank}</div>
-            <div style="font-size:10px;color:#b45309;">&nbsp;</div>
+          <td width="33%" align="center" style="padding:14px 0 10px;border-right:1px solid #fde68a;">
+            <div style="font-size:9px;font-weight:700;color:#b45309;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px;">${escapeHtml(t.dpRankLabel)}</div>
+            <div style="font-size:24px;font-weight:900;color:#78350f;line-height:1;">#${stats.dpRank}</div>
           </td>
-          <td align="center" style="padding:14px 0 12px;border-right:1px solid #fde68a;">
-            <div style="font-size:10px;font-weight:700;color:#b45309;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px;">${escapeHtml(t.dpLevelLabel)}</div>
-            <div style="font-size:22px;font-weight:900;color:#78350f;">${stats.dpLevel}</div>
-            <div style="font-size:10px;color:#b45309;">Duel Pass</div>
+          <td width="33%" align="center" style="padding:14px 0 10px;border-right:1px solid #fde68a;">
+            <div style="font-size:9px;font-weight:700;color:#b45309;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px;">${escapeHtml(t.dpLevelLabel)}</div>
+            <div style="font-size:24px;font-weight:900;color:#78350f;line-height:1;">${stats.dpLevel}</div>
           </td>
-          <td align="center" style="padding:14px 0 12px;">
-            <div style="font-size:10px;font-weight:700;color:#b45309;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px;">${escapeHtml(t.dpSpLabel)}</div>
-            <div style="font-size:22px;font-weight:900;color:#78350f;">${stats.dpXp}</div>
-            <div style="font-size:10px;color:#b45309;">&nbsp;</div>
+          <td width="34%" align="center" style="padding:14px 0 10px;">
+            <div style="font-size:9px;font-weight:700;color:#b45309;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px;">${escapeHtml(t.dpSpLabel)}</div>
+            <div style="font-size:24px;font-weight:900;color:#78350f;line-height:1;">${stats.dpXp}</div>
           </td>
         </tr>
-        <!-- Prize + link -->
-        <tr><td colspan="3" style="padding:10px 20px 14px;border-top:1px solid #fde68a;">
+        <!-- Prize + link — seamlessly connected -->
+        <tr><td colspan="3" style="padding:9px 20px 13px;border-top:1px solid #fde68a;">
           <table border="0" cellpadding="0" cellspacing="0" width="100%"><tr>
             <td style="font-size:12px;color:#92400e;">${escapeHtml(t.seasonPrize)}</td>
             <td align="right"><a href="${utmUrl}" style="font-size:12px;color:#b45309;text-decoration:none;font-weight:700;">${escapeHtml(t.leaderboardLink)}</a></td>
