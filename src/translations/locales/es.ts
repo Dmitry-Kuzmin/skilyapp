@@ -297,7 +297,7 @@ export const es = {
         probability: "PROBABILIDAD",
         systemVerdict: "VEREDICTO DEL SISTEMA",
         analyzing: "Analizando...",
-        confidence: "CONFIANZA",
+        sample: "EXPERIENCIA",
         target: "OBJETIVO",
         rank: "RANGO",
         extendedTelemetry: "TELEMETRÍA EXTENDIDA",
