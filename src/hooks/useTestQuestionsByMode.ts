@@ -181,6 +181,11 @@ export function useQuestionsByTopic(
         }
       }
 
+      // Free users only see the fixed pool of is_premium=false questions
+      if (!hasFullQuestionPoolForStrategy()) {
+        query = (query as any).eq('is_premium', false);
+      }
+
       const { data, error } = await query;
 
       if (error) throw error;
@@ -204,9 +209,9 @@ export function useQuestionsByTopic(
 
       const uniqueQuestions = Array.from(uniqueQuestionsMap.values());
 
-      // Перемешиваем и ограничиваем
-      const shuffled = uniqueQuestions.sort(() => Math.random() - 0.5);
-      return shuffled.slice(0, questionCount);
+      // Sort by id for deterministic order (free users always see the same fixed set)
+      uniqueQuestions.sort((a, b) => a.id.localeCompare(b.id));
+      return uniqueQuestions.slice(0, questionCount);
     },
     enabled: enabled,
     staleTime: 5 * 60 * 1000, // 5 минут
