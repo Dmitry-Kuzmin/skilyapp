@@ -14,8 +14,16 @@ import { createPooledSupabaseClient } from '../_shared/supabase-client.ts';
 const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY')!;
 const FROM_EMAIL     = 'Skily <noreply@skilyapp.com>';
 const APP_URL        = 'https://skilyapp.com';
+const LOGO_URL       = 'https://skilyapp.com/apple-touch-icon.png';
 
 type Lang = 'ru' | 'es' | 'en';
+
+interface DailyQuest {
+  title: string;
+  reward_sp: number;
+  target_type: string;
+  target_value: number;
+}
 
 function getUserLang(profile: any): Lang {
   const s = profile?.settings?.language;
@@ -52,6 +60,9 @@ const copy: Record<Lang, {
   consequence: string;
   pointsLabel: string;
   ctaText: string;
+  questsTitle: string;
+  questTargets: Record<string, (v: number) => string>;
+  questsLink: string;
   footerText: string;
   unsubText: string;
 }> = {
@@ -64,15 +75,24 @@ const copy: Record<Lang, {
     badge2: '⚡ День 2 — ещё не поздно',
     greeting: (n?: string) => n ? `${n}, твои баллы ждут тебя!` : 'Твои баллы ждут тебя!',
     whatArePoints:
-      'В Skily есть <b>шкала прогресса из 15 баллов</b> — как настоящая система баллов испанских прав. Каждый день занятий = +1 балл. Пропускаешь день — балл уходит. Это помогает тебе учиться регулярно и не растерять знания перед экзаменом.',
+      'В Skily есть <b>шкала прогресса из 15 баллов</b> — как настоящая система баллов испанских прав. Каждый день занятий = +1 балл. Пропускаешь день — балл уходит.',
     body1: (pts: number) =>
       `Сейчас у тебя <b>${pts}/15 баллов</b>. Если не зайдёшь сегодня — спишется 1. Не нужно много: пара вопросов или один дуэль — и балл твой.`,
     body2: (pts: number) =>
       `Вчера ушёл 1 балл. Сегодня та же история, если не вернёшься. У тебя сейчас <b>${pts}/15</b>. Одна короткая сессия — и счётчик остановится.`,
     consequence:
-      'Когда баллы падают до нуля — шкала сбрасывается и ты теряешь свой уровень прогресса. Не критично, но обидно — особенно перед экзаменом.',
+      'Когда баллы падают до нуля — шкала сбрасывается и ты теряешь уровень прогресса. Не критично, но обидно перед экзаменом.',
     pointsLabel: 'баллов прогресса',
     ctaText: 'Зайти в Skily →',
+    questsTitle: '🎯 Задачи на сегодня',
+    questTargets: {
+      duels_won:          (v) => `Выиграй ${v} дуэль`,
+      questions_answered: (v) => `Ответь на ${v} вопросов`,
+      streak_days:        (v) => `${v} дней подряд`,
+      tests_completed:    (v) => `Пройди ${v} тест`,
+      xp_earned:          (v) => `Заработай ${v} XP`,
+    },
+    questsLink: 'Открыть задачи →',
     footerText: 'Ты получаешь это, потому что зарегистрировался на Skily.',
     unsubText: 'Отписаться от напоминаний',
   },
@@ -85,15 +105,24 @@ const copy: Record<Lang, {
     badge2: '⚡ Día 2 — aún estás a tiempo',
     greeting: (n?: string) => n ? `${n}, ¡tus puntos te esperan!` : '¡Tus puntos te esperan!',
     whatArePoints:
-      'En Skily tienes una <b>barra de progreso de 15 puntos</b> — igual que el sistema de puntos del carnet real. Un día de estudio = +1 punto. Si no entras, pierdes 1. Así te ayudamos a estudiar con regularidad y no perder ritmo antes del examen.',
+      'En Skily tienes una <b>barra de progreso de 15 puntos</b> — igual que el sistema de puntos del carnet real. Un día de estudio = +1 punto. Si no entras, pierdes 1.',
     body1: (pts: number) =>
       `Ahora tienes <b>${pts}/15 puntos</b>. Si no entras hoy, perderás 1. No hace falta mucho: un par de preguntas o un duelo — y el punto es tuyo.`,
     body2: (pts: number) =>
       `Ayer perdiste 1 punto. Hoy lo mismo si no vuelves. Tienes <b>${pts}/15</b>. Una sesión corta y el contador se detiene.`,
     consequence:
-      'Cuando los puntos llegan a cero, la barra se reinicia y pierdes tu nivel de progreso. No es grave, pero duele — sobre todo antes del examen.',
+      'Cuando los puntos llegan a cero, la barra se reinicia y pierdes tu nivel de progreso. No es grave, pero duele antes del examen.',
     pointsLabel: 'puntos de progreso',
     ctaText: 'Entrar a Skily →',
+    questsTitle: '🎯 Misiones de hoy',
+    questTargets: {
+      duels_won:          (v) => `Gana ${v} duelo`,
+      questions_answered: (v) => `Responde ${v} preguntas`,
+      streak_days:        (v) => `${v} días seguidos`,
+      tests_completed:    (v) => `Completa ${v} test`,
+      xp_earned:          (v) => `Gana ${v} XP`,
+    },
+    questsLink: 'Ver misiones →',
     footerText: 'Recibes esto porque te registraste en Skily.',
     unsubText: 'Cancelar recordatorios',
   },
@@ -106,30 +135,62 @@ const copy: Record<Lang, {
     badge2: '⚡ Day 2 — still not too late',
     greeting: (n?: string) => n ? `${n}, your points are waiting!` : 'Your points are waiting!',
     whatArePoints:
-      'Skily has a <b>15-point progress bar</b> — modelled on the real Spanish driving licence system. Study daily = +1 point. Skip a day = −1 point. It keeps you on track and consistent before your exam.',
+      'Skily has a <b>15-point progress bar</b> — modelled on the real Spanish driving licence system. Study daily = +1 point. Skip a day = −1 point.',
     body1: (pts: number) =>
-      `You have <b>${pts}/15 points</b> right now. Skip today and you'll lose 1. You don't need much — a few questions or a quick duel keeps the streak alive.`,
+      `You have <b>${pts}/15 points</b> right now. Skip today and you'll lose 1. A few questions or a quick duel is enough to keep your streak alive.`,
     body2: (pts: number) =>
-      `You lost 1 point yesterday. Same again today if you don't come back. You're at <b>${pts}/15</b>. One short session and the counter stops.`,
+      `You lost 1 point yesterday. Same again today if you don't come back. You're at <b>${pts}/15</b>. One short session stops the counter.`,
     consequence:
-      'When points reach zero, your bar resets and you lose your progress level. Not the end of the world — but frustrating right before an exam.',
+      'When points reach zero, your bar resets and you lose your progress level. Not fatal — but frustrating right before an exam.',
     pointsLabel: 'progress points',
     ctaText: 'Open Skily →',
+    questsTitle: '🎯 Today\'s missions',
+    questTargets: {
+      duels_won:          (v) => `Win ${v} duel`,
+      questions_answered: (v) => `Answer ${v} questions`,
+      streak_days:        (v) => `${v} days in a row`,
+      tests_completed:    (v) => `Complete ${v} test`,
+      xp_earned:          (v) => `Earn ${v} XP`,
+    },
+    questsLink: 'Open missions →',
     footerText: 'You\'re receiving this because you registered at Skily.',
     unsubText: 'Unsubscribe from reminders',
   },
 };
 
+// ── Load daily quests ─────────────────────────────────────────────────────────
+
+async function loadDailyQuests(supabase: any, lang: Lang): Promise<DailyQuest[]> {
+  const today     = new Date().toISOString().split('T')[0];
+  const titleField = lang === 'ru' ? 'title_ru' : lang === 'es' ? 'title_es' : 'title_en';
+
+  const { data } = await supabase
+    .from('season_challenges')
+    .select('title_ru, title_es, title_en, reward_sp, target_type, target_value')
+    .eq('challenge_type', 'daily')
+    .eq('is_active', true)
+    .gte('start_date', today)
+    .order('reward_sp', { ascending: false })
+    .limit(3);
+
+  return (data || []).map((q: any) => ({
+    title:        q[titleField] || q.title_ru || '',
+    reward_sp:    q.reward_sp || 0,
+    target_type:  q.target_type || '',
+    target_value: q.target_value || 0,
+  }));
+}
+
 // ── Points bar ────────────────────────────────────────────────────────────────
 
 function buildPointsBar(points: number): string {
-  const max = 15;
-  const pct = Math.round((points / max) * 100);
+  const max   = 15;
+  const pct   = Math.round((points / max) * 100);
   const color = points >= 10 ? '#22c55e' : points >= 6 ? '#f59e0b' : '#ef4444';
-  const dots = Array.from({ length: max }, (_, i) => {
+  const dots  = Array.from({ length: max }, (_, i) => {
     const filled = i < points;
     return `<td style="padding:0 2px;">
-      <div style="width:13px;height:13px;border-radius:50%;background:${filled ? color : 'rgba(255,255,255,0.1)'};">&nbsp;</div>
+      <div style="width:13px;height:13px;border-radius:50%;background:${filled ? color : 'rgba(15,23,42,0.12)'};">&nbsp;</div>
     </td>`;
   }).join('');
 
@@ -137,7 +198,7 @@ function buildPointsBar(points: number): string {
     <table border="0" cellpadding="0" cellspacing="0" style="margin:0 auto;">
       <tr>${dots}</tr>
     </table>
-    <div style="margin-top:10px;height:6px;border-radius:3px;background:rgba(255,255,255,0.08);overflow:hidden;">
+    <div style="margin-top:10px;height:6px;border-radius:3px;background:rgba(15,23,42,0.1);overflow:hidden;">
       <div style="height:6px;border-radius:3px;background:${color};width:${pct}%;"></div>
     </div>`;
 }
@@ -149,18 +210,47 @@ function buildEmailHtml(
   firstName: string | null,
   points: number,
   daysMissed: 1 | 2,
+  quests: DailyQuest[],
   appUrl: string,
   email: string = '',
 ): string {
-  const t = copy[lang];
-  const subject    = daysMissed === 1 ? t.subject1 : t.subject2;
-  const preheader  = daysMissed === 1 ? t.preheader1 : t.preheader2;
-  const badge      = daysMissed === 1 ? t.badge1 : t.badge2;
-  const bodyText   = daysMissed === 1 ? t.body1(points) : t.body2(points);
+  const t           = copy[lang];
+  const subject     = daysMissed === 1 ? t.subject1  : t.subject2;
+  const preheader   = daysMissed === 1 ? t.preheader1 : t.preheader2;
+  const badge       = daysMissed === 1 ? t.badge1     : t.badge2;
+  const bodyText    = daysMissed === 1 ? t.body1(points) : t.body2(points);
   const accentColor = daysMissed === 1 ? '#f59e0b' : '#ef4444';
 
-  const utmUrl      = `${appUrl}/dashboard?utm_source=email&utm_medium=points-reminder&utm_campaign=day${daysMissed}`;
-  const unsubUrl    = `${appUrl}/unsubscribe?email=${encodeURIComponent(email)}&type=points-reminder&lang=${lang}`;
+  const utmUrl   = `${appUrl}/dashboard?utm_source=email&utm_medium=points-reminder&utm_campaign=day${daysMissed}`;
+  const unsubUrl = `${appUrl}/unsubscribe?email=${encodeURIComponent(email)}&type=points-reminder&lang=${lang}`;
+
+  // ── Quests block ──────────────────────────────────────────────────────────
+  const questRows = quests.map(q => {
+    const desc = t.questTargets[q.target_type]?.(q.target_value) || q.title;
+    return `<tr>
+      <td style="padding:0 0 10px;">
+        <table border="0" cellpadding="0" cellspacing="0" width="100%"><tr>
+          <td valign="middle" style="font-size:13px;color:#334155;line-height:1.4;">${escapeHtml(desc)}</td>
+          <td valign="middle" align="right" style="white-space:nowrap;padding-left:12px;">
+            <span style="display:inline-block;background:rgba(234,179,8,0.1);border:1px solid rgba(234,179,8,0.3);border-radius:20px;padding:3px 10px;font-size:12px;font-weight:700;color:#b45309;">+${q.reward_sp} SP</span>
+          </td>
+        </tr></table>
+      </td>
+    </tr>`;
+  }).join('');
+
+  const questsBlock = quests.length > 0 ? `
+    <tr><td style="padding:0 28px 24px;">
+      <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;">
+        <tr><td style="padding:18px 20px 14px;">
+          <p style="margin:0 0 14px;font-size:14px;font-weight:800;color:#0f172a;">${escapeHtml(t.questsTitle)}</p>
+          <table border="0" cellpadding="0" cellspacing="0" width="100%">
+            ${questRows}
+          </table>
+          <a href="${utmUrl}" style="font-size:12px;color:#6366f1;text-decoration:none;font-weight:600;">${escapeHtml(t.questsLink)}</a>
+        </td></tr>
+      </table>
+    </td></tr>` : '';
 
   return `<!DOCTYPE html>
 <html lang="${lang}">
@@ -180,11 +270,11 @@ function buildEmailHtml(
 
           <!-- Logo -->
           <tr>
-            <td align="center" style="padding-bottom:24px;">
+            <td align="center" style="padding-bottom:20px;">
               <table border="0" cellpadding="0" cellspacing="0">
                 <tr>
                   <td valign="middle" style="padding-right:10px;">
-                    <div style="width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,#4f46e5,#7c3aed);text-align:center;line-height:44px;font-size:22px;">🚗</div>
+                    <img src="${LOGO_URL}" width="40" height="40" alt="Skily" style="display:block;border-radius:10px;"/>
                   </td>
                   <td valign="middle">
                     <span style="font-size:20px;font-weight:800;color:#ffffff;letter-spacing:-0.3px;">Skily</span>
@@ -194,9 +284,9 @@ function buildEmailHtml(
             </td>
           </tr>
 
-          <!-- Main Card -->
+          <!-- Main Card — белый фон -->
           <tr>
-            <td style="background:#1e293b;border-radius:20px;border:1px solid rgba(255,255,255,0.08);overflow:hidden;">
+            <td style="background:#ffffff;border-radius:20px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.3);">
               <table border="0" cellpadding="0" cellspacing="0" width="100%">
 
                 <!-- Accent bar -->
@@ -206,35 +296,35 @@ function buildEmailHtml(
 
                 <!-- Badge -->
                 <tr>
-                  <td style="padding:24px 32px 0;text-align:center;">
-                    <div style="display:inline-block;background:rgba(255,255,255,0.05);border:1px solid ${accentColor}55;border-radius:20px;padding:6px 16px;">
-                      <span style="color:${accentColor};font-size:12px;font-weight:700;letter-spacing:0.06em;">${escapeHtml(badge)}</span>
+                  <td style="padding:24px 28px 0;text-align:center;">
+                    <div style="display:inline-block;background:rgba(245,158,11,0.08);border:1px solid ${accentColor}44;border-radius:20px;padding:5px 14px;">
+                      <span style="color:${accentColor};font-size:12px;font-weight:700;letter-spacing:0.05em;">${escapeHtml(badge)}</span>
                     </div>
                   </td>
                 </tr>
 
                 <!-- Greeting -->
                 <tr>
-                  <td style="padding:16px 32px 0;text-align:center;">
-                    <h1 style="margin:0;font-size:22px;font-weight:800;color:#f8fafc;line-height:1.3;">${escapeHtml(t.greeting(firstName ?? undefined))}</h1>
+                  <td style="padding:14px 28px 0;text-align:center;">
+                    <h1 style="margin:0;font-size:22px;font-weight:800;color:#0f172a;line-height:1.3;">${escapeHtml(t.greeting(firstName ?? undefined))}</h1>
                   </td>
                 </tr>
 
-                <!-- What are points explanation -->
+                <!-- What are points -->
                 <tr>
-                  <td style="padding:16px 32px 0;">
-                    <div style="background:rgba(99,102,241,0.08);border:1px solid rgba(99,102,241,0.2);border-radius:12px;padding:14px 18px;">
-                      <p style="margin:0;font-size:13px;color:#94a3b8;line-height:1.65;">${t.whatArePoints}</p>
+                  <td style="padding:14px 28px 0;">
+                    <div style="background:#f1f5f9;border-radius:12px;padding:14px 16px;">
+                      <p style="margin:0;font-size:13px;color:#475569;line-height:1.65;">${t.whatArePoints}</p>
                     </div>
                   </td>
                 </tr>
 
                 <!-- Points widget -->
                 <tr>
-                  <td style="padding:20px 32px 0;">
-                    <div style="background:#0f172a;border-radius:16px;border:1px solid rgba(255,255,255,0.06);padding:20px 24px;text-align:center;">
-                      <div style="font-size:11px;font-weight:700;color:#64748b;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px;">${escapeHtml(t.pointsLabel)}</div>
-                      <div style="font-size:52px;font-weight:900;color:#f8fafc;line-height:1;margin-bottom:16px;">${points}<span style="font-size:20px;color:#475569;font-weight:400;">/15</span></div>
+                  <td style="padding:16px 28px 0;">
+                    <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:16px;padding:20px 24px;text-align:center;">
+                      <div style="font-size:11px;font-weight:700;color:#94a3b8;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:6px;">${escapeHtml(t.pointsLabel)}</div>
+                      <div style="font-size:52px;font-weight:900;color:#0f172a;line-height:1;margin-bottom:16px;">${points}<span style="font-size:20px;color:#94a3b8;font-weight:400;">/15</span></div>
                       ${buildPointsBar(points)}
                     </div>
                   </td>
@@ -242,29 +332,32 @@ function buildEmailHtml(
 
                 <!-- Body text -->
                 <tr>
-                  <td style="padding:20px 32px 0;">
-                    <p style="margin:0;font-size:15px;color:#94a3b8;line-height:1.7;text-align:center;">${bodyText}</p>
+                  <td style="padding:16px 28px 0;">
+                    <p style="margin:0;font-size:15px;color:#334155;line-height:1.7;text-align:center;">${bodyText}</p>
                   </td>
                 </tr>
 
                 <!-- Consequence -->
                 <tr>
-                  <td style="padding:12px 32px 0;">
-                    <p style="margin:0;font-size:12px;color:#475569;line-height:1.6;text-align:center;font-style:italic;">${escapeHtml(t.consequence)}</p>
+                  <td style="padding:8px 28px 0;">
+                    <p style="margin:0;font-size:12px;color:#94a3b8;line-height:1.6;text-align:center;font-style:italic;">${escapeHtml(t.consequence)}</p>
                   </td>
                 </tr>
 
                 <!-- CTA Button -->
                 <tr>
-                  <td style="padding:24px 32px 32px;text-align:center;">
+                  <td style="padding:20px 28px 24px;text-align:center;">
                     <a href="${utmUrl}" style="display:inline-block;background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#ffffff;font-size:15px;font-weight:700;text-decoration:none;border-radius:12px;padding:14px 36px;letter-spacing:-0.2px;">${escapeHtml(t.ctaText)}</a>
                   </td>
                 </tr>
 
+                <!-- Quests block -->
+                ${questsBlock}
+
                 <!-- Footer -->
                 <tr>
-                  <td style="padding:16px 32px 20px;border-top:1px solid rgba(255,255,255,0.07);text-align:center;">
-                    <p style="margin:0;font-size:12px;color:#475569;">
+                  <td style="padding:14px 28px 20px;border-top:1px solid #f1f5f9;text-align:center;">
+                    <p style="margin:0;font-size:12px;color:#94a3b8;">
                       Skily · <a href="${appUrl}" style="color:#6366f1;text-decoration:none;">skilyapp.com</a>
                     </p>
                   </td>
@@ -278,7 +371,7 @@ function buildEmailHtml(
           <tr>
             <td align="center" style="padding-top:20px;">
               <p style="margin:0 0 6px;font-size:12px;color:#334155;">${escapeHtml(t.footerText)}</p>
-              <a href="${unsubUrl}" style="font-size:11px;color:#334155;">${escapeHtml(t.unsubText)}</a>
+              <a href="${unsubUrl}" style="font-size:11px;color:#475569;">${escapeHtml(t.unsubText)}</a>
             </td>
           </tr>
 
@@ -299,8 +392,9 @@ async function sendReminderEmail(
   firstName: string | null,
   points: number,
   daysMissed: 1 | 2,
+  quests: DailyQuest[],
 ): Promise<{ ok: boolean; error?: string }> {
-  const t = copy[lang];
+  const t       = copy[lang];
   const subject = daysMissed === 1 ? t.subject1 : t.subject2;
 
   const res = await fetch('https://api.resend.com/emails', {
@@ -311,15 +405,13 @@ async function sendReminderEmail(
     },
     body: JSON.stringify({
       from: FROM_EMAIL,
-      to: [to],
+      to:   [to],
       subject,
-      html: buildEmailHtml(lang, firstName, points, daysMissed, APP_URL, to),
+      html: buildEmailHtml(lang, firstName, points, daysMissed, quests, APP_URL, to),
     }),
   });
 
-  if (!res.ok) {
-    return { ok: false, error: await res.text() };
-  }
+  if (!res.ok) return { ok: false, error: await res.text() };
   return { ok: true };
 }
 
@@ -330,7 +422,7 @@ serve(async (req) => {
   const supabase = createPooledSupabaseClient(SUPABASE_SERVICE_ROLE_KEY);
 
   try {
-    const body = await req.json().catch(() => ({}));
+    const body    = await req.json().catch(() => ({}));
     const testEmail: string | undefined = body?.test_email;
     const dryRun: boolean               = body?.dry_run === true;
 
@@ -338,10 +430,12 @@ serve(async (req) => {
     const yesterday  = new Date(Date.now() - 86400_000).toISOString().slice(0, 10);
     const twoDaysAgo = new Date(Date.now() - 2 * 86400_000).toISOString().slice(0, 10);
 
-    // ── Test-режим: ищем профиль по email, чтобы показать реальные данные ─────
+    // ── Test-режим: ищем профиль по email ────────────────────────────────────
     if (testEmail) {
       const { data: authData } = await supabase.auth.admin.listUsers({ perPage: 1000 });
-      const authUser = (authData?.users ?? []).find((u: any) => u.email?.toLowerCase() === testEmail.toLowerCase());
+      const authUser = (authData?.users ?? []).find(
+        (u: any) => u.email?.toLowerCase() === testEmail.toLowerCase(),
+      );
 
       let firstName: string | null = 'Test';
       let points = 15;
@@ -353,7 +447,6 @@ serve(async (req) => {
           .select('first_name, license_points, settings, language_code')
           .eq('user_id', authUser.id)
           .single();
-
         if (profile) {
           firstName = profile.first_name ?? firstName;
           points    = profile.license_points ?? points;
@@ -361,14 +454,14 @@ serve(async (req) => {
         }
       }
 
-      console.log(`[PointsReminder] Test → ${testEmail} name=${firstName} pts=${points} lang=${lang}`);
+      const quests = await loadDailyQuests(supabase, lang);
 
       if (dryRun) {
-        return new Response(JSON.stringify({ ok: true, dry_run: true, lang, pts: points, firstName }));
+        return new Response(JSON.stringify({ ok: true, dry_run: true, lang, pts: points, firstName, quests: quests.length }));
       }
 
-      const result = await sendReminderEmail(testEmail, lang, firstName, points, 1);
-      return new Response(JSON.stringify({ ok: result.ok, error: result.error, lang, pts: points, firstName }));
+      const result = await sendReminderEmail(testEmail, lang, firstName, points, 1, quests);
+      return new Response(JSON.stringify({ ok: result.ok, error: result.error, lang, pts: points, firstName, quests: quests.length }));
     }
 
     // ── Bulk-режим ────────────────────────────────────────────────────────────
@@ -392,8 +485,14 @@ serve(async (req) => {
       }
     }
 
-    console.log(`[PointsReminder] ${profiles.length} candidates in window`);
+    // Кэш квестов по языку
+    const questsCache = new Map<Lang, DailyQuest[]>();
+    const getQuests = async (lang: Lang) => {
+      if (!questsCache.has(lang)) questsCache.set(lang, await loadDailyQuests(supabase, lang));
+      return questsCache.get(lang)!;
+    };
 
+    console.log(`[PointsReminder] ${profiles.length} candidates in window`);
     let sent = 0, skipped = 0, failed = 0;
 
     for (const profile of profiles) {
@@ -401,12 +500,14 @@ serve(async (req) => {
       if (!email) { skipped++; continue; }
 
       if (profile.settings?.email_points_reminder_disabled || profile.settings?.email_all_disabled) { skipped++; continue; }
+
       const lastSent = profile.settings?.points_reminder_sent_date;
       if (lastSent === today) { skipped++; continue; }
 
       const daysMissed = profile.last_daily_point_at === yesterday ? 1 : 2;
       const lang       = getUserLang(profile);
       const points     = profile.license_points ?? 12;
+      const quests     = await getQuests(lang);
 
       if (dryRun) {
         console.log(`[PointsReminder] DRY RUN: ${email} day=${daysMissed} lang=${lang} pts=${points}`);
@@ -414,7 +515,7 @@ serve(async (req) => {
         continue;
       }
 
-      const result = await sendReminderEmail(email, lang, profile.first_name, points, daysMissed as 1 | 2);
+      const result = await sendReminderEmail(email, lang, profile.first_name, points, daysMissed as 1 | 2, quests);
 
       if (result.ok) {
         sent++;
