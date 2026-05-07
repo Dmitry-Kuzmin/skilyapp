@@ -391,13 +391,17 @@ async function prerender() {
             console.log(`[Prerender] ✅ React content detected in #root (>${minChars} chars)`);
           } catch (error) {
             console.warn('[Prerender] ⚠️ Timeout waiting for substantial React content, fallback to basic check');
-            await page.waitForFunction(
-              () => {
-                const root = window.document.querySelector('#root');
-                return root && root.children.length > 0 && (root.textContent?.replace(/\s+/g, ' ').trim().length || 0) > 300;
-              },
-              { timeout: 15000 }
-            );
+            try {
+              await page.waitForFunction(
+                () => {
+                  const root = window.document.querySelector('#root');
+                  return root && root.children.length > 0 && (root.textContent?.replace(/\s+/g, ' ').trim().length || 0) > 300;
+                },
+                { timeout: 15000 }
+              );
+            } catch {
+              console.warn('[Prerender] ⚠️ Fallback check timed out, saving current page state');
+            }
           }
 
           await page.waitForFunction(
