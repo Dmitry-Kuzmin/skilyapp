@@ -223,7 +223,7 @@ function buildEmailHtml(
           <td align="center" style="padding:14px 0 12px;">
             <div style="font-size:10px;font-weight:700;color:#b45309;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px;">${escapeHtml(t.dpSpLabel)}</div>
             <div style="font-size:22px;font-weight:900;color:#78350f;">${stats.dpXp}</div>
-            <div style="font-size:10px;color:#b45309;">очков</div>
+            <div style="font-size:10px;color:#b45309;">&nbsp;</div>
           </td>
         </tr>
         <!-- Prize + link -->
