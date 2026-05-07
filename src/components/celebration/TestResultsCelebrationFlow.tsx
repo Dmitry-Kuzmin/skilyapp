@@ -457,50 +457,14 @@ function LeaderboardClimb({
   );
 }
 
-function SlideSP({ data, onOpenLeaderboard, currentUserId }: { data: CelebrationData; onOpenLeaderboard: () => void; currentUserId?: string }) {
+function SlideSP({ data, onOpenLeaderboard, currentUserId, prefetchedRank }: { data: CelebrationData; onOpenLeaderboard: () => void; currentUserId?: string; prefetchedRank: RankChange | null }) {
   const sp = useCountUp(data.spAwarded, 400);
   const nextLevelSP = (data.currentLevel + 1) * 100;
   const prevSP = data.currentSP - data.spAwarded;
   const fillBefore = Math.min(prevSP % 100, 100);
   const fillAfter = Math.min(data.currentSP % 100, 100) || (data.currentSP >= nextLevelSP ? 100 : 0);
 
-  // Fallback: если сервер не вернул rank_change — сами фетчим позицию и соседей
-  const [fallbackRank, setFallbackRank] = useState<RankChange | null>(null);
-  const fallbackFiredRef = useRef(false);
-  useEffect(() => {
-    if (data.rankChange || !currentUserId || fallbackFiredRef.current) return;
-    fallbackFiredRef.current = true;
-    (async () => {
-      try {
-        const { data: res } = await supabase.functions.invoke('duel-pass-leaderboard', {
-          body: { type: 'user_position', user_id: currentUserId, neighbors_count: 4 },
-        });
-        if (res?.position) {
-          const neighbors: Array<{
-            user_id: string;
-            season_points?: number;
-            duel_pass_level?: number;
-            profile?: { first_name?: string | null; username?: string | null; photo_url?: string | null };
-          }> = res.neighbors ?? [];
-          // Берём только игроков выше (лучше) пользователя, до 2 штук
-          const above = neighbors
-            .filter((n) => n.user_id !== currentUserId)
-            .slice(0, 2)
-            .map((n) => ({
-              user_id: n.user_id,
-              sp: n.season_points ?? 0,
-              level: n.duel_pass_level ?? 0,
-              first_name: n.profile?.first_name ?? null,
-              username: n.profile?.username ?? null,
-              photo_url: n.profile?.photo_url ?? null,
-            }));
-          setFallbackRank({ prev_rank: res.position, new_rank: res.position, overtaken: above });
-        }
-      } catch { /* noop */ }
-    })();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-  const effectiveRankChange = data.rankChange ?? fallbackRank;
+  const effectiveRankChange = data.rankChange ?? prefetchedRank;
 
   const hasSpData = data.spAwarded > 0;
 
