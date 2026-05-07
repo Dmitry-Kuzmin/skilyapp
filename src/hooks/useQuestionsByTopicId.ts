@@ -29,6 +29,10 @@ export function useQuestionsByTopicId(
                 .eq('country', dbCountry)
                 .order('id');
 
+            if (!hasFullQuestionPoolForStrategy()) {
+                query = (query as any).eq('is_premium', false);
+            }
+
             // Если указан level (номер билета), вычисляем offset
             if (level && limit) {
                 const offset = (level - 1) * limit;
