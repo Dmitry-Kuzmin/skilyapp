@@ -159,7 +159,8 @@ function buildEmailHtml(
   const bodyText   = daysMissed === 1 ? t.body1(points) : t.body2(points);
   const accentColor = daysMissed === 1 ? '#f59e0b' : '#ef4444';
 
-  const utmUrl = `${appUrl}/dashboard?utm_source=email&utm_medium=points-reminder&utm_campaign=day${daysMissed}`;
+  const utmUrl      = `${appUrl}/dashboard?utm_source=email&utm_medium=points-reminder&utm_campaign=day${daysMissed}`;
+  const unsubUrl    = `${appUrl}/unsubscribe?email=${encodeURIComponent(email)}&type=points-reminder&lang=${lang}`;
 
   return `<!DOCTYPE html>
 <html lang="${lang}">
