@@ -742,8 +742,7 @@
           try {
             const version = parseFloat(tg.version || '0');
             if (version >= 6.1) {
-              const meta = document.querySelector('meta[name="theme-color"]');
-              const color = (meta && meta.getAttribute('content')) || '#0f172a';
+              const color = window.__INITIAL_THEME_COLOR__ || '#0f172a';
               if (typeof tg.setHeaderColor === 'function') tg.setHeaderColor(color);
               if (typeof tg.setBackgroundColor === 'function') tg.setBackgroundColor(color);
             }
