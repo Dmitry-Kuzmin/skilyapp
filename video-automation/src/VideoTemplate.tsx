@@ -1088,6 +1088,7 @@ export const VideoTemplate: React.FC<VideoTemplateProps> = ({ question }) => {
           <ThumbnailScene q={question} />
         </div>
       )}
+      </AbsoluteFill>{/* конец Слоя 3 */}
     </AbsoluteFill>
   );
 };
