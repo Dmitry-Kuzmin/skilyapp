@@ -154,7 +154,14 @@ export function passProbability(p: number, n = EXAM_QS, k = EXAM_PASS_MARK): num
 
 export function calculateReadiness(metrics: ReadinessMetrics): ReadinessResult {
   if (metrics.lifetimeAttempts === 0) {
-    return buildResult(0, 0, 0, 0, metrics);
+    const status = getReadinessStatus(0);
+    return {
+      percent: 0, passProbability: 0, sampleScore: 0, pAdj: 0,
+      status: status.status, statusText: status.statusText, shortText: status.shortText,
+      description: status.description, color: status.color,
+      recommendations: generateRecommendations(metrics),
+      studyProgress: 0, lifetimeAttempts: 0,
+    };
   }
 
   const lifetimeP =
