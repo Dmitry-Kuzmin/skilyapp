@@ -370,6 +370,7 @@ async function uploadYouTube(context, videoPath, lang) {
     notify("Skily Video Maker", `✅ YouTube ${lang.toUpperCase()} опубликован`);
   } catch(e) {
     console.error(`  ❌ YouTube [${lang.toUpperCase()}] error:`, e.message);
+    try { await page.screenshot({ path: `/tmp/youtube-error-${lang}-${Date.now()}.png` }); } catch {}
     notify("Skily Video Maker", `❌ YouTube ${lang.toUpperCase()} ошибка: ${e.message.slice(0, 60)}`);
   } finally {
     await page.close();
