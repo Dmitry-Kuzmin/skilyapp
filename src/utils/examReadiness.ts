@@ -30,6 +30,8 @@ export interface ReadinessResult {
   description: string;
   color: string;
   recommendations: string[];
+  studyProgress: number;
+  lifetimeAttempts: number;
 }
 
 export function getReadinessStatus(percent: number): {
