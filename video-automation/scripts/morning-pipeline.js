@@ -224,6 +224,8 @@ async function renderViaApi(question) {
 }
 
 // ── Build video question object ───────────────────────────────────────────────
+const BG_VIDEOS = ["backgrounds/bg1.mp4", "backgrounds/bg2.mp4"];
+
 function buildVideoQuestion(q, seriesNumber) {
   const hookTemplates = {
     easy:   { es: "¿Lo sabrías contestar?", ru: "Угадаешь ответ?" },
@@ -237,6 +239,8 @@ function buildVideoQuestion(q, seriesNumber) {
   // VideoTemplate.tsx uses q.language ("es"/"ru") — not q.country
   const language = q.country === "russia" ? "ru" : "es";
 
+  const backgroundVideo = BG_VIDEOS[Math.floor(Math.random() * BG_VIDEOS.length)];
+
   return {
     ...q,
     language,                         // ← critical: "es" or "ru"
@@ -247,6 +251,7 @@ function buildVideoQuestion(q, seriesNumber) {
     explanationRu: q.explanation_ru || q.explanation || "",
     question_ru: q.question_ru || q.question,
     show_explanation: true,
+    backgroundVideo,
   };
 }
 
