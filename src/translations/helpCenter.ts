@@ -35,6 +35,8 @@ export const helpCenterTranslations: Record<Language, Record<string, any>> = {
         "help.section.cosmetics.desc": "Скины, бейджи и стикеры для персонализации",
         "help.section.shop": "Магазин",
         "help.section.shop.desc": "Покупка бустов, монет и Premium",
+        "help.section.examReadiness": "Готовность к экзамену",
+        "help.section.examReadiness.desc": "Вероятность сдачи DGT и интерпретация статистики",
         "help.section.spainLicense": "Права в Испании",
         "help.section.spainLicense.desc": "Всё о получении водительских прав в Испании",
         "help.section.rules": "Правила",
