@@ -115,7 +115,6 @@ const DailyBonus = lazy(() => import("../pages/DailyBonus"));
 const SkilyChatPage = lazy(() => import("../pages/SkilyChatPage"));
 const DGTTestsSimple = lazy(() => import("../pages/DGTTestsSimple"));
 // Terms, Privacy, SubscriptionTerms, RefundPolicy moved to Legal.tsx or redirects
-const About = lazy(() => import("../pages/About"));
 const Features = lazy(() => import("../pages/Features"));
 const Pricing = lazy(() => import("../pages/Pricing"));
 // RefundPolicy logic deprecated in favor of Legal Hub redirects
@@ -129,8 +128,6 @@ const HandbookRussiaArticle = lazy(() => import("../pages/RussiaHandbookArticle"
 const Partners = lazy(() => import("../pages/Partners"));
 const Blog = lazy(() => import("../pages/Blog"));
 const Article = lazy(() => import("../pages/Article"));
-const SeoGuidesHub = lazy(() => import("../pages/SeoGuidesHub"));
-const SeoGuidePage = lazy(() => import("../pages/SeoGuidePage"));
 const Inventory = lazy(() => import("../pages/Inventory"));
 const PaymentSuccess = lazy(() => import("../pages/PaymentSuccess"));
 const PaymentCancel = lazy(() => import("../pages/PaymentCancel"));
