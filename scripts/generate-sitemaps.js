@@ -172,8 +172,8 @@ function buildContentManifest(articles) {
       "llms-full.txt",
       MANIFEST_FILE,
     ],
-    prerenderRoutes: [...PRERENDER_ROUTES, "/guides", ...guidePages.map((page) => page.route), ...articlePages.map((page) => page.route)],
-    assertPages: [...ASSERT_CORE_PAGES, ...guidePages, ...articlePages],
+    prerenderRoutes: [...PRERENDER_ROUTES, ...articlePages.map((page) => page.route)],
+    assertPages: [...ASSERT_CORE_PAGES, ...articlePages],
   };
 }
 
