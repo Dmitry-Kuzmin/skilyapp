@@ -82,9 +82,12 @@ export function buildDynamicTiming(q: VideoQuestion): DynamicTiming {
   const qAudioDur   = q.questionAudioDurationSec ?? 5;
   const questionDur = Math.max(5, qAudioDur + 0.5);
 
+  const hookAudioDur   = q.hookAudioDurationSec ?? HOOK_DUR;
+  const hookEnd        = Math.max(HOOK_DUR, hookAudioDur + 0.3); // ждём конца hook-озвучки + 0.3с зазор
+
   const hookStart      = 0;
-  const countdownStart = HOOK_DUR;
-  const questionStart  = HOOK_DUR + COUNTDOWN_DUR;
+  const countdownStart = hookEnd;
+  const questionStart  = hookEnd + COUNTDOWN_DUR;
   const answersStart   = questionStart + questionDur;
 
   // Answers: each card appears when it's that answer's turn to be read
