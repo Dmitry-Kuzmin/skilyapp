@@ -328,10 +328,11 @@ function TestCard({
 
       {/* Russian subtitle under question (RU-видео) */}
       {q.language === "ru" && q.question_ru && (
-        <div style={{ fontSize:30, fontWeight:400, color: C.textMuted,
+        <div style={{ fontSize:30, fontWeight:400, color: "#D0D8E0",
           lineHeight:1.4, fontFamily:"system-ui,sans-serif",
           borderLeft:`3px solid ${C.primary}`, paddingLeft:16,
-          marginTop:-8 }}>
+          marginTop:-8, backgroundColor:"rgba(0,0,0,0.55)",
+          borderRadius:12, padding:"10px 16px" }}>
           {cleanText(q.question_ru)}
         </div>
       )}
