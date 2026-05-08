@@ -620,11 +620,14 @@
       overflow-x: hidden;
       width: 100%;
       height: 100%;
-      /* color-scheme: dark — браузер рисует scroll-bar, overscroll-area и UI в тёмном стиле */
+      /* color-scheme is set dynamically by the inline script (html.style.colorScheme)
+         so scrollbars / overscroll area match the active theme.
+         Default to dark to avoid a light-flash on dark-theme first load. */
       color-scheme: dark;
-      /* Начальный цвет overscroll (bounce area) на iOS Safari.
-         ThemeColorManager перекрасит его при монтировании React. */
       background-color: var(--initial-bg, #0f172a);
+    }
+    html.light {
+      color-scheme: light;
     }
 
     body {
