@@ -2,7 +2,7 @@ import { EXAM_PASS_MARK, EXAM_QS, TOTAL_QUESTIONS_BANK } from '@/lib/exam-config
 
 const PRIOR_ALPHA = 2;
 const PRIOR_BETA = 2;
-const RECENT_WEIGHT_MAX = 0.4;
+const RECENT_WEIGHT_MAX = 0.15;
 const COVERAGE_FLOOR = 0.6;
 const SAMPLE_FULL_AT = 600;
 
