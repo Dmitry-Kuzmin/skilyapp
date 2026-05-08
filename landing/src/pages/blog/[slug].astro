@@ -130,7 +130,7 @@ const isFullContent = article.slug === "ekzamen-dgt-2026";
       <!-- Article content -->
       <article class="prose prose-invert prose-zinc max-w-none">
         {isFullContent ? (
-          <Dgt2026ArticleContent lang="es" client:load />
+          <Dgt2026ArticleContent lang="es" client:only="react" />
         ) : (
           <div>
             <p class="lead text-lg text-zinc-300 mb-6">{loc.excerpt}</p>
