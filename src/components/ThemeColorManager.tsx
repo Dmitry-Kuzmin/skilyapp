@@ -47,6 +47,9 @@ function resolve(path: string, mode: 'light' | 'dark'): { color: ColorPair; mode
 
 function apply(color: ColorPair, mode: 'light' | 'dark') {
     document.documentElement.style.setProperty('--background', color.hsl);
+    // Explicit inline style so Safari reads the correct html background-color
+    // for overscroll / pull-to-refresh areas (CSS var alone is not enough on reload).
+    document.documentElement.style.backgroundColor = color.hex;
     document.documentElement.classList.toggle('dark', mode === 'dark');
     document.documentElement.classList.toggle('light', mode === 'light');
 
