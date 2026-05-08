@@ -418,6 +418,42 @@ export const ExamReadiness = React.memo<ExamReadinessProps>(({
           )}
         </div>
 
+        {/* Study Progress Bar — visible for active users to show learning momentum */}
+        {!hasNoData && studyProgress !== undefined && studyProgress > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3, duration: 0.4 }}
+            className="w-full mt-4 px-1"
+          >
+            <div className="flex items-center justify-between mb-1.5">
+              <span className={`text-[10px] font-semibold uppercase tracking-wide ${isDarkTheme ? 'text-slate-400' : 'text-slate-500'}`}>
+                {language === 'es' ? 'Material estudiado' : language === 'ru' ? 'Прогресс изучения' : 'Study progress'}
+              </span>
+              <span className={`text-[10px] font-bold ${
+                studyProgress >= 86 ? 'text-emerald-400' :
+                studyProgress >= 61 ? 'text-blue-400' :
+                studyProgress >= 31 ? 'text-orange-400' : 'text-slate-400'
+              }`}>
+                {studyProgress}%
+              </span>
+            </div>
+            <div className={`w-full h-1.5 rounded-full ${isDarkTheme ? 'bg-slate-700/60' : 'bg-slate-200'} overflow-hidden`}>
+              <motion.div
+                initial={{ width: 0 }}
+                animate={{ width: `${studyProgress}%` }}
+                transition={{ delay: 0.5, duration: 0.8, ease: 'easeOut' }}
+                className={`h-full rounded-full ${
+                  studyProgress >= 86 ? 'bg-gradient-to-r from-emerald-500 to-green-400' :
+                  studyProgress >= 61 ? 'bg-gradient-to-r from-blue-500 to-indigo-400' :
+                  studyProgress >= 31 ? 'bg-gradient-to-r from-orange-500 to-amber-400' :
+                  'bg-gradient-to-r from-slate-500 to-slate-400'
+                }`}
+              />
+            </div>
+          </motion.div>
+        )}
+
       </div>
 
 
