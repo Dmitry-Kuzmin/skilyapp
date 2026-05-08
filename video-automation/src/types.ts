@@ -51,6 +51,9 @@ export interface VideoQuestion {
   outroAudioFile?: string;           // TTS of outro_text
   outroAudioDurationSec?: number;
   show_explanation?: boolean;        // false = skip explanation screen (audio still plays)
+
+  // Background video (relative to public/, e.g. 'backgrounds/bg1.mp4')
+  backgroundVideo?: string;
 }
 
 // ── Dynamic timing (computed from audio durations) ───────────────────────────
