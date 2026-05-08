@@ -5,32 +5,56 @@
   <meta charset="UTF-8" />
   <!-- КРИТИЧНО: Viewport для Telegram Mini App - предотвращает схлопывание шторки + зум на инпутах -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-  <!-- Theme color: начальный цвет для лендинга. ThemeColorManager обновит динамически при переходах -->
-  <meta name="theme-color" content="#0f172a">
   <meta name="msapplication-TileColor" content="#0f172a">
-  <meta name="color-scheme" content="dark">
+  <meta name="color-scheme" content="dark light">
   <script>
-    // Initial paint: must match ThemeColorManager's resolve() so the first frame equals the React-managed state.
+    // Synchronous theme-color bootstrap. Runs before first paint.
+    // Single source of truth — must match src/lib/pageThemeColor.ts
+    // We CREATE the meta[theme-color] tag here (instead of relying on a static
+    // one) so iOS Safari reads only the route-correct value on initial parse.
+    // On reload Safari sometimes caches the previous meta value if it sees one
+    // in the parsed HTML — creating it via JS sidesteps that.
     (function () {
-      var path = window.location.pathname;
-      var marketing = /^\/(curso|pricing|about|partners|blog|article|promo|course-payment|ru|es|en)(\/|$)/.test(path) || path === '/';
-      var alwaysDark = marketing || /^\/(legal|terms|privacy|help)(\/|$)/.test(path);
+      try {
+        var path = window.location.pathname;
+        var marketing = /^\/(curso|pricing|about|partners|blog|article|promo|course-payment|ru|es|en)(\/|$)/.test(path) || path === '/';
+        var alwaysDark = marketing || /^\/(legal|terms|privacy|help)(\/|$)/.test(path);
 
-      var theme = localStorage.getItem('theme');
-      var isLight = !alwaysDark && (theme === 'light' || (!theme && window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches));
+        var theme = null;
+        try { theme = localStorage.getItem('theme'); } catch (e) { /* private mode */ }
+        var prefersLight = false;
+        try { prefersLight = !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches); } catch (e) { /* ignore */ }
+        var isLight = !alwaysDark && (theme === 'light' || (!theme && prefersLight));
 
-      var hex, hsl;
-      if (marketing) { hex = '#060a14'; hsl = '225 55% 6%'; }
-      else if (isLight) { hex = '#f8fafc'; hsl = '210 40% 98%'; }
-      else { hex = '#0f172a'; hsl = '222 47% 11%'; }
+        var hex, hsl;
+        if (marketing) { hex = '#060a14'; hsl = '225 55% 6%'; }
+        else if (isLight) { hex = '#f8fafc'; hsl = '210 40% 98%'; }
+        else { hex = '#0f172a'; hsl = '222 47% 11%'; }
 
-      document.documentElement.classList.toggle('light', isLight);
-      document.documentElement.classList.toggle('dark', !isLight);
-      document.documentElement.style.setProperty('--background', hsl);
-      document.documentElement.style.setProperty('--initial-bg', hex);
+        var html = document.documentElement;
+        html.classList.toggle('light', isLight);
+        html.classList.toggle('dark', !isLight);
+        html.style.setProperty('--background', hsl);
+        html.style.setProperty('--initial-bg', hex);
+        // Inline backgroundColor: guarantees correct color on first paint even
+        // before the external CSS stylesheet has loaded (no white flash).
+        html.style.backgroundColor = hex;
 
-      var meta = document.querySelector('meta[name="theme-color"]');
-      if (meta) meta.setAttribute('content', hex);
+        // Create meta[theme-color] fresh — no stale cached value for iOS to pick up.
+        var meta = document.createElement('meta');
+        meta.name = 'theme-color';
+        meta.content = hex;
+        document.head.appendChild(meta);
+
+        // Expose for Telegram init script and any other early consumers.
+        window.__INITIAL_THEME_COLOR__ = hex;
+      } catch (e) {
+        // Last-resort fallback — never break the page.
+        var fallback = document.createElement('meta');
+        fallback.name = 'theme-color';
+        fallback.content = '#0f172a';
+        document.head.appendChild(fallback);
+      }
     })();
   </script>
   <!-- Safari iOS: чёрная строка статуса с прозрачностью (нужно для viewport-fit=cover) -->
