@@ -216,6 +216,7 @@ async function uploadTikTok(context, videoPath, lang) {
     notify("Skily Video Maker", `✅ TikTok ${lang.toUpperCase()} опубликован`);
   } catch(e) {
     console.error(`  ❌ TikTok [${lang.toUpperCase()}] error:`, e.message);
+    try { await page.screenshot({ path: `/tmp/tiktok-error-${lang}-${Date.now()}.png` }); } catch {}
     notify("Skily Video Maker", `❌ TikTok ${lang.toUpperCase()} ошибка: ${e.message.slice(0, 60)}`);
   } finally {
     await page.close();
