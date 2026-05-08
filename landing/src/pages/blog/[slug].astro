@@ -1,7 +1,7 @@
 ---
+import { marked } from "marked";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import { Dgt2026ArticleContent } from "../../components/Dgt2026ArticleContent";
-import ArticleRenderer from "../../components/ArticleRenderer";
 import { articles, getArticle } from "../../data/articles";
 import { articleContentEs } from "../../data/articleContent";
 
@@ -19,7 +19,12 @@ const BASE = "https://skilyapp.com";
 const canonical = `${BASE}/article/${article.slug}`;
 
 const isFullReact = article.slug === "ekzamen-dgt-2026";
-const markdownContent = articleContentEs[article.slug] ?? null;
+const markdownRaw = articleContentEs[article.slug] ?? null;
+
+// Render markdown to HTML at build time — no React needed, full SEO
+const articleHtml = markdownRaw
+  ? (await marked.parse(markdownRaw, { gfm: true, breaks: false }))
+  : null;
 
 const jsonLd: object[] = [
   {
@@ -100,10 +105,10 @@ const publishedDate = new Date(article.publishedAt).toLocaleDateString("es-ES", 
   jsonLd={jsonLd}
   hreflang={hreflang}
 >
-  <main class="min-h-screen bg-zinc-950">
-    <!-- Reading progress bar -->
-    <div id="progress-bar" class="fixed top-0 left-0 h-0.5 bg-white z-50 transition-all duration-100" style="width:0%"></div>
+  <!-- Reading progress bar -->
+  <div id="progress-bar" class="fixed top-0 left-0 h-0.5 bg-white z-50" style="width:0%"></div>
 
+  <main class="min-h-screen bg-zinc-950">
     <div class="px-4 py-10 sm:px-6 lg:px-8">
       <div class="mx-auto max-w-3xl">
 
@@ -129,13 +134,12 @@ const publishedDate = new Date(article.publishedAt).toLocaleDateString("es-ES", 
             {loc.title}
           </h1>
 
-          <p class="mb-6 text-base text-zinc-400 leading-relaxed sm:text-lg">
+          <p class="mb-6 text-base leading-relaxed text-zinc-400 sm:text-lg">
             {loc.description}
           </p>
 
-          <!-- Author + date bar -->
           <div class="flex items-center gap-3 border-t border-zinc-800 pt-5">
-            <div class="flex h-9 w-9 items-center justify-center rounded-full bg-zinc-800 text-sm font-semibold text-white">
+            <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-zinc-800 text-sm font-semibold text-white">
               {loc.author.charAt(0).toUpperCase()}
             </div>
             <div>
@@ -145,26 +149,25 @@ const publishedDate = new Date(article.publishedAt).toLocaleDateString("es-ES", 
           </div>
         </header>
 
-        <!-- Separator -->
         <div class="mb-10 h-px bg-zinc-800"></div>
 
         <!-- Article content -->
         <article id="article-body">
           {isFullReact ? (
             <Dgt2026ArticleContent lang="es" client:only="react" />
-          ) : markdownContent ? (
-            <ArticleRenderer content={markdownContent} client:load />
+          ) : articleHtml ? (
+            <div class="article-prose" set:html={articleHtml} />
           ) : (
             <p class="text-zinc-400">{loc.excerpt}</p>
           )}
         </article>
 
-        <!-- FAQ section (static HTML for SEO, visible without JS) -->
+        <!-- FAQ (static HTML, indexed by Google without JS) -->
         {article.faqItems?.length && (
           <section class="mt-14">
             <div class="mb-6 flex items-center gap-3">
               <div class="h-px flex-1 bg-zinc-800"></div>
-              <h2 class="text-base font-semibold uppercase tracking-widest text-zinc-500">FAQ</h2>
+              <span class="text-xs font-semibold uppercase tracking-widest text-zinc-500">Preguntas frecuentes</span>
               <div class="h-px flex-1 bg-zinc-800"></div>
             </div>
             <div class="space-y-3">
@@ -172,7 +175,7 @@ const publishedDate = new Date(article.publishedAt).toLocaleDateString("es-ES", 
                 <details class="group rounded-2xl border border-zinc-800 bg-zinc-900 px-5 py-4 transition-colors hover:border-zinc-700">
                   <summary class="flex cursor-pointer list-none items-start justify-between gap-3 font-medium text-white">
                     <span>{item.question}</span>
-                    <span class="mt-0.5 shrink-0 text-zinc-500 transition-transform group-open:rotate-45">+</span>
+                    <span class="mt-0.5 shrink-0 text-zinc-500 transition-transform duration-200 group-open:rotate-45">+</span>
                   </summary>
                   <p class="mt-3 text-sm leading-relaxed text-zinc-400">{item.answer}</p>
                 </details>
@@ -181,12 +184,12 @@ const publishedDate = new Date(article.publishedAt).toLocaleDateString("es-ES", 
           </section>
         )}
 
-        <!-- CTA block -->
+        <!-- CTA -->
         <div class="mt-14 overflow-hidden rounded-2xl border border-zinc-700 bg-gradient-to-br from-zinc-900 to-zinc-950 p-7 text-center">
           <div class="mb-1 text-2xl">🚀</div>
           <p class="mb-1.5 text-lg font-bold text-white">¿Listo para el examen DGT?</p>
           <p class="mb-5 text-sm text-zinc-400">
-            Más de 15&nbsp;000 candidatos ya estudian con Skilyapp — tests adaptativos, duelos PvP y tutor IA.
+            Más de 15&thinsp;000 candidatos ya estudian con Skilyapp — tests adaptativos, duelos PvP y tutor IA.
           </p>
           <a
             href="https://t.me/skilyapp_bot"
@@ -197,9 +200,9 @@ const publishedDate = new Date(article.publishedAt).toLocaleDateString("es-ES", 
           <p class="mt-3 text-xs text-zinc-600">Sin tarjeta de crédito · Primera semana gratis</p>
         </div>
 
-        <!-- Back -->
+        <!-- Back to blog -->
         <div class="mt-8 text-center">
-          <a href="/blog" class="inline-flex items-center gap-1.5 text-sm text-zinc-500 hover:text-zinc-300 transition-colors">
+          <a href="/blog" class="text-sm text-zinc-500 hover:text-zinc-300 transition-colors">
             ← Volver al Blog
           </a>
         </div>
@@ -208,18 +211,61 @@ const publishedDate = new Date(article.publishedAt).toLocaleDateString("es-ES", 
     </div>
   </main>
 
-  <!-- Reading progress script -->
+  <!-- Progress bar -->
   <script>
     const bar = document.getElementById('progress-bar');
-    const article = document.getElementById('article-body');
-    if (bar && article) {
+    const body = document.getElementById('article-body');
+    if (bar && body) {
       window.addEventListener('scroll', () => {
-        const rect = article.getBoundingClientRect();
-        const total = rect.height;
-        const scrolled = -rect.top;
-        const pct = Math.min(100, Math.max(0, (scrolled / total) * 100));
+        const { top, height } = body.getBoundingClientRect();
+        const pct = Math.min(100, Math.max(0, (-top / height) * 100));
         bar.style.width = pct + '%';
       }, { passive: true });
     }
   </script>
+
+  <!-- Article prose styles -->
+  <style is:global>
+    .article-prose h1 { @apply text-2xl font-bold text-white mt-10 mb-4; }
+    .article-prose h2 { @apply text-xl font-bold text-white mt-10 mb-3 pb-2 border-b border-zinc-800; }
+    .article-prose h3 { @apply text-lg font-semibold text-white mt-7 mb-2; }
+    .article-prose h4 { @apply text-base font-semibold text-zinc-200 mt-5 mb-1.5; }
+    .article-prose p  { @apply text-zinc-300 leading-relaxed mb-4; }
+    .article-prose strong { @apply font-semibold text-white; }
+    .article-prose em { @apply text-zinc-200 italic; }
+    .article-prose a  { @apply text-white underline underline-offset-2 decoration-zinc-600 hover:decoration-zinc-400 transition-colors; }
+
+    .article-prose ul { @apply my-4 space-y-1.5 text-zinc-300; }
+    .article-prose ul li { @apply flex items-start gap-2; }
+    .article-prose ul li::before { content: "•"; @apply shrink-0 text-zinc-500 font-bold; }
+
+    .article-prose ol { @apply my-4 space-y-1.5 text-zinc-300 list-decimal list-inside; }
+    .article-prose ol li { @apply pl-1; }
+
+    .article-prose blockquote {
+      @apply border-l-2 border-zinc-600 bg-zinc-900 px-4 py-3 rounded-r-xl my-5 text-zinc-300 text-sm;
+    }
+    .article-prose blockquote p { @apply mb-0; }
+
+    .article-prose hr { @apply my-8 border-zinc-800; }
+
+    .article-prose code {
+      @apply bg-zinc-800 text-zinc-200 text-sm px-1.5 py-0.5 rounded font-mono;
+    }
+    .article-prose pre {
+      @apply bg-zinc-900 border border-zinc-800 rounded-xl p-4 overflow-x-auto my-5;
+    }
+    .article-prose pre code { @apply bg-transparent p-0 text-zinc-200; }
+
+    .article-prose table { @apply w-full my-6 text-sm; }
+    .article-prose table thead { @apply bg-zinc-900 border-b border-zinc-700; }
+    .article-prose table thead th {
+      @apply text-left px-3 py-2.5 text-xs font-semibold uppercase tracking-wide text-zinc-400;
+    }
+    .article-prose table tbody tr { @apply border-b border-zinc-800; }
+    .article-prose table tbody tr:hover { @apply bg-zinc-900/40; }
+    .article-prose table tbody td { @apply px-3 py-2.5 text-zinc-300; }
+
+    .article-prose :is(h2, h3, h4) + p { @apply mt-0; }
+  </style>
 </BaseLayout>
