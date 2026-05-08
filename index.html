@@ -10,31 +10,28 @@
   <meta name="msapplication-TileColor" content="#0f172a">
   <meta name="color-scheme" content="dark">
   <script>
+    // Initial paint: must match ThemeColorManager's resolve() so the first frame equals the React-managed state.
     (function () {
       var path = window.location.pathname;
-      var isApp = /dashboard|tests|learning|games|profile|settings|purchase|topic|subtopic|test\/|admin|partner/.test(path);
-      
-      // Theme detection
+      var marketing = /^\/(curso|pricing|about|partners|blog|article|promo|course-payment|ru|es|en)(\/|$)/.test(path) || path === '/';
+      var alwaysDark = marketing || /^\/(legal|terms|privacy)(\/|$)/.test(path);
+
       var theme = localStorage.getItem('theme');
-      var isLight = theme === 'light' || (!theme && window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches);
-      
-      var hex = isLight ? '#f8fafc' : '#0f172a';
-      var hsl = isLight ? '210 40% 98%' : '222 47% 11%';
+      var isLight = !alwaysDark && (theme === 'light' || (!theme && window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches));
 
-      if (isLight) {
-        document.documentElement.classList.add('light');
-      }
+      var hex, hsl;
+      if (marketing) { hex = '#060a14'; hsl = '225 55% 6%'; }
+      else if (isLight) { hex = '#f8fafc'; hsl = '210 40% 98%'; }
+      else { hex = '#0f172a'; hsl = '222 47% 11%'; }
 
-      // Устанавливаем переменные для CSS
+      document.documentElement.classList.toggle('light', isLight);
+      document.documentElement.classList.toggle('dark', !isLight);
       document.documentElement.style.setProperty('--background', hsl);
       document.documentElement.style.setProperty('--initial-bg', hex);
-
-      // Красим мета-теги немедленно
-      var metaTheme = document.querySelector('meta[name="theme-color"]');
-      if (metaTheme) metaTheme.setAttribute('content', hex);
-      
-      // Прямое перекрашивание фона ДО начала парсинга остального HTML
       document.documentElement.style.backgroundColor = hex;
+
+      var meta = document.querySelector('meta[name="theme-color"]');
+      if (meta) meta.setAttribute('content', hex);
     })();
   </script>
   <!-- Safari iOS: чёрная строка статуса с прозрачностью (нужно для viewport-fit=cover) -->
