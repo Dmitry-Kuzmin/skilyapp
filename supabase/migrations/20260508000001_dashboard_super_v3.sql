@@ -112,6 +112,8 @@ BEGIN
   INTO v_stats FROM qp, recent, sess;
 
   -- 4. Topic-level skill (weak topics, hard topics mastered, worst topic, coverage)
+  --    Coverage = topics with ≥ 5 answered questions / total topics.
+  --    (NOT user_topic_progress.completed — that table is unused and always empty.)
   WITH topic_acc AS (
     SELECT qn.topic_id,
            COUNT(*)                              AS n,
@@ -122,23 +124,21 @@ BEGIN
     GROUP BY qn.topic_id
   ),
   tp AS (
-    SELECT COUNT(DISTINCT t.id) AS tot,
-           COUNT(DISTINCT CASE WHEN utp.completed THEN t.id END) AS cmp
-    FROM public.topics t
-    LEFT JOIN public.user_topic_progress utp
-      ON utp.topic_id = t.id AND utp.user_id = p_user_id
+    SELECT COUNT(DISTINCT id) AS tot
+    FROM public.topics
   )
   SELECT
     COUNT(*) FILTER (WHERE ta.n >= 5 AND ta.c::numeric / ta.n >= 0.80)::int AS hard_topics_mastered,
     COUNT(*) FILTER (WHERE ta.n >= 5 AND ta.c::numeric / ta.n  < 0.60)::int AS weak_topics_count,
     MIN(CASE WHEN ta.n >= 10 THEN ta.c::numeric / ta.n END)                 AS worst_topic_acc,
+    -- Coverage: % of topics where user answered ≥ 5 questions (replaces broken .completed flag)
     CASE WHEN tp.tot > 0
-         THEN ROUND(tp.cmp::numeric / tp.tot * 100, 1)
+         THEN ROUND(COUNT(*) FILTER (WHERE ta.n >= 5)::numeric / tp.tot * 100, 1)
          ELSE 0 END                                                         AS topics_covered_percent,
-    (SELECT COUNT(DISTINCT topic_id) FROM topic_acc)::int                   AS topics_with_answers
+    COUNT(ta.topic_id)::int                                                 AS topics_with_answers
   INTO v_topic_summary
   FROM topic_acc ta RIGHT JOIN tp ON true
-  GROUP BY tp.tot, tp.cmp;
+  GROUP BY tp.tot;
 
   -- 5. Bank size (for coverage display)
   SELECT COUNT(*)::int INTO v_total_in_bank FROM public.questions_new;
