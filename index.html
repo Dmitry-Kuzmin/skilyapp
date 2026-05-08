@@ -34,9 +34,15 @@
         catch (e) { return 'dark'; }
       }
 
-      // Effective mode for the html element. After next-themes mounts it sets
-      // html.class to "light" or "dark"; before that, fall back to preferred.
+      // Effective mode. Priority:
+      // 1. window.__themeMode__ — explicitly set by ThemeColorManager from
+      //    next-themes resolvedTheme (100% correct once React mounts).
+      // 2. html.class — set by next-themes on every theme switch.
+      // 3. Heuristic — localStorage + system preference (used before React mounts).
       function effectiveMode() {
+        if (window.__themeMode__ === 'light' || window.__themeMode__ === 'dark') {
+          return window.__themeMode__;
+        }
         var c = document.documentElement.classList;
         if (c.contains('light')) return 'light';
         if (c.contains('dark'))  return 'dark';
