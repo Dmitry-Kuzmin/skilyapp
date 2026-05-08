@@ -230,7 +230,7 @@ const Learning = () => {
       title: t('learningPage.ideas.challengeBank'),
       description: t('learningPage.ideas.challengeBankDesc'),
       icon: Sparkles,
-      action: "/tests/challenge-bank",
+      action: "/tests/error-bank",
       gradient: "from-rose-500/10 to-pink-500/10",
     },
     {
