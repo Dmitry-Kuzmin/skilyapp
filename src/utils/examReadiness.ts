@@ -202,7 +202,14 @@ function buildResult(
   metrics: ReadinessMetrics,
 ): ReadinessResult {
   const percent = Math.round(Math.min(100, Math.max(0, prob * 100)));
-  const status = getReadinessStatus(percent);
+  // Active users with mathematically-zero pass probability should see "Начало пути"
+  // not "Начни обучение" — the latter is reserved for brand-new users with no data.
+  const statusInput = (percent === 0 && metrics.lifetimeAttempts > 0) ? 1 : percent;
+  const status = getReadinessStatus(statusInput);
+
+  const volumeScore = Math.min(metrics.lifetimeAttempts / SAMPLE_FULL_AT, 1);
+  const studyProgress = Math.round((0.5 * volumeScore + 0.5 * metrics.topicsCovered) * 100);
+
   return {
     percent,
     passProbability: prob,
@@ -214,5 +221,7 @@ function buildResult(
     description: status.description,
     color: status.color,
     recommendations: generateRecommendations(metrics),
+    studyProgress,
+    lifetimeAttempts: metrics.lifetimeAttempts,
   };
 }
