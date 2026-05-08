@@ -201,11 +201,6 @@ export function AppRoutes() {
           <SequentialTests />
         </Suspense>
       } />
-      <Route path="/tests/challenge-bank" element={
-        <Suspense fallback={<PageSkeleton />}>
-          <ChallengeBank />
-        </Suspense>
-      } />
       <Route path="/tests/error-bank" element={
         <Suspense fallback={<PageSkeleton />}>
           <ErrorBank />
