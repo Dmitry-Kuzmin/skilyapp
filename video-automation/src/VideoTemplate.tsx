@@ -948,12 +948,13 @@ export const VideoTemplate: React.FC<VideoTemplateProps> = ({ question }) => {
       {/* Слой 1: фоновое видео */}
       {question.backgroundVideo && (
         <AbsoluteFill>
-          <OffthreadVideo
-            src={staticFile(question.backgroundVideo)}
-            style={{ width: "100%", height: "100%", objectFit: "cover" }}
-            volume={0}
-            loopVolumeCurveBehavior="extend"
-          />
+          <Loop durationInFrames={300}>
+            <OffthreadVideo
+              src={staticFile(question.backgroundVideo)}
+              style={{ width: "100%", height: "100%", objectFit: "cover" }}
+              volume={0}
+            />
+          </Loop>
         </AbsoluteFill>
       )}
       {/* Слой 2: затемнение / основной фон */}
