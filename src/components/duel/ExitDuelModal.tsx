@@ -118,7 +118,7 @@ export function ExitDuelModal({
       {/* Handle bar (Mobile only) */}
       {isMobile && (
         <div className="flex justify-center pt-3 pb-2">
-          <div className="w-12 h-1 bg-white/20 rounded-full" />
+          <div className="w-12 h-1 bg-muted-foreground/20 rounded-full" />
         </div>
       )}
 
@@ -154,11 +154,11 @@ export function ExitDuelModal({
 
       {/* Title & Description */}
       <div className="text-center px-6 pb-6 space-y-2">
-        <h2 className="text-2xl font-bold text-white tracking-tight">
+        <h2 className="text-2xl font-bold text-foreground tracking-tight">
           Покинуть битву?
         </h2>
-        <p className="text-sm text-zinc-400 leading-relaxed max-w-[280px] mx-auto">
-          Это действие нельзя отменить. Вам будет засчитано <span className="text-red-400 font-medium">техническое поражение</span>.
+        <p className="text-sm text-muted-foreground leading-relaxed max-w-[280px] mx-auto">
+          Это действие нельзя отменить. Вам будет засчитано <span className="text-red-500 dark:text-red-400 font-medium">техническое поражение</span>.
         </p>
       </div>
 
@@ -184,14 +184,14 @@ export function ExitDuelModal({
             label: "Рейтинг",
             value: "Потеря"
           }].filter(Boolean).map((item: any, i) => (
-            <div key={i} className="group flex flex-col items-center justify-center gap-2 p-3 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 transition-colors text-center">
-              <div className="p-2 rounded-full bg-zinc-900 group-hover:bg-red-500/20 transition-colors">
-                <item.icon className="w-4 h-4 text-zinc-400 group-hover:text-red-400 transition-colors" />
+            <div key={i} className="group flex flex-col items-center justify-center gap-2 p-3 rounded-2xl bg-muted/50 border border-border hover:bg-muted transition-colors text-center">
+              <div className="p-2 rounded-full bg-background group-hover:bg-red-500/10 transition-colors">
+                <item.icon className="w-4 h-4 text-muted-foreground group-hover:text-red-500 transition-colors" />
               </div>
               <div className="flex flex-col items-center justify-center">
-                <span className="text-[10px] text-zinc-500 font-medium uppercase tracking-wider text-center">{item.label}</span>
+                <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider text-center">{item.label}</span>
                 {item.value && (
-                  <span className="text-xs font-bold text-red-400 text-center">{item.value}</span>
+                  <span className="text-xs font-bold text-red-500 dark:text-red-400 text-center">{item.value}</span>
                 )}
               </div>
             </div>
@@ -224,7 +224,7 @@ export function ExitDuelModal({
           variant="ghost"
           className={cn(
             "w-full h-12 text-sm",
-            "text-zinc-500 hover:text-red-400",
+            "text-muted-foreground hover:text-red-500",
             "bg-transparent hover:bg-red-500/10",
             "font-medium rounded-xl",
             "transition-all duration-200"
@@ -246,12 +246,13 @@ export function ExitDuelModal({
       <Sheet open={open} onOpenChange={onOpenChange}>
         <SheetContent
           side="bottom"
+          onOpenChange={onOpenChange}
           className={cn(
             "rounded-t-[32px] border-t-0",
-            "bg-[#0A0A0B]", // Solid dark background for mobile performance
+            "bg-background", // Solid background for mobile performance
             "p-0 pb-safe",
             "max-h-[85vh]",
-            "overflow-hidden ring-1 ring-white/10"
+            "overflow-hidden ring-1 ring-border"
           )}
           hideCloseButton
         >
@@ -265,10 +266,10 @@ export function ExitDuelModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className={cn(
         "max-w-[380px] p-0 border-0",
-        "bg-[#0A0A0B]/90 backdrop-blur-3xl",
-        "shadow-2xl shadow-black/50",
+        "bg-background/90 backdrop-blur-3xl",
+        "shadow-2xl shadow-black/10 dark:shadow-black/50",
         "rounded-[32px]",
-        "ring-1 ring-white/10",
+        "ring-1 ring-border",
         "overflow-hidden"
       )}>
         {/* Decorative Gradients */}

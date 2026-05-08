@@ -50,11 +50,31 @@
       }
 
       var lastHex = null;
-      var applying = false;
+
+      // Replace meta[theme-color] by full remove+add. iOS Safari often ignores
+      // setAttribute / cloneNode updates — a fresh element creation is more reliable.
+      function writeMetaTag(hex) {
+        var metas = document.head.querySelectorAll('meta[name="theme-color"]');
+        for (var i = 0; i < metas.length; i++) metas[i].parentNode.removeChild(metas[i]);
+        var m = document.createElement('meta');
+        m.setAttribute('name', 'theme-color');
+        m.setAttribute('content', hex);
+        document.head.appendChild(m);
+      }
+
+      // iOS Safari only re-evaluates the address bar / status bar tint on certain
+      // triggers (scroll, navigation). Without one, a mid-session theme change
+      // updates the meta tag but leaves chrome stale. A 1px scroll perturbation
+      // is the least-invasive proven way to force a chrome re-paint.
+      function nudgeSafariChrome() {
+        try {
+          var sy = window.pageYOffset || document.documentElement.scrollTop || 0;
+          window.scrollTo(0, sy + 1);
+          requestAnimationFrame(function () { window.scrollTo(0, sy); });
+        } catch (e) {}
+      }
 
       function apply() {
-        if (applying) return;
-        applying = true;
         try {
           var spec = resolve(location.pathname, effectiveMode());
           var hex  = spec.color.hex;
@@ -65,33 +85,16 @@
           if (!html.classList.contains('light') && !html.classList.contains('dark')) {
             html.classList.add(spec.mode);
           }
+          // Keep the CSS color-scheme hint in sync with the active mode so that
+          // form controls / scrollbars / overscroll match the active theme.
+          html.style.colorScheme = spec.mode;
           html.style.setProperty('--background', hsl);
           html.style.setProperty('--initial-bg', hex);
           html.style.backgroundColor = hex;
           if (document.body) document.body.style.backgroundColor = hex;
 
-          // Update meta[theme-color]. iOS Safari frequently ignores setAttribute
-          // updates on an existing tag — clone-replace forces a fresh read.
-          var metas = document.head.querySelectorAll('meta[name="theme-color"]');
-          // Drop any extras (defensive — should be at most one).
-          for (var i = 1; i < metas.length; i++) metas[i].parentNode.removeChild(metas[i]);
-          var meta = metas[0];
-          if (!meta) {
-            meta = document.createElement('meta');
-            meta.setAttribute('name', 'theme-color');
-            document.head.appendChild(meta);
-          }
-          if (meta.getAttribute('content') !== hex) {
-            meta.setAttribute('content', hex);
-            // Clone-replace forces iOS Safari to re-evaluate.
-            var clone = meta.cloneNode(true);
-            meta.parentNode.replaceChild(clone, meta);
-          } else if (lastHex !== hex) {
-            // Same content but Safari may have lost it — clone-replace anyway.
-            var c2 = meta.cloneNode(true);
-            meta.parentNode.replaceChild(c2, meta);
-          }
-
+          var changed = lastHex !== hex;
+          writeMetaTag(hex);
           window.__INITIAL_THEME_COLOR__ = hex;
           lastHex = hex;
 
@@ -104,8 +107,16 @@
               if (typeof tg.setBottomBarColor  === 'function') tg.setBottomBarColor(hex);
             }
           } catch (e) {}
+
+          // On actual color change, nudge iOS Safari to re-paint chrome.
+          // Scheduled async so we don't fight a concurrent layout pass.
+          if (changed) {
+            requestAnimationFrame(function () {
+              writeMetaTag(hex);
+              nudgeSafariChrome();
+            });
+          }
         } catch (e) { /* never break the page */ }
-        applying = false;
       }
 
       // 1. Synchronous initial apply (before first paint).

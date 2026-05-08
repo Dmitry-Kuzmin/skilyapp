@@ -135,16 +135,16 @@ export const AIInsightsLibrary = ({ isPremium }: { isPremium: boolean }) => {
         <Drawer open={isOpen} onOpenChange={setIsOpen}>
             <DrawerTrigger asChild>
                 <button
-                    className="group relative flex items-center gap-3 px-4 py-2.5 rounded-2xl bg-[#0F1115] border border-white/5 hover:border-indigo-500/50 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] shadow-xl shadow-black/20 overflow-hidden w-auto justify-between sm:justify-start"
+                    className="group relative flex items-center gap-1.5 sm:gap-3 px-2.5 py-2 sm:px-4 sm:py-2.5 rounded-2xl bg-[#0F1115] border border-white/5 hover:border-indigo-500/50 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] shadow-xl shadow-black/20 overflow-hidden w-auto justify-between sm:justify-start"
                 >
                     {/* Background Effects */}
                     <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                     <div className="absolute -right-4 -top-8 w-24 h-24 bg-indigo-500/20 blur-3xl rounded-full group-hover:bg-indigo-400/30 transition-all duration-500" />
 
-                    <div className="relative flex items-center gap-3">
+                    <div className="relative flex items-center gap-1.5 sm:gap-3">
                         <div className="relative">
                             <div className="absolute inset-0 bg-indigo-500 blur-md opacity-20 group-hover:opacity-40 transition-opacity" />
-                            <div className="relative h-8 w-8 sm:h-9 sm:w-9 bg-gradient-to-br from-indigo-600 to-violet-600 rounded-xl flex items-center justify-center border border-white/10 shadow-inner">
+                            <div className="relative h-7 w-7 sm:h-9 sm:w-9 bg-gradient-to-br from-indigo-600 to-violet-600 rounded-lg sm:rounded-xl flex items-center justify-center border border-white/10 shadow-inner">
                                 <BookOpen className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" />
                             </div>
                         </div>
@@ -156,7 +156,7 @@ export const AIInsightsLibrary = ({ isPremium }: { isPremium: boolean }) => {
                                 </span>
                                 {totalInsights > 0 && <span className="px-1.5 py-0.5 rounded-full bg-indigo-500/20 text-[9px] font-bold text-indigo-300">{totalInsights}</span>}
                             </div>
-                            <div className="text-xs sm:text-sm font-bold text-white group-hover:text-indigo-200 transition-colors leading-none sm:leading-normal">{uiText.myInsights}</div>
+                            <div className="hidden min-[380px]:block text-xs sm:text-sm font-bold text-white group-hover:text-indigo-200 transition-colors leading-none sm:leading-normal">{uiText.myInsights}</div>
                         </div>
                     </div>
 

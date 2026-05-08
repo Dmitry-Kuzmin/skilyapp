@@ -596,7 +596,7 @@ const Tests = () => {
                   <div className="mb-3 flex md:hidden">
                     <ContextSwitcher className="h-9 rounded-xl bg-background/75 border-border/60 shadow-sm" />
                   </div>
-                  <h1 className="text-3xl md:text-4xl font-black text-foreground tracking-tight truncate sm:overflow-visible sm:whitespace-normal">
+                  <h1 className="text-3xl md:text-4xl font-black text-foreground tracking-tight sm:overflow-visible sm:whitespace-normal">
                     {selectedCountry === 'russia' ? 'Билеты ПДД' : t('testsPage.title')}
                   </h1>
                 </div>

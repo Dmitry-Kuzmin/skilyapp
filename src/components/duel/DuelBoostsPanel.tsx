@@ -153,11 +153,11 @@ export const DuelBoostsPanel = memo(({
             whileTap={isClickable ? { scale: 0.95 } : {}}
             className={cn(
                "relative h-8 px-1.5 sm:px-2 flex items-center gap-0.5 sm:gap-1 rounded-lg font-bold text-[10px] sm:text-[11px] transition-all shadow-sm border",
-               isDisabled 
-                 ? "bg-muted/30 border-border/40 opacity-40 cursor-not-allowed grayscale" 
-                 : isEmpty
-                   ? "bg-zinc-800/40 border-dashed border-zinc-600/50 text-zinc-400 hover:bg-zinc-800/60 hover:border-zinc-500/80 cursor-pointer"
-                   : `${boostConfig.bg} text-white border-white/25 hover:shadow-md hover:border-white/40`
+                isDisabled 
+                  ? "bg-muted/30 border-border/40 opacity-40 cursor-not-allowed grayscale" 
+                  : isEmpty
+                    ? "bg-muted/50 dark:bg-zinc-800/40 border-dashed border-border dark:border-zinc-600/50 text-muted-foreground dark:text-zinc-400 hover:bg-muted dark:hover:bg-zinc-800/60 hover:border-muted-foreground/30 dark:hover:border-zinc-500/80 cursor-pointer"
+                    : `${boostConfig.bg} text-white border-white/25 hover:shadow-md hover:border-white/40`
             )}
             title={isEmpty && !isDisabled ? "Купить еще бустов" : t(`boostShop.boostNames.${boost.boost_type}.description`)}
           >
@@ -168,13 +168,17 @@ export const DuelBoostsPanel = memo(({
             ) : (
               <BoostIcon className="w-3.5 h-3.5 shrink-0" />
             )}
-            <span className="whitespace-nowrap leading-none drop-shadow-[0_1px_1px_rgba(0,0,0,0.3)]" title={displayName}>{displayName}</span>
+            <span className="whitespace-nowrap leading-none dark:drop-shadow-[0_1px_1px_rgba(0,0,0,0.3)]" title={displayName}>{displayName}</span>
             {boost.boost_type === 'translate' && !isDisabled && (
               <ChevronDown className={`h-2.5 w-2.5 transition-transform duration-200 shrink-0 ${translatePopoverOpen === boost.boost_type ? 'rotate-180' : ''}`} />
             )}
             <div className={cn(
               "ml-0.5 h-4 px-1 flex items-center justify-center rounded text-[9px] font-bold min-w-[16px] shrink-0 transition-colors",
-              isDisabled ? "bg-white/10 text-white/50" : isEmpty ? "bg-indigo-500/20 text-indigo-400 border border-indigo-500/30" : "bg-white/30 text-white"
+              isDisabled 
+                ? "bg-slate-500/10 dark:bg-white/10 text-slate-500/50 dark:text-white/50" 
+                : isEmpty 
+                  ? "bg-indigo-500/10 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20 dark:border-indigo-500/30" 
+                  : "bg-white/30 text-white"
             )}>
               {isEmpty && !isDisabled ? <Plus className="w-2.5 h-2.5" /> : boost.quantity}
             </div>

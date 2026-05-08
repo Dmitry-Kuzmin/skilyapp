@@ -40,12 +40,13 @@ export function ReconnectionModal({
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent
         side="bottom"
+        onOpenChange={onOpenChange}
         className={cn(
-          "rounded-t-[32px] border-t border-white/10",
-          "bg-[#09090B]/95 backdrop-blur-xl",
+          "rounded-t-[32px] border-t border-border",
+          "bg-background/95 backdrop-blur-xl",
           "p-0 pb-safe",
           "max-h-[85vh]",
-          "overflow-hidden shadow-[0_-20px_50px_-20px_rgba(59,130,246,0.3)]",
+          "overflow-hidden shadow-[0_-20px_50px_-20px_rgba(59,130,246,0.15)] dark:shadow-[0_-20px_50px_-20px_rgba(59,130,246,0.3)]",
           className
         )}
         hideCloseButton
@@ -56,7 +57,7 @@ export function ReconnectionModal({
 
           {/* Handle bar */}
           <div className="flex justify-center pt-4 pb-2 z-10">
-            <div className="w-12 h-1.5 bg-white/10 rounded-full" />
+            <div className="w-12 h-1.5 bg-muted-foreground/20 rounded-full" />
           </div>
 
           {isReconnecting ? (
@@ -86,10 +87,10 @@ export function ReconnectionModal({
                 animate={{ opacity: 1, y: 0 }}
                 className="text-center space-y-3"
               >
-                <h2 className="text-2xl font-bold text-white tracking-tight uppercase">
+                <h2 className="text-2xl font-bold text-foreground tracking-tight uppercase">
                   Восстановление связи
                 </h2>
-                <p className="text-zinc-400 font-medium">
+                <p className="text-muted-foreground font-medium">
                   Переподключение к серверам дуэли...
                 </p>
               </motion.div>
@@ -154,10 +155,10 @@ export function ReconnectionModal({
                 transition={{ delay: 0.1 }}
                 className="text-center px-8 pb-6 z-10"
               >
-                <h2 className="text-2xl font-bold text-white mb-2.5 tracking-tight">
+                <h2 className="text-2xl font-bold text-foreground mb-2.5 tracking-tight">
                   Дуэль всё еще идет!
                 </h2>
-                <p className="text-zinc-400 leading-relaxed font-medium">
+                <p className="text-muted-foreground leading-relaxed font-medium">
                   Мы обнаружили вашу активную сессию. Желаете вернуться на поле битвы?
                 </p>
               </motion.div>
@@ -193,8 +194,8 @@ export function ReconnectionModal({
                   variant="ghost"
                   className={cn(
                     "w-full h-14",
-                    "bg-white/5",
-                    "text-zinc-400 hover:text-red-400",
+                    "bg-muted/50",
+                    "text-muted-foreground hover:text-red-500",
                     "font-semibold text-base",
                     "hover:bg-red-500/10",
                     "active:scale-[0.97]",

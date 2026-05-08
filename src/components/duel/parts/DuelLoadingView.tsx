@@ -55,10 +55,10 @@ export function DuelLoadingView({
 
     if (isError) {
         return (
-            <div className="fixed inset-0 z-[9999] bg-[#06080F] flex flex-col items-center justify-center p-6 text-center">
-                <div className="absolute inset-0 opacity-[0.03]" style={{
-                    backgroundImage: `linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px), 
-                            linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px)`,
+            <div className="fixed inset-0 z-[9999] bg-background flex flex-col items-center justify-center p-6 text-center">
+                <div className="absolute inset-0 opacity-[0.03] dark:opacity-[0.03]" style={{
+                    backgroundImage: `linear-gradient(to right, currentColor 1px, transparent 1px), 
+                            linear-gradient(to bottom, currentColor 1px, transparent 1px)`,
                     backgroundSize: '40px 40px'
                 }}></div>
 
@@ -67,8 +67,8 @@ export function DuelLoadingView({
                         <AlertCircle className="w-12 h-12 text-red-500" />
                     </div>
                     <div className="space-y-3">
-                        <h3 className="text-2xl font-black text-white uppercase tracking-tighter">{t('duelBattle.arena.errors.somethingWrong')}</h3>
-                        <p className="text-zinc-400 text-sm leading-relaxed">{t('duelBattle.arena.errors.duelError')}</p>
+                        <h3 className="text-2xl font-black text-foreground uppercase tracking-tighter">{t('duelBattle.arena.errors.somethingWrong')}</h3>
+                        <p className="text-muted-foreground text-sm leading-relaxed">{t('duelBattle.arena.errors.duelError')}</p>
                     </div>
 
                     <div className="flex flex-col gap-3">
@@ -85,7 +85,7 @@ export function DuelLoadingView({
                                 window.location.href = '/';
                             }}
                             variant="outline"
-                            className="w-full h-12 bg-white/5 border-white/10 hover:bg-white/10 text-white/70 rounded-2xl uppercase tracking-widest text-xs font-bold transition-all"
+                            className="w-full h-12 bg-background/5 border-border hover:bg-muted text-muted-foreground rounded-2xl uppercase tracking-widest text-xs font-bold transition-all"
                         >
                             {t('duelBattle.arena.errors.toDashboard')}
                         </Button>
@@ -97,15 +97,15 @@ export function DuelLoadingView({
 
     return (
         <Motion>
-            <div className="fixed inset-0 z-[9999] bg-[#06080F] flex flex-col items-center justify-center overflow-hidden font-sans">
+            <div className="fixed inset-0 z-[9999] bg-background flex flex-col items-center justify-center overflow-hidden font-sans">
                 {/* Ambient Background Glow */}
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60vw] h-[60vw] max-w-[800px] max-h-[800px] bg-indigo-500/5 rounded-full blur-[100px] pointer-events-none" />
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[40vw] h-[40vw] max-w-[500px] max-h-[500px] bg-purple-500/5 rounded-full blur-[80px] pointer-events-none" />
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60vw] h-[60vw] max-w-[800px] max-h-[800px] bg-indigo-500/10 dark:bg-indigo-500/5 rounded-full blur-[100px] pointer-events-none" />
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[40vw] h-[40vw] max-w-[500px] max-h-[500px] bg-purple-500/10 dark:bg-purple-500/5 rounded-full blur-[80px] pointer-events-none" />
 
                 {/* Grid Pattern */}
-                <div className="absolute inset-0 opacity-[0.05]" style={{
-                    backgroundImage: `linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px), 
-                            linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px)`,
+                <div className="absolute inset-0 opacity-[0.05] dark:opacity-[0.05]" style={{
+                    backgroundImage: `linear-gradient(to right, currentColor 1px, transparent 1px), 
+                            linear-gradient(to bottom, currentColor 1px, transparent 1px)`,
                     backgroundSize: '40px 40px'
                 }}></div>
 
@@ -114,13 +114,13 @@ export function DuelLoadingView({
                     {/* Cyber-Ring Animation */}
                     <div className="relative w-64 h-64 md:w-80 md:h-80 flex flex-col items-center justify-center">
                         {/* Ring 1 - Outer Slow */}
-                        <div className="absolute inset-0 rounded-full border border-white/5 border-t-indigo-500/50 animate-[spin_4s_linear_infinite]" />
+                        <div className="absolute inset-0 rounded-full border border-border/10 border-t-indigo-500/50 animate-[spin_4s_linear_infinite]" />
 
                         {/* Ring 2 - Inner Fast Reverse */}
-                        <div className="absolute inset-6 md:inset-8 rounded-full border border-white/5 border-b-purple-500/50 animate-[spin_2.5s_linear_infinite_reverse]" />
+                        <div className="absolute inset-6 md:inset-8 rounded-full border border-border/10 border-b-purple-500/50 animate-[spin_2.5s_linear_infinite_reverse]" />
 
                         {/* Ring 3 - Dashed Core */}
-                        <div className="absolute inset-12 md:inset-16 outline outline-1 outline-dashed outline-white/10 rounded-full animate-[spin_6s_linear_infinite]" />
+                        <div className="absolute inset-12 md:inset-16 outline outline-1 outline-dashed outline-border/20 rounded-full animate-[spin_6s_linear_infinite]" />
 
                         {/* Core Content */}
                         <motion.div
@@ -128,12 +128,12 @@ export function DuelLoadingView({
                             animate={{ opacity: 1, scale: 1 }}
                             className="absolute inset-0 flex flex-col items-center justify-center z-10 text-center px-4"
                         >
-                            <div className="w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center mb-4 border border-white/10 shadow-[0_0_30px_rgba(99,102,241,0.2)]">
-                                <Swords className="w-8 h-8 text-indigo-400" />
+                            <div className="w-16 h-16 bg-muted rounded-2xl flex items-center justify-center mb-4 border border-border shadow-[0_0_30px_rgba(99,102,241,0.1)]">
+                                <Swords className="w-8 h-8 text-indigo-500" />
                             </div>
-                            <span className="text-white/40 text-[10px] font-bold tracking-[0.3em] uppercase mb-1">Duel Arena</span>
+                            <span className="text-muted-foreground/40 text-[10px] font-bold tracking-[0.3em] uppercase mb-1">Duel Arena</span>
                             <div className="h-px w-8 bg-gradient-to-r from-transparent via-indigo-500/50 to-transparent mb-2" />
-                            <span className="text-white font-black text-base sm:text-xl tracking-tight sm:tracking-[0.1em] uppercase text-center leading-tight">
+                            <span className="text-foreground font-black text-base sm:text-xl tracking-tight sm:tracking-[0.1em] uppercase text-center leading-tight">
                                 {loading ? (
                                     <motion.span
                                         animate={{ opacity: [0.5, 1, 0.5] }}
@@ -158,11 +158,11 @@ export function DuelLoadingView({
                                 exit={{ opacity: 0, y: -10 }}
                                 className="absolute inset-0 flex flex-col items-center justify-center text-center px-4"
                             >
-                                <div className="flex items-center gap-3 mb-3 bg-white/5 px-4 py-1.5 rounded-full border border-white/10">
+                                <div className="flex items-center gap-3 mb-3 bg-muted px-4 py-1.5 rounded-full border border-border">
                                     {IconMap[currentTip.icon as keyof typeof IconMap] || <Sparkles className="w-4 h-4 text-cyan-400" />}
-                                    <span className="text-[10px] font-bold tracking-widest text-white/40 uppercase">{t('duelBattle.arena.tips.label')}</span>
+                                    <span className="text-[10px] font-bold tracking-widest text-muted-foreground/60 uppercase">{t('duelBattle.arena.tips.label')}</span>
                                 </div>
-                                <p className="text-sm md:text-base text-zinc-300 max-w-md font-medium leading-relaxed">
+                                <p className="text-sm md:text-base text-muted-foreground max-w-md font-medium leading-relaxed">
                                     {currentTip.text}
                                 </p>
                             </motion.div>
@@ -170,14 +170,14 @@ export function DuelLoadingView({
                     </div>
 
                     {/* Progress Text */}
-                    <div className="text-[10px] font-mono tracking-[0.4em] text-white/30 uppercase">
+                    <div className="text-[10px] font-mono tracking-[0.4em] text-muted-foreground/30 uppercase">
                         {questionsCount > 0 ? t('duelBattle.arena.loadedQuestions', { count: questionsCount }) : t('duelBattle.arena.syncingData')}
                     </div>
                 </div>
 
                 {/* Footer Branding */}
                 <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center opacity-20">
-                    <div className="text-[8px] font-mono tracking-[0.6em] text-white/50">
+                    <div className="text-[8px] font-mono tracking-[0.6em] text-muted-foreground/50">
                         S K I L Y  A R E N A  X
                     </div>
                 </div>

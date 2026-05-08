@@ -556,27 +556,27 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
         <AnimatePresence>
           {showBotProposal && (
             <motion.div initial={{ y: -100, opacity: 0, scale: 0.8 }} animate={{ y: 0, opacity: 1, scale: 1 }} exit={{ y: -100, opacity: 0, scale: 0.9 }} className="fixed top-20 left-1/2 -translate-x-1/2 z-[100] w-[360px] max-w-[calc(100vw-32px)]">
-              <div className="bg-slate-900/90 dark:bg-slate-950/95 backdrop-blur-3xl rounded-[2rem] p-5 shadow-2xl relative overflow-hidden">
+              <div className="bg-background/90 dark:bg-slate-950/95 backdrop-blur-3xl rounded-[2rem] p-5 shadow-2xl relative overflow-hidden border border-border">
                 <div className="flex items-start gap-4">
                   {results.opponentAvatar ? (
-                    <img src={results.opponentAvatar} className="w-14 h-14 rounded-2xl object-cover border-2 border-white/20" alt="" />
+                    <img src={results.opponentAvatar} className="w-14 h-14 rounded-2xl object-cover border-2 border-border" alt="" />
                   ) : (
-                    <div className="w-14 h-14 rounded-2xl flex items-center justify-center bg-slate-700 border-2 border-white/20 text-white font-black text-2xl uppercase">
+                    <div className="w-14 h-14 rounded-2xl flex items-center justify-center bg-muted border-2 border-border text-muted-foreground font-black text-2xl uppercase">
                       {(results.opponentName || 'B').charAt(0)}
                     </div>
                   )}
                   <div className="flex-1 space-y-1">
                     <div className="flex items-center justify-between">
-                      <span className="text-white font-black text-xs uppercase tracking-widest opacity-60">{t('duelResult.rematch.title')}</span>
+                      <span className="text-muted-foreground font-black text-xs uppercase tracking-widest opacity-60">{t('duelResult.rematch.title')}</span>
                     </div>
-                    <p className="text-white font-bold text-sm leading-tight pr-2">
-                      <span className="text-indigo-400">{results.opponentName}:</span> "{proposalPhrase}"
+                    <p className="text-foreground font-bold text-sm leading-tight pr-2">
+                      <span className="text-indigo-600 dark:text-indigo-400">{results.opponentName}:</span> "{proposalPhrase}"
                     </p>
                   </div>
                 </div>
                 <div className="flex gap-2.5 mt-5">
-                  <Button onClick={() => { setShowBotProposal(false); onRematch(true, { id: results.opponentId || 'bot', name: results.opponentName, isBot: true }); }} className="flex-[2] bg-indigo-600 text-white font-black rounded-xl h-10">{t('duelResult.rematch.accept')}</Button>
-                  <Button onClick={() => setShowBotProposal(false)} variant="ghost" className="flex-1 text-slate-400 font-bold rounded-xl h-10">{t('duelResult.rematch.decline')}</Button>
+                  <Button onClick={() => { setShowBotProposal(false); onRematch(true, { id: results.opponentId || 'bot', name: results.opponentName, isBot: true }); }} className="flex-[2] bg-indigo-600 hover:bg-indigo-700 text-white font-black rounded-xl h-10">{t('duelResult.rematch.accept')}</Button>
+                  <Button onClick={() => setShowBotProposal(false)} variant="ghost" className="flex-1 text-muted-foreground font-bold rounded-xl h-10">{t('duelResult.rematch.decline')}</Button>
                 </div>
                 <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/5">
                   <motion.div initial={{ width: "0%" }} animate={{ width: "100%" }} transition={{ duration: 8, ease: "linear" }} onAnimationComplete={() => setShowBotProposal(false)} className="h-full bg-gradient-to-r from-indigo-500 to-purple-500" />

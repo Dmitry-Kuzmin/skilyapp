@@ -98,22 +98,25 @@ export const DuelQuestionCard = memo(({
               <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
-                whileHover={{ scale: 1.02 }}
-                className="relative rounded-3xl overflow-hidden group cursor-zoom-in shadow-2xl bg-black/40 border border-white/10"
+                whileHover={{ scale: 1.01 }}
+                className="relative rounded-3xl overflow-hidden group cursor-zoom-in shadow-2xl bg-muted border border-border"
                 onClick={() => setIs3DViewerOpen(true)}
               >
-                {/* Blur Background - Increased opacity and better blur for "filled" look */}
+                {/* Blur Background - Full opacity and higher saturation for "filled" look */}
                 <div
-                  className="absolute inset-0 bg-cover bg-center blur-2xl opacity-60 scale-110 group-hover:scale-125 transition-transform duration-700 saturate-150"
+                  className="absolute inset-0 bg-cover bg-center blur-3xl opacity-90 scale-125 transition-transform duration-700 saturate-200"
                   style={{ backgroundImage: `url(${imageUrl})` }}
                 />
+                
+                {/* Subtle dark overlay for better contrast */}
+                <div className="absolute inset-0 bg-black/20" />
 
-                {/* Main Image with rounded corners and shadow - Reduced padding for tighter frame */}
-                <div className="relative z-10 w-full h-full flex items-center justify-center">
+                {/* Main Image with rounded corners and shadow */}
+                <div className="relative z-10 w-full h-full flex items-center justify-center p-0">
                   <img
                     src={imageUrl}
                     alt="Question media"
-                    className="w-full h-auto object-contain max-h-[25vh] md:max-h-[400px] rounded-2xl shadow-lg group-hover:scale-[1.02] transition-transform duration-500 will-change-transform"
+                    className="w-full h-auto object-contain max-h-[30vh] md:max-h-[450px] transition-transform duration-500 will-change-transform"
                   />
                 </div>
 

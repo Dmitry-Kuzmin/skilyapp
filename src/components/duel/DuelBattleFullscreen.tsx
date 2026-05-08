@@ -725,12 +725,12 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
   // 🔄 UI: VS Start Screen
   if (showStartScreen && storeQuestions && storeQuestions.length > 0) {
     return (
-      <div className="fixed inset-0 z-[10000] bg-[#06080F] flex flex-col items-center justify-center overflow-hidden">
+      <div className="fixed inset-0 z-[10000] bg-background flex flex-col items-center justify-center overflow-hidden">
         {/* Анимированный фон */}
-        <div className="absolute inset-0 bg-gradient-to-tr from-blue-900/20 via-slate-900 to-indigo-900/20" />
+        <div className="absolute inset-0 bg-gradient-to-tr from-blue-500/10 via-background to-indigo-500/10 dark:from-blue-900/20 dark:via-slate-900 dark:to-indigo-900/20" />
         <div className="absolute inset-0 opacity-[0.05]" style={{
-          backgroundImage: `linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px), 
-                           linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px)`,
+          backgroundImage: `linear-gradient(to right, currentColor 1px, transparent 1px), 
+                           linear-gradient(to bottom, currentColor 1px, transparent 1px)`,
           backgroundSize: '40px 40px'
         }}></div>
 
@@ -752,7 +752,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
                 {myPhotoUrl ? (
                   <img src={myPhotoUrl} className="w-full h-full object-cover transform scale-[1.02] transition-transform duration-700" alt={myName || 'Player 1'} />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center bg-slate-800 text-white font-black text-3xl sm:text-5xl md:text-7xl uppercase">
+                  <div className="w-full h-full flex items-center justify-center bg-muted text-muted-foreground font-black text-3xl sm:text-5xl md:text-7xl uppercase">
                     {(myName || 'P').charAt(0)}
                   </div>
                 )}
@@ -761,7 +761,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5 }}
-                className="text-white font-black text-sm sm:text-xl md:text-2xl uppercase tracking-[0.1em] sm:tracking-[0.2em] drop-shadow-md text-center max-w-[100px] sm:max-w-[200px] truncate"
+                className="text-foreground font-black text-sm sm:text-xl md:text-2xl uppercase tracking-[0.1em] sm:tracking-[0.2em] drop-shadow-sm text-center max-w-[100px] sm:max-w-[200px] truncate"
               >
                 {myName}
               </motion.span>
@@ -775,7 +775,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
               className="relative mx-1 sm:mx-2 md:mx-10 flex-shrink-0"
             >
               <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-indigo-500 blur-2xl opacity-40 scale-150 animate-pulse" />
-              <div className="relative text-4xl sm:text-6xl md:text-[8rem] font-black italic text-transparent bg-clip-text bg-gradient-to-b from-white via-indigo-300 to-blue-600 drop-shadow-[0_0_15px_rgba(99,102,241,0.8)] transform hover:scale-110 transition-transform">
+              <div className="relative text-4xl sm:text-6xl md:text-[8rem] font-black italic text-transparent bg-clip-text bg-gradient-to-b from-indigo-600 via-indigo-500 to-blue-700 dark:from-white dark:via-indigo-300 dark:to-blue-600 drop-shadow-[0_0_15px_rgba(99,102,241,0.5)] transform hover:scale-110 transition-transform">
                 VS
               </div>
             </motion.div>
@@ -792,7 +792,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
                 {opponentPhotoUrl ? (
                   <img src={opponentPhotoUrl} className="w-full h-full object-cover transform scale-[1.02] transition-transform duration-700" alt={opponentName || 'Player 2'} />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center bg-slate-800 text-white font-black text-3xl sm:text-5xl md:text-7xl uppercase">
+                  <div className="w-full h-full flex items-center justify-center bg-muted text-muted-foreground font-black text-3xl sm:text-5xl md:text-7xl uppercase">
                     {(opponentName || 'P').charAt(0)}
                   </div>
                 )}
@@ -801,7 +801,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5 }}
-                className="text-white font-black text-sm sm:text-xl md:text-2xl uppercase tracking-[0.1em] sm:tracking-[0.2em] drop-shadow-md text-center max-w-[100px] sm:max-w-[200px] truncate"
+                className="text-foreground font-black text-sm sm:text-xl md:text-2xl uppercase tracking-[0.1em] sm:tracking-[0.2em] drop-shadow-sm text-center max-w-[100px] sm:max-w-[200px] truncate"
               >
                 {opponentName}
               </motion.span>
@@ -814,7 +814,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
               initial={{ y: 50, opacity: 0, scale: 0.8 }}
               animate={{ y: 0, opacity: 1, scale: 1 }}
               transition={{ type: "spring", stiffness: 100, damping: 15, delay: 0.8 }}
-              className="relative bg-slate-900/80 backdrop-blur-xl px-10 md:px-14 py-4 md:py-6 rounded-[2rem] border-2 border-amber-500/40 shadow-[0_0_60px_rgba(245,158,11,0.25)] flex flex-col items-center gap-1 md:gap-2 overflow-hidden overflow-visible"
+              className="relative bg-muted/80 dark:bg-slate-900/80 backdrop-blur-xl px-10 md:px-14 py-4 md:py-6 rounded-[2rem] border-2 border-amber-500/40 shadow-[0_0_60px_rgba(245,158,11,0.15)] flex flex-col items-center gap-1 md:gap-2 overflow-hidden overflow-visible"
             >
               <div className="absolute inset-0 bg-gradient-to-t from-transparent to-amber-500/10" />
               <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-20 bg-amber-500/40 blur-[40px] pointer-events-none" />
@@ -843,7 +843,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out" />
               <span className="relative z-10 tracking-[0.1em] drop-shadow-lg">В БОЙ!</span>
             </Button>
-            <span className="text-white/40 text-[9px] md:text-[11px] font-bold uppercase tracking-[0.25em] animate-pulse">
+            <span className="text-muted-foreground/40 text-[9px] md:text-[11px] font-bold uppercase tracking-[0.25em] animate-pulse">
               Битва начнется через мгновение...
             </span>
           </motion.div>
