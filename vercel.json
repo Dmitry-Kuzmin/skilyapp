@@ -145,6 +145,10 @@
       "destination": "/help.html"
     },
     {
+      "source": "/demo-tests",
+      "destination": "/demo-tests.html"
+    },
+    {
       "source": "/features",
       "destination": "/features.html"
     },
