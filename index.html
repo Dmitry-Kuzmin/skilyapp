@@ -8,83 +8,147 @@
   <meta name="msapplication-TileColor" content="#0f172a">
   <meta name="color-scheme" content="dark light">
   <script>
-    // Synchronous theme-color bootstrap. Runs before first paint.
-    // Single source of truth — must match src/lib/pageThemeColor.ts
-    // We CREATE the meta[theme-color] tag here (instead of relying on a static
-    // one) so iOS Safari reads only the route-correct value on initial parse.
-    // On reload Safari sometimes caches the previous meta value if it sees one
-    // in the parsed HTML — creating it via JS sidesteps that.
+    // Single source of truth for page theme color (status bar / address bar / html bg).
+    // Drives: meta[name=theme-color], html bgcolor, --background CSS var, Telegram WebApp colors.
+    // Reacts to: route changes (history API), theme changes (html.class via MutationObserver),
+    // system theme changes, page lifecycle (pageshow/visibilitychange/focus).
+    // No React dependency — works before, during, and after React mount.
     (function () {
-      function applyThemeBootstrap() {
+      var DARK      = { hex: '#0f172a', hsl: '222 47% 11%' };
+      var LIGHT     = { hex: '#f8fafc', hsl: '210 40% 98%' };
+      var MARKETING = { hex: '#060a14', hsl: '225 55% 6%'  };
+
+      var MARKETING_RE  = /^\/(curso|pricing|about|partners|blog|article|promo|course-payment|ru|es|en)(\/|$)/;
+      var ALWAYS_DARK_RE = /^\/(legal|terms|privacy|help)(\/|$)/;
+
+      // Resolve the user's preferred mode. next-themes stores 'light' | 'dark' | 'system'.
+      // 'system' or null => follow OS preference.
+      function preferredMode() {
+        var stored = null;
+        try { stored = localStorage.getItem('theme'); } catch (e) {}
+        if (stored === 'light' || stored === 'dark') return stored;
+        try { return matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'; }
+        catch (e) { return 'dark'; }
+      }
+
+      // Effective mode for the html element. After next-themes mounts it sets
+      // html.class to "light" or "dark"; before that, fall back to preferred.
+      function effectiveMode() {
+        var c = document.documentElement.classList;
+        if (c.contains('light')) return 'light';
+        if (c.contains('dark'))  return 'dark';
+        return preferredMode();
+      }
+
+      function resolve(path, mode) {
+        if (path === '/' || MARKETING_RE.test(path)) return { color: MARKETING, mode: 'dark' };
+        if (ALWAYS_DARK_RE.test(path))               return { color: DARK,      mode: 'dark' };
+        return { color: mode === 'light' ? LIGHT : DARK, mode: mode };
+      }
+
+      var lastHex = null;
+      var applying = false;
+
+      function apply() {
+        if (applying) return;
+        applying = true;
         try {
-          var path = window.location.pathname;
-          var marketing = /^\/(curso|pricing|about|partners|blog|article|promo|course-payment|ru|es|en)(\/|$)/.test(path) || path === '/';
-          var alwaysDark = marketing || /^\/(legal|terms|privacy|help)(\/|$)/.test(path);
-
-          var theme = null;
-          try { theme = localStorage.getItem('theme'); } catch (e) { /* private mode */ }
-          var prefersLight = false;
-          try { prefersLight = !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches); } catch (e) { /* ignore */ }
-          var isLight = !alwaysDark && (theme === 'light' || (!theme && prefersLight));
-
-          var hex, hsl;
-          if (marketing) { hex = '#060a14'; hsl = '225 55% 6%'; }
-          else if (isLight) { hex = '#f8fafc'; hsl = '210 40% 98%'; }
-          else { hex = '#0f172a'; hsl = '222 47% 11%'; }
-
+          var spec = resolve(location.pathname, effectiveMode());
+          var hex  = spec.color.hex;
+          var hsl  = spec.color.hsl;
           var html = document.documentElement;
-          html.classList.toggle('light', isLight);
-          html.classList.toggle('dark', !isLight);
+
+          // Ensure html has a mode class even before next-themes mounts.
+          if (!html.classList.contains('light') && !html.classList.contains('dark')) {
+            html.classList.add(spec.mode);
+          }
           html.style.setProperty('--background', hsl);
           html.style.setProperty('--initial-bg', hex);
           html.style.backgroundColor = hex;
           if (document.body) document.body.style.backgroundColor = hex;
 
-          // Remove and recreate — iOS Safari ignores setAttribute on existing tag.
-          document.querySelectorAll('meta[name="theme-color"]').forEach(function(el) { el.parentNode && el.parentNode.removeChild(el); });
-          var meta = document.createElement('meta');
-          meta.name = 'theme-color';
-          meta.content = hex;
-          document.head.appendChild(meta);
+          // Update meta[theme-color]. iOS Safari frequently ignores setAttribute
+          // updates on an existing tag — clone-replace forces a fresh read.
+          var metas = document.head.querySelectorAll('meta[name="theme-color"]');
+          // Drop any extras (defensive — should be at most one).
+          for (var i = 1; i < metas.length; i++) metas[i].parentNode.removeChild(metas[i]);
+          var meta = metas[0];
+          if (!meta) {
+            meta = document.createElement('meta');
+            meta.setAttribute('name', 'theme-color');
+            document.head.appendChild(meta);
+          }
+          if (meta.getAttribute('content') !== hex) {
+            meta.setAttribute('content', hex);
+            // Clone-replace forces iOS Safari to re-evaluate.
+            var clone = meta.cloneNode(true);
+            meta.parentNode.replaceChild(clone, meta);
+          } else if (lastHex !== hex) {
+            // Same content but Safari may have lost it — clone-replace anyway.
+            var c2 = meta.cloneNode(true);
+            meta.parentNode.replaceChild(c2, meta);
+          }
 
           window.__INITIAL_THEME_COLOR__ = hex;
-          return hex;
-        } catch (e) {
+          lastHex = hex;
+
+          // Telegram WebApp UI (no-op outside Telegram).
           try {
-            var fallback = document.createElement('meta');
-            fallback.name = 'theme-color';
-            fallback.content = '#0f172a';
-            document.head.appendChild(fallback);
-          } catch (e2) { /* ignore */ }
-          return '#0f172a';
-        }
+            var tg = window.Telegram && window.Telegram.WebApp;
+            if (tg) {
+              if (typeof tg.setHeaderColor     === 'function') tg.setHeaderColor(hex);
+              if (typeof tg.setBackgroundColor === 'function') tg.setBackgroundColor(hex);
+              if (typeof tg.setBottomBarColor  === 'function') tg.setBottomBarColor(hex);
+            }
+          } catch (e) {}
+        } catch (e) { /* never break the page */ }
+        applying = false;
       }
 
-      var initialHex = applyThemeBootstrap();
+      // 1. Synchronous initial apply (before first paint).
+      apply();
 
-      // iOS Safari drops theme-color on reload (not bfcache, just hard reload).
-      // Re-apply at pageshow because React may not have mounted yet at that point.
-      window.addEventListener('pageshow', function(e) {
-        applyThemeBootstrap();
-        if (e.persisted) {
-          // bfcache restore: Safari re-renders chrome a few ms after pageshow.
-          requestAnimationFrame(applyThemeBootstrap);
-          setTimeout(applyThemeBootstrap, 80);
-          setTimeout(applyThemeBootstrap, 300);
-        } else {
-          // Hard reload: give Safari time to repaint chrome after JS settles.
-          requestAnimationFrame(applyThemeBootstrap);
-          setTimeout(applyThemeBootstrap, 200);
+      // 2. Watch html.class — next-themes flips between light/dark here.
+      try {
+        if (typeof MutationObserver !== 'undefined') {
+          new MutationObserver(apply).observe(document.documentElement, {
+            attributes: true, attributeFilter: ['class']
+          });
         }
-      });
+      } catch (e) {}
 
-      // Also reapply when tab becomes visible again.
-      document.addEventListener('visibilitychange', function() {
+      // 3. Watch SPA navigation — react-router uses history API.
+      try {
+        var ps = history.pushState, rs = history.replaceState;
+        history.pushState    = function () { var r = ps.apply(this, arguments); apply(); return r; };
+        history.replaceState = function () { var r = rs.apply(this, arguments); apply(); return r; };
+        window.addEventListener('popstate', apply);
+      } catch (e) {}
+
+      // 4. iOS Safari lifecycle quirks — re-apply on every visibility transition.
+      window.addEventListener('pageshow', function (e) {
+        apply();
+        requestAnimationFrame(apply);
+        setTimeout(apply, 100);
+        if (e.persisted) setTimeout(apply, 300);
+      });
+      document.addEventListener('visibilitychange', function () {
         if (document.visibilityState === 'visible') {
-          applyThemeBootstrap();
-          setTimeout(applyThemeBootstrap, 100);
+          apply();
+          setTimeout(apply, 100);
         }
       });
+      window.addEventListener('focus', apply);
+
+      // 5. System theme change (only matters for theme === 'system').
+      try {
+        var mq = matchMedia('(prefers-color-scheme: light)');
+        if (mq.addEventListener)   mq.addEventListener('change', apply);
+        else if (mq.addListener)   mq.addListener(apply);
+      } catch (e) {}
+
+      // Expose for explicit triggers (settings panel, Telegram themeChanged, etc).
+      window.__applyThemeColor__ = apply;
     })();
   </script>
   <!-- Safari iOS: чёрная строка статуса с прозрачностью (нужно для viewport-fit=cover) -->
