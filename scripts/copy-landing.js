@@ -58,6 +58,18 @@ for (const f of videoFiles) {
   }
 }
 
+// Copy simple pages served by Astro
+const simplePages = [
+  { src: join(ASTRO_DIST, 'demo-tests', 'index.html'), dest: join(MAIN_DIST, 'demo-tests.html') },
+  { src: join(ASTRO_DIST, 'features', 'index.html'), dest: join(MAIN_DIST, 'features.html') },
+];
+for (const { src, dest } of simplePages) {
+  if (existsSync(src)) {
+    copyFileSync(src, dest);
+    console.log(`[copy-landing] ✅ ${src.split('/landing/dist/')[1]} → dist/${dest.split('/dist/')[1]}`);
+  }
+}
+
 // Copy blog list page: landing/dist/blog/index.html → dist/blog.html
 const blogIndexSrc = join(ASTRO_DIST, 'blog', 'index.html');
 if (existsSync(blogIndexSrc)) {
