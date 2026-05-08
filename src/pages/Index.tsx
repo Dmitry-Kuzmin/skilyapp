@@ -413,6 +413,8 @@ const DashboardContent = memo(function DashboardContent() {
                     statusText: readiness.statusText,
                     shortText: readiness.shortText,
                     description: readiness.description,
+                    studyProgress: readiness.studyProgress,
+                    lifetimeAttempts: readiness.lifetimeAttempts,
                   } : undefined}
                 />
                 <Suspense fallback={null}>
