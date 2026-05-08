@@ -967,17 +967,18 @@ export const VideoTemplate: React.FC<VideoTemplateProps> = ({ question }) => {
         background:"radial-gradient(ellipse at 50% 0%, rgba(47,129,247,0.08) 0%, transparent 70%)",
         pointerEvents:"none" }} />
 
-      {/* ── Фоновая музыка (тихий фон, фейд-ин/аут) ── */}
+      {/* ── Фоновая музыка (отключена — YouTube блокирует) ──
       <Sequence from={0} durationInFrames={t.totalSec * F}>
         <Audio
           src={S("background-music.mp3")}
           volume={(f) => {
-            const fadeIn  = Math.min(1, f / (F * 1.5));        // 1.5 сек фейд-ин
-            const fadeOut = Math.min(1, (t.totalSec * F - f) / (F * 3)); // 3 сек фейд-аут
+            const fadeIn  = Math.min(1, f / (F * 1.5));
+            const fadeOut = Math.min(1, (t.totalSec * F - f) / (F * 3));
             return 0.14 * fadeIn * fadeOut;
           }}
         />
       </Sequence>
+      ── */}
 
       {/* ── Sound effects ── */}
       {/* Whoosh при старте */}
