@@ -1,4 +1,4 @@
-import { EXAM_PASS_MARK, EXAM_QS } from '@/lib/exam-config';
+import { EXAM_PASS_MARK, EXAM_QS, TOTAL_QUESTIONS_BANK } from '@/lib/exam-config';
 
 const PRIOR_ALPHA = 2;
 const PRIOR_BETA = 2;
