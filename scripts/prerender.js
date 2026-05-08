@@ -228,7 +228,7 @@ function getDefaultRoutesToRender() {
     }
   }
 
-  const articleRoutes = Object.keys(extractArticlesFromTSX()).map((slug) => `/article/${slug}`);
+  // /blog and /article/* are now served by Astro (scripts/copy-landing.js)
   const guideRoutes = ['/guides', ...seoGuidePages.map((guide) => `/guides/${guide.slug}`)];
 
   return [
@@ -241,7 +241,8 @@ function getDefaultRoutesToRender() {
     '/help',
     '/features',
     '/partners',
-    '/blog',
+    // '/blog',         // served by Astro landing
+    // '/article/*',    // served by Astro landing
     '/tests',
     '/games',
     '/road-signs',
@@ -252,7 +253,6 @@ function getDefaultRoutesToRender() {
     '/dgt-tests',
     '/curso',
     ...guideRoutes,
-    ...articleRoutes,
     '/legal/terms',
     '/legal/privacy',
     '/legal/cookies',
