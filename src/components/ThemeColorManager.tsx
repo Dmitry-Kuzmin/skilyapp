@@ -3,30 +3,33 @@ import { useLocation } from 'react-router-dom';
 import { useTheme } from 'next-themes';
 
 /**
- * Triggers the global theme-color applier defined in index.html.
+ * Bridges React's authoritative theme state into the inline-script applier.
  *
- * All actual logic — color resolution, meta tag updates, Telegram colors,
- * iOS Safari quirks — lives in the inline script in index.html (window.__applyThemeColor__).
- * That script reacts on its own to: route changes (history API patches),
- * theme changes (MutationObserver on html.class), system theme, and page lifecycle events.
- *
- * This component exists as a belt-and-suspenders: explicit triggers from React in case
- * a transition is missed (e.g. when next-themes mounts and the class first appears).
+ * The inline script in index.html (window.__applyThemeColor__) is the single
+ * source of truth for meta[theme-color] + html bg. It guesses the mode from
+ * html.class / localStorage before React mounts. Once React mounts, THIS
+ * component writes the exact resolved theme to window.__themeMode__ so the
+ * inline applier doesn't have to guess anymore.
  */
 export const ThemeColorManager = () => {
     const { pathname } = useLocation();
     const { resolvedTheme } = useTheme();
 
     useEffect(() => {
+        // Publish the authoritative mode so __applyThemeColor__ reads it directly.
+        if (resolvedTheme === 'light' || resolvedTheme === 'dark') {
+            (window as { __themeMode__?: string }).__themeMode__ = resolvedTheme;
+        }
+
         const apply = (window as { __applyThemeColor__?: () => void }).__applyThemeColor__;
         if (typeof apply !== 'function') return;
         apply();
-        // Telegram's expand() can reset header/bottom colors a few hundred ms in.
+        // Telegram's expand() resets header/bottom colors ~300ms after mount.
         const t = setTimeout(apply, 500);
         return () => clearTimeout(t);
     }, [pathname, resolvedTheme]);
 
-    // Forward Telegram's themeChanged event to the global applier.
+    // Forward Telegram's themeChanged event.
     useEffect(() => {
         const tg = (window as { Telegram?: { WebApp?: { onEvent?: unknown; offEvent?: unknown } } }).Telegram?.WebApp;
         const apply = (window as { __applyThemeColor__?: () => void }).__applyThemeColor__;
