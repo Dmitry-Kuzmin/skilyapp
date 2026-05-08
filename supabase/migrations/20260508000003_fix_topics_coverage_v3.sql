@@ -270,13 +270,22 @@ BEGIN
     'license_audit', (
       SELECT COALESCE(json_agg(a), '[]'::json)
       FROM (
-        SELECT event_type, points_delta, created_at
+        SELECT delta, event_type, created_at
         FROM public.user_license_points_audit
         WHERE user_id = p_user_id
-        ORDER BY created_at DESC
-        LIMIT 30
+        ORDER BY created_at DESC LIMIT 10
       ) a
-    )
+    ),
+    'daily_tasks', (
+      SELECT COALESCE(json_agg(dt), '[]'::json)
+      FROM public.daily_tasks dt
+      WHERE dt.user_id = p_user_id AND dt.date = CURRENT_DATE
+    ),
+    'daily_bonus_definitions', (
+      SELECT COALESCE(json_agg(dbd), '[]'::json)
+      FROM (SELECT day_number, reward, description FROM public.daily_bonus_def ORDER BY day_number LIMIT 7) dbd
+    ),
+    'unread_notifications_count', 0
   ) INTO v_result;
 
   RETURN v_result;
