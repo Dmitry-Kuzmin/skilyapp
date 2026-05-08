@@ -135,7 +135,7 @@ export const AIInsightsLibrary = ({ isPremium }: { isPremium: boolean }) => {
         <Drawer open={isOpen} onOpenChange={setIsOpen}>
             <DrawerTrigger asChild>
                 <button
-                    className="group relative flex items-center gap-3 px-5 py-3 rounded-2xl bg-[#0F1115] border border-white/5 hover:border-indigo-500/50 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] shadow-xl shadow-black/20 overflow-hidden w-full sm:w-auto justify-between sm:justify-start"
+                    className="group relative flex items-center gap-3 px-4 py-2.5 rounded-2xl bg-[#0F1115] border border-white/5 hover:border-indigo-500/50 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] shadow-xl shadow-black/20 overflow-hidden w-auto justify-between sm:justify-start"
                 >
                     {/* Background Effects */}
                     <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />

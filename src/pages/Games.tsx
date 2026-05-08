@@ -203,8 +203,8 @@ const Games = () => {
   return (
     <>
       <Layout>
-        <div className="min-h-screen bg-transparent px-3 py-6 md:px-10 md:py-10 font-sans pb-6 text-foreground">
-          <div className="max-w-[1370px] mx-auto space-y-6 md:space-y-8">
+        <div className="w-full px-4 sm:px-6 lg:px-10 pt-0 md:pt-6 pb-6 font-sans">
+          <div className="max-w-[1440px] mx-auto space-y-6 md:space-y-8">
 
             {/* Page Header */}
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 animate-fade-in">

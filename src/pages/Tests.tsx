@@ -586,8 +586,8 @@ const Tests = () => {
           canonicalUrl="https://skilyapp.com/tests"
         />
 
-        <div className="min-h-screen bg-transparent p-6 md:p-10 font-sans pb-6 text-foreground">
-          <div className="max-w-[1370px] mx-auto space-y-8">
+        <div className="min-h-screen bg-transparent px-4 sm:px-6 lg:px-10 pt-0 md:pt-6 pb-6 text-foreground">
+          <div className="max-w-[1440px] mx-auto space-y-8">
 
             {/* Page Header */}
             <div className="flex flex-col gap-3 animate-fade-in">
@@ -605,7 +605,7 @@ const Tests = () => {
               </div>
 
               {/* Status row — single line under title */}
-              <div className="flex items-center gap-2 flex-wrap">
+              <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar flex-nowrap">
 
                 {/* Streak */}
                 <Tooltip delayDuration={300}>

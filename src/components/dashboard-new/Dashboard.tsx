@@ -199,7 +199,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
   return (
     <div className="w-full px-4 sm:px-6 lg:px-10 pt-0 md:pt-6 pb-2 md:pb-8 font-sans">
-      <div className="max-w-[1370px] mx-auto space-y-6">
+      <div className="max-w-[1440px] mx-auto space-y-6">
 
         {/* Header */}
         <div className="mb-6 animate-fade-in">

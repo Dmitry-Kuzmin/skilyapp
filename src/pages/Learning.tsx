@@ -262,7 +262,8 @@ const Learning = () => {
 
   return (
     <Layout>
-      <div className="container mx-auto px-4 py-6 lg:py-10 max-w-[1370px]">
+      <div className="w-full px-4 sm:px-6 lg:px-10 pt-0 md:pt-6 pb-6 font-sans">
+        <div className="max-w-[1440px] mx-auto">
         <div className="flex flex-col xl:flex-row gap-6 xl:gap-8">
           {/* Основной контент - Карта обучения (80%) */}
           <section className="xl:w-[78%] space-y-6">
@@ -518,6 +519,7 @@ const Learning = () => {
               </div>
             </Card>
           </aside>
+        </div>
         </div>
       </div>
     </Layout>

@@ -94,6 +94,38 @@ export const ThemeColorManager = () => {
         return () => clearTimeout(retry);
     }, [color, effectiveMode]);
 
+    // iOS Safari quirks:
+    // 1. bfcache restore (back/forward, sometimes reload) — page is rehydrated
+    //    from snapshot and inline scripts don't re-run. We must reapply.
+    // 2. visibilitychange — Safari sometimes drops the address-bar tint when
+    //    the tab goes hidden and doesn't restore it on return.
+    // 3. orientationchange / resize — Safari occasionally re-evaluates chrome.
+    useEffect(() => {
+        const reapply = () => apply(color, effectiveMode);
+        const onPageShow = (e: PageTransitionEvent) => {
+            // Always reapply — even on cold loads — because iOS sometimes
+            // clears the meta tag between parse and pageshow.
+            reapply();
+            if (e.persisted) {
+                // bfcache restore: schedule a follow-up tick because Safari
+                // may re-render the chrome a few ms after pageshow fires.
+                requestAnimationFrame(reapply);
+                setTimeout(reapply, 100);
+            }
+        };
+        const onVisibility = () => {
+            if (document.visibilityState === 'visible') reapply();
+        };
+        window.addEventListener('pageshow', onPageShow);
+        document.addEventListener('visibilitychange', onVisibility);
+        window.addEventListener('focus', reapply);
+        return () => {
+            window.removeEventListener('pageshow', onPageShow);
+            document.removeEventListener('visibilitychange', onVisibility);
+            window.removeEventListener('focus', reapply);
+        };
+    }, [color, effectiveMode]);
+
     // Re-apply if Telegram switches its own dark/light theme
     useEffect(() => {
         const tg = (window as { Telegram?: { WebApp?: { onEvent?: unknown; offEvent?: unknown } } }).Telegram?.WebApp;
