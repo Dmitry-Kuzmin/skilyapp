@@ -29,6 +29,9 @@ const ROUTE_COLORS: Array<{
     { prefix: '/partners',dark: { hex: '#060a14', hsl: '225 55% 6%'  }, light: { hex: '#060a14', hsl: '225 55% 6%'  } },
     { prefix: '/blog',    dark: { hex: '#060a14', hsl: '225 55% 6%'  }, light: { hex: '#f8fafc', hsl: '210 40% 98%' } },
     { prefix: '/article', dark: { hex: '#060a14', hsl: '225 55% 6%'  }, light: { hex: '#f8fafc', hsl: '210 40% 98%' } },
+    { prefix: '/promo',   dark: { hex: '#060a14', hsl: '225 55% 6%'  }, light: { hex: '#060a14', hsl: '225 55% 6%'  } },
+    { prefix: '/course-payment', dark: { hex: '#060a14', hsl: '225 55% 6%' }, light: { hex: '#060a14', hsl: '225 55% 6%' } },
+    { prefix: '/help',    dark: { hex: '#030712', hsl: '224 71% 4%'  }, light: { hex: '#f9fafb', hsl: '210 20% 98%' } },
 
     // App sections — all dark navy, future: differentiate per section
     { prefix: '/dashboard', dark: { hex: '#0f172a', hsl: '222 47% 11%' }, light: { hex: '#f8fafc', hsl: '210 40% 98%' } },
