@@ -944,7 +944,24 @@ export const VideoTemplate: React.FC<VideoTemplateProps> = ({ question }) => {
     : question.explanationAudioFile;
 
   return (
-    <AbsoluteFill style={{ backgroundColor: C.bg }}>
+    <AbsoluteFill>
+      {/* Слой 1: фоновое видео */}
+      {question.backgroundVideo && (
+        <AbsoluteFill>
+          <Video
+            src={staticFile(question.backgroundVideo)}
+            style={{ width: "100%", height: "100%", objectFit: "cover" }}
+            volume={0}
+            loop
+          />
+        </AbsoluteFill>
+      )}
+      {/* Слой 2: затемнение / основной фон */}
+      <AbsoluteFill style={{
+        backgroundColor: question.backgroundVideo ? "rgba(0,0,0,0.50)" : C.bg,
+      }} />
+      {/* Слой 3: весь UI */}
+      <AbsoluteFill style={{ backgroundColor: "transparent" }}>
       {/* Top gradient accent */}
       <div style={{ position:"absolute", top:0, left:0, right:0, height:400,
         background:"radial-gradient(ellipse at 50% 0%, rgba(47,129,247,0.08) 0%, transparent 70%)",
