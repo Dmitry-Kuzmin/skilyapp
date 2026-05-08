@@ -733,7 +733,7 @@ All colors MUST be HSL.
   }
 
   body.dark {
-    background: linear-gradient(to bottom, hsl(222 47% 11%), hsl(224 30% 8%));
+    background: linear-gradient(to bottom, hsl(var(--background)), hsl(var(--background) / 0.85));
   }
 
   h1,
