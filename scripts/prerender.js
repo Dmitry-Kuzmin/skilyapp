@@ -253,7 +253,6 @@ function getDefaultRoutesToRender() {
     '/referrals',
     '/dgt-tests',
     '/curso',
-    ...guideRoutes,
     '/legal/terms',
     '/legal/privacy',
     '/legal/cookies',
