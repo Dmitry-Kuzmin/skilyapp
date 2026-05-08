@@ -1,7 +1,7 @@
 {
   "siteName": "Skilyapp",
   "siteUrl": "https://skilyapp.com",
-  "generatedAt": "2026-05-02T17:11:28.351Z",
+  "generatedAt": "2026-05-08T12:25:33.154Z",
   "discoveryFiles": [
     "robots.txt",
     "sitemap.xml",
@@ -12,10 +12,6 @@
     "content-platform-manifest.json"
   ],
   "prerenderRoutes": [
-    "/",
-    "/ru",
-    "/es",
-    "/en",
     "/about",
     "/pricing",
     "/help",
@@ -94,7 +90,7 @@
       "route": "/legal/privacy",
       "outputPath": "legal/privacy.html",
       "canonical": "https://skilyapp.com/legal/privacy",
-      "minBodyChars": 300
+      "minBodyChars": 30
     },
     {
       "route": "/guides/kak-sdat-teoriyu-dgt",
