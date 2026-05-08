@@ -946,17 +946,24 @@ export const VideoTemplate: React.FC<VideoTemplateProps> = ({ question }) => {
   return (
     <AbsoluteFill>
       {/* Слой 1: фоновое видео */}
-      {question.backgroundVideo && (
-        <AbsoluteFill>
-          <Loop durationInFrames={300}>
-            <OffthreadVideo
-              src={staticFile(question.backgroundVideo)}
-              style={{ width: "100%", height: "100%", objectFit: "cover" }}
-              volume={0}
-            />
-          </Loop>
-        </AbsoluteFill>
-      )}
+      {question.backgroundVideo && (() => {
+        const bgDurations: Record<string, number> = {
+          "backgrounds/bg1.mp4": 300,  // 10s @ 30fps
+          "backgrounds/bg2.mp4": 622,  // 20.7s @ 30fps
+        };
+        const bgFrames = bgDurations[question.backgroundVideo!] ?? 300;
+        return (
+          <AbsoluteFill>
+            <Loop durationInFrames={bgFrames}>
+              <OffthreadVideo
+                src={staticFile(question.backgroundVideo!)}
+                style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                volume={0}
+              />
+            </Loop>
+          </AbsoluteFill>
+        );
+      })()}
       {/* Слой 2: затемнение / основной фон */}
       <AbsoluteFill style={{
         backgroundColor: question.backgroundVideo ? "rgba(0,0,0,0.50)" : C.bg,
