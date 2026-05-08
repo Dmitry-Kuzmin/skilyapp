@@ -63,6 +63,8 @@ interface DashboardProps {
     statusText: string;
     shortText?: string;
     description?: string;
+    studyProgress?: number;
+    lifetimeAttempts?: number;
   };
   userProfile?: {
     first_name?: string | null;
