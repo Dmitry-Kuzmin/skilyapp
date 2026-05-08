@@ -713,23 +713,16 @@
             }
           }
 
-          // 3. Красим UI (Chameleon Protocol)
-          // setHeaderColor и setBackgroundColor требуют v6.1+
+          // 3. Initial Telegram UI colors — read from meta theme-color so we always
+          //    match the value set by the inline init script above. ThemeColorManager
+          //    will keep this in sync on every navigation after React mounts.
           try {
             const version = parseFloat(tg.version || '0');
             if (version >= 6.1) {
-              // Динамическое определение начального цвета для предотвращения моргания
-              const isLanding = window.location.pathname === '/' || window.location.pathname === '/landing';
-              const initialColor = isLanding ? '#0f172a' : '#09090b';
-
-              if (typeof tg.setHeaderColor === 'function') {
-                tg.setHeaderColor(initialColor);
-              }
-              if (typeof tg.setBackgroundColor === 'function') {
-                tg.setBackgroundColor(initialColor);
-              }
-            } else {
-              if (window.location.hostname === 'localhost') console.debug('[TG] Colors skipped for v' + version);
+              const meta = document.querySelector('meta[name="theme-color"]');
+              const color = (meta && meta.getAttribute('content')) || '#0f172a';
+              if (typeof tg.setHeaderColor === 'function') tg.setHeaderColor(color);
+              if (typeof tg.setBackgroundColor === 'function') tg.setBackgroundColor(color);
             }
           } catch (e) {
             log('⚠️ Error setting colors', e);
