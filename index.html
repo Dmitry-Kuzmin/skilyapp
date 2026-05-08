@@ -154,8 +154,11 @@
       window.__applyThemeColor__ = apply;
     })();
   </script>
-  <!-- Safari iOS: чёрная строка статуса с прозрачностью (нужно для viewport-fit=cover) -->
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <!-- iOS PWA status bar: 'default' lets theme-color control the bar color.
+       'black-translucent' (previous value) makes it transparent → can render as pure black,
+       which mismatches the html background and the address-bar color set by theme-color. -->
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
 
   <!-- Yandex.Metrika counter -->
   <script type="text/javascript">
