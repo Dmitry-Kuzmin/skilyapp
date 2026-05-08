@@ -22,6 +22,8 @@ interface ExamReadinessProps {
   status?: 'start' | 'progress' | 'near' | 'ready' | 'legend';
   profileId?: string | null;
   licensePoints?: number;
+  studyProgress?: number;
+  lifetimeAttempts?: number;
   onStartTest?: () => void;
   onExpandedChange?: (expanded: boolean) => void;
   onTelemetryClick?: () => void;
@@ -37,6 +39,8 @@ export const ExamReadiness = React.memo<ExamReadinessProps>(({
   status,
   profileId,
   licensePoints = 8,
+  studyProgress,
+  lifetimeAttempts,
   onStartTest,
   onExpandedChange,
   onTelemetryClick
