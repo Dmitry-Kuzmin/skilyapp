@@ -12,6 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import type { User, Session } from "@supabase/supabase-js";
 import { useTelegram } from "@/contexts/TelegramContext";
 import { setGlobalProfileId } from "@/hooks/useRequireProfile";
+import { useDemoResultsSync } from "@/hooks/useDemoResultsSync";
 import { useQueryClient } from "@tanstack/react-query";
 import { idbDel } from "@/lib/idbKeyval";
 import { trackRegistrationConversion } from "@/utils/metrika";
