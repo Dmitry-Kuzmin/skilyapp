@@ -96,6 +96,7 @@ const faqSchema = {
   jsonLd={[appSchema, faqSchema]}
   hreflang={hreflang}
 >
+  <link rel="preload" as="image" href="/images/dashboard-preview.webp" fetchpriority="high" slot="head" />
   <!-- Auth redirect: logged-in users go straight to /dashboard -->
   <script is:inline>
     (function() {
@@ -176,7 +177,7 @@ const faqSchema = {
         <!-- Variant 1 Container (Side) -->
         <div id="hero-v1" class="hidden">
           <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-8 items-center pt-4 md:pt-10">
-            <div class="flex flex-col items-center lg:items-start text-center lg:text-left reveal-on-scroll">
+            <div class="flex flex-col items-center lg:items-start text-center lg:text-left">
               <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-300 text-[10px] font-bold tracking-[0.2em] uppercase mb-8">
                 🇪🇸 DGT Approved · {currentYear}
               </div>
@@ -194,13 +195,21 @@ const faqSchema = {
                 </a>
               </div>
             </div>
-            <div class="relative w-[115%] -ml-[7.5%] h-[280px] sm:h-[450px] lg:h-[700px] sm:w-full sm:ml-0 reveal-on-scroll" style="transition-delay: 200ms" id="product-showcase-v1">
+            <div class="relative w-[115%] -ml-[7.5%] h-[280px] sm:h-[450px] lg:h-[700px] sm:w-full sm:ml-0" style="transition-delay: 200ms" id="product-showcase-v1">
               <div class="lg:absolute lg:top-1/2 lg:-translate-y-1/2 lg:left-0 lg:w-[140%] lg:max-w-none perspective-2000">
                 <div class="relative w-full parallax-element">
                    <div class="floating-animation">
                       <div class="absolute -inset-20 bg-blue-500/20 blur-[120px] rounded-full opacity-60"></div>
                       <div class="relative rounded-[2.5rem] overflow-hidden shadow-[0_30px_60px_-15px_rgba(0,0,0,0.9),0_0_80px_0_rgba(59,130,246,0.4)] border border-white/20 group">
-                        <img src="/images/dashboard-preview.png" alt="Skily Dashboard" class="w-full h-auto object-cover scale-[1.3] md:scale-[1.02] group-hover:scale-105 transition-transform duration-1000" />
+                        <img 
+                          src="/images/dashboard-preview.webp" 
+                          alt="Skily Dashboard" 
+                          width="1200"
+                          height="645"
+                          fetchpriority="high"
+                          loading="eager"
+                          class="w-full h-auto object-cover scale-[1.3] md:scale-[1.02] group-hover:scale-105 transition-transform duration-1000" 
+                        />
                       </div>
                    </div>
                 </div>
@@ -307,12 +316,20 @@ const faqSchema = {
               </a>
             </div>
             
-            <div class="mt-20 w-full reveal-on-scroll" style="transition-delay: 300ms" id="product-showcase-container">
+            <div class="mt-20 w-full" id="product-showcase-container">
                <div class="relative w-full max-w-5xl mx-auto parallax-element">
                   <div class="floating-animation">
                      <div class="absolute -inset-20 bg-blue-500/15 blur-[120px] rounded-full opacity-60"></div>
                      <div class="relative rounded-[2rem] md:rounded-[3rem] overflow-hidden shadow-[0_40px_80px_-20px_rgba(0,0,0,0.8),0_0_100px_0_rgba(59,130,246,0.3)] border border-white/10 group bg-slate-900">
-                        <img src="/images/dashboard-preview.png" alt="Skily Dashboard" class="w-full h-auto object-cover group-hover:scale-[1.03] transition-transform duration-1000" />
+                        <img 
+                          src="/images/dashboard-preview.webp" 
+                          alt="Skily Dashboard" 
+                          width="1200"
+                          height="645"
+                          fetchpriority="high"
+                          loading="eager"
+                          class="w-full h-auto object-cover group-hover:scale-[1.03] transition-transform duration-1000" 
+                        />
                      </div>
                   </div>
                </div>
@@ -364,7 +381,7 @@ const faqSchema = {
                 <!-- LEFT: Question area -->
                 <div style="padding:32px;display:flex;flex-direction:column;gap:24px;border-right:1px solid rgba(255,255,255,0.06);">
                   <div style="width:100%;aspect-ratio:16/9;border-radius:16px;background:#1e293b;overflow:hidden;position:relative;border:1px solid rgba(255,255,255,0.1);">
-                    <img src="/images/test-image-s28.jpg" alt="DGT Question" style="width:100%;height:100%;object-fit:cover;" />
+                    <img src="/images/test-image-s28.webp" alt="DGT Question" width="800" height="800" loading="lazy" style="width:100%;height:100%;object-fit:cover;" />
                   </div>
                   <div style="display:flex;flex-direction:column;gap:10px;">
                     <p style="color:#f1f5f9;font-size:14px;font-weight:600;line-height:1.5;margin:0 0 4px;">Кто имеет приоритет в жилой зоне, обозначенной этим знаком?</p>
@@ -437,7 +454,7 @@ const faqSchema = {
               </div>
               <!-- Screen image -->
               <div style="overflow:hidden; background:#080f1e; display: flex;">
-                <img src="/images/Duel_RU.png" alt="Skily PvP Duels" class="w-full h-auto object-cover hover:scale-105 transition-transform duration-1000" />
+                <img src="/images/Duel_RU.webp" alt="Skily PvP Duels" width="1200" height="675" loading="lazy" class="w-full h-auto object-cover hover:scale-105 transition-transform duration-1000" />
               </div>
             </div>
           </div>
@@ -497,7 +514,7 @@ const faqSchema = {
               </div>
               <!-- Screen image -->
               <div style="overflow:hidden; background:#0f172a; display: flex;">
-                <img src="/images/AI_ES.png" alt="Skily Statistics" class="w-full h-auto object-cover hover:scale-105 transition-transform duration-1000" />
+                <img src="/images/AI_ES.webp" alt="Skily Statistics" width="1000" height="1090" loading="lazy" class="w-full h-auto object-cover hover:scale-105 transition-transform duration-1000" />
               </div>
             </div>
           </div>

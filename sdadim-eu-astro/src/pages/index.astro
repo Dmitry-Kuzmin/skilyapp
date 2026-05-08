@@ -1,0 +1,152 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+
+const year = new Date().getFullYear();
+const appUrl = 'https://skilyapp.com';
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Course',
+  name: 'Подготовка к теоретическому экзамену DGT в Испании',
+  description: `Живой онлайн-курс на русском языке: 3000+ вопросов DGT, куратор, помощь с документами. 9 из 10 студентов сдают с первой попытки.`,
+  url: 'https://sdadim.eu/',
+  provider: { '@type': 'Organization', name: 'Сдадим', url: 'https://sdadim.eu' },
+  inLanguage: 'ru',
+  courseMode: 'online',
+  offers: { '@type': 'Offer', priceCurrency: 'EUR', price: '199', availability: 'https://schema.org/InStock' },
+};
+---
+
+<BaseLayout
+  title={`Sdadim — сдай теорию DGT с первого раза | ${year}`}
+  description="Подготовка к теоретическому экзамену DGT с ИИ на русском языке. Официальные вопросы, симуляция экзамена, онлайн-курс. 9 из 10 сдают с первой попытки."
+  canonical="https://sdadim.eu/"
+  jsonLd={jsonLd}
+>
+  <Header />
+
+  <!-- Hero -->
+  <section class="relative min-h-screen flex items-center justify-center px-4 overflow-hidden bg-[#050B14]">
+    <div class="absolute inset-0 bg-[linear-gradient(to_right,#ffffff06_1px,transparent_1px),linear-gradient(to_bottom,#ffffff06_1px,transparent_1px)] bg-[size:40px_40px] pointer-events-none"></div>
+    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-blue-600/10 rounded-full blur-[120px] pointer-events-none"></div>
+
+    <div class="relative z-10 max-w-4xl mx-auto text-center pt-20">
+      <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-300 text-[11px] font-bold tracking-[0.15em] uppercase mb-8">
+        🇪🇸 DGT · Русский язык · {year}
+      </div>
+
+      <h1 class="text-[clamp(2.5rem,8vw,5.5rem)] font-black tracking-tighter leading-[1.05] mb-6">
+        <span class="text-white block">Сдай теорию DGT</span>
+        <span class="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-sky-300 to-cyan-300 block">с первого раза</span>
+      </h1>
+
+      <p class="text-lg md:text-xl text-zinc-400 leading-relaxed mb-10 max-w-2xl mx-auto">
+        Онлайн-курс подготовки к DGT на русском языке. ИИ-тьютор, живые занятия, помощь с документами. 
+        <strong class="text-white">9 из 10 наших студентов сдают с первой попытки.</strong>
+      </p>
+
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
+        <a
+          href="https://t.me/skilyapp_bot?start=course"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="w-full sm:w-auto px-10 py-5 rounded-2xl bg-white text-slate-900 font-black text-lg shadow-2xl hover:scale-[1.02] active:scale-[0.98] transition-all duration-300"
+        >
+          Записаться на курс →
+        </a>
+        <a
+          href="https://t.me/skilyapp_bot"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="w-full sm:w-auto px-10 py-5 rounded-2xl bg-white/5 border border-white/10 text-white font-bold text-lg hover:bg-white/10 transition-all duration-300"
+        >
+          Попробовать бесплатно
+        </a>
+      </div>
+
+      <!-- Stats -->
+      <div class="grid grid-cols-3 gap-4 max-w-lg mx-auto">
+        {[['97%', 'сдают сразу'], ['3000+', 'вопросов DGT'], ['24/7', 'ИИ-тьютор']].map(([val, label]) => (
+          <div class="text-center p-4 rounded-2xl bg-white/[0.03] border border-white/[0.06]">
+            <div class="text-2xl font-black text-white mb-1">{val}</div>
+            <div class="text-xs text-zinc-500 font-medium uppercase tracking-wider">{label}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section class="py-24 md:py-32 px-4 bg-[#050B14]">
+    <div class="max-w-5xl mx-auto">
+      <div class="text-center mb-16">
+        <h2 class="text-3xl md:text-5xl font-black text-white mb-4">Почему Sdadim?</h2>
+        <p class="text-zinc-500 text-lg">Всё, что нужно для успешной сдачи</p>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {[
+          { icon: '🤖', title: 'ИИ-тьютор 24/7', desc: 'Объясняет каждый вопрос на русском. Не просто правильный ответ — логику правила.' },
+          { icon: '📺', title: 'Живые занятия', desc: 'Куратор-человек. Разборы сложных тем, ответы на вопросы, помощь с Cita Previa.' },
+          { icon: '🎮', title: 'Геймификация', desc: 'PvP-дуэли, рейтинги, ежедневные квесты. Учиться не скучно.' },
+        ].map(({ icon, title, desc }) => (
+          <div class="p-8 rounded-[2rem] bg-white/[0.02] border border-white/[0.06] hover:border-blue-500/20 transition-all">
+            <div class="text-4xl mb-4">{icon}</div>
+            <h3 class="text-xl font-black text-white mb-3">{title}</h3>
+            <p class="text-zinc-500 text-sm leading-relaxed">{desc}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Pricing -->
+  <section id="pricing" class="py-24 md:py-32 px-4 bg-[#050B14]">
+    <div class="max-w-4xl mx-auto">
+      <div class="text-center mb-16">
+        <h2 class="text-3xl md:text-5xl font-black text-white mb-4">Простые цены</h2>
+        <p class="text-zinc-500">Автошкола берёт 250-400€ только за теорию. У нас — всё включено.</p>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-3xl mx-auto">
+        {[
+          { name: 'Теория', price: '199€', desc: 'SkilyApp + материалы навсегда', cta: 'Выбрать', highlight: false },
+          { name: 'С куратором', price: '259€', desc: 'Живые эфиры + разборы ошибок', cta: 'Популярный', highlight: true },
+          { name: 'VIP', price: '349€', desc: 'Всё + личные консультации', cta: 'Выбрать', highlight: false },
+        ].map(({ name, price, desc, cta, highlight }) => (
+          <div class={`p-8 rounded-[2.5rem] flex flex-col ${highlight ? 'bg-gradient-to-b from-blue-600 to-blue-800 shadow-2xl shadow-blue-500/20 scale-105 relative z-10' : 'bg-white/[0.03] border border-white/[0.08]'}`}>
+            <h4 class={`font-bold uppercase tracking-widest text-xs mb-2 ${highlight ? 'text-blue-100' : 'text-zinc-500'}`}>{name}</h4>
+            <div class={`text-4xl font-black mb-2 ${highlight ? 'text-white' : 'text-white'}`}>{price}</div>
+            <p class={`text-sm mb-8 flex-1 ${highlight ? 'text-blue-100/70' : 'text-zinc-500'}`}>{desc}</p>
+            <a
+              href="https://t.me/skilyapp_bot?start=course"
+              target="_blank"
+              rel="noopener noreferrer"
+              class={`w-full py-4 rounded-2xl font-black text-center text-sm transition-all hover:scale-[1.02] active:scale-[0.98] ${highlight ? 'bg-white text-blue-600 shadow-xl' : 'bg-white/5 border border-white/10 text-white hover:bg-white/10'}`}
+            >
+              {cta} →
+            </a>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="py-24 px-4 bg-[#050B14]">
+    <div class="max-w-2xl mx-auto text-center">
+      <h2 class="text-3xl md:text-5xl font-black text-white mb-6">Начни сегодня</h2>
+      <p class="text-zinc-500 mb-10">Более 1000 русскоязычных уже получили права в Испании с Sdadim.</p>
+      <a
+        href="https://t.me/skilyapp_bot?start=course"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="inline-block px-12 py-5 rounded-2xl bg-white text-slate-900 font-black text-xl shadow-2xl hover:scale-[1.05] transition-all"
+      >
+        Записаться на курс →
+      </a>
+    </div>
+  </section>
+
+  <Footer />
+</BaseLayout>
