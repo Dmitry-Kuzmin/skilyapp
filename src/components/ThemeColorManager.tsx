@@ -21,7 +21,7 @@ const MARKETING: ColorPair = { hex: '#060a14', hsl: '225 55% 6%'  };
 const ALWAYS_DARK = [
     '/curso', '/pricing', '/about', '/partners', '/blog', '/article',
     '/legal', '/terms', '/privacy', '/promo', '/course-payment',
-    '/ru', '/es', '/en', '/',
+    '/help', '/ru', '/es', '/en', '/',
 ];
 
 // These routes use MARKETING color instead of APP color
