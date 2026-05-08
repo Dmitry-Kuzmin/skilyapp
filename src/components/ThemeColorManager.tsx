@@ -1,128 +1,98 @@
 import { useEffect, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
-import { useTheme } from "next-themes";
+import { useTheme } from 'next-themes';
 
 /**
- * ThemeColorManager (Chameleon Protocol v10 — Global Adaptive)
+ * Single source of truth for page background color.
  *
- * Strategy:
- * 1. Map each route prefix to a specific background color (dark + light).
- * 2. Apply to: CSS --background var, .dark class, meta theme-color, Telegram API.
- * 3. Pages that need a custom color call usePageBackground(hex) from @/hooks/usePageBackground.
- *    That hook dispatches a 'page-bg' window event which we catch here.
+ * On every route/theme change synchronously updates:
+ *   - CSS var --background (drives html/body bg + Tailwind bg-background)
+ *   - <meta name="theme-color">  (browser tab / address bar)
+ *   - Telegram WebApp header/background/bottom bar
+ *
+ * Pages with a unique bg call usePageBackground(hex); the override resets on unmount.
  */
 
-// ─────────────────────────────────────────────────────────────────────────────
-// PER-ROUTE COLOR MAP  (dark / light)
-// Add new routes here when a page has a unique background.
-// More specific prefixes must come FIRST.
-// ─────────────────────────────────────────────────────────────────────────────
-const ROUTE_COLORS: Array<{
-    prefix: string;
-    dark: { hex: string; hsl: string };
-    light: { hex: string; hsl: string };
-}> = [
-    // Landing / marketing pages with deep black
-    { prefix: '/curso',   dark: { hex: '#060a14', hsl: '225 55% 6%'  }, light: { hex: '#060a14', hsl: '225 55% 6%'  } },
-    { prefix: '/pricing', dark: { hex: '#060a14', hsl: '225 55% 6%'  }, light: { hex: '#060a14', hsl: '225 55% 6%'  } },
-    { prefix: '/about',   dark: { hex: '#060a14', hsl: '225 55% 6%'  }, light: { hex: '#060a14', hsl: '225 55% 6%'  } },
-    { prefix: '/partners',dark: { hex: '#060a14', hsl: '225 55% 6%'  }, light: { hex: '#060a14', hsl: '225 55% 6%'  } },
-    { prefix: '/blog',    dark: { hex: '#060a14', hsl: '225 55% 6%'  }, light: { hex: '#f8fafc', hsl: '210 40% 98%' } },
-    { prefix: '/article', dark: { hex: '#060a14', hsl: '225 55% 6%'  }, light: { hex: '#f8fafc', hsl: '210 40% 98%' } },
-    { prefix: '/promo',   dark: { hex: '#060a14', hsl: '225 55% 6%'  }, light: { hex: '#060a14', hsl: '225 55% 6%'  } },
-    { prefix: '/course-payment', dark: { hex: '#060a14', hsl: '225 55% 6%' }, light: { hex: '#060a14', hsl: '225 55% 6%' } },
-    { prefix: '/help',    dark: { hex: '#030712', hsl: '224 71% 4%'  }, light: { hex: '#f9fafb', hsl: '210 20% 98%' } },
+type ColorPair = { hex: string; hsl: string };
+type RouteColor = { match: (path: string) => boolean; dark: ColorPair; light: ColorPair };
 
-    // App sections — all dark navy, future: differentiate per section
-    { prefix: '/dashboard', dark: { hex: '#0f172a', hsl: '222 47% 11%' }, light: { hex: '#f8fafc', hsl: '210 40% 98%' } },
-    { prefix: '/tests',     dark: { hex: '#0f172a', hsl: '222 47% 11%' }, light: { hex: '#f8fafc', hsl: '210 40% 98%' } },
-    { prefix: '/test/',     dark: { hex: '#0d1117', hsl: '213 43% 8%'  }, light: { hex: '#f8fafc', hsl: '210 40% 98%' } },
-    { prefix: '/learning',  dark: { hex: '#0f172a', hsl: '222 47% 11%' }, light: { hex: '#f8fafc', hsl: '210 40% 98%' } },
-    { prefix: '/games',     dark: { hex: '#0d1117', hsl: '213 43% 8%'  }, light: { hex: '#f8fafc', hsl: '210 40% 98%' } },
-    { prefix: '/profile',   dark: { hex: '#0f172a', hsl: '222 47% 11%' }, light: { hex: '#f8fafc', hsl: '210 40% 98%' } },
+// Default app color (dashboard, tests, learning, profile, etc.)
+const APP_DARK: ColorPair = { hex: '#0f172a', hsl: '222 47% 11%' };
+const APP_LIGHT: ColorPair = { hex: '#f8fafc', hsl: '210 40% 98%' };
 
-    // Exact landing paths
-    { prefix: '/',          dark: { hex: '#0f172a', hsl: '222 47% 11%' }, light: { hex: '#ffffff', hsl: '0 0% 100%'   } },
+// Marketing / landing color (deep black-blue)
+const MARKETING: ColorPair = { hex: '#060a14', hsl: '225 55% 6%' };
+
+// Pages that ignore system theme and stay dark
+const ALWAYS_DARK_PREFIXES = [
+    '/curso', '/pricing', '/about', '/partners', '/blog', '/article',
+    '/legal', '/terms', '/privacy', '/promo', '/course-payment',
+    '/ru', '/es', '/en', '/',
 ];
 
-// Paths that are always forced dark regardless of system theme
-const ALWAYS_DARK = ['/pricing', '/about', '/curso', '/partners', '/legal', '/terms', '/privacy', '/promo', '/course-payment'];
+// Routes whose marketing/dark bg differs from the app default
+const MARKETING_PREFIXES = [
+    '/curso', '/pricing', '/about', '/partners', '/blog', '/article',
+    '/promo', '/course-payment', '/ru', '/es', '/en',
+];
 
-function resolveColor(path: string, mode: 'light' | 'dark') {
-    const effectiveMode = ALWAYS_DARK.some(p => path.startsWith(p)) ? 'dark' : mode;
-
-    const match = ROUTE_COLORS.find(r =>
-        r.prefix === '/'
-            ? path === '/'
-            : path === r.prefix || path.startsWith(r.prefix + '/')
-    );
-
-    const colors = (match ?? ROUTE_COLORS[ROUTE_COLORS.length - 1])[effectiveMode];
-    return { ...colors, effectiveMode };
+function startsWith(path: string, prefix: string): boolean {
+    if (prefix === '/') return path === '/';
+    return path === prefix || path.startsWith(prefix + '/');
 }
 
-function applyToDOM(hex: string, hsl: string, effectiveMode: 'dark' | 'light') {
-    // 1. CSS variable
-    document.documentElement.style.setProperty('--background', hsl);
+function resolve(path: string, mode: 'light' | 'dark'): { color: ColorPair; mode: 'light' | 'dark' } {
+    const forcedDark = ALWAYS_DARK_PREFIXES.some(p => startsWith(path, p));
+    const effectiveMode: 'light' | 'dark' = forcedDark ? 'dark' : mode;
+    const isMarketing = MARKETING_PREFIXES.some(p => startsWith(path, p));
 
-    // 2. Dark class
-    if (effectiveMode === 'dark') {
-        document.documentElement.classList.add('dark');
-        document.body.classList.add('dark');
-    } else {
-        document.documentElement.classList.remove('dark');
-        document.body.classList.remove('dark');
-    }
+    if (isMarketing) return { color: MARKETING, mode: effectiveMode };
+    return { color: effectiveMode === 'light' ? APP_LIGHT : APP_DARK, mode: effectiveMode };
+}
 
-    // 3. Meta theme-color (browser chrome / PWA)
-    const meta = document.querySelector('meta[name="theme-color"]');
-    if (meta) meta.setAttribute('content', hex);
+function apply(color: ColorPair, mode: 'light' | 'dark') {
+    document.documentElement.style.setProperty('--background', color.hsl);
+    document.documentElement.classList.toggle('dark', mode === 'dark');
+    document.documentElement.classList.toggle('light', mode === 'light');
 
-    // 4. Telegram Mini App — header + background + bottom bar
-    const tg = (window as any).Telegram?.WebApp;
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', color.hex);
+
+    const tg = (window as { Telegram?: { WebApp?: Record<string, unknown> } }).Telegram?.WebApp;
     if (tg) {
         try {
-            if (typeof tg.setHeaderColor    === 'function') tg.setHeaderColor(hex);
-            if (typeof tg.setBackgroundColor === 'function') tg.setBackgroundColor(hex);
-            if (typeof tg.setBottomBarColor  === 'function') tg.setBottomBarColor(hex);
+            (tg.setHeaderColor as ((c: string) => void) | undefined)?.(color.hex);
+            (tg.setBackgroundColor as ((c: string) => void) | undefined)?.(color.hex);
+            (tg.setBottomBarColor as ((c: string) => void) | undefined)?.(color.hex);
         } catch { /* ignore */ }
-    }
-
-    if (import.meta.env.DEV) {
-        console.log(`[Chameleon v10] → ${hex} (${hsl}) [${effectiveMode}]`);
     }
 }
 
 export const ThemeColorManager = () => {
-    const location = useLocation();
+    const { pathname } = useLocation();
     const { resolvedTheme } = useTheme();
-
     const mode: 'light' | 'dark' = resolvedTheme === 'light' ? 'light' : 'dark';
 
-    const { hex, hsl, effectiveMode } = useMemo(
-        () => resolveColor(location.pathname, mode),
-        [location.pathname, mode]
+    const { color, mode: effectiveMode } = useMemo(
+        () => resolve(pathname, mode),
+        [pathname, mode],
     );
 
-    // Apply on route change or theme change
     useEffect(() => {
-        applyToDOM(hex, hsl, effectiveMode);
-    }, [hex, hsl, effectiveMode]);
+        apply(color, effectiveMode);
+    }, [color, effectiveMode]);
 
-    // Listen for per-page override events (from usePageBackground hook)
     useEffect(() => {
         const handler = (e: Event) => {
-            const overrideHex = (e as CustomEvent<string | null>).detail;
-            if (overrideHex) {
-                applyToDOM(overrideHex, hsl, effectiveMode);
+            const override = (e as CustomEvent<string | null>).detail;
+            if (override) {
+                apply({ hex: override, hsl: color.hsl }, effectiveMode);
             } else {
-                // Page unmounted — restore route default
-                applyToDOM(hex, hsl, effectiveMode);
+                apply(color, effectiveMode);
             }
         };
         window.addEventListener('page-bg', handler);
         return () => window.removeEventListener('page-bg', handler);
-    }, [hex, hsl, effectiveMode]);
+    }, [color, effectiveMode]);
 
     return null;
 };
