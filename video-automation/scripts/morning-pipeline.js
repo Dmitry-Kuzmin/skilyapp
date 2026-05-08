@@ -32,9 +32,11 @@ try {
 } catch {}
 
 const SUPABASE_URL = process.env.SUPABASE_URL || "https://yffjnqegeiorunyvcxkn.supabase.co";
-// Use anon key for reading questions (same as picker-server.js)
-const SUPABASE_KEY = process.env.SUPABASE_SERVICE_KEY ||
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlmZmpucWVnZWlvcnVueXZjeGtuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDQyMTYsImV4cCI6MjA3ODA4MDIxNn0.PPYZpFYOizWxpyPp4JH7G9oTU33KDhoViwEIKUZZbLA";
+// Используем service key если он реальный JWT, иначе — anon key
+const _rawKey = process.env.SUPABASE_SERVICE_KEY;
+const SUPABASE_KEY = (_rawKey && _rawKey.startsWith("eyJ"))
+  ? _rawKey
+  : "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlmZmpucWVnZWlvcnVueXZjeGtuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDQyMTYsImV4cCI6MjA3ODA4MDIxNn0.PPYZpFYOizWxpyPp4JH7G9oTU33KDhoViwEIKUZZbLA";
 
 const NODE = "/Users/dimka/.nvm/versions/node/v24.11.0/bin/node";
 const NPX  = "/Users/dimka/.nvm/versions/node/v24.11.0/bin/npx";
