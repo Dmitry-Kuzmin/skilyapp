@@ -113,8 +113,15 @@ async function uploadTikTok(context, videoPath, lang) {
     await delay(3000);
     console.log("  📍 Current URL:", page.url());
 
+    // Auth check — TikTok redirects to login or passport page if session expired
+    const tiktokUrl = page.url();
+    if (tiktokUrl.includes("login") || tiktokUrl.includes("passport") || tiktokUrl.includes("accounts")) {
+      await page.screenshot({ path: `/tmp/tiktok-auth-error-${lang}.png` });
+      throw new Error(`TikTok сессия истекла — запусти: node scripts/setup-login.js ${lang} (скрин: /tmp/tiktok-auth-error-${lang}.png)`);
+    }
+
     // TikTok hides the file input — set files directly without clicking
-    await page.waitForSelector('input[type="file"]', { state: "attached", timeout: 20000 });
+    await page.waitForSelector('input[type="file"]', { state: "attached", timeout: 45000 });
     await page.locator('input[type="file"]').first().setInputFiles(videoPath);
     console.log("  ✓ File selected, waiting for upload...");
 
