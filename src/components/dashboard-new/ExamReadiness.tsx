@@ -106,7 +106,7 @@ export const ExamReadiness = React.memo<ExamReadinessProps>(({
     },
   ], [t]);
 
-  const hasNoData = averageScore === 0 && testsCompleted === 0;
+  const hasNoData = averageScore === 0 && testsCompleted === 0 && (lifetimeAttempts ?? 0) < 10;
 
   const { selectedCountry } = usePDDContext();
 
