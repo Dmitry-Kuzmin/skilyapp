@@ -60,6 +60,7 @@ interface Subsection {
   id: string;
   title: string;
   content?: string;
+  richContent?: React.ReactNode;
   items?: string[];
 }
 
