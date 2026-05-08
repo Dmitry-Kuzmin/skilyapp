@@ -45,15 +45,27 @@ function resolve(path: string, mode: 'light' | 'dark'): { color: ColorPair; mode
     };
 }
 
-function apply(color: ColorPair, mode: 'light' | 'dark') {
-    document.documentElement.style.setProperty('--background', color.hsl);
-    // Explicit inline style so Safari reads the correct html background-color
-    // for overscroll / pull-to-refresh areas (CSS var alone is not enough on reload).
-    document.documentElement.style.backgroundColor = color.hex;
-    document.documentElement.classList.toggle('dark', mode === 'dark');
-    document.documentElement.classList.toggle('light', mode === 'light');
+function setMetaThemeColor(hex: string) {
+    // iOS Safari ignores setAttribute('content') updates on existing meta[theme-color]
+    // in many cases (known WebKit bug). Removing and re-creating forces a re-read.
+    document.querySelectorAll('meta[name="theme-color"]').forEach(el => el.remove());
+    const meta = document.createElement('meta');
+    meta.name = 'theme-color';
+    meta.content = hex;
+    document.head.appendChild(meta);
+}
 
-    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', color.hex);
+function apply(color: ColorPair, mode: 'light' | 'dark') {
+    const html = document.documentElement;
+    html.style.setProperty('--background', color.hsl);
+    // Inline backgroundColor: Safari reads this for overscroll/pull-to-refresh
+    // and won't pick up a CSS-variable-driven rule reliably across reloads.
+    html.style.backgroundColor = color.hex;
+    html.classList.toggle('dark', mode === 'dark');
+    html.classList.toggle('light', mode === 'light');
+    if (document.body) document.body.style.backgroundColor = color.hex;
+
+    setMetaThemeColor(color.hex);
 
     const tg = (window as { Telegram?: { WebApp?: Record<string, unknown> } }).Telegram?.WebApp;
     if (!tg) return;
