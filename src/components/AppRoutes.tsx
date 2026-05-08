@@ -443,11 +443,6 @@ export function AppRoutes() {
       <Route path="/cookies" element={<Navigate to="/legal/cookies" replace />} />
       <Route path="/subscription-terms" element={<Navigate to="/legal/subscription" replace />} />
       <Route path="/refund-policy" element={<Navigate to="/legal/refund" replace />} />
-      <Route path="/about" element={
-        <Suspense fallback={<PageSkeleton />}>
-          <TelegramShell><About /></TelegramShell>
-        </Suspense>
-      } />
       <Route path="/features" element={
         <Suspense fallback={<PageSkeleton />}>
           <TelegramShell><Features /></TelegramShell>
