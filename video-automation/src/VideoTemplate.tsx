@@ -30,7 +30,7 @@ const C = {
   textMuted:   "#8B949E",
   primary:     "#2F81F7",
   emerald:     "#3FB950",
-  emeraldBg:   "rgba(63,185,80,0.12)",
+  emeraldBg:   "rgba(63,185,80,0.30)",
   emeraldBdr:  "rgba(63,185,80,0.5)",
   red:         "#F85149",
   redBg:       "rgba(248,81,73,0.10)",
