@@ -214,8 +214,10 @@ function buildResult(
   const statusInput = (percent === 0 && metrics.lifetimeAttempts > 0) ? 1 : percent;
   const status = getReadinessStatus(statusInput);
 
-  const volumeScore = Math.min(metrics.lifetimeAttempts / SAMPLE_FULL_AT, 1);
-  const studyProgress = Math.round((0.5 * volumeScore + 0.5 * metrics.topicsCovered) * 100);
+  const volumeScore = Math.min(metrics.lifetimeAttempts / TOTAL_QUESTIONS_BANK, 1);
+  const accuracyScore = metrics.lifetimeAttempts > 0 ? metrics.lifetimeCorrect / metrics.lifetimeAttempts : 0;
+  // 40% volume (сколько вопросов из банка пройдено), 40% точность, 20% охват тем
+  const studyProgress = Math.round((0.4 * volumeScore + 0.4 * accuracyScore + 0.2 * metrics.topicsCovered) * 100);
 
   return {
     percent,
