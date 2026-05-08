@@ -235,6 +235,13 @@ async function uploadYouTube(context, videoPath, lang) {
     await delay(5000);
     console.log("  📍 Current URL:", page.url());
 
+    // Auth check — YouTube Studio redirects to Google login if session expired
+    const ytUrl = page.url();
+    if (ytUrl.includes("accounts.google.com") || ytUrl.includes("signin") || ytUrl.includes("ServiceLogin")) {
+      await page.screenshot({ path: `/tmp/youtube-auth-error-${lang}.png` });
+      throw new Error(`YouTube сессия истекла — запусти: node scripts/setup-login.js ${lang} (скрин: /tmp/youtube-auth-error-${lang}.png)`);
+    }
+
     // Dismiss any error dialogs
     try {
       const closeBtn = page.locator('button[aria-label="Close"]').first();
@@ -243,7 +250,7 @@ async function uploadYouTube(context, videoPath, lang) {
 
     // YouTube Studio: "Create" → "Upload videos" → set file on hidden input
     await page.locator('button[aria-label="Create"], .ytcpAppHeaderCreateIcon button').first()
-      .waitFor({ timeout: 15000 });
+      .waitFor({ timeout: 20000 });
     await page.locator('button[aria-label="Create"], .ytcpAppHeaderCreateIcon button').first().click();
     console.log("  ✓ Clicked Create");
 
