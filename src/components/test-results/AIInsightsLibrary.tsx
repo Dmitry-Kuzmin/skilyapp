@@ -144,19 +144,19 @@ export const AIInsightsLibrary = ({ isPremium }: { isPremium: boolean }) => {
                     <div className="relative flex items-center gap-3">
                         <div className="relative">
                             <div className="absolute inset-0 bg-indigo-500 blur-md opacity-20 group-hover:opacity-40 transition-opacity" />
-                            <div className="relative h-9 w-9 bg-gradient-to-br from-indigo-600 to-violet-600 rounded-xl flex items-center justify-center border border-white/10 shadow-inner">
-                                <BookOpen className="w-4 h-4 text-white" />
+                            <div className="relative h-8 w-8 sm:h-9 sm:w-9 bg-gradient-to-br from-indigo-600 to-violet-600 rounded-xl flex items-center justify-center border border-white/10 shadow-inner">
+                                <BookOpen className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" />
                             </div>
                         </div>
 
                         <div className="text-left">
                             <div className="flex items-center gap-2">
-                                <span className="text-[10px] font-bold uppercase tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-violet-400">
+                                <span className="hidden sm:inline-block text-[10px] font-bold uppercase tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-violet-400">
                                     {uiText.previewLabel}
                                 </span>
                                 {totalInsights > 0 && <span className="px-1.5 py-0.5 rounded-full bg-indigo-500/20 text-[9px] font-bold text-indigo-300">{totalInsights}</span>}
                             </div>
-                            <div className="text-sm font-bold text-white group-hover:text-indigo-200 transition-colors">{uiText.myInsights}</div>
+                            <div className="text-xs sm:text-sm font-bold text-white group-hover:text-indigo-200 transition-colors leading-none sm:leading-normal">{uiText.myInsights}</div>
                         </div>
                     </div>
 

@@ -109,11 +109,11 @@ export const DuelQuestionCard = memo(({
                 />
 
                 {/* Main Image with rounded corners and shadow - Reduced padding for tighter frame */}
-                <div className="relative z-10 p-1 w-full h-full flex items-center justify-center">
+                <div className="relative z-10 w-full h-full flex items-center justify-center">
                   <img
                     src={imageUrl}
                     alt="Question media"
-                    className="w-full h-auto object-contain max-h-[25vh] md:max-h-[400px] rounded-xl shadow-lg group-hover:scale-[1.02] transition-transform duration-500 will-change-transform"
+                    className="w-full h-auto object-contain max-h-[25vh] md:max-h-[400px] rounded-2xl shadow-lg group-hover:scale-[1.02] transition-transform duration-500 will-change-transform"
                   />
                 </div>
 

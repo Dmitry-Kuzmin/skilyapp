@@ -387,11 +387,11 @@ export const LicenseCardVisual: React.FC<LicenseCardVisualProps> = ({
                             <div
                                 onClick={!isStatic ? onPointsClick : undefined}
                                 className={cn(
-                                    "w-[58px] h-[58px] sm:w-[65px] sm:h-[65px] md:w-[85px] md:h-[85px] lg:w-[110px] lg:h-[110px] flex items-center justify-center overflow-visible mt-3 sm:mt-4 md:mt-2",
+                                    "w-[68px] h-[68px] sm:w-[75px] sm:h-[75px] md:w-[95px] md:h-[95px] lg:w-[115px] lg:h-[115px] flex items-center justify-center overflow-visible mt-3 sm:mt-4 md:mt-2",
                                     !isStatic && "cursor-pointer transition-transform active:scale-95"
                                 )}
                             >
-                                <div className="scale-[0.29] sm:scale-[0.32] md:scale-[0.42] lg:scale-[0.55] origin-center shrink-0 overflow-visible">
+                                <div className="scale-[0.34] sm:scale-[0.37] md:scale-[0.47] lg:scale-[0.58] origin-center shrink-0 overflow-visible">
                                     <PuntosIndicator
                                         currentPoints={points}
                                         isDarkTheme={isDarkTheme}
@@ -401,7 +401,7 @@ export const LicenseCardVisual: React.FC<LicenseCardVisualProps> = ({
                             </div>
 
                             {/* Signature Area (Firma) */}
-                            <div className="flex flex-col items-center mt-3 sm:mt-3 md:mt-4 scale-[0.65] sm:scale-[0.75] md:scale-90 origin-top">
+                            <div className="flex flex-col items-center mt-2 sm:mt-3 md:mt-4 scale-[0.65] sm:scale-[0.75] md:scale-90 origin-top">
                                 <span className={cn(
                                     "text-[6px] font-bold uppercase tracking-widest opacity-40 mb-1",
                                     isDarkTheme ? "text-white" : "text-black"

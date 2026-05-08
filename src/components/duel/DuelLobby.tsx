@@ -155,7 +155,7 @@ export function DuelLobby({ duelId, duelCode, onDuelCreated, onDuelStarted, onCa
       <div className="max-w-3xl mx-auto space-y-6 p-4 pt-2 md:pt-4">
         <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="max-w-md mx-auto">
           {finishedOpponent ? (
-            <Card className="p-6 text-center bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 border-none shadow-2xl relative overflow-hidden">
+            <Card className="p-6 text-center bg-gradient-to-br from-slate-100 via-purple-100 to-slate-100 dark:from-slate-900 dark:via-purple-900 dark:to-slate-900 border-none shadow-2xl relative overflow-hidden">
               <div className="absolute inset-0 overflow-hidden">
                 <div className="absolute top-0 left-1/4 w-64 h-64 bg-purple-500/20 rounded-full blur-3xl animate-pulse" />
                 <div className="absolute bottom-0 right-1/4 w-64 h-64 bg-indigo-500/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />

@@ -587,21 +587,23 @@ const Tests = () => {
         />
 
         <div className="min-h-screen bg-transparent px-4 sm:px-6 lg:px-10 pt-0 md:pt-6 pb-6 text-foreground">
-          <div className="max-w-[1440px] mx-auto space-y-8">
+          <div className="max-w-[1370px] mx-auto space-y-8">
 
             {/* Page Header */}
             <div className="flex flex-col gap-3 animate-fade-in">
-              <div className="flex items-start justify-between">
-                <div>
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0 flex-1">
                   <div className="mb-3 flex md:hidden">
                     <ContextSwitcher className="h-9 rounded-xl bg-background/75 border-border/60 shadow-sm" />
                   </div>
-                  <h1 className="text-3xl md:text-4xl font-black text-foreground tracking-tight">
+                  <h1 className="text-3xl md:text-4xl font-black text-foreground tracking-tight truncate sm:overflow-visible sm:whitespace-normal">
                     {selectedCountry === 'russia' ? 'Билеты ПДД' : t('testsPage.title')}
                   </h1>
                 </div>
                 {/* AI Insights — only button stays top-right */}
-                <AIInsightsLibrary isPremium={isPremium} />
+                <div className="flex-shrink-0">
+                  <AIInsightsLibrary isPremium={isPremium} />
+                </div>
               </div>
 
               {/* Status row — single line under title */}

@@ -27,15 +27,14 @@ export function DuelFindingScreen({
     const { t } = useLanguage();
 
     return (
-        <div className="fixed inset-0 z-[9999] bg-[#06080F] flex flex-col items-center justify-center overflow-hidden font-sans">
+        <div className="fixed inset-0 z-[9999] bg-white dark:bg-[#06080F] flex flex-col items-center justify-center overflow-hidden font-sans transition-colors duration-500">
             {/* Ambient Background Glow */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80vw] h-[80vw] bg-blue-500/10 rounded-full blur-[120px] pointer-events-none" />
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60vw] h-[60vw] bg-indigo-500/10 rounded-full blur-[100px] pointer-events-none" />
 
-            {/* Grid Pattern */}
-            <div className="absolute inset-0 opacity-[0.03]" style={{
-                backgroundImage: `linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px), 
-                        linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px)`,
+            <div className="absolute inset-0 opacity-[0.03] dark:opacity-[0.03]" style={{
+                backgroundImage: `linear-gradient(to right, currentColor 1px, transparent 1px), 
+                        linear-gradient(to bottom, currentColor 1px, transparent 1px)`,
                 backgroundSize: '40px 40px'
             }}></div>
 
@@ -67,7 +66,7 @@ export function DuelFindingScreen({
                     <motion.div
                         initial={{ scale: 0.8, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
-                        className="relative z-10 w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden border-4 border-white/10 shadow-[0_0_50px_rgba(59,130,246,0.3)] bg-slate-900/50 backdrop-blur-md flex items-center justify-center group"
+                        className="relative z-10 w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden border-4 border-slate-200 dark:border-white/10 shadow-[0_0_50px_rgba(59,130,246,0.15)] dark:shadow-[0_0_50px_rgba(59,130,246,0.3)] bg-white/50 dark:bg-slate-900/50 backdrop-blur-md flex items-center justify-center group"
                     >
                         {userPhotoUrl ? (
                             <img
@@ -76,9 +75,9 @@ export function DuelFindingScreen({
                                 alt={userName || 'User'}
                             />
                         ) : (
-                            <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-slate-800 to-slate-900">
-                                <User className="w-12 h-12 text-slate-500 mb-1" />
-                                <span className="text-[10px] font-black uppercase tracking-widest text-slate-600">{userName || t('duelMenu.finding.player')}</span>
+                            <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-900">
+                                <User className="w-12 h-12 text-slate-400 dark:text-slate-500 mb-1" />
+                                <span className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-600">{userName || t('duelMenu.finding.player')}</span>
                             </div>
                         )}
 
@@ -97,10 +96,10 @@ export function DuelFindingScreen({
                         initial={{ opacity: 0, x: 20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: 0.5 }}
-                        className="absolute top-0 -right-4 bg-slate-900/80 backdrop-blur-md border border-amber-500/30 px-3 py-1.5 rounded-full flex items-center gap-2 shadow-lg shadow-amber-500/10"
+                        className="absolute top-0 -right-4 bg-white/90 dark:bg-slate-900/80 backdrop-blur-md border border-amber-500/30 px-3 py-1.5 rounded-full flex items-center gap-2 shadow-lg shadow-amber-500/10"
                     >
                         <Coins className="w-3.5 h-3.5 text-amber-500" />
-                        <span className="text-xs font-black text-white">{betAmount}</span>
+                        <span className="text-xs font-black text-slate-900 dark:text-white">{betAmount}</span>
                     </motion.div>
 
                     {/* Questions Info - Top Left */}
@@ -108,10 +107,10 @@ export function DuelFindingScreen({
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: 0.6 }}
-                        className="absolute top-0 -left-4 bg-slate-900/80 backdrop-blur-md border border-blue-500/30 px-3 py-1.5 rounded-full flex items-center gap-2 shadow-lg shadow-blue-500/10"
+                        className="absolute top-0 -left-4 bg-white/90 dark:bg-slate-900/80 backdrop-blur-md border border-blue-500/30 px-3 py-1.5 rounded-full flex items-center gap-2 shadow-lg shadow-blue-500/10"
                     >
-                        <Clock className="w-3.5 h-3.5 text-blue-400" />
-                        <span className="text-xs font-black text-white">{questionCount}</span>
+                        <Clock className="w-3.5 h-3.5 text-blue-500" />
+                        <span className="text-xs font-black text-slate-900 dark:text-white">{questionCount}</span>
                     </motion.div>
 
                     {insuranceEnabled && (
@@ -120,10 +119,10 @@ export function DuelFindingScreen({
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.7 }}
-                            className="absolute -bottom-4 bg-slate-900/80 backdrop-blur-md border border-emerald-500/30 px-3 py-1.5 rounded-full flex items-center gap-2 shadow-lg shadow-emerald-500/10"
+                            className="absolute -bottom-4 bg-white/90 dark:bg-slate-900/80 backdrop-blur-md border border-emerald-500/30 px-3 py-1.5 rounded-full flex items-center gap-2 shadow-lg shadow-emerald-500/10"
                         >
-                            <Shield className="w-3.5 h-3.5 text-emerald-400" />
-                            <span className="text-[10px] font-black text-white uppercase tracking-wider">{t('duelMenu.finding.insurance')}</span>
+                            <Shield className="w-3.5 h-3.5 text-emerald-500" />
+                            <span className="text-[10px] font-black text-slate-900 dark:text-white uppercase tracking-wider">{t('duelMenu.finding.insurance')}</span>
                         </motion.div>
                     )}
                 </div>
@@ -134,18 +133,18 @@ export function DuelFindingScreen({
                         <motion.h3
                             animate={{ opacity: [0.6, 1, 0.6] }}
                             transition={{ duration: 2, repeat: Infinity }}
-                            className="text-2xl font-black text-white uppercase tracking-[0.2em]"
+                            className="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-[0.2em]"
                         >
                             {rematchOpponent ? t('duelMenu.finding.rematchTitle') : t('duelMenu.finding.searchTitle')}
                         </motion.h3>
 
                         <div className="space-y-2">
                             {userName && (
-                                <div className="text-blue-400 font-black text-sm uppercase tracking-widest">
+                                <div className="text-blue-500 dark:text-blue-400 font-black text-sm uppercase tracking-widest">
                                     {userName}
                                 </div>
                             )}
-                            <p className="text-slate-400 text-sm font-medium max-w-[280px] mx-auto leading-relaxed h-10 flex items-center justify-center">
+                            <p className="text-slate-600 dark:text-slate-400 text-sm font-medium max-w-[280px] mx-auto leading-relaxed h-10 flex items-center justify-center">
                                 {rematchOpponent
                                     ? t('duelMenu.finding.waitingForResponse', { name: rematchOpponent.name || t('duelMenu.finding.opponentFallback') })
                                     : t('duelMenu.finding.searchSubtitle')}
@@ -180,7 +179,7 @@ export function DuelFindingScreen({
                     <Button
                         onClick={onCancel}
                         variant="outline"
-                        className="bg-red-500/5 border-red-500/20 hover:bg-red-500/10 text-red-400 rounded-2xl px-8 h-12 uppercase tracking-widest text-xs font-black transition-all active:scale-95 group"
+                        className="bg-red-50 dark:bg-red-500/5 border-red-200 dark:border-red-500/20 hover:bg-red-100 dark:hover:bg-red-500/10 text-red-600 dark:text-red-400 rounded-2xl px-8 h-12 uppercase tracking-widest text-xs font-black transition-all active:scale-95 group"
                     >
                         <X className="mr-2 h-4 w-4 group-hover:rotate-90 transition-transform" />
                         {t('duelMenu.finding.cancel')}
@@ -190,7 +189,7 @@ export function DuelFindingScreen({
 
             {/* Subliminal Brand Footer */}
             <div className="absolute bottom-10 left-0 right-0 flex flex-col items-center opacity-20 pointer-events-none">
-                <div className="flex items-center gap-4 text-[9px] font-mono tracking-[0.5em] text-white/50 uppercase">
+                <div className="flex items-center gap-4 text-[9px] font-mono tracking-[0.5em] text-slate-900/50 dark:text-white/50 uppercase">
                     <span>Multiplayer</span>
                     <div className="w-1 h-1 bg-white/30 rounded-full" />
                     <span>Realtime Sync</span>
