@@ -1,7 +1,7 @@
 #!/bin/bash
 # startup-check.sh
-# Runs at Mac login. If today's pipeline hasn't run yet — runs it.
-# Handles the case when Mac was off at 09:00.
+# Fires at login + 9:00/9:30/10:00/10:30/11:00.
+# If today's pipeline hasn't run yet — runs it.
 
 export PATH="/Users/dimka/.nvm/versions/node/v24.11.0/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin"
 
@@ -9,46 +9,44 @@ LOG="/Users/dimka/Desktop/Skily/sdadim-dgt-prep/video-automation/morning-pipelin
 PIPELINE="/Users/dimka/Desktop/Skily/sdadim-dgt-prep/video-automation/scripts/morning-pipeline.js"
 NODE="/Users/dimka/.nvm/versions/node/v24.11.0/bin/node"
 LOCKFILE="/tmp/skily-pipeline.lock"
-
 TODAY=$(date +%Y-%m-%d)
 
-# Wait 90 seconds after login so macOS has time to fully init
-# (network, display server, Chrome automation permissions all need to be ready)
-sleep 90
+# Ждём 90 сек при запуске — только при загрузке системы (uptime < 300 сек)
+UPTIME_SEC=$(sysctl -n kern.boottime | awk '{print $4}' | tr -d ',')
+NOW=$(date +%s)
+UPTIME=$((NOW - UPTIME_SEC))
+if [ "$UPTIME" -lt 300 ]; then
+  sleep 90
+fi
 
-# Lockfile: prevent two instances running simultaneously
-# (startup-check + scheduled 9am job could both fire)
+# Только в рабочие часы (07:00–22:00)
+HOUR=$(date +%H)
+if [ "$HOUR" -lt 7 ] || [ "$HOUR" -gt 22 ]; then
+  exit 0
+fi
+
+# Lockfile: не запускать два экземпляра одновременно
 if [ -f "$LOCKFILE" ]; then
   PID=$(cat "$LOCKFILE" 2>/dev/null)
   if kill -0 "$PID" 2>/dev/null; then
-    echo "[$TODAY] startup-check: pipeline already running (pid $PID), skipping." >> "$LOG"
+    echo "[$TODAY $(date +%H:%M)] startup-check: pipeline уже запущен (pid $PID), пропускаю." >> "$LOG"
     exit 0
   fi
   rm -f "$LOCKFILE"
 fi
 
-# Check if pipeline already ran today (look for pipeline start marker)
+# Проверяем — был ли пайплайн уже запущен сегодня
 if grep -q "Morning pipeline started" "$LOG" 2>/dev/null && grep -q "$TODAY" "$LOG" 2>/dev/null; then
-  echo "[$TODAY] startup-check: pipeline already ran today, skipping." >> "$LOG"
   exit 0
 fi
 
-# Check time: only run between 07:00 and 22:00 to avoid midnight surprises
-HOUR=$(date +%H)
-if [ "$HOUR" -lt 7 ] || [ "$HOUR" -gt 22 ]; then
-  echo "[$TODAY] startup-check: outside active hours ($HOUR:xx), skipping." >> "$LOG"
-  exit 0
-fi
-
-echo "[$TODAY] startup-check: pipeline not run today, starting now..." >> "$LOG"
-
-# Write lockfile with our PID
+echo "[$TODAY $(date +%H:%M)] startup-check: запускаю пайплайн..." >> "$LOG"
 echo $$ > "$LOCKFILE"
 trap "rm -f $LOCKFILE" EXIT
 
 cd "/Users/dimka/Desktop/Skily/sdadim-dgt-prep/video-automation"
 "$NODE" "$PIPELINE"
 EC=$?
-# Exit code 78 (EX_CONFIG) would permanently disable this LaunchAgent in macOS launchd.
-# Normalize it to 1 so launchd keeps the job enabled for future runs.
-[ $EC -eq 78 ] && exit 1 || exit $EC
+
+# Никогда не возвращаем 78 — launchd его воспринимает как «отключить навсегда»
+[ $EC -eq 78 ] && exit 1 || exit 0
