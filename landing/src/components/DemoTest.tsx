@@ -158,6 +158,7 @@ export default function DemoTest() {
   const [score, setScore] = useState(0);
   const [finished, setFinished] = useState(false);
   const [imgError, setImgError] = useState(false);
+  const [answers, setAnswers] = useState<Array<{ questionId: string; isCorrect: boolean }>>([]);
 
   const q = QUESTIONS[idx];
   const total = QUESTIONS.length;
