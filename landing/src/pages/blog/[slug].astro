@@ -1,7 +1,9 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import { Dgt2026ArticleContent } from "../../components/Dgt2026ArticleContent";
+import ArticleRenderer from "../../components/ArticleRenderer";
 import { articles, getArticle } from "../../data/articles";
+import { articleContentEs } from "../../data/articleContent";
 
 export function getStaticPaths() {
   return articles.map((a) => ({ params: { slug: a.slug } }));
@@ -11,11 +13,13 @@ const { slug } = Astro.params;
 const article = getArticle(slug!);
 if (!article) return Astro.redirect("/blog");
 
-// Default language for static page is Spanish (primary audience)
 const lang = "es";
 const loc = article[lang];
 const BASE = "https://skilyapp.com";
 const canonical = `${BASE}/article/${article.slug}`;
+
+const isFullReact = article.slug === "ekzamen-dgt-2026";
+const markdownContent = articleContentEs[article.slug] ?? null;
 
 const jsonLd: object[] = [
   {
@@ -81,7 +85,11 @@ const hreflang = [
   { lang: "ru", href: canonical },
 ];
 
-const isFullContent = article.slug === "ekzamen-dgt-2026";
+const publishedDate = new Date(article.publishedAt).toLocaleDateString("es-ES", {
+  year: "numeric",
+  month: "long",
+  day: "numeric",
+});
 ---
 
 <BaseLayout
@@ -92,96 +100,126 @@ const isFullContent = article.slug === "ekzamen-dgt-2026";
   jsonLd={jsonLd}
   hreflang={hreflang}
 >
-  <main class="min-h-screen bg-zinc-950 px-4 py-12 sm:px-6 lg:px-8">
-    <div class="mx-auto max-w-3xl">
-      <!-- Breadcrumb -->
-      <nav class="mb-6 text-sm text-zinc-500">
-        <a href="/" class="hover:text-zinc-300">Skilyapp</a>
-        <span class="mx-2">/</span>
-        <a href="/blog" class="hover:text-zinc-300">Blog</a>
-        <span class="mx-2">/</span>
-        <span class="text-zinc-300 line-clamp-1">{loc.title}</span>
-      </nav>
+  <main class="min-h-screen bg-zinc-950">
+    <!-- Reading progress bar -->
+    <div id="progress-bar" class="fixed top-0 left-0 h-0.5 bg-white z-50 transition-all duration-100" style="width:0%"></div>
 
-      <!-- Article header -->
-      <header class="mb-8">
-        <span class="mb-3 inline-block rounded-full bg-zinc-800 px-2.5 py-0.5 text-xs text-zinc-400">
-          {loc.category}
-        </span>
-        <h1 class="mb-4 text-2xl font-bold text-white sm:text-3xl lg:text-4xl leading-tight">
-          {loc.title}
-        </h1>
-        <p class="mb-4 text-lg text-zinc-400">{loc.description}</p>
-        <div class="flex items-center gap-4 text-sm text-zinc-500">
-          <span>
-            {new Date(article.publishedAt).toLocaleDateString("es-ES", {
-              year: "numeric",
-              month: "long",
-              day: "numeric",
-            })}
-          </span>
-          <span>·</span>
-          <span>{article.readTime} min de lectura</span>
-          <span>·</span>
-          <span>{loc.author}</span>
-        </div>
-      </header>
+    <div class="px-4 py-10 sm:px-6 lg:px-8">
+      <div class="mx-auto max-w-3xl">
 
-      <!-- Article content -->
-      <article class="prose prose-invert prose-zinc max-w-none">
-        {isFullContent ? (
-          <Dgt2026ArticleContent lang="es" client:only="react" />
-        ) : (
-          <div>
-            <p class="lead text-lg text-zinc-300 mb-6">{loc.excerpt}</p>
-            <div class="rounded-2xl border border-zinc-800 bg-zinc-900 p-6 text-center">
-              <p class="mb-4 text-zinc-400">
-                Lee el artículo completo en Skilyapp — preparación DGT con IA, duelos y más.
-              </p>
-              <a
-                href="https://skilyapp.com/app/dashboard"
-                class="inline-block rounded-xl bg-white px-6 py-3 text-sm font-semibold text-black hover:bg-zinc-100 transition-colors"
-              >
-                Abrir Skilyapp
-              </a>
+        <!-- Breadcrumb -->
+        <nav class="mb-8 flex items-center gap-1.5 text-sm text-zinc-500">
+          <a href="/" class="hover:text-zinc-300 transition-colors">Skilyapp</a>
+          <span>/</span>
+          <a href="/blog" class="hover:text-zinc-300 transition-colors">Blog</a>
+          <span>/</span>
+          <span class="text-zinc-400 line-clamp-1">{loc.title}</span>
+        </nav>
+
+        <!-- Article header -->
+        <header class="mb-10">
+          <div class="mb-4 flex items-center gap-3">
+            <span class="inline-block rounded-full border border-zinc-700 bg-zinc-900 px-3 py-1 text-xs font-medium text-zinc-400">
+              {loc.category}
+            </span>
+            <span class="text-xs text-zinc-600">{article.readTime} min de lectura</span>
+          </div>
+
+          <h1 class="mb-5 text-2xl font-bold leading-tight text-white sm:text-3xl lg:text-4xl">
+            {loc.title}
+          </h1>
+
+          <p class="mb-6 text-base text-zinc-400 leading-relaxed sm:text-lg">
+            {loc.description}
+          </p>
+
+          <!-- Author + date bar -->
+          <div class="flex items-center gap-3 border-t border-zinc-800 pt-5">
+            <div class="flex h-9 w-9 items-center justify-center rounded-full bg-zinc-800 text-sm font-semibold text-white">
+              {loc.author.charAt(0).toUpperCase()}
+            </div>
+            <div>
+              <p class="text-sm font-medium text-zinc-300">{loc.author}</p>
+              <p class="text-xs text-zinc-500">{publishedDate}</p>
             </div>
           </div>
+        </header>
+
+        <!-- Separator -->
+        <div class="mb-10 h-px bg-zinc-800"></div>
+
+        <!-- Article content -->
+        <article id="article-body">
+          {isFullReact ? (
+            <Dgt2026ArticleContent lang="es" client:only="react" />
+          ) : markdownContent ? (
+            <ArticleRenderer content={markdownContent} client:load />
+          ) : (
+            <p class="text-zinc-400">{loc.excerpt}</p>
+          )}
+        </article>
+
+        <!-- FAQ section (static HTML for SEO, visible without JS) -->
+        {article.faqItems?.length && (
+          <section class="mt-14">
+            <div class="mb-6 flex items-center gap-3">
+              <div class="h-px flex-1 bg-zinc-800"></div>
+              <h2 class="text-base font-semibold uppercase tracking-widest text-zinc-500">FAQ</h2>
+              <div class="h-px flex-1 bg-zinc-800"></div>
+            </div>
+            <div class="space-y-3">
+              {article.faqItems.map((item) => (
+                <details class="group rounded-2xl border border-zinc-800 bg-zinc-900 px-5 py-4 transition-colors hover:border-zinc-700">
+                  <summary class="flex cursor-pointer list-none items-start justify-between gap-3 font-medium text-white">
+                    <span>{item.question}</span>
+                    <span class="mt-0.5 shrink-0 text-zinc-500 transition-transform group-open:rotate-45">+</span>
+                  </summary>
+                  <p class="mt-3 text-sm leading-relaxed text-zinc-400">{item.answer}</p>
+                </details>
+              ))}
+            </div>
+          </section>
         )}
-      </article>
 
-      <!-- FAQ section (if available) -->
-      {article.faqItems?.length && (
-        <section class="mt-12">
-          <h2 class="mb-6 text-xl font-bold text-white">Preguntas frecuentes</h2>
-          <div class="space-y-4">
-            {article.faqItems.map((item) => (
-              <details class="rounded-xl border border-zinc-800 bg-zinc-900 p-4">
-                <summary class="cursor-pointer font-medium text-white">{item.question}</summary>
-                <p class="mt-3 text-sm text-zinc-400">{item.answer}</p>
-              </details>
-            ))}
-          </div>
-        </section>
-      )}
+        <!-- CTA block -->
+        <div class="mt-14 overflow-hidden rounded-2xl border border-zinc-700 bg-gradient-to-br from-zinc-900 to-zinc-950 p-7 text-center">
+          <div class="mb-1 text-2xl">🚀</div>
+          <p class="mb-1.5 text-lg font-bold text-white">¿Listo para el examen DGT?</p>
+          <p class="mb-5 text-sm text-zinc-400">
+            Más de 15&nbsp;000 candidatos ya estudian con Skilyapp — tests adaptativos, duelos PvP y tutor IA.
+          </p>
+          <a
+            href="https://t.me/skilyapp_bot"
+            class="inline-block rounded-xl bg-white px-7 py-3 text-sm font-semibold text-black transition-colors hover:bg-zinc-100"
+          >
+            Empezar gratis en Telegram →
+          </a>
+          <p class="mt-3 text-xs text-zinc-600">Sin tarjeta de crédito · Primera semana gratis</p>
+        </div>
 
-      <!-- CTA -->
-      <div class="mt-12 rounded-2xl border border-zinc-700 bg-zinc-900 p-6 text-center">
-        <p class="mb-2 text-lg font-semibold text-white">¿Listo para prepararte?</p>
-        <p class="mb-4 text-sm text-zinc-400">
-          Más de 15 000 candidatos ya estudian con Skilyapp. Empieza gratis.
-        </p>
-        <a
-          href="https://t.me/skilyapp_bot"
-          class="inline-block rounded-xl bg-white px-6 py-3 text-sm font-semibold text-black hover:bg-zinc-100 transition-colors"
-        >
-          Empezar gratis en Telegram
-        </a>
-      </div>
+        <!-- Back -->
+        <div class="mt-8 text-center">
+          <a href="/blog" class="inline-flex items-center gap-1.5 text-sm text-zinc-500 hover:text-zinc-300 transition-colors">
+            ← Volver al Blog
+          </a>
+        </div>
 
-      <!-- Back to blog -->
-      <div class="mt-8 text-center">
-        <a href="/blog" class="text-sm text-zinc-500 hover:text-zinc-300">← Volver al Blog</a>
       </div>
     </div>
   </main>
+
+  <!-- Reading progress script -->
+  <script>
+    const bar = document.getElementById('progress-bar');
+    const article = document.getElementById('article-body');
+    if (bar && article) {
+      window.addEventListener('scroll', () => {
+        const rect = article.getBoundingClientRect();
+        const total = rect.height;
+        const scrolled = -rect.top;
+        const pct = Math.min(100, Math.max(0, (scrolled / total) * 100));
+        bar.style.width = pct + '%';
+      }, { passive: true });
+    }
+  </script>
 </BaseLayout>
