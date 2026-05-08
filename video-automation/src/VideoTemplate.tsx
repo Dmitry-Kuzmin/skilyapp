@@ -351,7 +351,7 @@ function TestCard({
           ? isCorrect ? C.emeraldBdr : "rgba(255,255,255,0.04)"
           : C.border;
         const bgColor = isRevealed
-          ? isCorrect ? C.emeraldBg : "rgba(255,255,255,0.01)"
+          ? isCorrect ? C.emeraldBg : "rgba(0,0,0,0.60)"
           : C.card;
         const badgeBg    = isRevealed ? (isCorrect ? C.emerald : "rgba(255,255,255,0.04)") : C.badgeDefault;
         const badgeColor = isRevealed ? (isCorrect ? "#fff" : "rgba(255,255,255,0.15)") : C.badgeText;
