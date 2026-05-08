@@ -1,0 +1,33 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import FeaturesPage from "../components/FeaturesPage";
+
+const BASE = "https://skilyapp.com";
+const canonical = `${BASE}/features`;
+
+const jsonLd = [
+  {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    name: "Funciones de Skilyapp — Todo para aprobar el examen DGT",
+    description: "Tutor IA, 9 modos de test, duelos PvP, flashcards y más. La plataforma más completa para preparar el examen DGT en España.",
+    url: canonical,
+  },
+];
+
+const hreflang = [
+  { lang: "es", href: canonical },
+  { lang: "x-default", href: canonical },
+];
+---
+
+<BaseLayout
+  title="Funciones de Skilyapp — Todo para aprobar el examen DGT"
+  description="Tutor IA, 9 modos de test, duelos PvP, flashcards y más. La plataforma más completa para preparar el examen DGT en España."
+  canonical={canonical}
+  lang="es"
+  jsonLd={jsonLd}
+  hreflang={hreflang}
+>
+  <FeaturesPage client:load />
+</BaseLayout>
