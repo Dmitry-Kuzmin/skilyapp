@@ -36,7 +36,7 @@ export function useExamReadiness(_profileId: string | null): UseExamReadinessRes
       lifetimeAttempts,
       lifetimeCorrect,
       recentAccuracy: stats.recent_accuracy != null
-        ? stats.recent_accuracy / 100
+        ? Math.min(1, Math.max(0, stats.recent_accuracy / 100))
         : null,
       recentSample: stats.recent_sample ?? 0,
       topicsCovered: readinessData ? readinessData.topics_covered_percent / 100 : 0,
