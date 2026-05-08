@@ -177,8 +177,12 @@ export default function DemoTest() {
   function handleConfirm() {
     if (!selected) return;
     const correct = q.options.find((o) => o.isCorrect)?.id;
-    if (selected === correct) setScore((s) => s + 1);
+    const isCorrect = selected === correct;
+    if (isCorrect) setScore((s) => s + 1);
+    const newAnswers = [...answers, { questionId: q.id, isCorrect }];
+    setAnswers(newAnswers);
     setRevealed(true);
+    if (idx + 1 >= total) saveToLocalStorage(newAnswers);
   }
 
   function handleNext() {
@@ -195,6 +199,7 @@ export default function DemoTest() {
     setFinished(false);
     setSelected(null);
     setRevealed(false);
+    setAnswers([]);
   }
 
   if (finished) {
