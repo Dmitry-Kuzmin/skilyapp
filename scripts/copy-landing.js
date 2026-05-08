@@ -4,7 +4,7 @@
  * vercel.json expects flat files: dist/es.html, dist/ru.html, dist/index-landing.html
  * We copy each landing page as a flat .html file so Vercel rewrites work as-is.
  */
-import { copyFileSync, cpSync, existsSync, mkdirSync } from 'fs';
+import { copyFileSync, cpSync, existsSync, mkdirSync, readdirSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
