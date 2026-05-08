@@ -58,4 +58,31 @@ for (const f of videoFiles) {
   }
 }
 
+// Copy blog list page: landing/dist/blog/index.html → dist/blog.html
+const blogIndexSrc = join(ASTRO_DIST, 'blog', 'index.html');
+if (existsSync(blogIndexSrc)) {
+  copyFileSync(blogIndexSrc, join(MAIN_DIST, 'blog.html'));
+  console.log('[copy-landing] ✅ blog/index.html → dist/blog.html');
+} else {
+  console.log('[copy-landing] ⚠️  Skipped (not found): blog/index.html');
+}
+
+// Copy article pages: landing/dist/blog/[slug]/index.html → dist/article/[slug].html
+const blogDir = join(ASTRO_DIST, 'blog');
+const articleDir = join(MAIN_DIST, 'article');
+if (existsSync(blogDir)) {
+  if (!existsSync(articleDir)) mkdirSync(articleDir, { recursive: true });
+  const slugDirs = readdirSync(blogDir, { withFileTypes: true })
+    .filter((d) => d.isDirectory())
+    .map((d) => d.name);
+  for (const slug of slugDirs) {
+    const src = join(blogDir, slug, 'index.html');
+    const dest = join(articleDir, `${slug}.html`);
+    if (existsSync(src)) {
+      copyFileSync(src, dest);
+      console.log(`[copy-landing] ✅ blog/${slug}/index.html → dist/article/${slug}.html`);
+    }
+  }
+}
+
 console.log('[copy-landing] Done.');
