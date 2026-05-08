@@ -90,6 +90,17 @@ function OptionButton({
   );
 }
 
+const DEMO_STORAGE_KEY = "skilyapp_demo_results";
+
+function saveToLocalStorage(answers: Array<{ questionId: string; isCorrect: boolean }>) {
+  try {
+    localStorage.setItem(
+      DEMO_STORAGE_KEY,
+      JSON.stringify({ answers, completedAt: new Date().toISOString() })
+    );
+  } catch {}
+}
+
 /* ── Results screen ── */
 function Results({ score, total, onRestart }: { score: number; total: number; onRestart: () => void }) {
   const pct = Math.round((score / total) * 100);
@@ -111,22 +122,22 @@ function Results({ score, total, onRestart }: { score: number; total: number; on
 
       {passed ? (
         <p className="text-zinc-300 text-sm max-w-xs">
-          Excelente resultado. Con Skilyapp practicarás <strong className="text-white">+2000 preguntas reales</strong> con IA y estadísticas.
+          Excelente resultado. Tu progreso se guardará al registrarte — continúa con{" "}
+          <strong className="text-white">+2000 preguntas reales</strong> con IA y estadísticas.
         </p>
       ) : (
         <p className="text-zinc-300 text-sm max-w-xs">
-          Con Skilyapp tienes acceso a <strong className="text-white">tests adaptativos</strong> que refuerzan exactamente lo que necesitas.
+          Tu progreso se guardará al registrarte. Con Skilyapp tienes{" "}
+          <strong className="text-white">tests adaptativos</strong> que refuerzan exactamente lo que necesitas.
         </p>
       )}
 
       <div className="flex flex-col sm:flex-row gap-3 w-full max-w-xs">
         <a
-          href="https://t.me/skilyapp_bot"
-          target="_blank"
-          rel="noopener noreferrer"
+          href="/login"
           className="flex-1 rounded-xl bg-white px-5 py-3 text-sm font-bold text-black text-center hover:bg-zinc-100 transition-colors"
         >
-          Empezar gratis →
+          Crear cuenta gratis →
         </a>
         <button
           onClick={onRestart}
