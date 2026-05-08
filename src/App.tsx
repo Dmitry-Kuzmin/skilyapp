@@ -183,7 +183,6 @@ const Dictionary = lazy(() => import("./pages/Dictionary"));
 
 const DailyBonus = lazy(() => import("./pages/DailyBonus"));
 const DGTTestsSimple = lazy(() => import("./pages/DGTTestsSimple"));
-const ChallengeBank = lazy(() => import("./pages/ChallengeBank"));
 const Referrals = lazy(() => import("./pages/Referrals"));
 const InviteLanding = lazy(() => import("./pages/InviteLanding"));
 const Settings = lazy(() => import("./pages/Settings"));
