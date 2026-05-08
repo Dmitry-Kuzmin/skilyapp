@@ -734,6 +734,8 @@ export function UserProvider({ children }: { children: ReactNode }) {
     [user, supabaseUser, session, platform, isAuthenticated, isLoading, profileId, login, logout]
   );
 
+  useDemoResultsSync(profileId);
+
   return (
     <UserContext.Provider value={contextValue}>
       {children}
