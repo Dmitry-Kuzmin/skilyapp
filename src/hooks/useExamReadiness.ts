@@ -26,8 +26,11 @@ export function useExamReadiness(_profileId: string | null): UseExamReadinessRes
     const stats = dashboardData.stats;
     const readinessData = dashboardData.readiness;
 
-    const lifetimeAttempts = stats.lifetime_attempts ?? stats.total_questions ?? 0;
-    const lifetimeCorrect = stats.lifetime_correct ?? stats.correct_answers ?? 0;
+    const lifetimeAttempts = Math.max(0, stats.lifetime_attempts ?? stats.total_questions ?? 0);
+    // Defensive clamp: pre-v3-deploy v2 RPC sums score from buggy writers and may report
+    // correct > total. Cap at attempts to keep the formula well-defined.
+    const lifetimeCorrectRaw = Math.max(0, stats.lifetime_correct ?? stats.correct_answers ?? 0);
+    const lifetimeCorrect = Math.min(lifetimeCorrectRaw, lifetimeAttempts);
 
     const m: ReadinessMetrics = {
       lifetimeAttempts,
