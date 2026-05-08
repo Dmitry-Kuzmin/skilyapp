@@ -74,7 +74,7 @@
       "route": "/tests",
       "outputPath": "tests.html",
       "canonical": "https://skilyapp.com/tests",
-      "minBodyChars": 100
+      "minBodyChars": 50
     },
     {
       "route": "/curso",

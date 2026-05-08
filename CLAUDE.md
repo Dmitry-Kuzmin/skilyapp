@@ -85,7 +85,7 @@ export PATH="/opt/homebrew/bin:$PATH"
 ## Architecture
 
 ### What This Is
-A **Telegram Mini App** for driving test (DGT) exam preparation — gamified learning platform with real-time PvP duels, quizzes, flashcards, AI tutoring, and a coin/premium economy. Runs inside Telegram as a WebApp.
+A **web platform** for driving test (DGT) exam preparation — gamified learning platform with real-time PvP duels, quizzes, flashcards, AI tutoring, and a coin/premium economy. Accessible via browser at skilyapp.com. Telegram Mini App support is an additional channel, not the primary one.
 
 ### Route Architecture (App.tsx)
 Two completely separate trees:

@@ -618,11 +618,13 @@ All colors MUST be HSL.
    * @see Layout.tsx — теперь НЕ управляет padding (удалён useEffect)
    * ============================================================================ */
 
-  /* Regular browser (non-Telegram): safe-area only on content, not body.
-   * Body padding-top=0 so background bleeds behind Dynamic Island. */
+  /* Regular browser (non-Telegram): NO padding-top on main content.
+   * Content starts at y=0 and bleeds behind Dynamic Island/notch.
+   * body already has padding-top=0, background extends behind the notch.
+   * The Telegram-mobile overrides below add padding back when inside Telegram. */
   .telegram-main-content,
   .telegram-public-page {
-    padding-top: env(safe-area-inset-top, 0px);
+    padding-top: 0;
   }
 
   /* Глобальный padding для Telegram Mobile через CSS */
