@@ -473,16 +473,6 @@ export function AppRoutes() {
           <TelegramShell><Blog /></TelegramShell>
         </Suspense>
       } />
-      <Route path="/guides" element={
-        <Suspense fallback={<PageSkeleton />}>
-          <TelegramShell><SeoGuidesHub /></TelegramShell>
-        </Suspense>
-      } />
-      <Route path="/guides/:slug" element={
-        <Suspense fallback={<PageSkeleton />}>
-          <TelegramShell><SeoGuidePage /></TelegramShell>
-        </Suspense>
-      } />
       <Route path="/blog/:slug" element={
         <LegacyArticleRedirect />
       } />
