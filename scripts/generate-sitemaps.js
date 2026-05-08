@@ -50,17 +50,11 @@ const CORE_PAGES = [
 ];
 
 const PRERENDER_ROUTES = [
-  // /, /ru, /es, /en are served by the Astro landing (see scripts/copy-landing.js)
-  // and must NOT be prerendered through Puppeteer — that wastes ~3 min on timeouts
-  // and the output is overwritten anyway.
-  "/about",
+  // /, /ru, /es, /en, /features, /partners, /blog, /article/*, /demo-tests
+  // are served by the Astro landing (see scripts/copy-landing.js).
+  // /about — removed: renders only a shell in headless context (no session).
   "/pricing",
   "/help",
-  "/features",
-  "/partners",
-  "/blog",
-  // /tests and /games are authenticated Telegram Mini App routes — they require a
-  // session and always render only a shell in headless context. No SEO value.
   "/road-signs",
   "/dgt-tests",
   "/curso",
