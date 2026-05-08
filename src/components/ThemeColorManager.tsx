@@ -46,7 +46,7 @@ const ROUTE_COLORS: Array<{
 ];
 
 // Paths that are always forced dark regardless of system theme
-const ALWAYS_DARK = ['/pricing', '/about', '/curso', '/partners', '/legal', '/terms', '/privacy'];
+const ALWAYS_DARK = ['/pricing', '/about', '/curso', '/partners', '/legal', '/terms', '/privacy', '/promo', '/course-payment'];
 
 function resolveColor(path: string, mode: 'light' | 'dark') {
     const effectiveMode = ALWAYS_DARK.some(p => path.startsWith(p)) ? 'dark' : mode;
