@@ -380,8 +380,8 @@ function TestCard({
               </div>
               {/* Русский перевод под испанским вариантом (RU-видео) */}
               {q.language === "ru" && opt.text_ru && (
-                <div style={{ fontSize:26, color: C.textMuted, fontFamily:"system-ui,sans-serif",
-                  lineHeight:1.3, opacity: textOp * 0.8 }}>
+                <div style={{ fontSize:26, color: "#C8D3DC", fontFamily:"system-ui,sans-serif",
+                  lineHeight:1.3, opacity: textOp }}>
                   {cleanText(opt.text_ru)}
                 </div>
               )}
