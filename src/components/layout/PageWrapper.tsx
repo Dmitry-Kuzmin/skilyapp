@@ -32,7 +32,7 @@ export const PageWrapper = ({
         return (
             <div className={cn(
                 "w-full min-h-tg-screen flex flex-col",
-                "bg-zinc-950 text-white",
+                "bg-background text-foreground",
                 className
             )}>
                 {children}
@@ -43,7 +43,7 @@ export const PageWrapper = ({
     return (
         <div className={cn(
             "w-full min-h-tg-screen flex flex-col",
-            "bg-zinc-950 text-white",
+            "bg-background text-foreground",
             !noPaddingBottom && "pb-safe-bottom",
             className
         )}>
