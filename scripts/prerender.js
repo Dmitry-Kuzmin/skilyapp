@@ -12,7 +12,6 @@ import { dirname, join } from 'path';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
 import { execSync } from 'child_process';
 import { extractArticlesFromTSX } from './read-articles.js';
-import { seoGuidePages } from '../src/content/seoGuides.js';
 
 // Hosted Vercel build uses /vercel/path* and /vercel HOME. Local vercel CLI does not.
 const hasVercelSignals = Boolean(
