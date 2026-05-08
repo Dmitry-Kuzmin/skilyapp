@@ -168,7 +168,7 @@ export const DuelBoostsPanel = memo(({
             ) : (
               <BoostIcon className="w-3.5 h-3.5 shrink-0" />
             )}
-            <span className="whitespace-nowrap leading-none" title={displayName}>{displayName}</span>
+            <span className="whitespace-nowrap leading-none drop-shadow-[0_1px_1px_rgba(0,0,0,0.3)]" title={displayName}>{displayName}</span>
             {boost.boost_type === 'translate' && !isDisabled && (
               <ChevronDown className={`h-2.5 w-2.5 transition-transform duration-200 shrink-0 ${translatePopoverOpen === boost.boost_type ? 'rotate-180' : ''}`} />
             )}

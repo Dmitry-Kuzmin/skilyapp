@@ -150,7 +150,7 @@ export const DuelScoreBoard = memo(({
             )}
             <Avatar className="h-12 w-12 md:h-14 md:w-14 rounded-xl border border-white/10 shadow-sm relative z-10 bg-background">
               <AvatarImage src={(myPhotoUrl && !myImgError) ? myPhotoUrl : undefined} alt={myName || ''} onError={() => setMyImgError(true)} />
-              <AvatarFallback className="bg-slate-800 text-slate-400 font-bold uppercase">
+              <AvatarFallback className="bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-bold uppercase">
                 {getInitials(myName)}
               </AvatarFallback>
             </Avatar>
@@ -197,13 +197,13 @@ export const DuelScoreBoard = memo(({
               className="flex items-center gap-1 bg-emerald-500/10 dark:bg-emerald-500/20 px-1 py-0.5 rounded-full border border-emerald-500/30 w-fit"
             >
               <div className="w-1 h-1 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="text-[8px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-tighter">{t('duelBattle.arena.shield')}</span>
+              <span className="text-[8px] font-black text-emerald-700 dark:text-emerald-300 uppercase tracking-tighter">{t('duelBattle.arena.shield')}</span>
             </motion.div>
           )}
         </div>
       </motion.div>
 
-      <div className="text-base md:text-2xl font-black text-muted-foreground/20 px-0.5 flex-shrink-0">VS</div>
+      <div className="text-base md:text-2xl font-black text-muted-foreground/30 px-0.5 flex-shrink-0">VS</div>
 
       {/* Opponent Score */}
       <motion.div
@@ -228,7 +228,7 @@ export const DuelScoreBoard = memo(({
               animate={{ opacity: 1, x: 0 }}
               className="flex items-center gap-1 bg-emerald-500/10 dark:bg-emerald-500/20 px-1 py-0.5 rounded-full border border-emerald-500/30 w-fit ml-auto"
             >
-              <span className="text-[8px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-tighter">{t('duelBattle.arena.shield')}</span>
+              <span className="text-[8px] font-black text-emerald-700 dark:text-emerald-300 uppercase tracking-tighter">{t('duelBattle.arena.shield')}</span>
               <div className="w-1 h-1 rounded-full bg-emerald-500 animate-pulse" />
             </motion.div>
           )}
@@ -261,7 +261,7 @@ export const DuelScoreBoard = memo(({
             )}
             <Avatar className="h-12 w-12 md:h-14 md:w-14 rounded-xl border border-white/10 shadow-sm relative z-20 bg-background">
               <AvatarImage src={(opponentPhotoUrl && opponentPhotoUrl.trim() !== '' && !opponentPhotoUrl.includes('undefined') && !opponentPhotoUrl.includes('null') && !opponentImgError) ? opponentPhotoUrl : undefined} alt={opponentName || ''} onError={() => setOpponentImgError(true)} />
-              <AvatarFallback className="bg-slate-800 text-white font-bold uppercase">
+              <AvatarFallback className="bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-bold uppercase">
                 {getInitials(opponentName)}
               </AvatarFallback>
             </Avatar>
