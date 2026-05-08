@@ -28,7 +28,6 @@
       document.documentElement.classList.toggle('dark', !isLight);
       document.documentElement.style.setProperty('--background', hsl);
       document.documentElement.style.setProperty('--initial-bg', hex);
-      document.documentElement.style.backgroundColor = hex;
 
       var meta = document.querySelector('meta[name="theme-color"]');
       if (meta) meta.setAttribute('content', hex);
