@@ -15,46 +15,76 @@
     // On reload Safari sometimes caches the previous meta value if it sees one
     // in the parsed HTML — creating it via JS sidesteps that.
     (function () {
-      try {
-        var path = window.location.pathname;
-        var marketing = /^\/(curso|pricing|about|partners|blog|article|promo|course-payment|ru|es|en)(\/|$)/.test(path) || path === '/';
-        var alwaysDark = marketing || /^\/(legal|terms|privacy|help)(\/|$)/.test(path);
+      function applyThemeBootstrap() {
+        try {
+          var path = window.location.pathname;
+          var marketing = /^\/(curso|pricing|about|partners|blog|article|promo|course-payment|ru|es|en)(\/|$)/.test(path) || path === '/';
+          var alwaysDark = marketing || /^\/(legal|terms|privacy|help)(\/|$)/.test(path);
 
-        var theme = null;
-        try { theme = localStorage.getItem('theme'); } catch (e) { /* private mode */ }
-        var prefersLight = false;
-        try { prefersLight = !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches); } catch (e) { /* ignore */ }
-        var isLight = !alwaysDark && (theme === 'light' || (!theme && prefersLight));
+          var theme = null;
+          try { theme = localStorage.getItem('theme'); } catch (e) { /* private mode */ }
+          var prefersLight = false;
+          try { prefersLight = !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches); } catch (e) { /* ignore */ }
+          var isLight = !alwaysDark && (theme === 'light' || (!theme && prefersLight));
 
-        var hex, hsl;
-        if (marketing) { hex = '#060a14'; hsl = '225 55% 6%'; }
-        else if (isLight) { hex = '#f8fafc'; hsl = '210 40% 98%'; }
-        else { hex = '#0f172a'; hsl = '222 47% 11%'; }
+          var hex, hsl;
+          if (marketing) { hex = '#060a14'; hsl = '225 55% 6%'; }
+          else if (isLight) { hex = '#f8fafc'; hsl = '210 40% 98%'; }
+          else { hex = '#0f172a'; hsl = '222 47% 11%'; }
 
-        var html = document.documentElement;
-        html.classList.toggle('light', isLight);
-        html.classList.toggle('dark', !isLight);
-        html.style.setProperty('--background', hsl);
-        html.style.setProperty('--initial-bg', hex);
-        // Inline backgroundColor: guarantees correct color on first paint even
-        // before the external CSS stylesheet has loaded (no white flash).
-        html.style.backgroundColor = hex;
+          var html = document.documentElement;
+          html.classList.toggle('light', isLight);
+          html.classList.toggle('dark', !isLight);
+          html.style.setProperty('--background', hsl);
+          html.style.setProperty('--initial-bg', hex);
+          html.style.backgroundColor = hex;
+          if (document.body) document.body.style.backgroundColor = hex;
 
-        // Create meta[theme-color] fresh — no stale cached value for iOS to pick up.
-        var meta = document.createElement('meta');
-        meta.name = 'theme-color';
-        meta.content = hex;
-        document.head.appendChild(meta);
+          // Remove and recreate — iOS Safari ignores setAttribute on existing tag.
+          document.querySelectorAll('meta[name="theme-color"]').forEach(function(el) { el.parentNode && el.parentNode.removeChild(el); });
+          var meta = document.createElement('meta');
+          meta.name = 'theme-color';
+          meta.content = hex;
+          document.head.appendChild(meta);
 
-        // Expose for Telegram init script and any other early consumers.
-        window.__INITIAL_THEME_COLOR__ = hex;
-      } catch (e) {
-        // Last-resort fallback — never break the page.
-        var fallback = document.createElement('meta');
-        fallback.name = 'theme-color';
-        fallback.content = '#0f172a';
-        document.head.appendChild(fallback);
+          window.__INITIAL_THEME_COLOR__ = hex;
+          return hex;
+        } catch (e) {
+          try {
+            var fallback = document.createElement('meta');
+            fallback.name = 'theme-color';
+            fallback.content = '#0f172a';
+            document.head.appendChild(fallback);
+          } catch (e2) { /* ignore */ }
+          return '#0f172a';
+        }
       }
+
+      var initialHex = applyThemeBootstrap();
+
+      // iOS Safari drops theme-color on reload (not bfcache, just hard reload).
+      // Re-apply at pageshow because React may not have mounted yet at that point.
+      window.addEventListener('pageshow', function(e) {
+        applyThemeBootstrap();
+        if (e.persisted) {
+          // bfcache restore: Safari re-renders chrome a few ms after pageshow.
+          requestAnimationFrame(applyThemeBootstrap);
+          setTimeout(applyThemeBootstrap, 80);
+          setTimeout(applyThemeBootstrap, 300);
+        } else {
+          // Hard reload: give Safari time to repaint chrome after JS settles.
+          requestAnimationFrame(applyThemeBootstrap);
+          setTimeout(applyThemeBootstrap, 200);
+        }
+      });
+
+      // Also reapply when tab becomes visible again.
+      document.addEventListener('visibilitychange', function() {
+        if (document.visibilityState === 'visible') {
+          applyThemeBootstrap();
+          setTimeout(applyThemeBootstrap, 100);
+        }
+      });
     })();
   </script>
   <!-- Safari iOS: чёрная строка статуса с прозрачностью (нужно для viewport-fit=cover) -->
