@@ -307,8 +307,8 @@ export function AIChatWidget() {
     const inputRef = useRef<HTMLInputElement>(null);
     const scrollContainerRef = useRef<HTMLDivElement>(null);
 
-    // Стабильная высота viewport (решает проблему iOS + Telegram)
-    const viewportHeight = useStableViewportHeight(isOpen);
+    // Стабильная высота viewport + offset клавиатуры (решает iOS + Telegram + keyboard)
+    const { layoutHeight, keyboardOffset } = useStableViewportHeight(isOpen);
 
     // Voice Input State (Whisper API)
     const [isRecording, setIsRecording] = useState(false);
