@@ -1,13 +1,8 @@
 import { useEffect, useRef, useCallback } from 'react';
-import { create } from 'zustand';
+import { useTTSStore } from '@/store/useTTSStore';
 
 // Global AudioContext to persist across re-renders and avoid multiple instances
 let globalAudioCtx: AudioContext | null = null;
-
-// Reactive TTS playing state — shared across the app
-export const useTTSStore = create<{ isSpeaking: boolean; setSpeaking: (v: boolean) => void }>()(
-    (set) => ({ isSpeaking: false, setSpeaking: (isSpeaking) => set({ isSpeaking }) })
-);
 
 // Cache for decoded audio buffers (more efficient than base64 strings)
 const audioBufferCache = new Map<string, AudioBuffer>();
