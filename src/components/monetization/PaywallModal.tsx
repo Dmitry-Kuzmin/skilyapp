@@ -521,26 +521,26 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
         <ContentWrapper
           {...wrapperAnimProps}
           className={cn(
-            "relative bg-[#0A0D1B] dark:bg-[#080B16]",
-            !checkoutTransactionId && "flex flex-col md:flex-row bg-white dark:bg-slate-950",
+            "relative",
+            checkoutTransactionId ? "bg-white" : "bg-[#0A0D1B] dark:bg-[#080B16] flex flex-col md:flex-row",
             !isMobile && "overflow-hidden rounded-[32px] shadow-2xl min-h-[650px] max-h-[85vh]"
           )}
         >
           {checkoutTransactionId ? (
-            <div className="relative flex flex-col w-full text-white" style={{ minHeight: !isMobile ? 650 : 'min(85vh, 700px)' }}>
-              {/* Header */}
-              <div className="flex items-center justify-between px-5 py-3 border-b border-white/5 shrink-0">
+            <div className="flex flex-col w-full" style={{ minHeight: !isMobile ? 650 : 'min(85vh, 700px)' }}>
+              {/* Header — light style matching Paddle form background */}
+              <div className="flex items-center justify-between px-5 py-3 border-b border-slate-200 shrink-0 bg-white">
                 <button
                   onClick={() => {
                     try { paddle?.Checkout.close(); } catch { /* noop */ }
                     setCheckoutTransactionId(null);
                   }}
-                  className="flex items-center gap-1.5 text-sm text-slate-400 hover:text-white transition-colors"
+                  className="flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-900 transition-colors"
                 >
                   <ArrowLeft className="w-4 h-4" />
                   <span>{t.backToPlans}</span>
                 </button>
-                <div className="flex items-center gap-1.5 text-[11px] text-slate-500">
+                <div className="flex items-center gap-1.5 text-[11px] text-slate-400">
                   <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
                   <span>{t.protectedByPaddle}</span>
                 </div>
