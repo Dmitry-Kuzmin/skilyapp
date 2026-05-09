@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { X, Volume2, TrendingUp, Music, Type, Keyboard, Pause, Sparkles } from "lucide-react";
+import { X, Volume2, TrendingUp, Music, Type, Keyboard, Pause, Sparkles, MessageSquare } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
