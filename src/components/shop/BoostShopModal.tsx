@@ -2181,6 +2181,7 @@ export function BoostShopModal({
                 <div
                   id={BOOST_PADDLE_FRAME_ID}
                   className={cn(
+                    BOOST_PADDLE_FRAME_ID,
                     "w-full transition-opacity duration-300",
                     checkoutStatus === 'ready' ? "opacity-100" : "opacity-0 pointer-events-none"
                   )}
