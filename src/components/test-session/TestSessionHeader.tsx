@@ -270,6 +270,8 @@ export const TestSessionHeader = ({
                             hideLanguageSelector={mode === 'pdd-ticket' || mode === 'exam-russia'}
                             smartVocabulary={smartVocabularyEnabled}
                             onSmartVocabularyChange={(val) => setSettings({ smartVocabularyEnabled: val })}
+                            autoExplain={autoExplainEnabled}
+                            onAutoExplainChange={toggleAutoExplain}
                         />
                     }
                 />
