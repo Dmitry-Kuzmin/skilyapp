@@ -791,6 +791,8 @@ const TestSession = () => {
 
   const smartVocabularyEnabled = useSettingsStore(state => state.smartVocabularyEnabled);
   const toggleSmartVocabulary = useSettingsStore(state => state.toggleSmartVocabulary);
+  const autoExplainEnabled = useSettingsStore(state => state.autoExplainEnabled);
+  const toggleAutoExplain = useSettingsStore(state => state.toggleAutoExplain);
   const appLanguage = useSettingsStore(state => state.language);
   const setSettings = useSettingsStore(state => state.updateSettings);
   const smartDefaultAppliedRef = useRef(false);
