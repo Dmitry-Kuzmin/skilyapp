@@ -166,9 +166,10 @@ serve(async (req: Request) => {
             else voice = 'es-ES-ElviraNeural';
         }
 
-        console.log(`[TTS] Request: "${text.substring(0, 30)}..." (${lang}, ${voice})`);
+        const cleanedText = preprocessTTS(text, lang);
+        console.log(`[TTS] Request: "${cleanedText.substring(0, 30)}..." (${lang}, ${voice})`);
 
-        const audioData = await generateAudio(text, voice, lang);
+        const audioData = await generateAudio(cleanedText, voice, lang);
 
         return new Response(audioData, {
             headers: {
