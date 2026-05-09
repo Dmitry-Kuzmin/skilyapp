@@ -527,13 +527,10 @@ export function AIChatWidget() {
                 </div>
             </div>
 
-            {/* Messages — flex-1 + overflow-y-auto */}
+            {/* Messages — flex-1 + overflow-y-auto. Без своего фона — наследует от drawer */}
             <div
                 ref={scrollContainerRef}
-                className={cn(
-                    "flex-1 overflow-y-auto px-4 py-4 space-y-4 relative",
-                    "bg-[#F5F8FF]/80 dark:bg-slate-900/40"
-                )}
+                className="flex-1 overflow-y-auto px-4 py-4 space-y-4 relative"
                 style={{ WebkitOverflowScrolling: 'touch' }}
             >
                 <div
