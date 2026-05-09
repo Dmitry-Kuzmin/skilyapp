@@ -87,6 +87,7 @@ const initialState: SettingsState = {
     hapticEnabled: true,
     adasHints: true,
     smartVocabularyEnabled: true,
+    autoExplainEnabled: true,
     duelNotifications: true,
     examDate: null,
     examCity: null,
