@@ -85,12 +85,18 @@ const BenefitItem = ({ icon: Icon, text, color, delay }: { icon: any, text: stri
   </motion.div>
 );
 
+const PADDLE_FRAME_CLASS = "paywall-paddle-frame";
+
 export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
   const { profileId, platform } = useUserContext();
   const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null);
+  const [checkoutTransactionId, setCheckoutTransactionId] = useState<string | null>(null);
+  const [checkoutStatus, setCheckoutStatus] = useState<'idle' | 'loading' | 'ready' | 'error'>('idle');
+  const [checkoutError, setCheckoutError] = useState<string | null>(null);
   const isMobile = useIsMobile();
   const { language } = useLanguage();
   const [paddle, setPaddle] = useState<Paddle | null>(null);
+  const paddleLocale = language === 'ru' ? 'ru' : language === 'es' ? 'es' : 'en';
 
   const currentPlatform = platform === 'telegram' ? 'telegram' : 'web';
   const showPaddlePayment = isPaymentMethodAvailable('paddle', currentPlatform);
@@ -105,6 +111,16 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
     if (existing) { setPaddle(existing); return; }
     getPaddleInstance().then(inst => inst && setPaddle(inst)).catch(() => { });
   }, [open, showPaddlePayment]);
+
+  // Сбрасываем состояние checkout при закрытии модалки
+  useEffect(() => {
+    if (!open) {
+      try { paddle?.Checkout.close(); } catch { /* noop */ }
+      setCheckoutTransactionId(null);
+      setCheckoutStatus('idle');
+      setCheckoutError(null);
+    }
+  }, [open, paddle]);
 
   const TRANSLATIONS: Record<string, any> = {
     ru: {
