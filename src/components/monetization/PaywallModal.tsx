@@ -863,18 +863,10 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
               </p>
             </motion.div>
           </div>
+            </>
+          )}
         </ContentWrapper>
       </UnifiedModal>
-
-      <CheckoutModal
-        open={!!selectedPlanId && paymentMethod === 'paddle'}
-        onClose={() => {
-          if (paddle) paddle.Checkout.close();
-          setSelectedPlanId(null);
-        }}
-      >
-        <div id="paddle-checkout-container" className="w-full h-full" />
-      </CheckoutModal>
 
       {/* Comparison popup — portal escapes framer-motion transform stacking context */}
       {typeof document !== 'undefined' && createPortal(
