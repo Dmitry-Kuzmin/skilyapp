@@ -22,6 +22,7 @@ import type { Paddle } from "@paddle/paddle-js";
 import { StarsPaymentButton } from "@/components/monetization/StarsPaymentButton";
 import { TrialCTA } from "@/components/monetization/TrialCTA";
 import { SocialTrustBadge } from "@/components/shared/SocialTrustBadge";
+import { useModalStack } from "@/hooks/useModalStack";
 
 interface PaywallModalProps {
   open: boolean;
@@ -93,6 +94,10 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
   const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null);
   const [checkoutTransactionId, setCheckoutTransactionId] = useState<string | null>(null);
   const isMobile = useIsMobile();
+
+  // Принудительно держим пейволл в стеке, пока он открыт (даже если перешли к оплате),
+  // чтобы GlobalModalManager не разблокировал скролл фона.
+  useModalStack("paywall-global-lock", open, "Paywall");
   const { language } = useLanguage();
   const [paddle, setPaddle] = useState<Paddle | null>(null);
   const paddleLocale = language === 'ru' ? 'ru' : language === 'es' ? 'es' : 'en';
@@ -127,7 +132,7 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
       if (cancelled || !instance) return;
 
       // Wait for the container to mount in DOM after the React commit
-      await new Promise(r => setTimeout(r, 300));
+      await new Promise(r => setTimeout(r, 500));
       if (cancelled) return;
 
       const container = document.getElementsByClassName(PADDLE_FRAME_CLASS)[0];
@@ -778,6 +783,8 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
           closeThreshold={0.2}
           shouldScaleBackground={false}
           dismissible={true}
+          modal={true}
+          noBodyStyles={false}
         >
           <VaulDrawer.Portal>
             <VaulDrawer.Overlay className="fixed inset-0 z-[99998] bg-black/60 backdrop-blur-[8px]" />

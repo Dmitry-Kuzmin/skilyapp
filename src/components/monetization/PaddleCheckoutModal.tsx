@@ -13,6 +13,7 @@ import { getPaddleInstance, getPaddleInstanceSync } from "@/lib/paddle";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { isTelegramMiniApp, getTelegramWebApp } from "@/lib/telegram";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useModalStack } from "@/hooks/useModalStack";
 import { Loader2, AlertCircle, CreditCard, ShieldCheck } from "lucide-react";
 import type { Paddle } from "@paddle/paddle-js";
 import { toast } from "sonner";
@@ -42,6 +43,9 @@ export function PaddleCheckoutModal({
     const paddleRef = useRef<Paddle | null>(null);
     const initDoneRef = useRef<string | null>(null);
     const locale = language === "ru" ? "ru" : language === "es" ? "es" : "en";
+
+    // Принудительно держим в стеке для блокировки скролла фона
+    useModalStack("paddle-checkout-lock", open, "Paddle Checkout");
 
     // Открытие Overlay на десктопе (не уходим со страницы)
     const openOverlay = useCallback(async () => {
@@ -189,6 +193,8 @@ export function PaddleCheckoutModal({
             dismissible={status !== "loading"}
             closeThreshold={0.2}
             shouldScaleBackground={false}
+            modal={true}
+            noBodyStyles={false}
         >
             <DrawerContent className="bg-white border border-slate-100 rounded-[40px] mx-2 mb-4 overflow-hidden focus:outline-none shadow-[0_-12px_60px_rgba(0,0,0,0.35)]">
                 {/* Apple-style Handle */}
