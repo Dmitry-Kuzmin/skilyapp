@@ -62,6 +62,8 @@
     "@google-cloud/vertexai": "^1.10.0",
     "@google/generative-ai": "^0.24.1",
     "@hookform/resolvers": "^3.3.4",
+    "@iconify-json/logos": "^1.2.11",
+    "@iconify/react": "^6.0.2",
     "@paddle/paddle-js": "^1.6.1",
     "@passwordless-id/webauthn": "^2.3.1",
     "@radix-ui/react-accordion": "^1.1.2",
@@ -165,6 +167,7 @@
     "zustand": "^5.0.9"
   },
   "devDependencies": {
+    "@iconify-json/cryptocurrency-color": "^1.2.4",
     "@puppeteer/browsers": "^2.11.0",
     "@types/node": "^22.7.5",
     "@types/react": "^18.3.5",

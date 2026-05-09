@@ -417,9 +417,12 @@ function PaymentItem({
         )}
         {badges && badges.length > 0 && (
           <div className="flex items-center gap-2 mt-3 flex-wrap">
-            {badges.map((b, i) => (
-              <BrandLogo key={i} name={b} size={36} />
-            ))}
+            {badges.map((b, i) => {
+              const isCrypto = ["btc", "eth", "usdt", "ton", "sol", "bsc", "trx", "bitcoin", "ethereum", "tether", "solana", "binance"].includes(b.toLowerCase());
+              return (
+                <BrandLogo key={i} name={b} size={isCrypto ? 24 : 32} />
+              );
+            })}
           </div>
         )}
       </div>
