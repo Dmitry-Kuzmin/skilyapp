@@ -102,8 +102,6 @@ export const useTestAudio = (
         window.speechSynthesis.speak(utterance);
     }, [getSystemVoice, language, setSpeaking]);
 
-    const setSpeaking = useTTSStore((s) => s.setSpeaking);
-
     // Stop all audio playback
     const stopAll = useCallback(() => {
         // Abort pending fetch
