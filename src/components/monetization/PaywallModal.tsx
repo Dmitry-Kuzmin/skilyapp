@@ -140,11 +140,11 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
         return;
       }
 
-      // Ждём пока контейнер появится в DOM
+      // Ждём пока контейнер появится в DOM (Paddle ищет его по className через getElementsByClassName)
       let attempts = 0;
       let container: HTMLElement | null = null;
       while (attempts < 20 && !container) {
-        container = document.getElementById(PADDLE_FRAME_ID);
+        container = document.getElementsByClassName(PADDLE_FRAME_ID)[0] as HTMLElement | undefined ?? null;
         if (!container) await new Promise(r => setTimeout(r, 50));
         attempts++;
       }
