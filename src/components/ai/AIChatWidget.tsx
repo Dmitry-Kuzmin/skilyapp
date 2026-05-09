@@ -716,7 +716,10 @@ export function AIChatWidget() {
 
     // Mobile: Vaul Drawer
     if (isMobile) {
-        const drawerHeight = viewportHeight > 0 ? viewportHeight : undefined;
+        // Оставляем сверху отступ для notch + 16px воздуха, как в Claude app
+        const heightExpr = viewportHeight > 0
+            ? `calc(${viewportHeight}px - env(safe-area-inset-top, 0px) - 16px)`
+            : `calc(100dvh - env(safe-area-inset-top, 0px) - 16px)`;
 
         return (
             <>
@@ -728,8 +731,8 @@ export function AIChatWidget() {
                     <DrawerContent
                         className="overflow-hidden flex flex-col focus:outline-none"
                         style={{
-                            height: drawerHeight ? `${drawerHeight}px` : '92dvh',
-                            maxHeight: drawerHeight ? `${drawerHeight}px` : '92dvh',
+                            height: heightExpr,
+                            maxHeight: heightExpr,
                             transition: 'height 0.2s ease',
                         }}
                     >
