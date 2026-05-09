@@ -184,6 +184,7 @@ const AIWidgetContent = ({
 }: AIWidgetProps) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const isSpeaking = useTTSStore((s) => s.isSpeaking);
   const { sendRequest } = useAIRequest();
   const [input, setInput] = useState('');
   const [isExpanded, setIsExpanded] = useState(false);
