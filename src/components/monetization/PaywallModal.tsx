@@ -122,6 +122,75 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
     }
   }, [open, paddle]);
 
+  // Открываем Paddle inline в родительской модалке когда есть transactionId
+  useEffect(() => {
+    if (!checkoutTransactionId) return;
+
+    let cancelled = false;
+    setCheckoutStatus('loading');
+    setCheckoutError(null);
+
+    const openInline = async () => {
+      let instance = paddle || getPaddleInstanceSync();
+      if (!instance) instance = await getPaddleInstance();
+      if (cancelled) return;
+      if (!instance) {
+        setCheckoutError('Paddle SDK unavailable');
+        setCheckoutStatus('error');
+        return;
+      }
+
+      // Ждём пока контейнер появится в DOM
+      let attempts = 0;
+      let container: HTMLElement | undefined;
+      while (attempts < 20 && !container) {
+        const els = document.getElementsByClassName(PADDLE_FRAME_CLASS);
+        if (els.length > 0) container = els[0] as HTMLElement;
+        else await new Promise(r => setTimeout(r, 50));
+        attempts++;
+      }
+      if (cancelled) return;
+      if (!container) {
+        setCheckoutError('Container not found');
+        setCheckoutStatus('error');
+        return;
+      }
+
+      container.innerHTML = '';
+
+      (instance.Checkout.open as (opts: any) => void)({
+        transactionId: checkoutTransactionId,
+        settings: {
+          displayMode: 'inline',
+          frameTarget: PADDLE_FRAME_CLASS,
+          frameInitialHeight: 500,
+          frameStyle: 'width: 100%; min-width: 100%; border: none; background: transparent;',
+          theme: 'dark',
+          locale: paddleLocale,
+        },
+        eventCallback: (event: any) => {
+          if (event?.name === 'checkout.loaded') {
+            setCheckoutStatus('ready');
+          } else if (event?.name === 'checkout.completed') {
+            toast({ title: t.paymentSuccess, description: t.paymentSuccessDesc });
+            setTimeout(() => {
+              setCheckoutTransactionId(null);
+              onOpenChange(false);
+            }, 1200);
+          } else if (event?.name === 'checkout.error') {
+            const msg = event?.data?.error?.message || event?.data?.message || t.unknownError;
+            setCheckoutError(msg);
+            setCheckoutStatus('error');
+          }
+        },
+      });
+    };
+
+    openInline();
+
+    return () => { cancelled = true; };
+  }, [checkoutTransactionId, paddle, paddleLocale, onOpenChange]);
+
   const TRANSLATIONS: Record<string, any> = {
     ru: {
       premiumAccess: "Premium Access",
