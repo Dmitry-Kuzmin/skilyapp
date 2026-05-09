@@ -1358,6 +1358,8 @@ const TestSession = () => {
           setTestLanguage={(lang: string) => handleLanguageChange(lang as any)}
           smartVocabularyEnabled={smartVocabularyEnabled}
           setSettings={setSettings}
+          autoExplainEnabled={autoExplainEnabled}
+          toggleAutoExplain={toggleAutoExplain}
           setShowQuestionMap={setShowQuestionMap}
           toggleBookmark={toggleBookmark}
           isQuestionBookmarked={isQuestionBookmarked}
