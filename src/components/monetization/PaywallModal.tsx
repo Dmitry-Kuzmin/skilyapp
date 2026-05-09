@@ -230,7 +230,13 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
       refreshPage: "Пожалуйста, обновите страницу",
       unknownPlan: "Неизвестный план",
       loginRequired: "Необходимо войти в аккаунт",
-      unknownError: "Непредвиденная ошибка. Попробуйте позже."
+      unknownError: "Непредвиденная ошибка. Попробуйте позже.",
+      backToPlans: "Назад к планам",
+      protectedByPaddle: "Защищено Paddle",
+      loadingCheckout: "Загрузка безопасной оплаты…",
+      paymentSuccess: "Оплата прошла успешно",
+      paymentSuccessDesc: "Premium активирован 🎉",
+      tryAgain: "Повторить"
     },
     en: {
       premiumAccess: "Premium Access",
