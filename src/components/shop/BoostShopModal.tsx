@@ -568,6 +568,8 @@ export function BoostShopModal({
     }
   };
 
+  loadDataRef.current = loadData;
+
   const getInventoryCount = (boostType: string) => {
     return inventory.find((i) => i.boost_type === boostType)?.quantity || 0;
   };
