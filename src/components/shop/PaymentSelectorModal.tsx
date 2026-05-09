@@ -289,7 +289,7 @@ export function PaymentSelectorModal({
               icon={Bitcoin}
               title={t('boostShop.payment.cryptoTitle') || 'Cryptocurrency'}
               subtitle={t('boostShop.payment.cryptoSubtitle') || "Быстро, без лимитов и санкций"}
-              badges={["USDT", "BTC", "ETH", "SOL", "TON", "TRON", "BSC"]}
+              badges={["🪙 USDT", "₿ BTC", "💎 ETH", "SOL", "TON", "BSC"]}
               color="orange"
               onClick={handleCryptoClick}
               className="relative z-20"
@@ -303,7 +303,7 @@ export function PaymentSelectorModal({
               icon={CreditCard}
               title={t('boostShop.payment.cardTitle') || "Банковская карта"}
               subtitle={t('boostShop.payment.cardSubtitle') || "Безопасная оплата со всего мира"}
-              badges={["Apple Pay", "PayPal", "Google Pay", "Visa", "Mastercard"]}
+              badges={[" Apple Pay", "🅿️ PayPal", "G Google Pay", "💳 Visa", "Mastercard"]}
               color="gray"
               className="relative z-20"
               onClick={onCardClick}
@@ -399,11 +399,8 @@ function PaymentItem({
       )}
     >
       <div className={cn(
-        "w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 shadow-lg",
-        color === "gold" ? "bg-gradient-to-br from-amber-400 to-orange-500 text-black" :
-        color === "blue" ? "bg-gradient-to-br from-blue-500 to-indigo-600 text-white" :
-        color === "orange" ? "bg-gradient-to-br from-orange-500 to-red-600 text-white" :
-        "bg-slate-200 text-slate-700 dark:bg-white/10 dark:text-white"
+        "w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 border shadow-sm",
+        "bg-white dark:bg-[#111] border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300"
       )}>
         {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Icon className="w-6 h-6" />}
       </div>
@@ -412,9 +409,11 @@ function PaymentItem({
         <h4 className="font-bold text-sm text-foreground leading-tight group-hover:text-primary transition-colors">
           {title}
         </h4>
-        <p className="text-[11px] text-muted-foreground mt-0.5 truncate">
-          {subtitle}
-        </p>
+        {!(badges && badges.length > 0) && (
+          <p className="text-[11px] text-muted-foreground mt-0.5 truncate">
+            {subtitle}
+          </p>
+        )}
         {badges && badges.length > 0 && (
           <div className="flex items-center gap-1.5 mt-2 flex-wrap">
             {badges.map((b, i) => (

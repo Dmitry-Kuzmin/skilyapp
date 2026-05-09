@@ -97,4 +97,44 @@ if (existsSync(blogDir)) {
   }
 }
 
+// Copy Russian article pages: landing/dist/ru/article/[slug]/index.html → dist/ru/article/[slug].html
+const astroRuArticleDir = join(ASTRO_DIST, 'ru', 'article');
+const mainRuArticleDir = join(MAIN_DIST, 'ru', 'article');
+if (existsSync(astroRuArticleDir)) {
+  if (!existsSync(mainRuArticleDir)) mkdirSync(mainRuArticleDir, { recursive: true });
+  const slugDirs = readdirSync(astroRuArticleDir, { withFileTypes: true })
+    .filter((d) => d.isDirectory())
+    .map((d) => d.name);
+  for (const slug of slugDirs) {
+    const src = join(astroRuArticleDir, slug, 'index.html');
+    const dest = join(mainRuArticleDir, `${slug}.html`);
+    if (existsSync(src)) {
+      copyFileSync(src, dest);
+      console.log(`[copy-landing] ✅ ru/article/${slug}/index.html → dist/ru/article/${slug}.html`);
+    }
+  }
+} else {
+  console.log('[copy-landing] ⚠️  Skipped (not found): ru/article/');
+}
+
+// Copy English article pages: landing/dist/en/article/[slug]/index.html → dist/en/article/[slug].html
+const astroEnArticleDir = join(ASTRO_DIST, 'en', 'article');
+const mainEnArticleDir = join(MAIN_DIST, 'en', 'article');
+if (existsSync(astroEnArticleDir)) {
+  if (!existsSync(mainEnArticleDir)) mkdirSync(mainEnArticleDir, { recursive: true });
+  const slugDirs = readdirSync(astroEnArticleDir, { withFileTypes: true })
+    .filter((d) => d.isDirectory())
+    .map((d) => d.name);
+  for (const slug of slugDirs) {
+    const src = join(astroEnArticleDir, slug, 'index.html');
+    const dest = join(mainEnArticleDir, `${slug}.html`);
+    if (existsSync(src)) {
+      copyFileSync(src, dest);
+      console.log(`[copy-landing] ✅ en/article/${slug}/index.html → dist/en/article/${slug}.html`);
+    }
+  }
+} else {
+  console.log('[copy-landing] ⚠️  Skipped (not found): en/article/');
+}
+
 console.log('[copy-landing] Done.');

@@ -86,8 +86,8 @@ if (article.howTo) {
 
 const hreflang = [
   { lang: "es", href: canonical },
-  { lang: "en", href: canonical },
-  { lang: "ru", href: canonical },
+  { lang: "en", href: `${BASE}/en/article/${article.slug}` },
+  { lang: "ru", href: `${BASE}/ru/article/${article.slug}` },
 ];
 
 const publishedDate = new Date(article.publishedAt).toLocaleDateString("es-ES", {

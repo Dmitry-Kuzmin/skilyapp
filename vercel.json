@@ -205,6 +205,14 @@
       "destination": "/article/:slug.html"
     },
     {
+      "source": "/ru/article/:slug",
+      "destination": "/ru/article/:slug.html"
+    },
+    {
+      "source": "/en/article/:slug",
+      "destination": "/en/article/:slug.html"
+    },
+    {
       "source": "/legal/:tab",
       "destination": "/legal/:tab.html"
     },

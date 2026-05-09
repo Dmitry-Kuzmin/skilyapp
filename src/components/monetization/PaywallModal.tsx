@@ -901,7 +901,7 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
               exit={{ opacity: 0, transition: { duration: 0.15 } }}
               transition={{ duration: 0.2 }}
               className="fixed inset-0 flex items-end sm:items-center justify-center sm:p-6"
-              style={{ zIndex: 200000, background: 'rgba(0,0,0,0.82)', backdropFilter: 'blur(18px)', pointerEvents: 'auto' }}
+              style={{ zIndex: 200000, background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(8px)', pointerEvents: 'auto' }}
               onClick={() => setShowComparison(false)}
               onPointerDown={(e) => e.stopPropagation()}
             >
@@ -912,7 +912,7 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
                 transition={{ type: 'spring', stiffness: 420, damping: 36, mass: 0.8 }}
                 onClick={(e) => e.stopPropagation()}
                 onPointerDown={(e) => e.stopPropagation()}
-                className="relative w-full sm:max-w-[540px] bg-[#0a0d1a] rounded-t-3xl sm:rounded-3xl shadow-2xl flex flex-col"
+                className="relative w-full sm:max-w-[540px] bg-slate-950 rounded-t-3xl sm:rounded-3xl shadow-2xl flex flex-col"
                 style={{ maxHeight: '88vh', border: '1px solid rgba(255,255,255,0.07)' }}
               >
                 {/* Drag handle visual */}
@@ -937,7 +937,7 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
                     <span className="text-2xl font-black text-slate-400">Free</span>
                     <span className="text-slate-600 text-sm">vs</span>
                     <div className="flex items-center gap-1.5">
-                      <Crown className="w-4 h-4 text-violet-400 fill-violet-400/30" />
+                      <Crown className="w-4 h-4 text-amber-400 fill-amber-400/30" />
                       <span className="text-2xl font-black text-white">Premium</span>
                     </div>
                   </div>
@@ -951,8 +951,8 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
                     </span>
                     <span className="text-[10px] font-bold uppercase tracking-wider text-slate-600 text-center">Free</span>
                     <div className="flex items-center justify-center gap-1">
-                      <Crown className="w-2.5 h-2.5 text-violet-400" />
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-violet-400">Premium</span>
+                      <Crown className="w-2.5 h-2.5 text-amber-400" />
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-amber-400">Premium</span>
                     </div>
                   </div>
                 </div>
@@ -1005,11 +1005,11 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
                             {/* Premium value */}
                             <div className="flex justify-center items-center">
                               {isBool ? (
-                                <span className="w-6 h-6 rounded-full bg-violet-500/20 border border-violet-500/30 flex items-center justify-center">
-                                  <Check className="w-3 h-3 text-violet-400" />
+                                <span className="w-6 h-6 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
+                                  <Check className="w-3 h-3 text-amber-400" />
                                 </span>
                               ) : (
-                                <span className="text-[12px] font-black text-white text-center bg-violet-500/15 border border-violet-500/20 px-3 py-1 rounded-xl leading-tight">
+                                <span className="text-[12px] font-black text-amber-400 text-center bg-amber-500/10 border border-amber-500/20 px-3 py-1 rounded-xl leading-tight">
                                   {String(row.pro)}
                                 </span>
                               )}
@@ -1028,7 +1028,7 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
                 >
                   <button
                     onClick={() => setShowComparison(false)}
-                    className="w-full h-12 rounded-2xl bg-gradient-to-r from-violet-600 to-indigo-600 text-white text-sm font-bold hover:opacity-90 active:scale-[0.99] transition-all shadow-lg shadow-violet-900/30"
+                    className="w-full h-12 rounded-2xl bg-white text-slate-900 text-sm font-bold hover:bg-slate-200 active:scale-[0.99] transition-all shadow-lg"
                   >
                     ← {isRu ? 'Выбрать план' : isEs ? 'Elegir plan' : 'Choose plan'}
                   </button>
