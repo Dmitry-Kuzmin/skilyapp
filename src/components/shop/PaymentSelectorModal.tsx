@@ -373,6 +373,7 @@ function PaymentItem({
   rightElement,
   color = "blue",
   loading = false,
+  badges,
 }: {
   icon: React.ComponentType<{ className?: string }>;
   title: string;
