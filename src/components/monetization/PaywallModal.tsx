@@ -142,7 +142,7 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
 
       // Ждём пока контейнер появится в DOM
       let attempts = 0;
-      let container: HTMLElement | undefined;
+      let container: HTMLElement | null = null;
       while (attempts < 20 && !container) {
         container = document.getElementById(PADDLE_FRAME_ID);
         if (!container) await new Promise(r => setTimeout(r, 50));
