@@ -321,9 +321,8 @@ export function BoostShopModal({
       let attempts = 0;
       let container: HTMLElement | undefined;
       while (attempts < 20 && !container) {
-        const els = document.getElementsByClassName(BOOST_PADDLE_FRAME_CLASS);
-        if (els.length > 0) container = els[0] as HTMLElement;
-        else await new Promise(r => setTimeout(r, 50));
+        container = document.getElementById(BOOST_PADDLE_FRAME_ID);
+        if (!container) await new Promise(r => setTimeout(r, 50));
         attempts++;
       }
       if (cancelled) return;
@@ -339,7 +338,7 @@ export function BoostShopModal({
         transactionId: checkoutTransactionId,
         settings: {
           displayMode: 'inline',
-          frameTarget: BOOST_PADDLE_FRAME_CLASS,
+          frameTarget: BOOST_PADDLE_FRAME_ID,
           frameInitialHeight: 500,
           frameStyle: 'width: 100%; min-width: 100%; border: none; background: transparent;',
           theme: 'dark',
