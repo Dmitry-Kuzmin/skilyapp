@@ -21,7 +21,7 @@ import { useUserContext } from "@/contexts/UserContext";
 import { motion, AnimatePresence } from "framer-motion";
 import { useDashboardData } from "@/hooks/useDashboardData";
 import { useDuelPassData } from "@/hooks/useDuelPassData";
-import { useTTSStore } from "@/hooks/test-session/useTestAudio";
+import { useTTSStore } from "@/store/useTTSStore";
 // TON_DISABLED: import { TonPaymentWidget } from "@/components/monetization/LazyTonPaymentWidget";
 
 type Message = {
