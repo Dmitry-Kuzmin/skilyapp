@@ -194,6 +194,7 @@ export function BoostShopModal({
   const modalContentRef = useRef<HTMLDivElement>(null);
   const hasLoadedRef = useRef(false);
   const historyLoadTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const loadDataRef = useRef<(() => Promise<void>) | null>(null);
 
   // Вычисляем параметры которые нужны для useEffect (не хуки — просто вычисления)
   const profileId = userContext?.profileId ?? null;
