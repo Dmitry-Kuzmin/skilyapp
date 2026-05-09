@@ -7,47 +7,56 @@ interface BrandLogoProps {
   size?: number;
 }
 
-const BRAND_CONFIG: Record<string, string> = {
-  visa:        "/logos/visa.svg",
-  mastercard:  "/logos/mastercard.svg",
-  applepay:    "/logos/applepay.svg",
-  "apple pay": "/logos/applepay.svg",
-  googlepay:   "/logos/googlepay.svg",
-  "google pay": "/logos/googlepay.svg",
-  paypal:      "/logos/paypal.svg",
-  btc:         "/logos/btc.svg",
-  bitcoin:     "/logos/btc.svg",
-  eth:         "/logos/eth.svg",
-  ethereum:    "/logos/eth.svg",
-  usdt:        "/logos/usdt.svg",
-  tether:      "/logos/usdt.svg",
-  ton:         "/logos/ton.svg",
-  sol:         "/logos/sol.svg",
-  solana:      "/logos/sol.svg",
-  bsc:         "/logos/bsc.svg",
-  binance:     "/logos/bsc.svg",
-  tron:        "/logos/trx.svg",
-  trx:         "/logos/trx.svg",
+interface BrandConfig {
+  src: string;
+  bg: string;
+  padding: string;
+}
+
+const BRAND_CONFIG: Record<string, BrandConfig> = {
+  visa:        { src: "/logos/visa.svg",       bg: "bg-white",        padding: "p-1.5" },
+  mastercard:  { src: "/logos/mastercard.svg", bg: "bg-white",        padding: "p-0.5" },
+  "apple pay": { src: "/logos/applepay.svg",   bg: "bg-black",        padding: "p-0" },
+  applepay:    { src: "/logos/applepay.svg",   bg: "bg-black",        padding: "p-0" },
+  "google pay":{ src: "/logos/googlepay.svg",  bg: "bg-white",        padding: "p-1.5" },
+  googlepay:   { src: "/logos/googlepay.svg",  bg: "bg-white",        padding: "p-1.5" },
+  paypal:      { src: "/logos/paypal.svg",     bg: "bg-white",        padding: "p-1.5" },
+  btc:         { src: "/logos/btc.svg",        bg: "bg-[#F7931A]",    padding: "p-1.5" },
+  bitcoin:     { src: "/logos/btc.svg",        bg: "bg-[#F7931A]",    padding: "p-1.5" },
+  eth:         { src: "/logos/eth.svg",        bg: "bg-[#627EEA]",    padding: "p-1.5" },
+  ethereum:    { src: "/logos/eth.svg",        bg: "bg-[#627EEA]",    padding: "p-1.5" },
+  usdt:        { src: "/logos/usdt.svg",       bg: "bg-[#26A17B]",    padding: "p-1.5" },
+  tether:      { src: "/logos/usdt.svg",       bg: "bg-[#26A17B]",    padding: "p-1.5" },
+  ton:         { src: "/logos/ton.svg",        bg: "bg-[#0088CC]",    padding: "p-0" },
+  sol:         { src: "/logos/sol.svg",        bg: "bg-black",        padding: "p-1.5" },
+  solana:      { src: "/logos/sol.svg",        bg: "bg-black",        padding: "p-1.5" },
+  bsc:         { src: "/logos/bsc.svg",        bg: "bg-[#F3BA2F]",    padding: "p-1.5" },
+  binance:     { src: "/logos/bsc.svg",        bg: "bg-[#F3BA2F]",    padding: "p-1.5" },
+  tron:        { src: "/logos/trx.svg",        bg: "bg-[#EF0027]",    padding: "p-1.5" },
+  trx:         { src: "/logos/trx.svg",        bg: "bg-[#EF0027]",    padding: "p-1.5" },
 };
 
 export function BrandLogo({ name, className, size = 30 }: BrandLogoProps) {
   const key = name.toLowerCase().trim();
-  const iconUrl = BRAND_CONFIG[key];
+  const config = BRAND_CONFIG[key];
 
-  if (!iconUrl) return null;
+  if (!config) return null;
 
+  // Use the brand color for crypto, and white for most banks
   return (
     <div
       className={cn(
-        "flex items-center justify-center shrink-0 rounded-full bg-white/[0.08] shadow-lg backdrop-blur-md transition-all hover:bg-white/[0.12] hover:scale-110",
+        "flex items-center justify-center shrink-0 rounded-full shadow-md overflow-hidden transition-all hover:scale-110",
+        config.bg,
+        config.padding,
         className
       )}
       style={{ width: size, height: size }}
     >
       <img
-        src={iconUrl}
+        src={config.src}
         alt={name}
-        className="w-[55%] h-[55%] invert brightness-[10] contrast-[10]"
+        className="w-full h-full object-contain"
         loading="eager"
         draggable={false}
       />
