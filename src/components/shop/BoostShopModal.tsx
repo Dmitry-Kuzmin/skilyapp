@@ -177,6 +177,9 @@ export function BoostShopModal({
   const [filterCategory, setFilterCategory] = useState<'all' | 'earn' | 'spend' | 'purchase' | 'reward'>('all');
   const [activeTab, setActiveTab] = useState<'boosts' | 'coins' | 'premium' | 'history'>(initialTab || 'boosts');
   const [paddleCheckoutUrl, setPaddleCheckoutUrl] = useState<string | null>(null);
+  const [checkoutTransactionId, setCheckoutTransactionId] = useState<string | null>(null);
+  const [checkoutStatus, setCheckoutStatus] = useState<'idle' | 'loading' | 'ready' | 'error'>('idle');
+  const [checkoutError, setCheckoutError] = useState<string | null>(null);
   const [paywallOpen, setPaywallOpen] = useState(false);
   const [showRewardedAdModal, setShowRewardedAdModal] = useState(false);
   const [adTestLoading, setAdTestLoading] = useState(false);
