@@ -1293,6 +1293,7 @@ const TestSession = () => {
         sidebar={
           !isTelegramApp && isPracticeLikeMode && mode !== 'blitz' && mode !== 'exam' && mode !== 'exam-russia' && (
             <div className="min-[1020px]:mt-[76px]">
+              <Suspense fallback={null}>
               <AIWidget
                 id={currentQuestion.id}
                 explanation={selectedOption ? (showTranslation ? currentQuestion.explanation_ru :
