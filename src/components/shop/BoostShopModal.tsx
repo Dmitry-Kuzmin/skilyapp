@@ -1739,12 +1739,10 @@ export function BoostShopModal({
               className="flex-1 overflow-y-auto p-3 md:p-4 space-y-4 m-0 data-[state=inactive]:hidden outline-none scrollbar-hide min-h-0"
             >
               <div className="space-y-6">
-                {/* Crypto Miner — бесплатные монеты за рекламу (только для не-premium) */}
-                {!isPremium && (
-                  <CryptoMinerAdvanced
-                    onRewardClaimed={() => loadData()}
-                  />
-                )}
+                {/* Crypto Miner — бесплатные монеты за рекламу */}
+                <CryptoMinerAdvanced
+                  onRewardClaimed={() => loadData()}
+                />
 
                 <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 gap-4">
                   {COIN_PACKS.map((pack) => {

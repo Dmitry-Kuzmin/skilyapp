@@ -11,6 +11,7 @@ import { haptics } from '@/lib/haptics';
 import { useAdRewardStatus } from '@/hooks/useAdRewardStatus';
 import { motion, AnimatePresence } from "@/components/optimized/Motion";
 import { useLanguage } from '@/contexts/LanguageContext';
+import { usePremium } from '@/hooks/usePremium';
 
 interface CryptoMinerAdvancedProps {
     className?: string;
@@ -29,6 +30,8 @@ export function CryptoMinerAdvanced({ className, onRewardClaimed }: CryptoMinerA
     const [loading, setLoading] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
     const [showSuccess, setShowSuccess] = useState(false);
+    const { isPremium } = usePremium();
+    const rewardAmount = isPremium ? 50 : 25;
 
     const {
         canWatch,
@@ -76,7 +79,7 @@ export function CryptoMinerAdvanced({ className, onRewardClaimed }: CryptoMinerA
         setLoading(true);
         try {
             const { data, error } = await supabase.functions.invoke('claim-ad-reward', {
-                body: { user_id: profileId, reward_type: 'coins', reward_amount: 25 }
+                body: { user_id: profileId, reward_type: 'coins', reward_amount: rewardAmount }
             });
             if (error) throw error;
             if (!data.success) throw new Error(data.error || 'Ошибка майнинга');
@@ -89,7 +92,7 @@ export function CryptoMinerAdvanced({ className, onRewardClaimed }: CryptoMinerA
             setShowSuccess(true);
             setTimeout(() => setShowSuccess(false), 2500);
             onRewardClaimed?.();
-            toast({ title: '⚡ CRYPTO MINED!', description: '+25 монет добыто!' });
+            toast({ title: '⚡ CRYPTO MINED!', description: `+${rewardAmount} монет добыто!` });
         } catch (err: any) {
             console.error('[CryptoMinerAdvanced] Error:', err);
             toast({ title: 'Ошибка', description: err.message, variant: 'destructive' });
@@ -254,7 +257,7 @@ export function CryptoMinerAdvanced({ className, onRewardClaimed }: CryptoMinerA
                                 <span className={cn(
                                     "font-black text-base sm:text-lg tabular-nums",
                                     canWatch ? "text-yellow-200" : "text-white/30"
-                                )}>+25</span>
+                                )}>+{rewardAmount}</span>
                             </div>
                             {canWatch && (
                                 <motion.div
@@ -300,7 +303,7 @@ export function CryptoMinerAdvanced({ className, onRewardClaimed }: CryptoMinerA
                                 transition={{ type: 'spring', damping: 15 }}
                             >
                                 <Sparkles className="w-10 h-10 text-yellow-300" />
-                                <span className="text-white font-black text-2xl tracking-wider">+25 MINED</span>
+                                <span className="text-white font-black text-2xl tracking-wider">+{rewardAmount} MINED</span>
                                 <span className="text-blue-400 text-xs font-mono uppercase tracking-widest">Block confirmed</span>
                             </motion.div>
                         </motion.div>
@@ -312,7 +315,7 @@ export function CryptoMinerAdvanced({ className, onRewardClaimed }: CryptoMinerA
                 open={showAdModal}
                 onOpenChange={setShowAdModal}
                 rewardType="coins"
-                rewardAmount={25}
+                rewardAmount={rewardAmount}
                 onRewardClaimed={handleRewardClaimed}
                 title={t('dashboard.rewardedAds.placements.cryptoMiner.title')}
                 description={t('dashboard.rewardedAds.placements.cryptoMiner.description')}
