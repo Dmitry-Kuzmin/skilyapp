@@ -551,10 +551,79 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
         <ContentWrapper
           {...wrapperAnimProps}
           className={cn(
-            "relative flex flex-col md:flex-row bg-white dark:bg-slate-950",
+            "relative bg-[#0A0D1B] dark:bg-[#080B16]",
+            !checkoutTransactionId && "flex flex-col md:flex-row bg-white dark:bg-slate-950",
             !isMobile && "overflow-hidden rounded-[32px] shadow-2xl min-h-[650px] max-h-[85vh]"
           )}
         >
+          {checkoutTransactionId ? (
+            <div className="relative flex flex-col w-full text-white" style={{ minHeight: !isMobile ? 650 : 'min(85vh, 700px)' }}>
+              {/* Header */}
+              <div className="flex items-center justify-between px-5 sm:px-6 py-4 border-b border-white/5 shrink-0">
+                <button
+                  onClick={() => {
+                    try { paddle?.Checkout.close(); } catch { /* noop */ }
+                    setCheckoutTransactionId(null);
+                    setCheckoutStatus('idle');
+                    setCheckoutError(null);
+                  }}
+                  className="flex items-center gap-1.5 text-sm text-slate-400 hover:text-white transition-colors"
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                  <span>{t.backToPlans}</span>
+                </button>
+                <div className="flex items-center gap-1.5 text-[11px] text-slate-500">
+                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
+                  <span>{t.protectedByPaddle}</span>
+                </div>
+              </div>
+
+              {/* Body */}
+              <div className="relative flex-1 overflow-y-auto px-3 sm:px-6 py-4">
+                {checkoutStatus === 'loading' && (
+                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 z-20 bg-[#0A0D1B]/95">
+                    <Loader2 className="w-8 h-8 text-violet-400 animate-spin" />
+                    <p className="text-xs text-slate-400 font-medium">{t.loadingCheckout}</p>
+                  </div>
+                )}
+                {checkoutStatus === 'error' && (
+                  <div className="flex flex-col items-center justify-center gap-4 py-12">
+                    <div className="w-12 h-12 rounded-full bg-red-500/10 flex items-center justify-center">
+                      <XIcon className="w-6 h-6 text-red-400" />
+                    </div>
+                    <p className="text-sm text-slate-300 text-center max-w-xs">{checkoutError || t.unknownError}</p>
+                    <button
+                      onClick={() => {
+                        const tx = checkoutTransactionId;
+                        setCheckoutTransactionId(null);
+                        setTimeout(() => setCheckoutTransactionId(tx), 50);
+                      }}
+                      className="px-5 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-sm font-bold transition-colors"
+                    >
+                      {t.tryAgain}
+                    </button>
+                  </div>
+                )}
+                <div
+                  className={cn(
+                    PADDLE_FRAME_CLASS,
+                    "w-full transition-opacity duration-300",
+                    checkoutStatus === 'ready' ? "opacity-100" : "opacity-0 pointer-events-none"
+                  )}
+                  style={{ minHeight: 450 }}
+                />
+              </div>
+
+              {/* Footer */}
+              <div className="px-6 py-3 border-t border-white/5 flex items-center justify-center gap-2 shrink-0">
+                <Lock className="w-3 h-3 text-emerald-500" />
+                <p className="text-[10px] text-slate-500 font-mono uppercase tracking-widest">
+                  {t.securePayment}
+                </p>
+              </div>
+            </div>
+          ) : (
+            <>
           {/* LEFTSIDE (PREMIUM DARK) */}
           <div className="relative w-full md:w-[42%] bg-[#0A0D1B] dark:bg-[#080B16] text-white p-6 md:p-8 flex flex-col justify-between overflow-hidden z-10 border-r border-white/5">
             <AnimatedBackground />
