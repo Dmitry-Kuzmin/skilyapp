@@ -72,9 +72,9 @@ serve(async (req: Request) => {
 
         // ПДД термины обычно на испанском или русском
         if (!voice) {
-            if (lang === 'ru') voice = 'ru-RU-SvetlanaNeural';
-            else if (lang === 'es') voice = 'es-ES-ElviraNeural';
-            else if (lang === 'en') voice = 'en-US-AriaNeural';
+            if (lang === 'ru') voice = 'ru-RU-DariyaNeural';
+            else if (lang === 'es') voice = 'es-ES-EstrellaNeural';
+            else if (lang === 'en') voice = 'en-US-AndrewNeural';
             else voice = 'es-ES-ElviraNeural';
         }
 
