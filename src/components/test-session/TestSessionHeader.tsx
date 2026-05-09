@@ -106,6 +106,8 @@ export const TestSessionHeader = ({
     setTestLanguage,
     smartVocabularyEnabled,
     setSettings,
+    autoExplainEnabled,
+    toggleAutoExplain,
     setShowQuestionMap,
     toggleBookmark,
     isQuestionBookmarked,
