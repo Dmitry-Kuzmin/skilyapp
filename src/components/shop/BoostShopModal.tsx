@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { Drawer as VaulDrawer } from "vaul";
 import { PRICING_PLANS, COIN_PACKS, DUEL_PASS_PRICE } from "@/lib/pricing-config";
 // TON_DISABLED: import { useTonAddress } from "@/contexts/TonAddressContext";
 // TON_DISABLED: import { beginCell } from "@ton/core";
@@ -2099,46 +2100,96 @@ export function BoostShopModal({
         </div>
       </ResponsiveModal>
 
-      <ResponsiveModal
-        open={open && !!checkoutTransactionId}
-        onOpenChange={(next) => {
-          if (!next) {
-            try { paddle?.Checkout.close(); } catch { /* noop */ }
-            setCheckoutTransactionId(null);
-          }
-        }}
-        className="bg-white sm:max-w-[560px] sm:rounded-3xl flex flex-col sm:max-h-[640px] sm:min-h-[640px]"
-        contentClassName="p-0"
-        hideCloseButton={true}
-        hideHandle={true}
-      >
-        <div className="flex flex-col bg-white sm:min-h-[640px]">
-          <div
-            className="flex items-center justify-between px-4 py-2.5 border-b border-slate-100 shrink-0"
-            style={{ paddingTop: 'max(10px, env(safe-area-inset-top))' }}
-          >
-            <button
-              onClick={() => {
-                try { paddle?.Checkout.close(); } catch { /* noop */ }
-                setCheckoutTransactionId(null);
-              }}
-              className="w-10 h-10 -ml-1 flex items-center justify-center rounded-full text-slate-500 hover:text-slate-900 hover:bg-slate-100 active:scale-95 transition-all"
-              aria-label={t("boostShop.back") || "Назад"}
+      {/* Mobile checkout: Vaul drawer with transparent overlay, rounded corners, swipe-anywhere */}
+      {isMobile && (
+        <VaulDrawer.Root
+          open={open && !!checkoutTransactionId}
+          onOpenChange={(next) => {
+            if (!next) {
+              try { paddle?.Checkout.close(); } catch { /* noop */ }
+              setCheckoutTransactionId(null);
+            }
+          }}
+          closeThreshold={0.35}
+          shouldScaleBackground={false}
+        >
+          <VaulDrawer.Portal>
+            <VaulDrawer.Overlay className="fixed inset-0 z-[99998] bg-black/40 backdrop-blur-[6px]" />
+            <VaulDrawer.Content
+              className="fixed bottom-0 left-0 right-0 z-[99999] flex flex-col bg-white rounded-t-[32px] overflow-hidden outline-none shadow-[0_-12px_48px_rgba(0,0,0,0.25)]"
+              onContextMenu={e => e.stopPropagation()}
+              onPointerOut={e => e.stopPropagation()}
             >
-              <ArrowLeft className="w-6 h-6" />
-            </button>
-            <div className="flex items-center gap-1.5 text-[11px] text-slate-400">
-              <Shield className="w-3.5 h-3.5 text-emerald-500" />
-              <span>{t("boostShop.protectedByPaddle") || "Защищено Paddle"}</span>
-            </div>
-          </div>
+              <div className="flex justify-center pt-3 pb-1 shrink-0 cursor-grab active:cursor-grabbing" data-vaul-drag-region>
+                <div className="w-10 h-[5px] rounded-full bg-slate-200" />
+              </div>
 
-          <div
-            className={cn(BOOST_PADDLE_FRAME_ID, "px-2 sm:px-4 pt-2 min-h-[460px]")}
-            style={{ paddingBottom: 'max(20px, env(safe-area-inset-bottom))' }}
-          />
-        </div>
-      </ResponsiveModal>
+              <div className="flex items-center justify-between px-4 py-2 border-b border-slate-100 shrink-0">
+                <button
+                  onClick={() => {
+                    try { paddle?.Checkout.close(); } catch { /* noop */ }
+                    setCheckoutTransactionId(null);
+                  }}
+                  className="w-10 h-10 -ml-1 flex items-center justify-center rounded-full text-slate-500 hover:text-slate-900 hover:bg-slate-100 active:scale-95 transition-all"
+                  aria-label={t("boostShop.back") || "Назад"}
+                  data-vaul-no-drag
+                >
+                  <ArrowLeft className="w-6 h-6" />
+                </button>
+                <div className="flex items-center gap-1.5 text-[11px] text-slate-400">
+                  <Shield className="w-3.5 h-3.5 text-emerald-500" />
+                  <span>{t("boostShop.protectedByPaddle") || "Защищено Paddle"}</span>
+                </div>
+              </div>
+
+              <div
+                className={cn(BOOST_PADDLE_FRAME_ID, "px-2 pt-2 min-h-[460px]")}
+                style={{ paddingBottom: 'max(20px, env(safe-area-inset-bottom))' }}
+              />
+            </VaulDrawer.Content>
+          </VaulDrawer.Portal>
+        </VaulDrawer.Root>
+      )}
+
+      {/* Desktop checkout: dialog */}
+      {!isMobile && (
+        <ResponsiveModal
+          open={open && !!checkoutTransactionId}
+          onOpenChange={(next) => {
+            if (!next) {
+              try { paddle?.Checkout.close(); } catch { /* noop */ }
+              setCheckoutTransactionId(null);
+            }
+          }}
+          className="bg-white sm:max-w-[560px] sm:rounded-3xl flex flex-col sm:max-h-[640px] sm:min-h-[640px]"
+          contentClassName="p-0"
+          hideCloseButton={true}
+          hideHandle={true}
+        >
+          <div className="flex flex-col bg-white sm:min-h-[640px]">
+            <div className="flex items-center justify-between px-4 py-2.5 border-b border-slate-100 shrink-0">
+              <button
+                onClick={() => {
+                  try { paddle?.Checkout.close(); } catch { /* noop */ }
+                  setCheckoutTransactionId(null);
+                }}
+                className="w-10 h-10 -ml-1 flex items-center justify-center rounded-full text-slate-500 hover:text-slate-900 hover:bg-slate-100 active:scale-95 transition-all"
+                aria-label={t("boostShop.back") || "Назад"}
+              >
+                <ArrowLeft className="w-6 h-6" />
+              </button>
+              <div className="flex items-center gap-1.5 text-[11px] text-slate-400">
+                <Shield className="w-3.5 h-3.5 text-emerald-500" />
+                <span>{t("boostShop.protectedByPaddle") || "Защищено Paddle"}</span>
+              </div>
+            </div>
+            <div
+              className={cn(BOOST_PADDLE_FRAME_ID, "px-4 pt-2 min-h-[450px] flex-1")}
+              style={{ paddingBottom: '24px' }}
+            />
+          </div>
+        </ResponsiveModal>
+      )}
 
       {/* Payment Selector Modal */}
       <PaymentSelectorModal
