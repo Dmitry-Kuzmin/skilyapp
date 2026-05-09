@@ -234,12 +234,14 @@ export const useTestAudio = (
 
                 sourceNodeRef.current = source;
                 source.start(0);
+                setSpeaking(true);
 
                 hasSpokenRef.current = currentQuestionText;
 
                 source.onended = () => {
                     isPlayingRef.current = false;
                     sourceNodeRef.current = null;
+                    setSpeaking(false);
                 };
 
             } catch (err: any) {
