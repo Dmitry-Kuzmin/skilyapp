@@ -111,9 +111,13 @@ async function tryGemini(messages: Message[], country: string = 'spain', mode: s
         parts: [{ text: m.content }]
       }));
 
-    // Guard: Gemini requires the first turn to be 'user'
-    if (currentContents.length === 0 || currentContents[0].role !== 'user') {
-      console.warn('[AI Chat] Gemini: no valid user message to start conversation');
+    // Guard: Gemini requires the first turn to be 'user'.
+    // Срезаем leading model-сообщения (pre-loaded explanation из store на клиенте).
+    while (currentContents.length > 0 && currentContents[0].role !== 'user') {
+      currentContents.shift();
+    }
+    if (currentContents.length === 0) {
+      console.warn('[AI Chat] Gemini: no user messages after stripping leading model turns');
       return null;
     }
 
