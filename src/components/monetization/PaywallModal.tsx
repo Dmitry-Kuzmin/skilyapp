@@ -322,7 +322,13 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
       refreshPage: "Por favor, actualiza la página",
       unknownPlan: "Plan desconocido",
       loginRequired: "Es necesario iniciar sesión",
-      unknownError: "Error inesperado. Inténtalo de nuevo más tarde."
+      unknownError: "Error inesperado. Inténtalo de nuevo más tarde.",
+      backToPlans: "Volver a los planes",
+      protectedByPaddle: "Protegido por Paddle",
+      loadingCheckout: "Cargando pago seguro…",
+      paymentSuccess: "Pago realizado",
+      paymentSuccessDesc: "Premium activado 🎉",
+      tryAgain: "Reintentar"
     }
   };
 
