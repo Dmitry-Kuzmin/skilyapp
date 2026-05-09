@@ -18,7 +18,6 @@ import { LicenseCard } from './LicenseCard';
 import { CompactStreakJewel } from '@/components/shared/CompactStreakJewel';
 
 // Lazy load heavy dashboard components
-const DailyRewards = lazy(() => import('./DailyRewards').then(m => ({ default: m.DailyRewards })));
 const ExamReadiness = lazy(() => import('./ExamReadiness').then(m => ({ default: m.ExamReadiness })));
 const PremiumCard = lazy(() => import('./PremiumCard').then(m => ({ default: m.PremiumCard })));
 const DuelPassInfo = lazy(() => import('./DuelPassInfo').then(m => ({ default: m.DuelPassInfo })));
@@ -241,16 +240,6 @@ export const Dashboard: React.FC<DashboardProps> = ({
             </Suspense>
           </div>
 
-          {/* 3. DAILY REWARDS */}
-          <div className="md:col-span-1 lg:col-span-1 xl:col-span-1">
-            <Suspense fallback={<ComponentSkeleton />}>
-              <DailyRewards
-                currentStreak={stats.currentStreak}
-                hasClaimedToday={hasClaimedToday}
-                onClaim={onClaimReward}
-              />
-            </Suspense>
-          </div>
 
           {/* 4. SKILY CHAT — открывает глобальный AIChatWidget */}
           <div className="md:col-span-1 lg:col-span-1 xl:col-span-1">
