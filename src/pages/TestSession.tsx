@@ -1,4 +1,4 @@
-import { useRef, useMemo, memo, useState, useEffect, useCallback } from "react";
+import { useRef, useMemo, memo, useState, useEffect, useCallback, lazy, Suspense } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useParams, useNavigate, useSearchParams, useLocation } from "react-router-dom";
 import { motion } from "@/components/optimized/Motion";

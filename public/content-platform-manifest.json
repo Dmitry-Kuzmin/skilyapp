@@ -1,7 +1,7 @@
 {
   "siteName": "Skilyapp",
   "siteUrl": "https://skilyapp.com",
-  "generatedAt": "2026-05-08T12:42:36.977Z",
+  "generatedAt": "2026-05-09T10:11:33.531Z",
   "discoveryFiles": [
     "robots.txt",
     "sitemap.xml",
@@ -12,14 +12,8 @@
     "content-platform-manifest.json"
   ],
   "prerenderRoutes": [
-    "/about",
     "/pricing",
     "/help",
-    "/features",
-    "/partners",
-    "/blog",
-    "/tests",
-    "/games",
     "/road-signs",
     "/dgt-tests",
     "/curso",
@@ -28,12 +22,6 @@
     "/legal/cookies",
     "/legal/subscription",
     "/legal/refund",
-    "/guides",
-    "/guides/kak-sdat-teoriyu-dgt",
-    "/guides/chastye-oshibki-na-ekzamene-dgt",
-    "/guides/znaki-dorozhnogo-dvizheniya-ispanii",
-    "/guides/spornye-voprosy-dgt-i-lovushki",
-    "/guides/temy-ekzamena-dgt-i-kak-ih-uchit",
     "/article/ekzamen-dgt-2026",
     "/article/ai-repetitor-dgt-kak-iskusstvennyj-intellekt-pomogaet-sdat-ekzamen",
     "/article/motivaciya-dgt-gamifikaciya",
@@ -61,20 +49,9 @@
       "langAssert": "es"
     },
     {
-      "route": "/about",
-      "outputPath": "about.html",
-      "canonical": "https://skilyapp.com/about"
-    },
-    {
       "route": "/pricing",
       "outputPath": "pricing.html",
       "canonical": "https://skilyapp.com/pricing"
-    },
-    {
-      "route": "/tests",
-      "outputPath": "tests.html",
-      "canonical": "https://skilyapp.com/tests",
-      "minBodyChars": 50
     },
     {
       "route": "/curso",
@@ -91,41 +68,6 @@
       "outputPath": "legal/privacy.html",
       "canonical": "https://skilyapp.com/legal/privacy",
       "minBodyChars": 30
-    },
-    {
-      "route": "/guides/kak-sdat-teoriyu-dgt",
-      "outputPath": "guides/kak-sdat-teoriyu-dgt.html",
-      "canonical": "https://skilyapp.com/guides/kak-sdat-teoriyu-dgt",
-      "kind": "guide",
-      "llmsRequired": true
-    },
-    {
-      "route": "/guides/chastye-oshibki-na-ekzamene-dgt",
-      "outputPath": "guides/chastye-oshibki-na-ekzamene-dgt.html",
-      "canonical": "https://skilyapp.com/guides/chastye-oshibki-na-ekzamene-dgt",
-      "kind": "guide",
-      "llmsRequired": true
-    },
-    {
-      "route": "/guides/znaki-dorozhnogo-dvizheniya-ispanii",
-      "outputPath": "guides/znaki-dorozhnogo-dvizheniya-ispanii.html",
-      "canonical": "https://skilyapp.com/guides/znaki-dorozhnogo-dvizheniya-ispanii",
-      "kind": "guide",
-      "llmsRequired": true
-    },
-    {
-      "route": "/guides/spornye-voprosy-dgt-i-lovushki",
-      "outputPath": "guides/spornye-voprosy-dgt-i-lovushki.html",
-      "canonical": "https://skilyapp.com/guides/spornye-voprosy-dgt-i-lovushki",
-      "kind": "guide",
-      "llmsRequired": true
-    },
-    {
-      "route": "/guides/temy-ekzamena-dgt-i-kak-ih-uchit",
-      "outputPath": "guides/temy-ekzamena-dgt-i-kak-ih-uchit.html",
-      "canonical": "https://skilyapp.com/guides/temy-ekzamena-dgt-i-kak-ih-uchit",
-      "kind": "guide",
-      "llmsRequired": true
     },
     {
       "route": "/article/ekzamen-dgt-2026",
