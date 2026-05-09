@@ -258,7 +258,7 @@ export function AIChatWidget() {
     const { t } = useLanguage();
     const { profileData } = useProfileData();
     const { selectedCountry } = usePDDContext();
-    const { isPremium } = usePremium();
+    const { isPremium, loading: premiumLoading } = usePremium();
     const { profileId } = useUserContext();
 
     // Zustand Store
