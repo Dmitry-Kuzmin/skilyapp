@@ -529,13 +529,11 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
           {checkoutTransactionId ? (
             <div className="relative flex flex-col w-full text-white" style={{ minHeight: !isMobile ? 650 : 'min(85vh, 700px)' }}>
               {/* Header */}
-              <div className="flex items-center justify-between px-5 sm:px-6 py-4 border-b border-white/5 shrink-0">
+              <div className="flex items-center justify-between px-5 py-3 border-b border-white/5 shrink-0">
                 <button
                   onClick={() => {
                     try { paddle?.Checkout.close(); } catch { /* noop */ }
                     setCheckoutTransactionId(null);
-                    setCheckoutStatus('idle');
-                    setCheckoutError(null);
                   }}
                   className="flex items-center gap-1.5 text-sm text-slate-400 hover:text-white transition-colors"
                 >
@@ -548,21 +546,8 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
                 </div>
               </div>
 
-              {/* Body — no overlay, Paddle iframe renders directly */}
-              <div className="flex-1 overflow-y-auto">
-                <div
-                  className={cn(PADDLE_FRAME_CLASS, "w-full")}
-                  style={{ minHeight: 450 }}
-                />
-              </div>
-
-              {/* Footer */}
-              <div className="px-6 py-3 border-t border-white/5 flex items-center justify-center gap-2 shrink-0">
-                <Lock className="w-3 h-3 text-emerald-500" />
-                <p className="text-[10px] text-slate-500 font-mono uppercase tracking-widest">
-                  {t.securePayment}
-                </p>
-              </div>
+              {/* Paddle iframe — renders its own UI including footer */}
+              <div className={cn(PADDLE_FRAME_CLASS, "flex-1")} />
             </div>
           ) : (
             <>
