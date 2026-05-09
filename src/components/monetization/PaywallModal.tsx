@@ -909,8 +909,7 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
                 exit={{ y: '100%', opacity: 0 }}
                 transition={{ type: 'spring', stiffness: 420, damping: 36, mass: 0.8 }}
                 onClick={(e) => e.stopPropagation()}
-                onPointerDown={(e) => e.stopPropagation()}
-                className="relative w-full sm:max-w-[540px] bg-slate-950 rounded-t-3xl sm:rounded-3xl shadow-2xl flex flex-col overflow-hidden"
+                className="relative w-full sm:max-w-[540px] bg-slate-950 rounded-t-3xl sm:rounded-3xl shadow-2xl flex flex-col"
                 style={{ maxHeight: '90vh', border: '1px solid rgba(255,255,255,0.1)' }}
               >
                 {/* Drag handle visual */}
@@ -958,7 +957,7 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
                 {/* Scrollable body */}
                 <div
                   className="overflow-y-auto flex-1 px-5 pb-2 min-h-0"
-                  style={{ WebkitOverflowScrolling: 'touch' }}
+                  style={{ WebkitOverflowScrolling: 'touch', touchAction: 'pan-y', overscrollBehavior: 'contain' }}
                 >
                   {TABLE_SECTIONS.map((section, si) => (
                     <div key={si} className="mb-1">
