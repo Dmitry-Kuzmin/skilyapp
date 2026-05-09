@@ -17,16 +17,7 @@ let isInitializing = false;
  * Можно вызывать несколько раз - вернет тот же промис/инстанс
  */
 export async function getPaddleInstance(): Promise<Paddle | null | undefined> {
-  // Если уже инициализирован - возвращаем сразу
-  // Если уже инициализирован - обновляем настройки и возвращаем
   if (paddleInstance) {
-    paddleInstance.Update({
-      checkout: {
-        settings: {
-          displayMode: "overlay",
-        }
-      }
-    });
     return paddleInstance;
   }
 
