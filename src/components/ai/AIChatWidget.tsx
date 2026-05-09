@@ -440,26 +440,40 @@ export function AIChatWidget() {
 
     const chatContent = (
         <div className="flex flex-col" style={{ height: '100%' }}>
-            {/* Header */}
-            <div className="flex items-center justify-between px-5 py-3 border-b border-border/10 shrink-0 bg-white/50 dark:bg-zinc-900/50 backdrop-blur-md z-10">
-                <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-full bg-indigo-500/10 flex items-center justify-center shrink-0 border border-indigo-500/20">
-                        <Bot className="w-5 h-5 text-indigo-500" />
+            {/* Header — Claude-style: круглая X слева, заголовок по центру, бейдж справа */}
+            <div className="grid grid-cols-[auto_1fr_auto] items-center gap-2 px-3 py-2.5 border-b border-border/10 shrink-0 bg-white/50 dark:bg-zinc-900/50 backdrop-blur-md z-10">
+                {/* Left: круглая X */}
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={closeChat}
+                    aria-label={interfaceLanguage === 'ru' ? 'Закрыть' : 'Cerrar'}
+                    className="h-9 w-9 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 shrink-0 active:scale-95 transition-transform"
+                >
+                    <X className="w-4 h-4" />
+                </Button>
+
+                {/* Center: аватар + заголовок */}
+                <div className="flex items-center justify-center gap-2 min-w-0">
+                    <div className="w-7 h-7 rounded-full bg-indigo-500/10 flex items-center justify-center shrink-0 border border-indigo-500/20">
+                        <Bot className="w-4 h-4 text-indigo-500" />
                     </div>
-                    <div className="flex flex-col justify-center">
-                        <span className="font-bold text-[15px] tracking-tight leading-tight">Skily AI</span>
-                        <p className="text-[10px] text-muted-foreground mt-0.5">AI Instructor</p>
+                    <div className="flex flex-col justify-center min-w-0">
+                        <span className="font-bold text-[14px] tracking-tight leading-tight truncate">Skily AI</span>
+                        <p className="text-[10px] text-muted-foreground leading-tight truncate">AI Instructor</p>
                     </div>
                 </div>
-                <div className="flex items-center gap-2">
+
+                {/* Right: бейдж лимита + перевод */}
+                <div className="flex items-center gap-1.5 shrink-0 justify-end">
                     {isPremium ? (
-                        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400">
+                        <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400">
                             <Crown className="w-3 h-3 fill-current" />
                             <span className="text-[10px] font-black uppercase tracking-wider hidden sm:inline">PRO</span>
                         </div>
                     ) : aiUsage !== null ? (
                         <div className={cn(
-                            "flex items-center gap-1.5 px-2 py-1 rounded-full border transition-all shadow-sm",
+                            "flex items-center gap-1 px-2 py-1 rounded-full border transition-all shadow-sm",
                             aiRemaining <= 1
                                 ? "bg-red-500/10 border-red-500/20 text-red-500 animate-pulse"
                                 : "bg-slate-100 dark:bg-slate-800/80 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400"
@@ -473,22 +487,14 @@ export function AIChatWidget() {
                     {questionContext?.explanationRu && (
                         <Button
                             variant="ghost"
-                            size="sm"
+                            size="icon"
                             onClick={toggleTranslation}
-                            className="h-9 px-3 hover:bg-slate-100 dark:hover:bg-white/5 text-slate-600 dark:text-slate-400"
+                            aria-label={showTranslation ? 'ES' : 'RU'}
+                            className="h-9 w-9 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 active:scale-95 transition-transform"
                         >
-                            <Languages className="w-4 h-4 mr-2" />
-                            <span className="text-xs font-bold">{showTranslation ? 'ES' : 'RU'}</span>
+                            <Languages className="w-4 h-4" />
                         </Button>
                     )}
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={closeChat}
-                        className="h-9 w-9 text-muted-foreground hover:text-foreground hover:bg-muted"
-                    >
-                        <X className="w-5 h-5" />
-                    </Button>
                 </div>
             </div>
 
