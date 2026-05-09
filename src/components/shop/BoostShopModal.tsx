@@ -2087,7 +2087,7 @@ export function BoostShopModal({
   return (
     <>
       <ResponsiveModal
-        open={open}
+        open={open && !checkoutTransactionId}
         onOpenChange={onOpenChange}
         headerContent={headerContent}
         className="max-w-5xl h-[92vh] max-h-[97vh] min-h-[600px] md:h-[85vh] md:max-h-[85vh] md:min-h-[700px] flex flex-col"
@@ -2096,29 +2096,42 @@ export function BoostShopModal({
       >
         <div className="relative flex-1 flex flex-col h-full overflow-hidden">
           {loading ? <ModalSkeleton rows={4} /> : <ModalContent />}
+        </div>
+      </ResponsiveModal>
 
-          {checkoutTransactionId && (
-            <div className="absolute inset-0 z-30 flex flex-col bg-white">
-              <div className="flex items-center justify-between px-5 py-3 border-b border-slate-200 shrink-0">
-                <button
-                  onClick={() => {
-                    try { paddle?.Checkout.close(); } catch { /* noop */ }
-                    setCheckoutTransactionId(null);
-                  }}
-                  className="flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-900 transition-colors"
-                >
-                  <ArrowLeft className="w-4 h-4" />
-                  <span>{t("boostShop.back") || "Назад"}</span>
-                </button>
-                <div className="flex items-center gap-1.5 text-[11px] text-slate-400">
-                  <Shield className="w-3.5 h-3.5 text-emerald-500" />
-                  <span>{t("boostShop.protectedByPaddle") || "Защищено Paddle"}</span>
-                </div>
-              </div>
-
-              <div className={cn(BOOST_PADDLE_FRAME_ID, "flex-1")} />
+      <ResponsiveModal
+        open={open && !!checkoutTransactionId}
+        onOpenChange={(next) => {
+          if (!next) {
+            try { paddle?.Checkout.close(); } catch { /* noop */ }
+            setCheckoutTransactionId(null);
+          }
+        }}
+        className="bg-white sm:max-w-[560px] sm:rounded-3xl flex flex-col h-[100dvh] sm:h-auto sm:max-h-[640px] sm:min-h-[640px]"
+        contentClassName="p-0"
+        hideCloseButton={true}
+        hideHandle={true}
+        mobileFullscreen={true}
+      >
+        <div className="flex flex-col h-full bg-white">
+          <div className="flex items-center justify-between px-5 py-3.5 border-b border-slate-200 shrink-0">
+            <button
+              onClick={() => {
+                try { paddle?.Checkout.close(); } catch { /* noop */ }
+                setCheckoutTransactionId(null);
+              }}
+              className="flex items-center gap-1.5 text-sm text-slate-600 hover:text-slate-900 transition-colors"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span>{t("boostShop.back") || "Назад"}</span>
+            </button>
+            <div className="flex items-center gap-1.5 text-[11px] text-slate-400">
+              <Shield className="w-3.5 h-3.5 text-emerald-500" />
+              <span>{t("boostShop.protectedByPaddle") || "Защищено Paddle"}</span>
             </div>
-          )}
+          </div>
+
+          <div className={cn(BOOST_PADDLE_FRAME_ID, "flex-1 px-2 sm:px-4 pt-2 pb-6")} />
         </div>
       </ResponsiveModal>
 

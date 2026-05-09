@@ -501,7 +501,7 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
   return (
     <>
       <UnifiedModal
-        open={open}
+        open={open && !checkoutTransactionId}
         onOpenChange={onOpenChange}
         modalRouteKey="paywall"
         showTitleBar={false}
@@ -516,36 +516,11 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
         <ContentWrapper
           {...wrapperAnimProps}
           className={cn(
-            "relative",
-            checkoutTransactionId ? "bg-white" : "bg-[#0A0D1B] dark:bg-[#080B16] flex flex-col md:flex-row",
+            "relative bg-[#0A0D1B] dark:bg-[#080B16] flex flex-col md:flex-row",
             !isMobile && "overflow-hidden rounded-[32px] shadow-2xl min-h-[650px] max-h-[85vh]"
           )}
         >
-          {checkoutTransactionId ? (
-            <div className="flex flex-col w-full" style={{ minHeight: !isMobile ? 650 : 'min(85vh, 700px)' }}>
-              {/* Header — light style matching Paddle form background */}
-              <div className="flex items-center justify-between px-5 py-3 border-b border-slate-200 shrink-0 bg-white">
-                <button
-                  onClick={() => {
-                    try { paddle?.Checkout.close(); } catch { /* noop */ }
-                    setCheckoutTransactionId(null);
-                  }}
-                  className="flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-900 transition-colors"
-                >
-                  <ArrowLeft className="w-4 h-4" />
-                  <span>{t.backToPlans}</span>
-                </button>
-                <div className="flex items-center gap-1.5 text-[11px] text-slate-400">
-                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
-                  <span>{t.protectedByPaddle}</span>
-                </div>
-              </div>
-
-              {/* Paddle iframe — renders its own UI including footer */}
-              <div className={cn(PADDLE_FRAME_CLASS, "flex-1")} />
-            </div>
-          ) : (
-            <>
+          <>
           {/* LEFTSIDE (PREMIUM DARK) */}
           <div className="relative w-full md:w-[42%] bg-[#0A0D1B] dark:bg-[#080B16] text-white p-6 md:p-8 flex flex-col justify-between overflow-hidden z-10 border-r border-white/5">
             <AnimatedBackground />
@@ -786,8 +761,47 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
             </motion.div>
           </div>
             </>
-          )}
         </ContentWrapper>
+      </UnifiedModal>
+
+      <UnifiedModal
+        open={open && !!checkoutTransactionId}
+        onOpenChange={(next) => {
+          if (!next) {
+            try { paddle?.Checkout.close(); } catch { /* noop */ }
+            setCheckoutTransactionId(null);
+          }
+        }}
+        showTitleBar={false}
+        showHandle={false}
+        hideCloseButton={true}
+        mobileFullscreen={true}
+        className={cn(
+          "p-0 border-0 bg-white",
+          !isMobile && "sm:max-w-[560px] overflow-hidden rounded-3xl"
+        )}
+        contentClassName="p-0 bg-white border-0"
+      >
+        <div className="flex flex-col h-full bg-white md:min-h-[640px]">
+          <div className="flex items-center justify-between px-5 py-3.5 border-b border-slate-200 shrink-0">
+            <button
+              onClick={() => {
+                try { paddle?.Checkout.close(); } catch { /* noop */ }
+                setCheckoutTransactionId(null);
+              }}
+              className="flex items-center gap-1.5 text-sm text-slate-600 hover:text-slate-900 transition-colors"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span>{t.backToPlans}</span>
+            </button>
+            <div className="flex items-center gap-1.5 text-[11px] text-slate-400">
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
+              <span>{t.protectedByPaddle}</span>
+            </div>
+          </div>
+
+          <div className={cn(PADDLE_FRAME_CLASS, "flex-1 px-2 sm:px-4 pt-2 pb-6")} />
+        </div>
       </UnifiedModal>
 
       {/* Comparison popup — portal escapes framer-motion transform stacking context */}
