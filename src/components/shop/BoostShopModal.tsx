@@ -318,10 +318,11 @@ export function BoostShopModal({
         return;
       }
 
+      // Paddle ищет контейнер через getElementsByClassName(frameTarget), не getElementById
       let attempts = 0;
       let container: HTMLElement | null = null;
       while (attempts < 20 && !container) {
-        container = document.getElementById(BOOST_PADDLE_FRAME_ID);
+        container = document.getElementsByClassName(BOOST_PADDLE_FRAME_ID)[0] as HTMLElement | undefined ?? null;
         if (!container) await new Promise(r => setTimeout(r, 50));
         attempts++;
       }
