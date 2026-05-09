@@ -112,7 +112,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
     }
   }; // Merge for convenience
   const { language, t } = useLanguage();
-  const [examReadinessExpanded, setExamReadinessExpanded] = React.useState(false);
+
   const [statsModalOpen, setStatsModalOpen] = useState(false);
   const [selectedStatType, setSelectedStatType] = useState<'xp' | 'tests' | 'coins'>('xp');
   const [telemetryOpen, setTelemetryOpen] = useState(false);
@@ -126,9 +126,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
     return theme === 'dark' || (theme === 'system' && systemTheme === 'dark');
   }, [theme, systemTheme]);
 
-  const handleExamReadinessExpanded = useCallback((expanded: boolean) => {
-    setExamReadinessExpanded(expanded);
-  }, []);
+
 
   const [showRehabTest, setShowRehabTest] = useState(false);
 
@@ -242,7 +240,18 @@ export const Dashboard: React.FC<DashboardProps> = ({
             </Suspense>
           </div>
 
-          {/* 3. SKILY CHAT */}
+          {/* 3. DAILY REWARDS */}
+          <div className="md:col-span-1 lg:col-span-1 xl:col-span-1">
+            <Suspense fallback={<ComponentSkeleton />}>
+              <DailyRewards
+                currentStreak={stats.currentStreak}
+                hasClaimedToday={hasClaimedToday}
+                onClaim={onClaimReward}
+              />
+            </Suspense>
+          </div>
+
+          {/* 4. SKILY CHAT */}
           <div className="md:col-span-1 lg:col-span-1 xl:col-span-1">
             <Suspense fallback={<ComponentSkeleton />}>
               <SkilyChat />
@@ -269,12 +278,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
           )}
 
           {/* 6. EXAM READINESS */}
-          <div className={cn(
-            "transition-all duration-500 ease-in-out",
-            examReadinessExpanded
-              ? 'md:col-span-2 lg:col-span-3 xl:col-span-4'
-              : 'md:col-span-1 lg:col-span-1 xl:col-span-1'
-          )}>
+          <div className="md:col-span-1 lg:col-span-1 xl:col-span-1">
             <Suspense fallback={<ComponentSkeleton />}>
               <ExamReadiness
                 averageScore={stats.averageScore}
@@ -288,7 +292,6 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 profileId={profileId}
                 licensePoints={userProfile?.license_points || 8}
                 onStartTest={handleStartQuiz}
-                onExpandedChange={handleExamReadinessExpanded}
                 onTelemetryClick={() => setTelemetryOpen(true)}
               />
             </Suspense>
