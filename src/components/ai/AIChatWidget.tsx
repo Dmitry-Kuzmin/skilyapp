@@ -498,12 +498,13 @@ export function AIChatWidget() {
 
                 {/* Right: бейдж лимита + перевод */}
                 <div className="flex items-center gap-1.5 shrink-0 justify-end">
-                    {isPremium ? (
+                    {/* Для premium — Crown, для free — счётчик (только после загрузки данных).
+                    premiumLoading: скрываем всё пока не знаем статус, чтобы не мелькать */}
+                {!premiumLoading && isPremium ? (
                         <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400">
                             <Crown className="w-3 h-3 fill-current" />
-                            <span className="text-[10px] font-black uppercase tracking-wider hidden sm:inline">PRO</span>
                         </div>
-                    ) : aiUsage !== null ? (
+                    ) : !premiumLoading && usageLoaded ? (
                         <div className={cn(
                             "flex items-center gap-1 px-2 py-1 rounded-full border transition-all shadow-sm",
                             aiRemaining <= 1
@@ -512,7 +513,7 @@ export function AIChatWidget() {
                         )}>
                             <Zap className={cn("w-2.5 h-2.5", aiRemaining <= 1 ? "fill-current" : "")} />
                             <span className="text-[10px] font-bold">
-                                {aiRemaining}/{aiLimit}
+                                {aiRemaining}/{FREE_DAILY_LIMIT}
                             </span>
                         </div>
                     ) : null}
