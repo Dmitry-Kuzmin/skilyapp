@@ -155,17 +155,15 @@ export const useTestInteraction = ({
                 }
             }
 
-            // 2. Общий прогресс
-            const { error } = await (supabase as any).from("user_progress").upsert({
-                user_id: profileId,
-                question_id: questionId,
-                is_answered: true,
-                is_correct: isCorrect,
-                attempts: 1,
-                last_attempt_at: new Date().toISOString(),
-            }, { onConflict: 'user_id,question_id' });
+            // 2. Общий прогресс — атомарный SM-2 апдейт через RPC
+            const { error } = await (supabase as any).rpc('record_answer', {
+                p_user_id: profileId,
+                p_question_id: questionId,
+                p_is_correct: isCorrect,
+                p_time_spent: 0,
+            });
 
-            if (!error || error.code === '23505') {
+            if (!error) {
                 if (isCorrect) markQuestionAsMastered(questionId);
                 queryClient.invalidateQueries({ queryKey: ["tickets-status"] });
                 queryClient.invalidateQueries({ queryKey: ["user-progress"] });
@@ -345,7 +343,8 @@ export const useTestInteraction = ({
         const isPracticeLikeMode = [
             'practice', 'pdd-topic', 'pdd-ticket', 'by-topic', 'traps',
             'mastery', 'hardest', 'sequential', 'challenge-bank',
-            'marathon', 'exam-russia', 'redemption', 'module', 'favorites', 'nonstop'
+            'marathon', 'exam-russia', 'redemption', 'module', 'favorites', 'nonstop',
+            'smart'
         ].includes(mode);
 
         if (isPracticeLikeMode) {

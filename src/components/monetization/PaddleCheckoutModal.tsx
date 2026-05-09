@@ -112,7 +112,7 @@ export function PaddleCheckoutModal({
                     frameTarget: CONTAINER_CLASS,
                     frameInitialHeight: 450,
                     frameStyle: "width: 100%; border: none; background: transparent;",
-                    theme: "dark",
+                    theme: "light",
                     locale,
                                     },
                 eventCallback: (event: any) => {
@@ -187,26 +187,29 @@ export function PaddleCheckoutModal({
             open={open}
             onOpenChange={(val) => { if (!val) handleClose(); }}
             dismissible={status !== "loading"}
-            snapPoints={[0.92, 1]}
+            closeThreshold={0.2}
+            shouldScaleBackground={false}
         >
-            <DrawerContent className="bg-[#0A0D14] border-none rounded-t-[28px] overflow-hidden focus:outline-none">
+            <DrawerContent className="bg-white border border-slate-100 rounded-[40px] mx-2 mb-4 overflow-hidden focus:outline-none shadow-[0_-12px_60px_rgba(0,0,0,0.35)]">
+                {/* Apple-style Handle */}
+                <div className="flex justify-center pt-3 pb-1 shrink-0 cursor-grab active:cursor-grabbing" data-vaul-drag-region>
+                    <div className="w-9 h-1.5 rounded-full bg-slate-200/80" />
+                </div>
                 {/* Шапка */}
-                <DrawerHeader className="px-6 pt-6 pb-4 shrink-0">
-                    <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-indigo-600 to-violet-600 flex items-center justify-center shadow-lg shadow-indigo-600/30">
-                            <CreditCard className="w-5 h-5 text-white" />
-                        </div>
-                        <div>
-                            <DrawerTitle className="text-white font-black text-lg leading-tight">
-                                Безопасная оплата
-                            </DrawerTitle>
-                            <DrawerDescription className="text-zinc-500 text-xs mt-0.5 flex items-center gap-1">
-                                <ShieldCheck className="w-3 h-3 text-emerald-500" />
-                                Защищено Paddle
-                            </DrawerDescription>
-                        </div>
+                <div className="flex items-center justify-between px-5 py-3 shrink-0" data-vaul-drag-region>
+                    <button
+                        onClick={handleClose}
+                        className="w-9 h-9 flex items-center justify-center rounded-full bg-slate-100 text-slate-900 active:scale-90 transition-all shadow-sm"
+                        aria-label="Закрыть"
+                        data-vaul-no-drag
+                    >
+                        <X className="w-5 h-5 stroke-[2.5]" />
+                    </button>
+                    <div className="flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-slate-50 border border-slate-100 text-[11px] font-bold text-slate-500">
+                        <ShieldCheck className="w-4 h-4 text-emerald-500" />
+                        <span>Защищено Paddle</span>
                     </div>
-                </DrawerHeader>
+                </div>
 
                 {/* Контент */}
                 <div className="relative flex-1 overflow-y-auto">

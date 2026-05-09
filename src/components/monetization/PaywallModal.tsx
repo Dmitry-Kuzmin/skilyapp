@@ -775,44 +775,45 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
               setCheckoutTransactionId(null);
             }
           }}
-          closeThreshold={0.35}
+          closeThreshold={0.2}
           shouldScaleBackground={false}
+          dismissible={true}
         >
           <VaulDrawer.Portal>
-            <VaulDrawer.Overlay className="fixed inset-0 z-[99998] bg-black/40 backdrop-blur-[6px]" />
+            <VaulDrawer.Overlay className="fixed inset-0 z-[99998] bg-black/60 backdrop-blur-[8px]" />
             <VaulDrawer.Content
-              className="fixed bottom-0 left-0 right-0 z-[99999] flex flex-col bg-white rounded-t-[32px] overflow-hidden outline-none shadow-[0_-12px_48px_rgba(0,0,0,0.25)]"
+              className="fixed bottom-0 left-0 right-0 z-[99999] flex flex-col bg-white rounded-[40px] mx-2 mb-4 overflow-hidden outline-none shadow-[0_-12px_60px_rgba(0,0,0,0.35)] border border-slate-100"
               onContextMenu={e => e.stopPropagation()}
               onPointerOut={e => e.stopPropagation()}
             >
-              {/* Drag handle — makes swipe-to-close discoverable */}
+              {/* Apple-style Handle */}
               <div className="flex justify-center pt-3 pb-1 shrink-0 cursor-grab active:cursor-grabbing" data-vaul-drag-region>
-                <div className="w-10 h-[5px] rounded-full bg-slate-200" />
+                <div className="w-9 h-1.5 rounded-full bg-slate-200/80" />
               </div>
 
               {/* Header */}
-              <div className="flex items-center justify-between px-4 py-2 border-b border-slate-100 shrink-0">
+              <div className="flex items-center justify-between px-5 py-3 shrink-0" data-vaul-drag-region>
                 <button
                   onClick={() => {
                     try { paddle?.Checkout.close(); } catch { /* noop */ }
                     setCheckoutTransactionId(null);
                   }}
-                  className="w-10 h-10 -ml-1 flex items-center justify-center rounded-full text-slate-500 hover:text-slate-900 hover:bg-slate-100 active:scale-95 transition-all"
+                  className="w-9 h-9 flex items-center justify-center rounded-full bg-slate-100 text-slate-900 active:scale-90 transition-all shadow-sm"
                   aria-label={t.backToPlans}
                   data-vaul-no-drag
                 >
-                  <ArrowLeft className="w-6 h-6" />
+                  <XIcon className="w-5 h-5 stroke-[2.5]" />
                 </button>
-                <div className="flex items-center gap-1.5 text-[11px] text-slate-400">
-                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-slate-50 border border-slate-100 text-[11px] font-bold text-slate-500">
+                  <ShieldCheck className="w-4 h-4 text-emerald-500" />
                   <span>{t.protectedByPaddle}</span>
                 </div>
               </div>
 
               {/* Paddle iframe container */}
               <div
-                className={cn(PADDLE_FRAME_CLASS, "px-2 pt-2 min-h-[460px]")}
-                style={{ paddingBottom: 'max(20px, env(safe-area-inset-bottom))' }}
+                className={cn(PADDLE_FRAME_CLASS, "px-2 pb-4 min-h-[480px] overflow-y-auto")}
+                style={{ paddingBottom: 'max(24px, env(safe-area-inset-bottom))' }}
               />
             </VaulDrawer.Content>
           </VaulDrawer.Portal>

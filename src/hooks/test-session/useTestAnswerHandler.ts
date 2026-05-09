@@ -477,20 +477,12 @@ async function saveUserProgress(questionId: string, isCorrect: boolean): Promise
 
         if (!profile) return;
 
-        const progressData = {
-            user_id: (profile as any).id,
-            question_id: questionId,
-            is_answered: true,
-            is_correct: isCorrect,
-            attempts: 1,
-            last_attempt_at: new Date().toISOString(),
-        };
-
-        await (supabase as any)
-            .from("user_progress")
-            .upsert(progressData, {
-                onConflict: 'user_id,question_id',
-            });
+        await (supabase as any).rpc('record_answer', {
+            p_user_id: (profile as any).id,
+            p_question_id: questionId,
+            p_is_correct: isCorrect,
+            p_time_spent: 0,
+        });
     } catch (error) {
         console.error("Error saving progress:", error);
     }
