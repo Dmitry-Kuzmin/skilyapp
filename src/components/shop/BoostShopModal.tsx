@@ -2125,7 +2125,79 @@ export function BoostShopModal({
         contentClassName="scrollbar-none px-2"
         hideCloseButton={true}
       >
-        {loading ? <ModalSkeleton rows={4} /> : <ModalContent />}
+        <div className="relative flex-1 flex flex-col h-full overflow-hidden">
+          {loading ? <ModalSkeleton rows={4} /> : <ModalContent />}
+
+          {/* Inline Paddle Checkout — оверлеит контент модалки */}
+          {checkoutTransactionId && (
+            <div className="absolute inset-0 z-30 flex flex-col bg-[#0A0D14]">
+              <div className="flex items-center justify-between px-4 sm:px-6 py-3 border-b border-white/5 shrink-0">
+                <button
+                  onClick={() => {
+                    try { paddle?.Checkout.close(); } catch { /* noop */ }
+                    setCheckoutTransactionId(null);
+                    setCheckoutStatus('idle');
+                    setCheckoutError(null);
+                  }}
+                  className="flex items-center gap-1.5 text-sm text-slate-400 hover:text-white transition-colors"
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                  <span>{t("boostShop.back") || "Назад"}</span>
+                </button>
+                <div className="flex items-center gap-1.5 text-[11px] text-slate-500">
+                  <Shield className="w-3.5 h-3.5 text-emerald-500" />
+                  <span>{t("boostShop.protectedByPaddle") || "Защищено Paddle"}</span>
+                </div>
+              </div>
+
+              <div className="relative flex-1 overflow-y-auto px-3 sm:px-6 py-4">
+                {checkoutStatus === 'loading' && (
+                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 z-20 bg-[#0A0D14]/95">
+                    <div className="w-8 h-8 rounded-full border-2 border-violet-400 border-t-transparent animate-spin" />
+                    <p className="text-xs text-slate-400 font-medium">
+                      {t("boostShop.loadingCheckout") || "Загрузка безопасной оплаты…"}
+                    </p>
+                  </div>
+                )}
+                {checkoutStatus === 'error' && (
+                  <div className="flex flex-col items-center justify-center gap-4 py-12">
+                    <div className="w-12 h-12 rounded-full bg-red-500/10 flex items-center justify-center">
+                      <X className="w-6 h-6 text-red-400" />
+                    </div>
+                    <p className="text-sm text-slate-300 text-center max-w-xs">
+                      {checkoutError || t("boostShop.toasts.purchaseErrorDescription")}
+                    </p>
+                    <button
+                      onClick={() => {
+                        const tx = checkoutTransactionId;
+                        setCheckoutTransactionId(null);
+                        setTimeout(() => setCheckoutTransactionId(tx), 50);
+                      }}
+                      className="px-5 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-sm font-bold transition-colors"
+                    >
+                      {t("boostShop.retry") || "Повторить"}
+                    </button>
+                  </div>
+                )}
+                <div
+                  className={cn(
+                    BOOST_PADDLE_FRAME_CLASS,
+                    "w-full transition-opacity duration-300",
+                    checkoutStatus === 'ready' ? "opacity-100" : "opacity-0 pointer-events-none"
+                  )}
+                  style={{ minHeight: 450 }}
+                />
+              </div>
+
+              <div className="px-4 py-3 border-t border-white/5 flex items-center justify-center gap-2 shrink-0">
+                <Lock className="w-3 h-3 text-emerald-500" />
+                <p className="text-[10px] text-slate-500 font-mono uppercase tracking-widest">
+                  Secure checkout by Paddle
+                </p>
+              </div>
+            </div>
+          )}
+        </div>
       </ResponsiveModal>
 
       {/* Payment Selector Modal */}
