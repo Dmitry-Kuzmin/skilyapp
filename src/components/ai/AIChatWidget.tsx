@@ -438,15 +438,28 @@ export function AIChatWidget() {
         );
 
         const allMessages = messages.map(m => ({ role: m.role as 'user' | 'assistant', content: m.content }));
+
+        // Есть ли уже реальные сообщения пользователя в истории?
+        // (первое сообщение может быть assistant = pre-loaded explanation из store)
+        const hasUserHistory = allMessages.some(m => m.role === 'user');
+
         allMessages.push({
             role: 'user' as const,
-            content: messages.length === 0 ? aiPrompt + '\n\n' + userMessage : userMessage,
+            // Системный промпт добавляем только если нет предыдущих реплик пользователя
+            content: !hasUserHistory ? aiPrompt + '\n\n' + userMessage : userMessage,
         });
 
         addMessage({ role: 'assistant', content: '' });
 
+        // Gemini требует первым сообщением быть 'user'.
+        // Если store начинается с assistant (pre-loaded explanation) — срезаем их.
+        // Это безопасно: контекст вопроса уже встроен в system_instruction Edge Function.
+        const apiMessages = allMessages[0]?.role === 'assistant'
+            ? allMessages.slice(1)
+            : allMessages;
+
         await sendRequest(
-            { messages: allMessages, country: selectedCountry, language: interfaceLanguage, mode: 'chat', showComparison: false },
+            { messages: apiMessages, country: selectedCountry, language: interfaceLanguage, mode: 'chat', showComparison: false },
             {
                 onChunk: (text) => updateLastMessage(text),
                 onDone: () => { if (isTelegram) triggerHapticFeedback('success'); },
