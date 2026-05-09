@@ -200,7 +200,7 @@ const Tests = () => {
   const { selectedCountry, selectedCategory } = usePDDContext();
   const { data: dashboardData } = useDashboardData();
   const licensePoints = dashboardData?.profile?.license_points ?? 8;
-  const streakDays = dashboardData?.profile?.streak_days ?? 0;
+  const streakDays = Math.max(dashboardData?.profile?.streak_days ?? 0, dashboardData?.daily_bonus?.current_streak ?? 0);
   const { readiness } = useExamReadiness(profileId);
   const readinessPct = (readiness?.percent !== undefined && !isNaN(readiness.percent)) ? Math.min(100, readiness.percent) : null;
 
