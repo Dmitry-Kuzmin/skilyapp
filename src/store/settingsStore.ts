@@ -28,6 +28,7 @@ export interface SettingsState {
     hapticEnabled: boolean;
     adasHints: boolean; // Авто-подсказки AI
     smartVocabularyEnabled: boolean; // Умные словарные подсказки в тестах
+    autoExplainEnabled: boolean; // Автоозвучка объяснения после ответа
     duelNotifications: boolean;
     examDate: string | null; // ISO Date string: "2024-05-15"
     examCity: string | null; // Город сдачи экзамена: "ALICANTE"
