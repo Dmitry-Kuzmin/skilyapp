@@ -27,6 +27,7 @@ import { useModalStore } from "@/store/modalStore";
 import { FREE_QUESTION_LIMIT } from "@/lib/premiumState";
 import { AIInsightsLibrary } from "@/components/test-results/AIInsightsLibrary";
 import { useDashboardData } from "@/hooks/useDashboardData";
+import { useStreak } from "@/hooks/useStreak";
 import { PageLoader } from "@/components/PageLoader";
 import { SeoHead } from "@/components/seo/SeoHead";
 import { ContextSwitcher } from "@/components/shared/ContextSwitcher";
@@ -200,7 +201,7 @@ const Tests = () => {
   const { selectedCountry, selectedCategory } = usePDDContext();
   const { data: dashboardData } = useDashboardData();
   const licensePoints = dashboardData?.profile?.license_points ?? 8;
-  const streakDays = Math.max(dashboardData?.profile?.streak_days ?? 0, dashboardData?.daily_bonus?.current_streak ?? 0);
+  const streakDays = useStreak();
   const { readiness } = useExamReadiness(profileId);
   const readinessPct = (readiness?.percent !== undefined && !isNaN(readiness.percent)) ? Math.min(100, readiness.percent) : null;
 
