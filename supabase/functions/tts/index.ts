@@ -39,6 +39,94 @@ function uuidv4() {
     return crypto.randomUUID();
 }
 
+// ── TTS text preprocessing ────────────────────────────────────────────────────
+function preprocessTTS(text: string, lang: string): string {
+    // Replace meaningful emoji with words BEFORE stripping all emoji
+    if (lang === 'ru') {
+        text = text.replace(/✅/g, 'да').replace(/❌/g, 'нет').replace(/[⚡🤯🚗🏆🎯]/g, '');
+    } else if (lang === 'es') {
+        text = text.replace(/✅/g, 'sí').replace(/❌/g, 'no').replace(/[⚡🤯🚗🏆🎯]/g, '');
+    }
+
+    // Strip ALL emoji and pictographs
+    text = text
+        .replace(/[\u{1F000}-\u{1FFFF}]/gu, '')
+        .replace(/[\u{2600}-\u{27BF}]/gu, '')
+        .replace(/[\u{2300}-\u{23FF}]/gu, '')
+        .replace(/[\u{FE00}-\u{FE0F}]/gu, '')
+        .replace(/[\u{1F900}-\u{1F9FF}]/gu, '')
+        .replace(/️/g, '')
+        .replace(/‍/g, '')
+        .replace(/[✀-➿]/g, '')
+        // Strip markdown
+        .replace(/\*\*/g, '')
+        .replace(/\*/g, '')
+        .replace(/^#+\s*/gm, '')
+        // Strip Unicode replacement chars
+        .replace(/�+/g, '')
+        .replace(/\s{2,}/g, ' ')
+        .trim();
+
+    if (lang === 'es' || lang === 'ru') {
+        text = text
+            .replace(/\bkm\/h\b/gi, lang === 'es' ? 'kilómetros por hora' : 'километров в час')
+            .replace(/\bkm\b/gi,    lang === 'es' ? 'kilómetros' : 'километров')
+            .replace(/\bm\/s\b/gi,  lang === 'es' ? 'metros por segundo' : 'метров в секунду')
+            .replace(/\bcc\b/gi,    lang === 'es' ? 'centímetros cúbicos' : 'кубических сантиметров')
+            .replace(/\bDGT\b/g,    lang === 'es' ? 'D.G.T.' : 'Д-Ж-Т')
+            .replace(/\s{2,}/g, ' ');
+    }
+
+    if (lang === 'ru') {
+        text = text
+            // Испанские дорожные термины → русская фонетика
+            .replace(/\bautopistas?\b/gi, 'аутописта')
+            .replace(/\bautov[ií]as?\b/gi, 'аутовиа')
+            .replace(/\bcarreteras?\b/gi, 'карретера')
+            .replace(/\bglorietas?\b/gi, 'глорьета')
+            .replace(/\bcalzadas?\b/gi, 'кальсада')
+            .replace(/\bcarriles?\b/gi, 'карриль')
+            .replace(/\bsem[aá]foros?\b/gi, 'семафоро')
+            .replace(/\bveh[ií]culos?\b/gi, 'вехикуло')
+            .replace(/\bvelocidad\b/gi, 'велосидад')
+            .replace(/\bpe[ao]t[oó]nes?\b/gi, 'пеатон')
+            .replace(/\bconductores?\b/gi, 'кондуктор')
+            .replace(/\bse[nñ]ales?\b/gi, 'сеньяль')
+            .replace(/\bpaso\b/gi, 'пасо')
+            .replace(/\bzona\b/gi, 'сона')
+            .replace(/\baparcamiento\b/gi, 'апаркамьенто')
+            // Математика / спец. символы
+            .replace(/\s*=\s*/g, ' равно ')
+            .replace(/\s*≥\s*/g, ' не менее ')
+            .replace(/\s*≤\s*/g, ' не более ')
+            .replace(/\s*>\s*/g, ' больше ')
+            .replace(/\s*<\s*/g, ' меньше ')
+            .replace(/\s*±\s*/g, ' плюс-минус ')
+            .replace(/№/g, 'номер ')
+            // Единицы
+            .replace(/км\/ч/gi, 'километров в час')
+            .replace(/м\/с/gi, 'метров в секунду')
+            .replace(/км/gi, 'километров')
+            .replace(/\bт\.е\.\b/gi, 'то есть')
+            .replace(/\bт\.к\.\b/gi, 'так как')
+            // Ударения — дорожная лексика
+            .replace(/\bскорость\b/g, 'ско́рость')
+            .replace(/\bскорости\b/g, 'ско́рости')
+            .replace(/\bдороги\b/g, 'доро́ги')
+            .replace(/\bполосы\b/g, 'по́лосы')
+            .replace(/\bзнаки\b/g, 'зна́ки')
+            .replace(/\bдвижения\b/g, 'движе́ния')
+            .replace(/\bповорот\b/g, 'поворо́т')
+            .replace(/\bзапрещено\b/g, 'запрещено́')
+            .replace(/\bразрешено\b/g, 'разрешено́')
+            // Финальная интонация
+            .replace(/([а-яёА-ЯЁ]{3,})\.$/, '$1,.')
+            .replace(/([а-яёА-ЯЁ]{3,})\s*$/, '$1.');
+    }
+
+    return text.trim();
+}
+
 serve(async (req: Request) => {
     // Handle CORS
     if (req.method === 'OPTIONS') {
