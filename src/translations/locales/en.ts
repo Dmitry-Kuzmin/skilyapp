@@ -1642,6 +1642,7 @@ export const en = {
     escToClose: "close",
     settings: "Settings",
     voiceOver: "Voice Over",
+    autoExplain: "Voice Explanation",
     statistics: "Statistics",
     wordHints: "Word Hints",
     ambientMusic: "Ambient Music",
