@@ -163,6 +163,24 @@ export const TestSettingsMenu = ({
             />
           </div>
 
+          {/* Auto explain voice */}
+          <div className="flex items-center justify-between px-2 py-1.5 rounded-lg hover:bg-muted/30 transition-colors">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-md bg-purple-500/10 flex items-center justify-center">
+                <MessageSquare className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+              </div>
+              <div className="flex flex-col">
+                <span className="font-medium text-sm">{t('test.autoExplain')}</span>
+                <span className="text-[9px] text-muted-foreground leading-none">После ответа</span>
+              </div>
+            </div>
+            <Switch
+              checked={autoExplain}
+              onCheckedChange={onAutoExplainChange}
+              className="data-[state=checked]:bg-purple-500 scale-90"
+            />
+          </div>
+
           {/* Answer popularity */}
           <div className="flex items-center justify-between px-2 py-1.5 rounded-lg hover:bg-muted/30 transition-colors">
             <div className="flex items-center gap-2.5">
