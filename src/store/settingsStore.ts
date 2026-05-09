@@ -142,6 +142,7 @@ export const useSettingsStore = create<SettingsStore>()(
                 hapticEnabled: state.hapticEnabled,
                 adasHints: state.adasHints,
                 smartVocabularyEnabled: state.smartVocabularyEnabled,
+                autoExplainEnabled: state.autoExplainEnabled,
                 duelNotifications: state.duelNotifications,
                 examDate: state.examDate,
                 examCity: state.examCity,
