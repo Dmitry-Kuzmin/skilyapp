@@ -202,11 +202,15 @@ const AIWidgetContent = ({
   const { data: duelPassResult } = useDuelPassData(profileId);
 
   // Message limit query
+  // ВАЖНО: p_user_id = auth.users.id (не profiles.id!), т.к. daily_ai_usage.user_id → auth.users
   const { data: aiUsage, refetch: refetchUsage } = useQuery({
     queryKey: ['ai-usage-limit', profileId],
     queryFn: async () => {
       if (!profileId) return null;
-      const { data } = await supabase.rpc('check_ai_usage_limit', { p_user_id: profileId });
+      const { data: { session } } = await supabase.auth.getSession();
+      const authUserId = session?.user?.id;
+      if (!authUserId) return null;
+      const { data } = await supabase.rpc('check_ai_usage_limit', { p_user_id: authUserId });
       return data?.[0] ?? null;
     },
     enabled: !!profileId,
@@ -431,6 +435,12 @@ const AIWidgetContent = ({
   }, [question, isExpanded]);
 
   const askAI = async (userMessage: string) => {
+    // Клиентская пре-проверка: не тратить запрос если лимит уже исчерпан
+    if (!isPremium && aiLimitReached) {
+      setLimitData({ currentCount: aiUsed, limit: 5, message: '' });
+      setLimitModalOpen(true);
+      return;
+    }
     setIsLoading(true);
     let assistantMessage = "";
 

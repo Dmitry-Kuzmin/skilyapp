@@ -1,7 +1,7 @@
 import React, { useMemo, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { playClickSound } from '@/services/audioService';
-import { Info, X, Rocket, TrendingUp, Target, Award, Sparkles, AlertCircle, Activity, Brain, Calendar, Zap, Lock, Play } from 'lucide-react';
+import { Info, Rocket, TrendingUp, Target, Award, Sparkles, AlertCircle, Activity, Brain, Calendar, Zap, Lock, Play } from 'lucide-react';
 import { usePDDContext } from '@/contexts/PDDContext';
 import { motion } from "@/components/optimized/Motion";
 import { getReadinessStatus } from '@/utils/examReadiness';
@@ -25,7 +25,6 @@ interface ExamReadinessProps {
   studyProgress?: number;
   lifetimeAttempts?: number;
   onStartTest?: () => void;
-  onExpandedChange?: (expanded: boolean) => void;
   onTelemetryClick?: () => void;
 }
 
@@ -42,7 +41,6 @@ export const ExamReadiness = React.memo<ExamReadinessProps>(({
   studyProgress,
   lifetimeAttempts,
   onStartTest,
-  onExpandedChange,
   onTelemetryClick
 }) => {
   const { language, t } = useLanguage();
@@ -50,7 +48,7 @@ export const ExamReadiness = React.memo<ExamReadinessProps>(({
   const isMobile = useIsMobile();
   const { resolvedTheme } = useTheme();
   const isDarkTheme = (resolvedTheme ?? 'dark') !== 'light';
-  const [showLevels, setShowLevels] = useState(false);
+
 
   // Все уровни готовности с иконками и переводами
   const readinessLevels = useMemo(() => [
@@ -265,10 +263,8 @@ export const ExamReadiness = React.memo<ExamReadinessProps>(({
 
   const toggleLevels = useCallback(() => {
     playClickSound();
-    const newState = !showLevels;
-    setShowLevels(newState);
-    onExpandedChange?.(newState);
-  }, [showLevels, onExpandedChange]);
+    onTelemetryClick?.();
+  }, [onTelemetryClick]);
 
   // Цветовые классы для светлой и темной темы
   const containerClass = isDarkTheme
@@ -298,9 +294,7 @@ export const ExamReadiness = React.memo<ExamReadinessProps>(({
     <div className={cn(
       "transition-all duration-500",
       containerClass,
-      "backdrop-blur-md rounded-3xl xl:rounded-[2.5rem] p-5 md:p-6 xl:p-8 shadow-lg border flex flex-col relative group",
-      showLevels && isMobile ? "h-auto overflow-visible" : "h-full overflow-hidden",
-      showLevels ? 'items-start justify-start' : 'items-center justify-center'
+      "backdrop-blur-md rounded-3xl xl:rounded-[2.5rem] p-5 md:p-6 xl:p-8 shadow-lg border flex flex-col relative group h-full overflow-hidden items-center justify-center"
     )}>
       {/* Hover overlay effect */}
       <div className={`absolute inset-0 ${hoverOverlayClass} opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none`}></div>
@@ -311,26 +305,20 @@ export const ExamReadiness = React.memo<ExamReadinessProps>(({
           onClick={toggleLevels}
           className={`w-8 h-8 rounded-full ${infoButtonClass} border flex items-center justify-center transition-all duration-200 hover:scale-110 active:scale-95`}
         >
-          {showLevels ? (
-            <X size={16} className={infoIconClass} />
-          ) : (
-            <Info size={16} className={infoIconClass} />
-          )}
+          <Info size={16} className={infoIconClass} />
         </button>
       </div>
 
       {/* Main Content - Gauge */}
       <div
         onClick={() => {
-          if (!showLevels && onTelemetryClick) {
+          if (onTelemetryClick) {
             playClickSound();
             onTelemetryClick();
           }
         }}
         className={cn(
-          "relative w-full transition-all duration-500",
-          showLevels && isMobile ? "hidden" : "block",
-          showLevels ? 'opacity-0 scale-95 -translate-y-4 pointer-events-none' : 'opacity-100 scale-100 translate-y-0 cursor-pointer hover:scale-[1.02] active:scale-[0.98]'
+          "relative w-full transition-all duration-500 opacity-100 scale-100 translate-y-0 cursor-pointer hover:scale-[1.02] active:scale-[0.98]"
         )}
       >
         <div className="text-center mb-6 relative z-10">
@@ -457,131 +445,6 @@ export const ExamReadiness = React.memo<ExamReadinessProps>(({
       </div>
 
 
-      {/* Levels Panel - плавное появление с Split View */}
-      <div className={cn(
-        "transition-all duration-500 w-full",
-        showLevels ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none',
-        isMobile && showLevels ? "relative" : "absolute inset-0 p-4 sm:p-6"
-      )}>
-        <div className="h-full flex flex-col overflow-y-auto">
-          {/* Title */}
-          <div className="mb-4 relative z-10 flex items-center justify-between flex-shrink-0">
-            <h3 className={`font-bold ${textPrimaryClass} text-base sm:text-lg`}>{t('dashboard.examReadiness.telemetryTitle')}</h3>
-          </div>
-
-          {/* Split View: Levels (Left) + Analytics (Right) */}
-          <div className="flex-1 flex flex-col xl:flex-row gap-6 md:gap-8 min-h-0">
-            {/* Left Side: Levels */}
-            <div className="flex flex-col w-full xl:w-[50%] xl:min-w-[340px] xl:max-w-[450px] min-h-0">
-              <div className="mb-4">
-                <h4 className={`text-xs font-bold ${sectionTitleClass} uppercase tracking-wider`}>
-                  {t('dashboard.examReadiness.levelsTitle')}
-                </h4>
-              </div>
-
-              {/* Levels List with Progress Line */}
-              <div className="flex-1 relative pr-2 min-h-0 overflow-y-auto custom-scrollbar pb-6">
-                {/* Vertical Progress Line (background) */}
-                <div className={`absolute left-4 top-2 bottom-8 w-0.5 ${progressLineClass}`}></div>
-
-                {/* Active Progress Line */}
-                {!hasNoData && currentLevelIndex > 0 && (
-                  <div
-                    className="absolute left-4 top-2 w-0.5 transition-all duration-1000 ease-out z-10"
-                    style={{
-                      height: `${(currentLevelIndex / (readinessLevels.length - 1)) * (100 - 15)}%`,
-                      background: `linear-gradient(to bottom, ${gaugeColor}60, ${gaugeColor}40)`,
-                    }}
-                  />
-                )}
-
-                {/* Levels Container */}
-                <div className="relative space-y-6 sm:space-y-8 py-2">
-                  {readinessLevels.map((level, index) => {
-                    const isActive = index === currentLevelIndex && !hasNoData;
-
-                    return (
-                      <motion.div
-                        key={level.status}
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{
-                          opacity: showLevels ? 1 : 0,
-                          x: showLevels ? 0 : -20
-                        }}
-                        transition={{ delay: index * 0.1, duration: 0.4 }}
-                        className="relative flex items-start gap-4 sm:gap-5"
-                      >
-                        {/* Dot on Progress Line */}
-                        <div className="relative z-20 flex-shrink-0 flex items-center pt-1">
-                          <div
-                            className={`w-6 h-6 sm:w-7 sm:h-7 rounded-full border-2 transition-all duration-500 flex items-center justify-center relative ${isActive
-                              ? `bg-slate-900 border-orange-400 shadow-[0_0_15px_rgba(251,146,60,0.4)] scale-110`
-                              : `bg-slate-900 ${levelDotBorderClass}`
-                              }`}
-                          >
-                            <div
-                              className={`rounded-full transition-all duration-500 ${isActive
-                                ? 'w-3.5 h-3.5 sm:w-4 sm:h-4 bg-orange-500'
-                                : `w-2 h-2 sm:w-2.5 sm:h-2.5 ${levelDotBgClass}`
-                                }`}
-                            />
-
-                            {isActive && (
-                              <motion.div
-                                animate={{ scale: [1, 1.8, 1], opacity: [0.4, 0, 0.4] }}
-                                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                                className="absolute inset-0 rounded-full bg-orange-500/30"
-                              />
-                            )}
-                          </div>
-                        </div>
-
-                        {/* Level Content */}
-                        <div className={`flex-1 transition-all duration-300 flex flex-col ${isActive ? 'opacity-100 translate-x-1' : 'opacity-40'}`}>
-                          <div className="flex flex-wrap items-center gap-2 mb-1.5">
-                            <span className={`text-sm sm:text-base font-black uppercase tracking-tight ${level.titleColor}`}>
-                              {level.title}
-                            </span>
-                            <span className={`text-[10px] sm:text-xs px-1.5 py-0.5 rounded ${level.bgColor} ${level.titleColor} font-bold`}>
-                              {level.range}
-                            </span>
-                          </div>
-                          <p className={`text-xs sm:text-sm ${levelDescClass} leading-snug max-w-[320px]`}>
-                            {level.description}
-                          </p>
-                        </div>
-                      </motion.div>
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
-
-            {/* Right Side: Analytics */}
-            <div className="flex flex-col flex-1 min-h-0 w-full xl:min-w-0">
-              <div className="mb-4">
-                <h4 className={`text-xs font-bold ${textPrimaryClass} uppercase tracking-wider`}>
-                  {t('dashboard.examReadiness.advancedTelemetryTitle')}
-                </h4>
-              </div>
-              <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar pb-6 pr-1">
-                <AnalyticsPanel
-                  trend={analytics?.trend || null}
-                  consistency={analytics?.consistency || null}
-                  timeToPass={analytics?.timeToPass || null}
-                  criticalPoint={analytics?.criticalPoint || null}
-                  focusBattery={analytics?.focusBattery || null}
-                  activityHeatmap={analytics?.activityHeatmap || null}
-                  currentScore={score}
-                  loading={analyticsLoading}
-                  showHeader={false}
-                />
-              </div>
-            </div>
-          </div>
-
-        </div>
-      </div>
     </div>
   );
 });

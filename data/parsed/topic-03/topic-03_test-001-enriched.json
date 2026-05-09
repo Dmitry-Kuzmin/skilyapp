@@ -59,29 +59,29 @@
     },
     "answers": [
       {
-        "id": "a",
+        "id": "opt_0",
         "text": {
+          "ru": "Да, и также запрещает разворот.",
           "es": "Si, y también prohíbe cambiar el sentido de la marcha.",
-          "en": "Yes, and it also prohibits making a U-turn.",
-          "ru": "Да, и также запрещает разворот."
+          "en": "Yes, and it also prohibits making a U-turn."
         },
         "is_correct": true
       },
       {
-        "id": "b",
+        "id": "opt_1",
         "text": {
+          "ru": "Нет, запрещает только разворот.",
           "es": "No, solo prohíbe cambiar el sentido de la marcha.",
-          "en": "No, it only prohibits making a U-turn.",
-          "ru": "Нет, запрещает только разворот."
+          "en": "No, it only prohibits making a U-turn."
         },
         "is_correct": false
       },
       {
-        "id": "c",
+        "id": "opt_2",
         "text": {
+          "ru": "Да, но не запрещает разворот.",
           "es": "Si, pero no prohíbe cambiar el sentido de la marcha.",
-          "en": "Yes, but it does not prohibit making a U-turn.",
-          "ru": "Да, но не запрещает разворот."
+          "en": "Yes, but it does not prohibit making a U-turn."
         },
         "is_correct": false
       }
@@ -89,7 +89,7 @@
     "explanation": {
       "es": "La señal R-303 'Giro a la izquierda prohibido' prohíbe girar a la izquierda. Además, el Reglamento General de Circulación estipula que esta prohibición incluye también la del cambio de sentido de la marcha. Por lo tanto, no se permite ni el giro a la izquierda ni el cambio de sentido.",
       "en": "The R-303 sign 'No left turn' prohibits turning left. Furthermore, the General Traffic Regulations stipulate that this prohibition also includes making a U-turn. Therefore, neither a left turn nor a U-turn is permitted.",
-      "ru": "🎓 \nЗнак R-303 «Поворот налево запрещен» действует на всех водителей, включая тех, кто управляет **Turismo** (легковым автомобилем). Он запрещает выполнять поворот налево. Согласно ПДД Испании, этот запрет автоматически распространяется и на **cambio de sentido** (разворот), так как для разворота необходимо начать движение влево. Таким образом, увидев этот знак, ты не можешь ни повернуть налево, ни развернуться.\n\n🇷🇺 \n❗ **КРИТИЧЕСКОЕ ОТЛИЧИЕ!** В РФ знак 3.18.2 «Поворот налево запрещен» **разрешает** разворот. В Испании этот знак **ЗАПРЕЩАЕТ** и поворот налево, и разворот. Это частая ловушка для опытных водителей из СНГ: в Испании «нет левого поворота» означает полный запрет на любые маневры в левую сторону.\n\n💡 \nЗапомни принцип «Меньшее включает большее»: если тебе запрещено повернуть даже на 90 градусов (налево), то тем более запрещено крутить руль на 180 градусов (разворот). Нет лево — нет разворота."
+      "ru": "🎓 Знак R-303 «Поворот налево запрещен» действует на всех водителей, включая тех, кто управляет **Turismo** (легковым автомобилем). Он запрещает выполнять поворот налево. Согласно ПДД Испании, этот запрет автоматически распространяется и на **cambio de sentido** (разворот), так как для разворота необходимо начать движение влево. Таким образом, увидев этот знак, ты не можешь ни повернуть налево, ни развернуться."
     },
     "image_url": "https://teorica.practicavial.com/question/9b424ef0-7406-4f50-ba35-648ae2a8e990-1658159212-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/9b424ef0-7406-4f50-ba35-648ae2a8e990-s-1.jpg",
@@ -334,7 +334,7 @@
     "explanation": {
       "es": "La señal vertical R-303 prohíbe explícitamente el giro a la izquierda. Según el Reglamento General de Circulación, la prohibición de girar a la izquierda incluye siempre la prohibición del cambio de sentido. Por lo tanto, tanto la trayectoria hacia la izquierda (C) como el cambio de sentido (D) están prohibidos. El conductor solo está autorizado a continuar de frente (B) o girar a la derecha (A).",
       "en": "The vertical sign R-303 explicitly prohibits turning left. According to General Traffic Regulations, prohibiting a left turn always includes the prohibition of a U-turn. Therefore, both turning left (C) and making a U-turn (D) are prohibited. The driver is only authorized to proceed straight (B) or turn right (A).",
-      "ru": "🎓 Ты подъезжаешь к перекрестку и видишь знак R-303 «Поворот налево запрещен» (круг с красной каймой и перечеркнутой стрелкой влево). Для водителя любого ТС, включая легковой автомобиль (turismo), это означает двойной запрет: нельзя поворачивать налево и **нельзя делать разворот** (cambio de sentido). Следовательно, разрешено движение только в оставшихся направлениях: **прямо** или **направо**.\n\n🇷🇺 Это критически важный момент! В РФ знак 3.18.2 «Поворот налево запрещен» **разрешает** разворот. В Испании знак R-303 **запрещает** и поворот, и разворот. Действовать по привычке из РФ здесь нельзя — это грубая ошибка.\n\n3️⃣ 💡 \nЗапомни принцип «Запрет меньшего убивает большее»:\n• Если запрещен поворот налево (малый маневр), то запрещен и разворот (большой маневр).\n• А вот наоборот это не работает: знак «Разворот запрещен» всё еще позволяет повернуть налево.\n\nВидим запрет налево 🚫⬅️ — значит, вся левая сторона закрыта."
+      "ru": "🎓 Ты подъезжаешь к перекрестку и видишь знак R-303 «Поворот налево запрещен» (круг с красной каймой и перечеркнутой стрелкой влево). Для водителя любого ТС, включая легковой автомобиль (turismo), это означает двойной запрет: нельзя поворачивать налево и **нельзя делать разворот** (cambio de sentido). Следовательно, разрешено движение только в оставшихся направлениях: **прямо** или **направо**."
     },
     "image_url": "https://teorica.practicavial.com/question/6bb76366-d5ed-41b6-a453-3f54f49c2c76-1658159256-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/6bb76366-d5ed-41b6-a453-3f54f49c2c76-s-1.jpg",

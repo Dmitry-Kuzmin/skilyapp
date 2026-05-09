@@ -24,40 +24,28 @@ export const SignWidget: React.FC<SignWidgetProps> = ({ code, description, isDar
             setIsLoading(true);
             setError(false);
             try {
-                const normalized = code.trim().toUpperCase();
+                // Normalize fancy hyphens (U+2010/U+2013/U+2014) the model might emit to ASCII '-'.
+                const normalized = code.trim().replace(/[‐–—]/g, '-').toUpperCase();
 
-                // Try exact match first (case-insensitive)
-                let { data, error: e1 } = await supabase
+                const { data } = await supabase
                     .from('road_signs')
                     .select('image_url, name_ru, description_ru')
                     .ilike('sign_number', normalized)
-                    .maybeSingle() as unknown as { data: { image_url: string; name_ru: string; description_ru: string } | null, error: any };
+                    .maybeSingle() as unknown as { data: { image_url: string; name_ru: string; description_ru: string } | null };
 
-                // Fallback: wildcard match (e.g. "R-2%" to handle "R‐2" with non-breaking hyphens)
-                if (!data && !e1) {
-                    const fallback = await supabase
-                        .from('road_signs')
-                        .select('image_url, name_ru, description_ru')
-                        .ilike('sign_number', `%${normalized.replace('-', '')}%`)
-                        .maybeSingle() as unknown as { data: { image_url: string; name_ru: string; description_ru: string } | null, error: any };
-                    data = fallback.data;
-                }
-
-                if (!data) {
+                if (!data || !data.image_url) {
                     console.warn(`[SignWidget] Sign not found: ${code}`);
                     if (mounted) setError(true);
                     return;
                 }
 
-                if (mounted && data.image_url) {
+                if (mounted) {
                     setImageUrl(data.image_url);
                     if (data.name_ru) setNameFromDb(data.name_ru);
                     if (data.description_ru) setDescriptionFromDb(data.description_ru);
-                } else if (mounted) {
-                    setError(true);
                 }
             } catch (e) {
-                console.error(`[SignWidget 🚀] Error fetching ${code}:`, e);
+                console.error(`[SignWidget] Error fetching ${code}:`, e);
                 if (mounted) setError(true);
             } finally {
                 if (mounted) setIsLoading(false);
@@ -98,6 +86,10 @@ export const SignWidget: React.FC<SignWidgetProps> = ({ code, description, isDar
 
     const finalDescription = descriptionFromDb || description;
 
+    // Sign not found / no image — drop the widget entirely. The surrounding text answer
+    // still renders, and we avoid showing a broken "Нет фото" placeholder.
+    if (!isLoading && error) return null;
+
     return (
         <div className={cn(
             "my-4 px-5 py-4 rounded-[2rem] border flex flex-row items-center gap-6 group transition-all duration-500 ease-in-out",
@@ -110,13 +102,7 @@ export const SignWidget: React.FC<SignWidgetProps> = ({ code, description, isDar
             <div className="flex flex-col items-center gap-3 shrink-0 p-1">
                 <div className="w-16 h-16 flex items-center justify-center relative bg-transparent overflow-visible">
                     {isLoading && <Loader2 className="w-5 h-5 animate-spin text-indigo-400 opacity-50" />}
-                    {!isLoading && error && (
-                        <div className="flex flex-col items-center opacity-40">
-                            <span className="text-[10px] font-bold">DGT</span>
-                            <span className="text-[9px] text-center leading-tight">Нет фото</span>
-                        </div>
-                    )}
-                    {!isLoading && imageUrl && !error && (
+                    {!isLoading && imageUrl && (
                         <img
                             src={imageUrl}
                             alt={`Знак ${code}`}

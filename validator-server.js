@@ -1042,7 +1042,10 @@ app.get('/api/question/details/:id', async (req, res) => {
 });
 
 app.get('/api/generate/status', (req, res) => {
-    res.json(generationStats);
+    res.json({
+        ...generationStats,
+        singleGenActive: activeGenerationProcess !== null
+    });
 });
 
 // ==========================================

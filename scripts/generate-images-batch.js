@@ -51,8 +51,8 @@ function initializeAI() {
     visionModel = genAI.getGenerativeModel({ model: 'gemini-3.1-flash-lite-preview' });
     // 🎨 Main Artist
     imagenModel = genAI.getGenerativeModel({ model: 'gemini-3.1-flash-image-preview' });
-    // 🎨 Backup Artist
-    imagenModelFlash = genAI.getGenerativeModel({ model: 'gemini-3.1-flash-image-preview' });
+    // 🎨 Backup Artist (different model for actual fallback)
+    imagenModelFlash = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-preview-image-generation' });
 }
 
 function rotateApiKey() {
@@ -806,7 +806,7 @@ STRICT GUIDELINES:
         console.log(`   🎨 Генерируем через: ${modelName}...`);
 
         const timeoutPromise = new Promise((_, reject) =>
-            setTimeout(() => reject(new Error("Generation Timeout (120s)")), 120000)
+            setTimeout(() => reject(new Error("Generation Timeout (240s)")), 240000)
         );
 
         const result = await Promise.race([

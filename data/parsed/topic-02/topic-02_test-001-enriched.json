@@ -549,29 +549,29 @@
     },
     "answers": [
       {
-        "id": "a",
+        "id": "opt_0",
         "text": {
-          "es": "reducir la velocidad, aunque con ello ponga en peligro la seguridad de la circulación.",
-          "en": "reduce speed, even if doing so endangers traffic safety.",
-          "ru": "снизить скорость, даже если это поставит под угрозу безопасность движения."
-        },
-        "is_correct": false
-      },
-      {
-        "id": "b",
-        "text": {
+          "ru": "способствовать возвращению белого автомобиля на правую полосу.",
           "es": "facilitar la vuelta al carril derecho del vehículo blanco.",
-          "en": "facilitate the white vehicle's return to the right lane.",
-          "ru": "способствовать возвращению белого автомобиля на правую полосу."
+          "en": "facilitate the white vehicle's return to the right lane."
         },
         "is_correct": true
       },
       {
-        "id": "c",
+        "id": "opt_1",
         "text": {
+          "ru": "снизить скорость, даже если это поставит под угрозу безопасность движения.",
+          "es": "reducir la velocidad, aunque con ello ponga en peligro la seguridad de la circulación.",
+          "en": "reduce speed, even if doing so endangers traffic safety."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "opt_2",
+        "text": {
+          "ru": "двигаться по обочине, чтобы сделать возможным обгон.",
           "es": "circular por el arcén para posibilitar el adelantamiento.",
-          "en": "drive on the shoulder to enable overtaking.",
-          "ru": "двигаться по обочине, чтобы сделать возможным обгон."
+          "en": "drive on the shoulder to enable overtaking."
         },
         "is_correct": false
       }
@@ -579,7 +579,7 @@
     "explanation": {
       "es": "Según el Reglamento General de Circulación, cuando el conductor que adelanta da muestras inequívocas de desistir de la maniobra, el conductor del vehículo adelantado (en este caso, el verde) está obligado a facilitar la vuelta del vehículo adelantante a su carril. Sin embargo, no está obligado a disminuir su velocidad si con ello pone en peligro la seguridad de la circulación.",
       "en": "According to the General Traffic Regulations, when the overtaking driver gives unequivocal signs of aborting the maneuver, the driver of the overtaken vehicle (in this case, the green one) is obliged to facilitate the overtaking vehicle's return to its lane. However, they are not obliged to reduce their speed if doing so would endanger traffic safety.",
-      "ru": "🎓 \nПредставь, что ты управляешь зеленым автомобилем (Turismo). Водитель белого автомобиля начал обгон, но в процессе понял, что не успевает (например, из-за встречного транспорта), и решил прервать маневр. Он включает правый поворотник, показывая, что хочет вернуться назад в полосу.\n\nСогласно ПДД Испании, в такой ситуации ты **обязан способствовать** его безопасному возвращению на правую полосу. Главная цель — избежать ДТП. Однако закон делает важную оговорку: ты не должен снижать скорость, если это создаст опасность для движения (например, если сзади вплотную едет другая машина). Движение по обочине (Arcén) для облегчения обгона также запрещено.\n\n💡 \nЕсли «гонщик» сдался и просится назад — **пусти его**.\nЗапомни логику: **Прерванный обгон = Помоги вернуться** (но без экстренного торможения)."
+      "ru": "🎓 Представь, что ты управляешь зеленым автомобилем (Turismo). Водитель белого автомобиля начал обгон, но в процессе понял, что не успевает (например, из-за встречного транспорта), и решил прервать маневр. Он включает правый поворотник, показывая, что хочет вернуться назад в полосу.\n\nСогласно ПДД Испании, в такой ситуации ты **обязан способствовать** его безопасному возвращению на правую полосу. Главная цель — избежать ДТП. Однако закон делает важную оговорку: ты не должен снижать скорость, если это создаст опасность для движения (например, если сзади вплотную едет другая машина). Движение по обочине (Arcén) для облегчения обгона также запрещено."
     },
     "image_url": "https://teorica.practicavial.com/question/5eaced59-9117-4193-9ae4-286a8d93718b-1657822952-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/5eaced59-9117-4193-9ae4-286a8d93718b-s-1.jpg",
@@ -1235,29 +1235,29 @@
     },
     "answers": [
       {
-        "id": "a",
+        "id": "opt_0",
         "text": {
-          "es": "Detenerse, para que se incorpore el turismo azul.",
-          "en": "Stop so that the blue car can merge.",
-          "ru": "Остановиться, чтобы синий легковой автомобиль мог влиться в поток."
-        },
-        "is_correct": false
-      },
-      {
-        "id": "b",
-        "text": {
+          "ru": "По возможности способствовать въезду синего легкового автомобиля в поток.",
           "es": "Facilitar, en la medida de lo posible, la incorporación del turismo azul.",
-          "en": "Facilitate, as much as possible, the merging of the blue car.",
-          "ru": "По возможности способствовать въезду синего легкового автомобиля в поток."
+          "en": "Facilitate, as much as possible, the merging of the blue car."
         },
         "is_correct": true
       },
       {
-        "id": "c",
+        "id": "opt_1",
         "text": {
+          "ru": "Остановиться, чтобы синий легковой автомобиль мог влиться в поток.",
+          "es": "Detenerse, para que se incorpore el turismo azul.",
+          "en": "Stop so that the blue car can merge."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "opt_2",
+        "text": {
+          "ru": "Уступить дорогу синему легковому автомобилю, но не останавливаясь.",
           "es": "Ceder el paso al turismo azul, pero sin detenerse.",
-          "en": "Yield the right of way to the blue car, but without stopping.",
-          "ru": "Уступить дорогу синему легковому автомобилю, но не останавливаясь."
+          "en": "Yield the right of way to the blue car, but without stopping."
         },
         "is_correct": false
       }
@@ -1265,7 +1265,7 @@
     "explanation": {
       "es": "El Reglamento General de Circulación estipula que, aunque usted tiene prioridad de paso sobre los vehículos que pretenden incorporarse a la vía, tiene la obligación de facilitar dicha maniobra en la medida de lo posible. Esto implica colaborar (por ejemplo, moderando levemente la velocidad o desplazándose lateralmente si es seguro), pero nunca detenerse por completo ni ceder el paso formalmente, ya que hacerlo injustificadamente podría entorpecer la circulación o crear situaciones de peligro.",
       "en": "The General Traffic Regulations stipulate that, although you have the right of way over vehicles attempting to merge onto the road, you have an obligation to facilitate said maneuver as much as possible. This implies cooperating (for example, by slightly moderating speed or moving laterally if safe), but never stopping completely or formally yielding the right of way, as doing so unjustifiably could impede traffic or create dangerous situations.",
-      "ru": "🎓 \nСогласно ПДД Испании, водитель, движущийся по главной дороге или полосе, имеет приоритет перед теми, кто пытается в нее влиться (как синий легковой автомобиль). Однако у тебя есть обязанность **способствовать** (facilitate) их маневру. Это означает, что ты должен по возможности помочь: например, слегка отпустить педаль газа или немного сместиться в пределах своей полосы, чтобы дать место. Важно понимать разницу: «способствовать» — не значит «уступить дорогу» или «остановиться». Ты сохраняешь приоритет и не должен прибегать к экстренному торможению или опасным маневрам ради пропуска.\n\n🇷🇺 **Отличия от РФ**\nВ РФ водитель на главной дороге имеет безусловный приоритет, и понятие «помочь выехать» относится скорее к водительской вежливости, чем к строгому правилу (за исключением маршрутных ТС). В Испании это **юридическая обязанность**. На экзамене DGT важно различать термины: если ты выберешь «Уступить дорогу» (Ceder el paso) или «Остановиться» — это будет ошибкой, так как ты необоснованно отказываешься от своего права проезда и можешь создать затор или аварию.\n\n💡 **Запоминалка**\nПомогай, но не уступай! Если видишь, что кто-то хочет влезть: **ногу с газа убери, но тормоз в пол не дави**."
+      "ru": "Согласно ПДД Испании, водитель, движущийся по главной дороге или полосе, имеет приоритет перед теми, кто пытается в нее влиться (как синий легковой автомобиль). Однако у тебя есть обязанность **способствовать** (facilitate) их маневру. Это означает, что ты должен по возможности помочь: например, слегка отпустить педаль газа или немного сместиться в пределах своей полосы, чтобы дать место. Важно понимать разницу: «способствовать» — не значит «уступить дорогу» или «остановиться». Ты сохраняешь приоритет и не должен прибегать к экстренному торможению или опасным маневрам ради пропуска.\n\n🇷🇺 **Отличия от РФ**\nВ РФ водитель на главной дороге имеет безусловный приоритет, и понятие «помочь выехать» относится скорее к водительской вежливости, чем к строгому правилу (за исключением маршрутных ТС). В Испании это **юридическая обязанность**. На экзамене DGT важно различать термины: если ты выберешь «Уступить дорогу» (Ceder el paso) или «Остановиться» — это будет ошибкой, так как ты необоснованно отказываешься от своего права проезда и можешь создать затор или аварию.\n"
     },
     "image_url": "https://teorica.practicavial.com/question/6bee48f7-bc55-411d-99be-151c92076f56-1657799532-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/6bee48f7-bc55-411d-99be-151c92076f56-s-1.jpg",
@@ -1333,29 +1333,29 @@
     },
     "answers": [
       {
-        "id": "a",
+        "id": "opt_0",
         "text": {
-          "es": "4.",
-          "en": "4.",
-          "ru": "4."
-        },
-        "is_correct": false
-      },
-      {
-        "id": "b",
-        "text": {
+          "ru": "2.",
           "es": "2.",
-          "en": "2.",
-          "ru": "2."
+          "en": "2."
         },
         "is_correct": true
       },
       {
-        "id": "c",
+        "id": "opt_1",
         "text": {
+          "ru": "4.",
+          "es": "4.",
+          "en": "4."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "opt_2",
+        "text": {
+          "ru": "3.",
           "es": "3.",
-          "en": "3.",
-          "ru": "3."
+          "en": "3."
         },
         "is_correct": false
       }
@@ -1363,7 +1363,7 @@
     "explanation": {
       "es": "Según el Reglamento General de Vehículos, los turismos deben llevar obligatoriamente dos espejos retrovisores como mínimo: el exterior izquierdo y el interior. El espejo exterior derecho es opcional, salvo que el espejo interior no permita la visibilidad reglamentaria (por ejemplo, por uso de cortinillas, carga o remolque), en cuyo caso el derecho pasa a ser obligatorio.",
       "en": "According to the General Vehicle Regulations, passenger cars must mandatorily carry a minimum of two rearview mirrors: the left exterior mirror and the interior mirror. The right exterior mirror is optional, unless the interior mirror does not allow for the required visibility (for example, due to the use of sunshades, cargo, or a trailer), in which case the right mirror becomes mandatory.",
-      "ru": "🎓 \n\nСогласно ПДД Испании, легковой автомобиль (Turismo) обязан иметь минимум **два зеркала**:\n1. **Левое наружное** (со стороны водителя).\n2. **Внутрисалонное** (центральное).\n\nПравое наружное зеркало изначально является опциональным. Оно становится обязательным **только** в том случае, если обзор через внутрисалонное зеркало перекрыт (например, шторками, тонировкой, высоким грузом на заднем сиденье или при буксировке прицепа).\n\n💡 \n\nЗапомни формулу: **1 + 1 = 2**.\nОдин снаружи (слева) + Один внутри = Законный минимум.\nПравое зеркало — это «запасной игрок»: оно обязательно только тогда, когда центральное зеркало «ослепло» (закрыто грузом)."
+      "ru": "🎓 Согласно ПДД Испании, легковой автомобиль (Turismo) обязан иметь минимум **два зеркала**:\n1. **Левое наружное** (со стороны водителя).\n2. **Внутрисалонное** (центральное).\n\nПравое наружное зеркало изначально является опциональным. Оно становится обязательным **только** в том случае, если обзор через внутрисалонное зеркало перекрыт (например, шторками, тонировкой, высоким грузом на заднем сиденье или при буксировке прицепа)."
     },
     "image_url": "https://teorica.practicavial.com/question/76ee6aae-1b52-4cb1-adbe-ec278561c39c-1657807378-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/76ee6aae-1b52-4cb1-adbe-ec278561c39c-s-1.jpg",
@@ -1431,29 +1431,29 @@
     },
     "answers": [
       {
-        "id": "a",
+        "id": "opt_0",
         "text": {
+          "ru": "Убрать его с проезжей части, соблюдая правила остановки и стоянки, если это возможно.",
           "es": "Sacarlo de la calzada, cumpliendo las normas de estacionamiento siempre que sea posible.",
-          "en": "Remove it from the roadway, complying with parking regulations whenever possible.",
-          "ru": "Убрать его с проезжей части, соблюдая правила остановки и стоянки, если это возможно."
+          "en": "Remove it from the roadway, complying with parking regulations whenever possible."
         },
         "is_correct": true
       },
       {
-        "id": "b",
+        "id": "opt_1",
         "text": {
+          "ru": "Оставить его на разделительной полосе, так как это всегда самое безопасное место.",
           "es": "Dejarlo en la mediana, porque siempre es el sitio más seguro.",
-          "en": "Leave it in the median strip, because it is always the safest place.",
-          "ru": "Оставить его на разделительной полосе, так как это всегда самое безопасное место."
+          "en": "Leave it in the median strip, because it is always the safest place."
         },
         "is_correct": false
       },
       {
-        "id": "c",
+        "id": "opt_2",
         "text": {
+          "ru": "Отбуксировать его любым другим транспортным средством в безопасное место.",
           "es": "Remolcarlo con cualquier otro vehículo hasta un lugar seguro.",
-          "en": "Tow it with any other vehicle to a safe place.",
-          "ru": "Отбуксировать его любым другим транспортным средством в безопасное место."
+          "en": "Tow it with any other vehicle to a safe place."
         },
         "is_correct": false
       }
@@ -1461,7 +1461,7 @@
     "explanation": {
       "es": "Según el Reglamento General de Circulación, en caso de emergencia o avería en una autopista o autovía, el conductor debe adoptar las medidas necesarias para retirar el vehículo de la calzada y situarlo en el arcén o en un lugar donde cause la menor obstrucción posible. Además, está prohibido el remolque de un vehículo accidentado o averiado por otro vehículo particular en estas vías; dicha operación debe ser realizada exclusivamente por un vehículo de auxilio en carretera (grúa).",
       "en": "According to the General Traffic Regulations, in the event of an emergency or breakdown on a motorway or dual carriageway, the driver must take the necessary measures to remove the vehicle from the roadway and place it on the shoulder or in a location where it causes the least possible obstruction. Furthermore, towing an accident-damaged or broken-down vehicle by another private vehicle is prohibited on these roads; such an operation must be performed exclusively by a roadside assistance vehicle (tow truck).",
-      "ru": "🎓 \nЕсли твой *turismo* (легковой автомобиль) сломался на *autovía* (скоростной дороге) или *autopista* (автомагистрали), твоя главная цель — освободить *calzada* (проезжую часть). Ты обязан попытаться переместить машину на *arcén* (обочину) или, если возможно, вообще за пределы дороги, соблюдая меры безопасности (аварийная сигнализация, жилет, знак аварийной остановки).\n\n🇷🇺 **Опасно для водителей из РФ**\nВ России распространена практика буксировки сломанной машины другом на тросе («на галстуке»). В Испании на *autopista* и *autovía* это **категорически запрещено**. Буксировать неисправное ТС на таких дорогах имеет право ТОЛЬКО официальный эвакуатор (*grúa*). Попытка сэкономить и попросить друга дотянуть до сервиса приведет к серьезному штрафу и созданию аварийной ситуации.\n\n💡 **Запоминалка**\nСломался на трассе?\n1. Уйди с асфальта на обочину.\n2. Друга не зови тянуть — зови эвакуатор.\n**Сам не тяни и других не проси!**"
+      "ru": "🎓 Если твой *turismo* (легковой автомобиль) сломался на *autovía* (скоростной дороге) или *autopista* (автомагистрали), твоя главная цель — освободить *calzada* (проезжую часть). Ты обязан попытаться переместить машину на *arcén* (обочину) или, если возможно, вообще за пределы дороги, соблюдая меры безопасности (аварийная сигнализация, жилет, знак аварийной остановки).\n\n🇷🇺 **Опасно для водителей из РФ**\nВ России распространена практика буксировки сломанной машины другом на тросе («на галстуке»). В Испании на *autopista* и *autovía* это **категорически запрещено**. Буксировать неисправное ТС на таких дорогах имеет право ТОЛЬКО официальный эвакуатор (*grúa*). Попытка сэкономить и попросить друга дотянуть до сервиса приведет к серьезному штрафу и созданию аварийной ситуации."
     },
     "image_url": "https://teorica.practicavial.com/question/3a66a265-a033-430d-a568-3841c33de280-1657899873-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/3a66a265-a033-430d-a568-3841c33de280-s-1.jpg",

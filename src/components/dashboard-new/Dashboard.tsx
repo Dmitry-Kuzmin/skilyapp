@@ -1,5 +1,5 @@
 import React, { useMemo, useCallback, useState, lazy, Suspense } from 'react';
-import { Power, Volume2, Play, Bell, CheckCircle, Star, Circle, Zap, FileText, Coins, BookOpen, ArrowRight, Target, BarChart2 } from 'lucide-react';
+import { Power, Volume2, Play, Bell, CheckCircle, Star, Circle, Zap, FileText, Coins, BookOpen, ArrowRight, Target, BarChart2, Sparkles } from 'lucide-react';
 import { ContextSwitcher } from '@/components/shared';
 import { usePDDContext } from '@/contexts/PDDContext';
 import { useUserContext } from '@/contexts/UserContext';
@@ -19,7 +19,6 @@ import { CompactStreakJewel } from '@/components/shared/CompactStreakJewel';
 
 // Lazy load heavy dashboard components
 const DailyRewards = lazy(() => import('./DailyRewards').then(m => ({ default: m.DailyRewards })));
-const SkilyChat = lazy(() => import('./SkilyChat').then(m => ({ default: m.SkilyChat })));
 const ExamReadiness = lazy(() => import('./ExamReadiness').then(m => ({ default: m.ExamReadiness })));
 const PremiumCard = lazy(() => import('./PremiumCard').then(m => ({ default: m.PremiumCard })));
 const DuelPassInfo = lazy(() => import('./DuelPassInfo').then(m => ({ default: m.DuelPassInfo })));
@@ -41,6 +40,8 @@ import { toast } from '@/lib/toast';
 import { supabase } from '@/integrations/supabase/client';
 import { RehabilitationTest } from './RehabilitationTest';
 import { AnimatePresence } from 'framer-motion';
+import { useAIChatStore } from '@/stores/useAIChatStore';
+import { AISphere } from '@/components/ai/AISphere';
 
 interface DashboardProps {
   stats: {
@@ -251,11 +252,9 @@ export const Dashboard: React.FC<DashboardProps> = ({
             </Suspense>
           </div>
 
-          {/* 4. SKILY CHAT */}
+          {/* 4. SKILY CHAT — открывает глобальный AIChatWidget */}
           <div className="md:col-span-1 lg:col-span-1 xl:col-span-1">
-            <Suspense fallback={<ComponentSkeleton />}>
-              <SkilyChat />
-            </Suspense>
+            <SkilyChatCard />
           </div>
 
           {/* 4+5. PREMIUM + BLOG stacked in one column */}
@@ -338,5 +337,57 @@ const DuelPassSeasonModalWrapper = () => {
         }
       }}
     />
+  );
+};
+
+// Карточка AI-чата в дашборде — открывает глобальный AIChatWidget (Vaul drawer)
+// Единый источник лимитов, единая история сообщений
+const SkilyChatCard = () => {
+  const openChat = useAIChatStore((s) => s.openChat);
+  const { resolvedTheme } = useTheme();
+  const isDark = (resolvedTheme ?? 'dark') !== 'light';
+  const { t } = useLanguage();
+
+  return (
+    <motion.div
+      whileHover={{ scale: 1.01 }}
+      whileTap={{ scale: 0.98 }}
+      onClick={() => { playClickSound(); openChat(); }}
+      className={cn(
+        "rounded-3xl p-5 shadow-lg border flex flex-col justify-between cursor-pointer relative overflow-hidden transition-all",
+        isDark
+          ? "bg-slate-800/80 backdrop-blur-md border-slate-700 hover:border-slate-600"
+          : "bg-white border-slate-200/80 hover:border-slate-300 shadow-[0_20px_45px_rgba(0,0,0,0.06)]"
+      )}
+    >
+      <div className="absolute inset-0 bg-gradient-to-b from-indigo-500/5 to-transparent opacity-0 hover:opacity-100 transition-opacity" />
+
+      <div className="flex flex-col items-center justify-center flex-1 relative z-10 py-4">
+        <div className="mb-4">
+          <AISphere size="md" />
+        </div>
+        <div className="text-center">
+          <h3 className={cn("font-bold text-lg tracking-tight", isDark ? "text-white" : "text-slate-900")}>
+            {t('skilyChat.title')}
+          </h3>
+          <p className={cn("text-xs mt-1 font-medium", isDark ? "text-slate-400" : "text-slate-500")}>
+            {t('skilyChat.subtitle')}
+          </p>
+        </div>
+      </div>
+
+      <div className="relative z-10 w-full mt-3">
+        <div className={cn(
+          "w-full py-3.5 px-4 rounded-xl font-black text-xs uppercase tracking-[0.1em] flex items-center justify-center gap-2 border shadow-sm",
+          isDark
+            ? "bg-slate-700 text-white border-slate-600"
+            : "bg-white text-slate-950 border-slate-200"
+        )}>
+          <Sparkles size={13} className="opacity-70" />
+          <span>{t('skilyChat.title') || 'AI Assistant'}</span>
+          <ArrowRight size={13} className="opacity-70" />
+        </div>
+      </div>
+    </motion.div>
   );
 };

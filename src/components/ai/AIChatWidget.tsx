@@ -274,12 +274,16 @@ export function AIChatWidget() {
     const { sendRequest } = useAIRequest();
 
     // Счётчик оставшихся AI-сообщений — только для free пользователей.
+    // ВАЖНО: p_user_id = auth.users.id (не profiles.id!), т.к. daily_ai_usage.user_id → auth.users
     // enabled: не запускаем для premium (экономим запрос) и пока isPremium loading.
     const { data: aiUsage, refetch: refetchUsage } = useQuery({
         queryKey: ['ai-usage-limit', profileId],
         queryFn: async () => {
             if (!profileId) return null;
-            const { data } = await supabase.rpc('check_ai_usage_limit', { p_user_id: profileId });
+            const { data: { session } } = await supabase.auth.getSession();
+            const authUserId = session?.user?.id;
+            if (!authUserId) return null;
+            const { data } = await supabase.rpc('check_ai_usage_limit', { p_user_id: authUserId });
             return data?.[0] ?? null;
         },
         enabled: !!profileId && isOpen && !isPremium && !premiumLoading,
@@ -290,6 +294,8 @@ export function AIChatWidget() {
     // aiUsage?.remaining — прямо из RPC (GREATEST(limit - count, 0))
     // aiUsage == null (double-equals: ловит undefined ДО загрузки И null)
     const aiRemaining = aiUsage?.remaining ?? FREE_DAILY_LIMIT;
+    const aiLimitReached = aiUsage?.limit_reached ?? false;
+    const aiUsed = aiUsage?.current_count ?? 0;
     const usageLoaded = aiUsage != null; // != ловит и undefined и null
 
     const {
@@ -412,6 +418,14 @@ export function AIChatWidget() {
     const askAI = useCallback(async (userMessage: string) => {
         if (!userMessage.trim() || isLoading) return;
 
+        // Клиентская пре-проверка: не тратить запрос если лимит уже исчерпан
+        // Сначала закрываем чат-Dialog (иначе его focus-trap блокирует клики по модалу)
+        if (!isPremium && aiLimitReached) {
+            closeChat();
+            setLimitModal(true, { currentCount: aiUsed, limit: FREE_DAILY_LIMIT, message: '' });
+            return;
+        }
+
         setLoading(true);
         addMessage({ role: 'user', content: userMessage });
 
@@ -464,6 +478,8 @@ export function AIChatWidget() {
                 onChunk: (text) => updateLastMessage(text),
                 onDone: () => { if (isTelegram) triggerHapticFeedback('success'); },
                 onLimitReached: (data) => {
+                    // Закрываем чат-Dialog перед показом модала, иначе focus-trap блокирует клики
+                    closeChat();
                     setLimitModal(true, { currentCount: data.currentCount, limit: data.limit, message: data.message || '' });
                 },
                 onError: () => toast.error('Ошибка при получении ответа'),
@@ -472,7 +488,7 @@ export function AIChatWidget() {
 
         setLoading(false);
         if (!isPremium) refetchUsage();
-    }, [messages, questionContext, interfaceLanguage, isLoading, isTelegram, isPremium, refetchUsage]);
+    }, [messages, questionContext, interfaceLanguage, isLoading, isTelegram, isPremium, aiLimitReached, aiUsed, refetchUsage]);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -798,17 +814,16 @@ export function AIChatWidget() {
         );
     }
 
-    // Desktop: Dialog
+    // Desktop: компактный центрированный попап (не full-screen)
     return (
         <>
             <Dialog open={isOpen} onOpenChange={(open) => !open && closeChat()}>
                 <DialogContent
                     hideCloseButton
-                    className="w-screen h-screen max-w-none max-h-none m-0 p-0 flex flex-col rounded-none border-none bg-white/95 dark:bg-zinc-950/98 backdrop-blur-2xl"
+                    className="w-full max-w-xl p-0 flex flex-col rounded-2xl border border-border/10 bg-white dark:bg-zinc-900 shadow-2xl overflow-hidden"
+                    style={{ height: '80vh', maxHeight: '700px' }}
                 >
-                    <div className="flex-1 flex flex-col max-w-4xl mx-auto w-full shadow-2xl bg-white/50 dark:bg-zinc-900/50 backdrop-blur-md overflow-hidden my-0 sm:my-8 sm:rounded-2xl sm:border sm:border-border/10">
-                        {chatContent}
-                    </div>
+                    {chatContent}
                 </DialogContent>
             </Dialog>
 

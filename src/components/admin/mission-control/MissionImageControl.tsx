@@ -397,9 +397,11 @@ export const MissionImageControl = forwardRef<MissionImageControlHandle, Mission
                     const interval = setInterval(async () => {
                         attempts++;
 
-                        // Progress heartbeat & Quota info
+                        // Progress heartbeat with server status
                         if (attempts % 10 === 0) {
-                            addLog(`Still working... (${attempts * 2}s)...`, 'loading');
+                            const statusRes = await fetch('http://localhost:3030/api/generate/status').catch(() => null);
+                            const { singleGenActive } = await statusRes?.json().catch(() => ({})) ?? {};
+                            addLog(`Still working... (${attempts * 2}s)${singleGenActive ? ' — Gemini processing...' : ''}`, 'loading');
                         }
 
                         const parts = questionId.split('_');
@@ -420,10 +422,16 @@ export const MissionImageControl = forwardRef<MissionImageControlHandle, Mission
                             }
                         } catch (e) { console.error(e); }
 
-                        if (attempts > 150) {
+                        if (attempts > 450) {
                             clearInterval(interval);
-                            addLog("Generation timeout (5m limit reached)", 'error');
-                            onGenerationEnd?.();
+                            const statusRes = await fetch('http://localhost:3030/api/generate/status').catch(() => null);
+                            const { singleGenActive } = await statusRes?.json().catch(() => ({})) ?? {};
+                            if (singleGenActive) {
+                                addLog("Still generating — Gemini is slow, check back in a few minutes", 'loading');
+                            } else {
+                                addLog("Generation timeout (15m limit reached — check server logs)", 'error');
+                                onGenerationEnd?.();
+                            }
                         }
                     }, 2000);
 
