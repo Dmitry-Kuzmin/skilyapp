@@ -1320,6 +1320,7 @@ const TestSession = () => {
                 questionIndex={currentIndex}
                 totalQuestions={questionsState.length || questions.length}
               />
+              </Suspense>
             </div>
 
           )
