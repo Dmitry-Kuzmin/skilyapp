@@ -9,17 +9,15 @@ interface BrandLogoProps {
 
 interface BrandConfig {
   src: string;
-  bg?: string;        // undefined = без подложки (банки)
-  padding?: string;
+  bg?: string;
 }
 
 const BANK_KEYS = new Set([
   "visa", "mastercard", "apple pay", "applepay",
-  "google pay", "googlepay", "paypal"
+  "google pay", "googlepay", "paypal",
 ]);
 
 const BRAND_CONFIG: Record<string, BrandConfig> = {
-  // Банки — без подложки, просто логотип
   visa:        { src: "/logos/visa.svg" },
   mastercard:  { src: "/logos/mastercard.svg" },
   "apple pay": { src: "/logos/applepay.svg" },
@@ -27,20 +25,19 @@ const BRAND_CONFIG: Record<string, BrandConfig> = {
   "google pay":{ src: "/logos/googlepay.svg" },
   googlepay:   { src: "/logos/googlepay.svg" },
   paypal:      { src: "/logos/paypal.svg" },
-  // Крипта — с цветным фоном
-  btc:         { src: "/logos/btc.svg",  bg: "#F7931A", padding: "p-1.5" },
-  bitcoin:     { src: "/logos/btc.svg",  bg: "#F7931A", padding: "p-1.5" },
-  eth:         { src: "/logos/eth.svg",  bg: "#627EEA", padding: "p-1.5" },
-  ethereum:    { src: "/logos/eth.svg",  bg: "#627EEA", padding: "p-1.5" },
-  usdt:        { src: "/logos/usdt.svg", bg: "#26A17B", padding: "p-1.5" },
-  tether:      { src: "/logos/usdt.svg", bg: "#26A17B", padding: "p-1.5" },
-  ton:         { src: "/logos/ton.svg",  bg: "#0088CC", padding: "p-1.5" },
-  sol:         { src: "/logos/sol.svg",  bg: "#9945FF", padding: "p-1.5" },
-  solana:      { src: "/logos/sol.svg",  bg: "#9945FF", padding: "p-1.5" },
-  bsc:         { src: "/logos/bsc.svg",  bg: "#F3BA2F", padding: "p-1.5" },
-  binance:     { src: "/logos/bsc.svg",  bg: "#F3BA2F", padding: "p-1.5" },
-  tron:        { src: "/logos/trx.svg",  bg: "#EF0027", padding: "p-1.5" },
-  trx:         { src: "/logos/trx.svg",  bg: "#EF0027", padding: "p-1.5" },
+  btc:         { src: "/logos/btc.svg",  bg: "#F7931A" },
+  bitcoin:     { src: "/logos/btc.svg",  bg: "#F7931A" },
+  eth:         { src: "/logos/eth.svg",  bg: "#627EEA" },
+  ethereum:    { src: "/logos/eth.svg",  bg: "#627EEA" },
+  usdt:        { src: "/logos/usdt.svg", bg: "#26A17B" },
+  tether:      { src: "/logos/usdt.svg", bg: "#26A17B" },
+  ton:         { src: "/logos/ton.svg",  bg: "#0088CC" },
+  sol:         { src: "/logos/sol.svg",  bg: "#9945FF" },
+  solana:      { src: "/logos/sol.svg",  bg: "#9945FF" },
+  bsc:         { src: "/logos/bsc.svg",  bg: "#F3BA2F" },
+  binance:     { src: "/logos/bsc.svg",  bg: "#F3BA2F" },
+  tron:        { src: "/logos/trx.svg",  bg: "#EF0027" },
+  trx:         { src: "/logos/trx.svg",  bg: "#EF0027" },
 };
 
 export function BrandLogo({ name, className, size = 36 }: BrandLogoProps) {
@@ -50,40 +47,32 @@ export function BrandLogo({ name, className, size = 36 }: BrandLogoProps) {
   if (!config) return null;
 
   const isBank = BANK_KEYS.has(key);
-
-  if (isBank) {
-    return (
-      <img
-        src={config.src}
-        alt={name}
-        className={cn(
-          "shrink-0 object-contain transition-transform hover:scale-110",
-          className
-        )}
-        style={{ height: size, width: "auto", filter: "brightness(0) invert(1)" }}
-        loading="eager"
-        draggable={false}
-      />
-    );
-  }
+  const padding = size * 0.12;
 
   return (
     <div
       className={cn(
-        "shrink-0 flex items-center justify-center overflow-hidden rounded-xl shadow-sm transition-transform hover:scale-105",
-        config.padding ?? "p-1.5",
+        "shrink-0 flex items-center justify-center overflow-hidden transition-transform hover:scale-105",
+        isBank ? "rounded-lg" : "rounded-xl shadow-sm",
         className
       )}
       style={{
         width: size,
         height: size,
-        backgroundColor: config.bg,
+        backgroundColor: isBank ? "transparent" : config.bg,
+        padding: isBank ? 0 : padding,
       }}
     >
       <img
         src={config.src}
         alt={name}
-        style={{ width: "100%", height: "100%", objectFit: "contain" }}
+        style={{
+          width: "100%",
+          height: "100%",
+          objectFit: "contain",
+          // Инвертируем только тёмные банковские лого (Visa, ApplePay)
+          filter: isBank ? "brightness(0) invert(1)" : "none",
+        }}
         loading="eager"
         draggable={false}
       />
