@@ -8,6 +8,7 @@ import { CreditCard, Sparkles, Wallet, Bitcoin, ChevronRight, ArrowLeft, X, Chec
 import { useLanguage } from "@/contexts/LanguageContext";
 import { motion, AnimatePresence } from "@/components/optimized/Motion";
 import { useUserContext } from "@/contexts/UserContext";
+import { BrandLogo } from "@/components/shared/BrandLogo";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/lib/toast";
 import { getTelegramWebApp } from "@/lib/telegram";
@@ -289,7 +290,7 @@ export function PaymentSelectorModal({
               icon={Bitcoin}
               title={t('boostShop.payment.cryptoTitle') || 'Cryptocurrency'}
               subtitle={t('boostShop.payment.cryptoSubtitle') || "Быстро, без лимитов и санкций"}
-              badges={["🪙 USDT", "₿ BTC", "💎 ETH", "SOL", "TON", "BSC"]}
+              badges={["USDT", "BTC", "ETH", "SOL", "TON", "TRX", "BSC"]}
               color="orange"
               onClick={handleCryptoClick}
               className="relative z-20"
@@ -303,7 +304,7 @@ export function PaymentSelectorModal({
               icon={CreditCard}
               title={t('boostShop.payment.cardTitle') || "Банковская карта"}
               subtitle={t('boostShop.payment.cardSubtitle') || "Безопасная оплата со всего мира"}
-              badges={[" Apple Pay", "🅿️ PayPal", "G Google Pay", "💳 Visa", "Mastercard"]}
+              badges={["Apple Pay", "PayPal", "Google Pay", "Visa", "Mastercard"]}
               color="gray"
               className="relative z-20"
               onClick={onCardClick}
@@ -415,11 +416,11 @@ function PaymentItem({
           </p>
         )}
         {badges && badges.length > 0 && (
-          <div className="flex items-center gap-1.5 mt-2 flex-wrap">
+          <div className="flex items-center gap-2 mt-3 flex-wrap">
             {badges.map((b, i) => (
-              <span key={i} className="text-[9px] font-bold px-1.5 py-0.5 bg-slate-200/60 dark:bg-white/10 text-slate-700 dark:text-slate-300 rounded border border-slate-300/50 dark:border-white/5">
-                {b}
-              </span>
+              <div key={i} className="flex items-center justify-center p-1.5 bg-white/5 dark:bg-white/10 rounded-lg border border-white/5 shadow-sm">
+                <BrandLogo name={b} size={18} />
+              </div>
             ))}
           </div>
         )}

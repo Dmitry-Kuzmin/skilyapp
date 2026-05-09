@@ -331,7 +331,7 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
     { icon: Brain,    color: "text-violet-400",  bg: "bg-violet-500/10",  text: language === 'ru' ? "AI запоминает твои слабые темы" : language === 'es' ? "IA recuerda tus puntos débiles" : "AI remembers your weak spots" },
     { icon: BarChart3,color: "text-emerald-400", bg: "bg-emerald-500/10", text: language === 'ru' ? "Глубокая статистика и прогноз" : language === 'es' ? "Estadísticas profundas y pronóstico" : "Deep stats & forecast" },
     { icon: Swords,   color: "text-rose-400",    bg: "bg-rose-500/10",    text: language === 'ru' ? "Комиссия дуэлей 0% (было 10%)" : language === 'es' ? "Comisión 0% en duelos" : "0% duel fee (was 10%)" },
-    { icon: Infinity, color: "text-indigo-400",  bg: "bg-indigo-500/10",  text: language === 'ru' ? "2157 вопросов вместо 300" : language === 'es' ? "2157 preguntas en lugar de 300" : "2157 questions instead of 300" },
+    { icon: Infinity, color: "text-indigo-400",  bg: "bg-indigo-500/10",  text: language === 'ru' ? "3000+ вопросов вместо 300" : language === 'es' ? "3000+ preguntas en lugar de 300" : "3000+ questions instead of 300" },
   ];
 
   const isRu = language === 'ru';
@@ -346,8 +346,7 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
       title: isRu ? '📚 Обучение' : isEs ? '📚 Aprendizaje' : '📚 Learning',
       rows: [
         { icon: Zap,       label: isRu ? 'Тестов в день' : isEs ? 'Tests por día' : 'Tests per day',          free: isRu ? '5 / день' : isEs ? '5 / día' : '5 / day',      pro: '∞ ' + (isRu ? 'Безлимит' : isEs ? 'Ilimitado' : 'Unlimited'), type: 'value', accent: 'amber',   highlight: true },
-        { icon: Infinity,  label: isRu ? 'База вопросов' : isEs ? 'Base de preguntas' : 'Question bank',       free: '300',                                                  pro: '2 157',                                                        type: 'value', accent: 'violet',  highlight: true },
-        { icon: Trophy,    label: isRu ? 'Вопросов за сессию' : isEs ? 'Preguntas por sesión' : 'Per session',  free: '20',                                                  pro: isRu ? 'Без лимита' : isEs ? 'Sin límite' : 'Unlimited',        type: 'value', accent: 'emerald' },
+        { icon: Infinity,  label: isRu ? 'База вопросов' : isEs ? 'Base de preguntas' : 'Question bank',       free: '300',                                                  pro: '3000+',                                                        type: 'value', accent: 'violet',  highlight: true },
       ],
     },
     {
@@ -356,13 +355,12 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
         { icon: Brain,     label: isRu ? 'AI-Помощник' : isEs ? 'Asistente IA' : 'AI Assistant',              free: isRu ? '5 / день' : isEs ? '5 / día' : '5 / day',      pro: isRu ? 'Безлимит' : isEs ? 'Ilimitado' : 'Unlimited',          type: 'value', accent: 'violet',  highlight: true },
         { icon: Brain,     label: isRu ? 'AI помнит твои ошибки' : isEs ? 'IA recuerda tus errores' : 'AI remembers mistakes', free: false, pro: true,                       type: 'bool',  accent: 'emerald', highlight: true },
         { icon: BarChart3, label: isRu ? 'Глубокая статистика' : isEs ? 'Estadísticas avanzadas' : 'Deep stats', free: isRu ? 'Базовая' : isEs ? 'Básica' : 'Basic',       pro: 'Deep AI',                                                      type: 'value', accent: 'indigo' },
-        { icon: BarChart3, label: isRu ? 'AI-прогноз сдачи' : isEs ? 'Pronóstico IA' : 'AI pass forecast',   free: false,                                                  pro: true,                                                           type: 'bool',  accent: 'indigo' },
+        { icon: BarChart3, label: isRu ? 'AI-прогноз сдачи' : isEs ? 'Pronóstico IA' : 'AI pass forecast',   free: isRu ? 'Базовый' : isEs ? 'Básico' : 'Basic', pro: isRu ? 'Полноценный' : isEs ? 'Completo' : 'Full', type: 'value', accent: 'indigo' },
       ],
     },
     {
       title: isRu ? '⚔️ Дуэли & Прогресс' : isEs ? '⚔️ Duelos & Progreso' : '⚔️ Duels & Progress',
       rows: [
-        { icon: Swords,    label: isRu ? 'Комиссия дуэлей' : isEs ? 'Comisión de duelos' : 'Duel fee',        free: '10%',                                                  pro: '0%',                                                           type: 'value', accent: 'rose',    highlight: true },
         { icon: Star,      label: isRu ? 'Опыт (XP)' : isEs ? 'Experiencia (XP)' : 'XP gain',                 free: '× 1',                                                 pro: '× 2',                                                          type: 'value', accent: 'amber' },
         { icon: Star,      label: 'Duel Pass',                                                                  free: isRu ? 'Free трек' : 'Free track',                     pro: isRu ? 'Premium трек' : isEs ? 'Pista Premium' : 'Premium track', type: 'value', accent: 'amber' },
       ],
