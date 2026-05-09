@@ -335,35 +335,42 @@ export function BoostShopModal({
 
       container.innerHTML = '';
 
-      (instance.Checkout.open as (opts: any) => void)({
-        transactionId: checkoutTransactionId,
-        settings: {
-          displayMode: 'inline',
-          frameTarget: BOOST_PADDLE_FRAME_ID,
-          frameInitialHeight: 500,
-          frameStyle: 'width: 100%; min-width: 100%; border: none; background: transparent;',
-          theme: 'dark',
-          locale,
-        },
-        eventCallback: (event: any) => {
-          if (event?.name === 'checkout.loaded') {
-            setCheckoutStatus('ready');
-          } else if (event?.name === 'checkout.completed') {
-            toast({
-              title: t("boostShop.toasts.purchaseSuccess") || "Оплата прошла успешно",
-              description: t("boostShop.toasts.purchaseSuccessDescription") || "🎉",
-            });
-            setTimeout(() => {
-              setCheckoutTransactionId(null);
-              loadDataRef.current?.();
-            }, 1200);
-          } else if (event?.name === 'checkout.error') {
-            const msg = event?.data?.error?.message || event?.data?.message || 'Checkout error';
-            setCheckoutError(msg);
-            setCheckoutStatus('error');
-          }
-        },
-      });
+      try {
+        (instance.Checkout.open as (opts: any) => void)({
+          transactionId: checkoutTransactionId,
+          settings: {
+            displayMode: 'inline',
+            frameTarget: BOOST_PADDLE_FRAME_ID,
+            frameInitialHeight: 450,
+            frameStyle: 'width: 100%; border: none; background: transparent;',
+            theme: 'dark',
+            locale,
+          },
+          eventCallback: (event: any) => {
+            console.log('[BoostShopModal] Paddle event:', event?.name);
+            if (event?.name === 'checkout.loaded') {
+              setCheckoutStatus('ready');
+            } else if (event?.name === 'checkout.completed') {
+              toast({
+                title: t("boostShop.toasts.purchaseSuccess") || "Оплата прошла успешно",
+                description: t("boostShop.toasts.purchaseSuccessDescription") || "🎉",
+              });
+              setTimeout(() => {
+                setCheckoutTransactionId(null);
+                loadDataRef.current?.();
+              }, 1200);
+            } else if (event?.name === 'checkout.error') {
+              const msg = event?.data?.error?.message || event?.data?.message || 'Checkout error';
+              setCheckoutError(msg);
+              setCheckoutStatus('error');
+            }
+          },
+        });
+      } catch (err: any) {
+        console.error('[BoostShopModal] Checkout.open failed:', err);
+        setCheckoutError(err?.message || 'Checkout failed');
+        setCheckoutStatus('error');
+      }
     };
 
     openInline();
