@@ -54,6 +54,8 @@ export const TestSettingsMenu = ({
   hideLanguageSelector = false,
   smartVocabulary,
   onSmartVocabularyChange,
+  autoExplain,
+  onAutoExplainChange,
 }: TestSettingsMenuProps) => {
   const { theme } = useTheme();
   const { t } = useLanguage();
