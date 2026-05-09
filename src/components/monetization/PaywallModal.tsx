@@ -157,32 +157,39 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
 
       container.innerHTML = '';
 
-      (instance.Checkout.open as (opts: any) => void)({
-        transactionId: checkoutTransactionId,
-        settings: {
-          displayMode: 'inline',
-          frameTarget: PADDLE_FRAME_ID,
-          frameInitialHeight: 500,
-          frameStyle: 'width: 100%; min-width: 100%; border: none; background: transparent;',
-          theme: 'dark',
-          locale: paddleLocale,
-        },
-        eventCallback: (event: any) => {
-          if (event?.name === 'checkout.loaded') {
-            setCheckoutStatus('ready');
-          } else if (event?.name === 'checkout.completed') {
-            toast({ title: t.paymentSuccess, description: t.paymentSuccessDesc });
-            setTimeout(() => {
-              setCheckoutTransactionId(null);
-              onOpenChange(false);
-            }, 1200);
-          } else if (event?.name === 'checkout.error') {
-            const msg = event?.data?.error?.message || event?.data?.message || t.unknownError;
-            setCheckoutError(msg);
-            setCheckoutStatus('error');
-          }
-        },
-      });
+      try {
+        (instance.Checkout.open as (opts: any) => void)({
+          transactionId: checkoutTransactionId,
+          settings: {
+            displayMode: 'inline',
+            frameTarget: PADDLE_FRAME_ID,
+            frameInitialHeight: 450,
+            frameStyle: 'width: 100%; border: none; background: transparent;',
+            theme: 'dark',
+            locale: paddleLocale,
+          },
+          eventCallback: (event: any) => {
+            console.log('[PaywallModal] Paddle event:', event?.name);
+            if (event?.name === 'checkout.loaded') {
+              setCheckoutStatus('ready');
+            } else if (event?.name === 'checkout.completed') {
+              toast({ title: t.paymentSuccess, description: t.paymentSuccessDesc });
+              setTimeout(() => {
+                setCheckoutTransactionId(null);
+                onOpenChange(false);
+              }, 1200);
+            } else if (event?.name === 'checkout.error') {
+              const msg = event?.data?.error?.message || event?.data?.message || t.unknownError;
+              setCheckoutError(msg);
+              setCheckoutStatus('error');
+            }
+          },
+        });
+      } catch (err: any) {
+        console.error('[PaywallModal] Checkout.open failed:', err);
+        setCheckoutError(err?.message || 'Checkout failed');
+        setCheckoutStatus('error');
+      }
     };
 
     openInline();
