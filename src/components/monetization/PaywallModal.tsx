@@ -775,24 +775,26 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
         showTitleBar={false}
         showHandle={false}
         hideCloseButton={true}
-        mobileFullscreen={true}
         className={cn(
           "p-0 border-0 bg-white",
           !isMobile && "sm:max-w-[560px] overflow-hidden rounded-3xl"
         )}
         contentClassName="p-0 bg-white border-0"
       >
-        <div className="flex flex-col h-full bg-white md:min-h-[640px]">
-          <div className="flex items-center justify-between px-5 py-3.5 border-b border-slate-200 shrink-0">
+        <div className={cn("flex flex-col bg-white", !isMobile && "md:min-h-[640px]")}>
+          <div
+            className="flex items-center justify-between px-4 py-2.5 border-b border-slate-100 shrink-0"
+            style={{ paddingTop: isMobile ? 'max(10px, env(safe-area-inset-top))' : undefined }}
+          >
             <button
               onClick={() => {
                 try { paddle?.Checkout.close(); } catch { /* noop */ }
                 setCheckoutTransactionId(null);
               }}
-              className="flex items-center gap-1.5 text-sm text-slate-600 hover:text-slate-900 transition-colors"
+              className="w-10 h-10 -ml-1 flex items-center justify-center rounded-full text-slate-500 hover:text-slate-900 hover:bg-slate-100 active:scale-95 transition-all"
+              aria-label={t.backToPlans}
             >
-              <ArrowLeft className="w-4 h-4" />
-              <span>{t.backToPlans}</span>
+              <ArrowLeft className="w-6 h-6" />
             </button>
             <div className="flex items-center gap-1.5 text-[11px] text-slate-400">
               <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
@@ -800,7 +802,10 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
             </div>
           </div>
 
-          <div className={cn(PADDLE_FRAME_CLASS, "flex-1 px-2 sm:px-4 pt-2 pb-6")} />
+          <div
+            className={cn(PADDLE_FRAME_CLASS, "px-2 sm:px-4 pt-2 min-h-[460px]")}
+            style={{ paddingBottom: 'max(20px, env(safe-area-inset-bottom))' }}
+          />
         </div>
       </UnifiedModal>
 
