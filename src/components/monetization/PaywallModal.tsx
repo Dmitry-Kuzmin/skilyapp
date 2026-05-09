@@ -957,6 +957,10 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
                 <div
                   className="overflow-y-auto flex-1 px-5 pb-2 min-h-0"
                   style={{ WebkitOverflowScrolling: 'touch', touchAction: 'pan-y', overscrollBehavior: 'contain' }}
+                  data-vaul-no-drag
+                  onTouchStart={(e) => e.stopPropagation()}
+                  onTouchMove={(e) => e.stopPropagation()}
+                  onTouchEnd={(e) => e.stopPropagation()}
                 >
                   {TABLE_SECTIONS.map((section, si) => (
                     <div key={si} className="mb-1">

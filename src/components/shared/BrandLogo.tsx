@@ -7,55 +7,47 @@ interface BrandLogoProps {
   size?: number;
 }
 
-interface BrandConfig {
-  src: string;
-  bg: string;
-  padding: string;
-}
-
-const BRAND_CONFIG: Record<string, BrandConfig> = {
-  visa:        { src: "/logos/visa.svg",       bg: "bg-white",        padding: "p-1.5" },
-  mastercard:  { src: "/logos/mastercard.svg", bg: "bg-white",        padding: "p-1" },
-  "apple pay": { src: "/logos/applepay.svg",   bg: "bg-black",        padding: "p-1.5" },
-  applepay:    { src: "/logos/applepay.svg",   bg: "bg-black",        padding: "p-1.5" },
-  "google pay":{ src: "/logos/googlepay.svg",  bg: "bg-white",        padding: "p-1.5" },
-  googlepay:   { src: "/logos/googlepay.svg",  bg: "bg-white",        padding: "p-1.5" },
-  paypal:      { src: "/logos/paypal.svg",     bg: "bg-white",        padding: "p-1.5" },
-  btc:         { src: "/logos/btc.svg",        bg: "bg-[#F7931A]",    padding: "p-1.5" },
-  bitcoin:     { src: "/logos/btc.svg",        bg: "bg-[#F7931A]",    padding: "p-1.5" },
-  eth:         { src: "/logos/eth.svg",        bg: "bg-[#627EEA]",    padding: "p-1.5" },
-  ethereum:    { src: "/logos/eth.svg",        bg: "bg-[#627EEA]",    padding: "p-1.5" },
-  usdt:        { src: "/logos/usdt.svg",       bg: "bg-[#26A17B]",    padding: "p-1.5" },
-  tether:      { src: "/logos/usdt.svg",       bg: "bg-[#26A17B]",    padding: "p-1.5" },
-  ton:         { src: "/logos/ton.svg",        bg: "bg-[#0088CC]",    padding: "p-1.5" },
-  sol:         { src: "/logos/sol.svg",        bg: "bg-black",        padding: "p-1.5" },
-  solana:      { src: "/logos/sol.svg",        bg: "bg-black",        padding: "p-1.5" },
-  bsc:         { src: "/logos/bsc.svg",        bg: "bg-[#F3BA2F]",    padding: "p-1.5" },
-  binance:     { src: "/logos/bsc.svg",        bg: "bg-[#F3BA2F]",    padding: "p-1.5" },
-  tron:        { src: "/logos/trx.svg",        bg: "bg-[#EF0027]",    padding: "p-1.5" },
-  trx:         { src: "/logos/trx.svg",        bg: "bg-[#EF0027]",    padding: "p-1.5" },
+const BRAND_CONFIG: Record<string, string> = {
+  visa: "https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/visa.svg",
+  mastercard: "https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/mastercard.svg",
+  applepay: "https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/applepay.svg",
+  "apple pay": "https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/applepay.svg",
+  googlepay: "https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/googlepay.svg",
+  "google pay": "https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/googlepay.svg",
+  paypal: "https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/paypal.svg",
+  btc: "https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/bitcoin.svg",
+  bitcoin: "https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/bitcoin.svg",
+  eth: "https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/ethereum.svg",
+  ethereum: "https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/ethereum.svg",
+  usdt: "https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/tether.svg",
+  tether: "https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/tether.svg",
+  ton: "https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/ton.svg",
+  sol: "https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/solana.svg",
+  solana: "https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/solana.svg",
+  bsc: "https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/binance.svg",
+  binance: "https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/binance.svg",
+  tron: "https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/tron.svg",
+  trx: "https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/tron.svg",
 };
 
-export function BrandLogo({ name, className, size = 32 }: BrandLogoProps) {
+export function BrandLogo({ name, className, size = 24 }: BrandLogoProps) {
   const key = name.toLowerCase().trim();
-  const config = BRAND_CONFIG[key];
+  const iconUrl = BRAND_CONFIG[key];
 
-  if (!config) return null;
+  if (!iconUrl) return null;
 
   return (
     <div
       className={cn(
-        "flex items-center justify-center shrink-0 overflow-hidden rounded-xl shadow-sm border border-white/10 transition-transform hover:scale-105",
-        config.bg,
-        config.padding,
+        "flex items-center justify-center shrink-0 rounded-full bg-white/10 border border-white/10 shadow-sm backdrop-blur-sm transition-all hover:bg-white/20",
         className
       )}
       style={{ width: size, height: size }}
     >
       <img
-        src={config.src}
+        src={iconUrl}
         alt={name}
-        className="w-full h-full object-contain"
+        className="w-[60%] h-[60%] invert brightness-200"
         loading="eager"
         draggable={false}
       />
