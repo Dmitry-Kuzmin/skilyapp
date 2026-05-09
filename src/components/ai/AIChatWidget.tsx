@@ -674,11 +674,13 @@ export function AIChatWidget() {
                 </div>
             )}
 
-            {/* Input — строго shrink-0, поднимается с клавиатурой через env() */}
+            {/* Input — без своего фона/border, сливается с drawer.
+                Drawer уже plавает над клавиатурой (bottom = keyboardOffset),
+                поэтому safe-area-inset-bottom применяем только когда клавиатура закрыта */}
             <div
-                className="px-3 pt-3 border-t border-border/10 shrink-0 bg-white/90 dark:bg-zinc-900/90 backdrop-blur-xl z-20"
+                className="px-3 pt-3 shrink-0 z-20"
                 style={{
-                    paddingBottom: 'max(env(safe-area-inset-bottom, 8px), 12px)',
+                    paddingBottom: keyboardOffset > 0 ? '12px' : 'max(env(safe-area-inset-bottom, 8px), 12px)',
                 }}
             >
                 <form onSubmit={handleSubmit} className="flex gap-2 items-end max-w-2xl mx-auto w-full">
