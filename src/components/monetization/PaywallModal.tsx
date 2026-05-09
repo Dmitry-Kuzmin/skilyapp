@@ -85,7 +85,7 @@ const BenefitItem = ({ icon: Icon, text, color, delay }: { icon: any, text: stri
   </motion.div>
 );
 
-const PADDLE_FRAME_CLASS = "paywall-paddle-frame";
+const PADDLE_FRAME_ID = "paywall-paddle-frame";
 
 export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
   const { profileId, platform } = useUserContext();
