@@ -288,7 +288,8 @@ export function PaymentSelectorModal({
             <PaymentItem
               icon={Bitcoin}
               title={t('boostShop.payment.cryptoTitle') || 'Cryptocurrency'}
-              subtitle={t('boostShop.payment.cryptoSubtitle') || "BTC, USDT, ETH и другие"}
+              subtitle={t('boostShop.payment.cryptoSubtitle') || "Быстро, без лимитов и санкций"}
+              badges={["USDT", "BTC", "ETH", "SOL", "TON", "TRON", "BSC"]}
               color="orange"
               onClick={handleCryptoClick}
               className="relative z-20"
@@ -301,7 +302,8 @@ export function PaymentSelectorModal({
             <PaymentItem
               icon={CreditCard}
               title={t('boostShop.payment.cardTitle') || "Банковская карта"}
-              subtitle={t('boostShop.payment.cardSubtitle') || "Visa, Mastercard, Stripe"}
+              subtitle={t('boostShop.payment.cardSubtitle') || "Безопасная оплата со всего мира"}
+              badges={["Apple Pay", "PayPal", "Google Pay", "Visa", "Mastercard"]}
               color="gray"
               className="relative z-20"
               onClick={onCardClick}
@@ -380,6 +382,7 @@ function PaymentItem({
   rightElement?: React.ReactNode;
   color?: 'gold' | 'blue' | 'orange' | 'gray';
   loading?: boolean;
+  badges?: string[];
 }) {
   return (
     <motion.button
@@ -411,6 +414,15 @@ function PaymentItem({
         <p className="text-[11px] text-muted-foreground mt-0.5 truncate">
           {subtitle}
         </p>
+        {badges && badges.length > 0 && (
+          <div className="flex items-center gap-1.5 mt-2 flex-wrap">
+            {badges.map((b, i) => (
+              <span key={i} className="text-[9px] font-bold px-1.5 py-0.5 bg-slate-200/60 dark:bg-white/10 text-slate-700 dark:text-slate-300 rounded border border-slate-300/50 dark:border-white/5">
+                {b}
+              </span>
+            ))}
+          </div>
+        )}
       </div>
 
       <div className="shrink-0 flex items-center gap-3">
