@@ -473,12 +473,8 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
         localStorage.setItem('paddle_transaction_id', parsedData.transaction_id);
 
         setSelectedPlanId(null);
-        if (paddleInstance) {
-          paddleInstance.Checkout.open({
-            transactionId: parsedData.transaction_id,
-            settings: { displayMode: "overlay", theme: "dark" },
-          });
-        }
+        // Открываем Paddle inline внутри этой же модалки — useEffect ниже подхватит transactionId
+        setCheckoutTransactionId(parsedData.transaction_id);
       } else if (paymentMethod === 'cryptomus') {
         const { data, error } = await supabase.functions.invoke("cryptomus-payment", {
           body: {
