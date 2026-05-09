@@ -119,6 +119,7 @@ export const useSettingsStore = create<SettingsStore>()(
             toggleHaptic: () => set((state) => ({ hapticEnabled: !state.hapticEnabled })),
             toggleAdasHints: () => set((state) => ({ adasHints: !state.adasHints })),
             toggleSmartVocabulary: () => set((state) => ({ smartVocabularyEnabled: !state.smartVocabularyEnabled })),
+            toggleAutoExplain: () => set((state) => ({ autoExplainEnabled: !state.autoExplainEnabled })),
             toggleDuelNotifications: () => set((state) => ({ duelNotifications: !state.duelNotifications })),
 
             // === User info ===
