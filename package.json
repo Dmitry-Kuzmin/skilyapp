@@ -168,6 +168,7 @@
   },
   "devDependencies": {
     "@iconify-json/cryptocurrency-color": "^1.2.4",
+    "@iconify-json/token-branded": "^1.2.40",
     "@puppeteer/browsers": "^2.11.0",
     "@types/node": "^22.7.5",
     "@types/react": "^18.3.5",

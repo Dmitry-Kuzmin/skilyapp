@@ -22,7 +22,7 @@ const BRAND_CONFIG: Record<string, string> = {
   ethereum: "cryptocurrency-color:eth",
   usdt: "cryptocurrency-color:usdt",
   tether: "cryptocurrency-color:usdt",
-  ton: "cryptocurrency-color:ton",
+  ton: "token-branded:ton", // Используем проверенный набор для TON
   sol: "cryptocurrency-color:sol",
   solana: "cryptocurrency-color:sol",
   bsc: "cryptocurrency-color:bnb",
@@ -37,13 +37,13 @@ export function BrandLogo({ name, className, size = 32 }: BrandLogoProps) {
 
   if (!iconName) return null;
 
-  const isCrypto = iconName.startsWith("cryptocurrency");
+  const isCrypto = iconName.startsWith("cryptocurrency") || iconName.startsWith("token");
+  const isApplePay = key.includes("apple");
 
   return (
     <div
       className={cn(
         "flex items-center justify-center shrink-0 transition-transform hover:scale-110",
-        // Для крипты можно добавить легкую тень, чтобы на темном фоне лучше читались
         isCrypto && "drop-shadow-sm",
         className
       )}
@@ -53,7 +53,11 @@ export function BrandLogo({ name, className, size = 32 }: BrandLogoProps) {
         icon={iconName} 
         width={size} 
         height={size} 
-        className="max-w-full max-h-full"
+        className={cn(
+          "max-w-full max-h-full",
+          // Инвертируем черный логотип Apple Pay для видимости на темном фоне
+          isApplePay && "invert brightness-[10]"
+        )}
       />
     </div>
   );
