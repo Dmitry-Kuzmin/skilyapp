@@ -499,12 +499,13 @@ export function AIChatWidget() {
                 {/* Right: бейдж лимита + перевод */}
                 <div className="flex items-center gap-1.5 shrink-0 justify-end">
                     {/* Для premium — Crown, для free — счётчик (только после загрузки данных).
-                    premiumLoading: скрываем всё пока не знаем статус, чтобы не мелькать */}
+                    premiumLoading: скрываем всё пока не знаем статус, чтобы не мелькать.
+                    isPremium проверяем явно в обоих ветках, иначе stale cache даст 999/5 */}
                 {!premiumLoading && isPremium ? (
                         <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400">
                             <Crown className="w-3 h-3 fill-current" />
                         </div>
-                    ) : !premiumLoading && usageLoaded ? (
+                    ) : !premiumLoading && !isPremium && usageLoaded ? (
                         <div className={cn(
                             "flex items-center gap-1 px-2 py-1 rounded-full border transition-all shadow-sm",
                             aiRemaining <= 1
