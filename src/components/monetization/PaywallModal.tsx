@@ -604,8 +604,8 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
                   </div>
                 )}
                 <div
+                  id={PADDLE_FRAME_ID}
                   className={cn(
-                    PADDLE_FRAME_CLASS,
                     "w-full transition-opacity duration-300",
                     checkoutStatus === 'ready' ? "opacity-100" : "opacity-0 pointer-events-none"
                   )}
