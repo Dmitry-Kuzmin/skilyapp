@@ -56,6 +56,7 @@ export interface SettingsActions {
     toggleHaptic: () => void;
     toggleAdasHints: () => void;
     toggleSmartVocabulary: () => void;
+    toggleAutoExplain: () => void;
     toggleDuelNotifications: () => void;
 
     // User info
