@@ -354,7 +354,7 @@ export function BoostShopModal({
             });
             setTimeout(() => {
               setCheckoutTransactionId(null);
-              loadData();
+              loadDataRef.current?.();
             }, 1200);
           } else if (event?.name === 'checkout.error') {
             const msg = event?.data?.error?.message || event?.data?.message || 'Checkout error';
