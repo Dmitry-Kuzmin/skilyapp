@@ -1039,6 +1039,8 @@ const TestSession = () => {
     "traps", "hardest", "favorites", "nonstop", "smart"
   ];
   const isPracticeLikeMode = practiceLikeModes.includes(mode);
+  const isBlitzMode = mode === 'blitz';
+  const isExamMode = mode === 'exam' || mode === 'exam-russia';
 
   // ============================================
   // NAVIGATION WRAPPERS (Moved up for hook dependency)
