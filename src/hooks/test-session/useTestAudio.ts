@@ -94,8 +94,11 @@ export const useTestAudio = (
 
         utterance.rate = 1.0;
         utterance.pitch = 1.0;
+        utterance.onstart = () => setSpeaking(true);
+        utterance.onend = () => setSpeaking(false);
+        utterance.onerror = () => setSpeaking(false);
         window.speechSynthesis.speak(utterance);
-    }, [getSystemVoice, language]);
+    }, [getSystemVoice, language, setSpeaking]);
 
     const setSpeaking = useTTSStore((s) => s.setSpeaking);
 
