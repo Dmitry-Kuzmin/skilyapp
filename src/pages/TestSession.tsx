@@ -778,16 +778,23 @@ const TestSession = () => {
   const voiceOverText = useMemo(() => {
     if (!questionsState[currentIndex]) return undefined;
     const q = questionsState[currentIndex];
+    // После ответа — озвучиваем объяснение (если включено)
+    if (isAnswerLocked && autoExplainEnabled) {
+      if (isRussia || showTranslation || testLanguage === 'ru') return q.explanation_ru ?? undefined;
+      return (testLanguage === 'en' ? q.explanation_en : q.explanation_es) ?? undefined;
+    }
+    // До ответа — озвучиваем вопрос (если включена озвучка)
+    if (!voiceOver) return undefined;
     if (isRussia || showTranslation || testLanguage === 'ru') return q.question_ru;
     return testLanguage === 'en' ? q.question_en : q.question_es;
-  }, [questionsState, currentIndex, isRussia, showTranslation, testLanguage]);
+  }, [questionsState, currentIndex, isRussia, showTranslation, testLanguage, isAnswerLocked, autoExplainEnabled, voiceOver]);
 
   const voiceOverLang = useMemo(() => {
     if (isRussia || showTranslation || testLanguage === 'ru') return 'ru';
     return testLanguage;
   }, [isRussia, showTranslation, testLanguage]);
 
-  useTestAudio(voiceOver, voiceOverText, voiceOverLang);
+  useTestAudio(voiceOver || autoExplainEnabled, voiceOverText, voiceOverLang);
 
   const smartVocabularyEnabled = useSettingsStore(state => state.smartVocabularyEnabled);
   const toggleSmartVocabulary = useSettingsStore(state => state.toggleSmartVocabulary);
