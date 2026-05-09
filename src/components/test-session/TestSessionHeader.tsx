@@ -50,6 +50,8 @@ interface TestSessionHeaderProps {
     setTestLanguage: (lang: any) => void;
     smartVocabularyEnabled: boolean;
     setSettings: (settings: { smartVocabularyEnabled: boolean }) => void;
+    autoExplainEnabled: boolean;
+    toggleAutoExplain: () => void;
 
     // Question Map & Bookmarks
     setShowQuestionMap: (show: boolean) => void;
