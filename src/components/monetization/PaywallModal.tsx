@@ -1,10 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { UnifiedModal } from "@/components/ui/unified-modal";
 import { Button } from "@/components/ui/button";
 import { usePremium } from "@/hooks/usePremium";
 import { useUserContext } from "@/contexts/UserContext";
-import { Crown, Check, ShieldCheck, Zap, Star, Sparkles, Trophy, Lock, CreditCard, Bitcoin, Wallet, ChevronRight, X as XIcon, Brain, BarChart3, Infinity, Swords } from "lucide-react";
+import { Crown, Check, ShieldCheck, Zap, Star, Sparkles, Trophy, Lock, CreditCard, Bitcoin, Wallet, ChevronRight, X as XIcon, ArrowLeft, Loader2, Brain, BarChart3, Infinity, Swords } from "lucide-react";
 import { isTelegramMiniApp, getTelegramWebApp } from "@/lib/telegram";
 import { PRICING_PLANS } from "@/lib/pricing-config";
 import { Badge } from "@/components/ui/badge";
