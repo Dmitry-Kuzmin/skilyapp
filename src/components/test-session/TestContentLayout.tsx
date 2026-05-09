@@ -38,7 +38,7 @@ export const TestContentLayout = ({
                     // Grid Layout for Practice Mode on Desktop (with Sidebar)
                     // We only move sidebar to the side on XL (1280px+) to ensure enough room for question content
                     : !isTelegramApp && isPracticeLikeMode && sidebar
-                        ? "flex flex-col lg:grid lg:grid-cols-[minmax(0,1fr)_380px] xl:grid-cols-[minmax(0,1fr)_400px] 2xl:grid-cols-[minmax(0,1fr)_440px] lg:items-start lg:justify-center lg:gap-3 xl:gap-4 2xl:gap-6 max-w-full xl:max-w-[1750px] 2xl:max-w-[1900px] mx-auto px-2 sm:px-4 lg:px-6 xl:px-8 2xl:px-12"
+                        ? "flex flex-col xl:grid xl:grid-cols-[minmax(0,1fr)_380px] 2xl:grid-cols-[minmax(0,1fr)_440px] xl:items-start xl:justify-center xl:gap-3 2xl:gap-6 max-w-full xl:max-w-[1750px] 2xl:max-w-[1900px] mx-auto px-2 sm:px-4 lg:px-6 xl:px-8 2xl:px-12"
                         : (!isTelegramApp && isPracticeLikeMode)
                             ? "max-w-4xl mx-auto px-2 sm:px-4 lg:px-6"
                             // Default Container
@@ -70,7 +70,7 @@ export const TestContentLayout = ({
             {/* Sidebar Column (Desktop Practice Only) - NOT for Blitz/Exam */}
             {sidebar && !isTelegramApp && isPracticeLikeMode && !isBlitzMode && !isExamMode && (
                 <div className={cn(
-                    "hidden lg:flex lg:flex-col pt-4",
+                    "hidden xl:flex xl:flex-col pt-4",
                     "pb-2 md:pb-3",
                     "lg:min-w-[340px] xl:min-w-[380px] 2xl:min-w-[420px]"
                 )}>

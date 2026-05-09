@@ -184,22 +184,46 @@ const MarkdownContent: React.FC<MarkdownProps> = ({ children, className }) => {
 };
 
 /**
- * Хук для стабильного отслеживания высоты viewport на iOS/Telegram.
- * Решает проблему «чёрной дыры» и прыжков высоты при открытии клавиатуры.
+ * Хук для стабильного отслеживания высоты viewport + клавиатуры на iOS/Telegram.
+ *
+ * Возвращает:
+ *   layoutHeight   — полная высота окна (без учёта клавиатуры). Для расчёта высоты drawer.
+ *   keyboardOffset — высота открытой клавиатуры в px. Drawer.bottom = этот offset, чтобы
+ *                    drawer всегда «плавал» над клавиатурой и не оставлял чёрный провал.
+ *
+ * iOS WebKit: position:fixed bottom:0 анкорится к layout viewport (= экран), а не к
+ * visual viewport (= видимая область). Поэтому при открытии клавиатуры drawer уезжает
+ * вниз ПОД клавиатуру. Решение — динамически считать keyboardOffset и применять как bottom.
  */
 function useStableViewportHeight(isOpen: boolean) {
-    const [height, setHeight] = useState<number>(0);
+    const [state, setState] = useState({ layoutHeight: 0, keyboardOffset: 0 });
     const isTelegram = isTelegramMiniApp();
 
     useEffect(() => {
         if (!isOpen) return;
 
         const update = () => {
-            if (isTelegram && window.Telegram?.WebApp?.viewportHeight) {
-                setHeight(window.Telegram.WebApp.viewportHeight);
+            const tg = isTelegram ? window.Telegram?.WebApp : null;
+
+            if (tg && tg.viewportHeight) {
+                // Telegram: viewportStableHeight — без клавиатуры, viewportHeight — с учётом
+                const stable = (tg.viewportStableHeight as number | undefined) ?? tg.viewportHeight;
+                const visible = tg.viewportHeight;
+                setState({
+                    layoutHeight: stable,
+                    keyboardOffset: Math.max(0, stable - visible),
+                });
+                return;
+            }
+
+            const vv = window.visualViewport;
+            const layoutHeight = window.innerHeight;
+            if (vv) {
+                // Клавиатура = layout - visible - сколько проскроллено внутри layout
+                const kbOffset = Math.max(0, layoutHeight - vv.height - vv.offsetTop);
+                setState({ layoutHeight, keyboardOffset: kbOffset });
             } else {
-                // window.innerHeight — самый стабильный, не меняется при открытии клавиатуры на iOS
-                setHeight(window.visualViewport?.height ?? window.innerHeight);
+                setState({ layoutHeight, keyboardOffset: 0 });
             }
         };
 
@@ -214,14 +238,18 @@ function useStableViewportHeight(isOpen: boolean) {
         const vv = window.visualViewport;
         if (vv) {
             vv.addEventListener('resize', update);
-            return () => vv.removeEventListener('resize', update);
+            vv.addEventListener('scroll', update);
+            return () => {
+                vv.removeEventListener('resize', update);
+                vv.removeEventListener('scroll', update);
+            };
         }
 
         window.addEventListener('resize', update);
         return () => window.removeEventListener('resize', update);
     }, [isOpen, isTelegram]);
 
-    return height;
+    return state;
 }
 
 export function AIChatWidget() {

@@ -14,13 +14,7 @@ import * as Popover from "@radix-ui/react-popover";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { isTelegramMiniApp } from "@/lib/telegram";
 
-const fontSizeClasses = [
-    "text-base sm:text-lg md:text-xl",
-    "text-lg sm:text-xl md:text-2xl",
-    "text-xl sm:text-2xl md:text-3xl",
-    "text-2xl sm:text-3xl md:text-4xl",
-    "text-3xl sm:text-4xl md:text-5xl",
-];
+
 
 interface QuestionCardProps {
     currentQuestion: {
@@ -329,7 +323,7 @@ export const QuestionCard = ({
                     </div>
                 ) : (
                     // DGT Split Layout (Premium Split)
-                    <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_0.8fr] gap-6 lg:gap-6 items-start">
+                    <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_0.8fr] xl:grid-cols-[1.1fr_0.9fr] 2xl:grid-cols-[1.2fr_0.8fr] gap-6 items-start">
                         <div className="w-full lg:sticky lg:top-6 lg:self-start">
                             <QuestionImage
                                 imageUrl={currentQuestion.image_url || null}
@@ -368,8 +362,8 @@ export const QuestionCard = ({
                                 }}
                             />
 
-                            {/* Sticky Mobile Navigation */}
-                            <div className="sticky bottom-0 left-0 right-0 z-50 pt-6 pb-4 bg-gradient-to-t from-white via-white/80 dark:from-slate-900/60 dark:via-slate-900/20 to-transparent sm:relative sm:bg-none sm:bg-transparent sm:from-transparent sm:via-transparent sm:to-transparent sm:dark:from-transparent sm:pt-0 sm:mt-8 sm:z-10 sm:backdrop-blur-0">
+                            {/* Sticky Navigation - Sticky until XL where layout is wide enough */}
+                            <div className="sticky bottom-0 left-0 right-0 z-50 pt-6 pb-4 bg-gradient-to-t from-white via-white/80 dark:from-slate-900/60 dark:via-slate-900/20 to-transparent xl:relative xl:bg-none xl:bg-transparent xl:from-transparent xl:via-transparent xl:to-transparent xl:dark:from-transparent xl:pt-0 xl:mt-8 xl:z-10 xl:backdrop-blur-0">
                                 <div className="flex gap-3 items-center">
                                     {(isPracticeLikeMode || mode === 'by-topic') && (
                                         <div className={cn(
