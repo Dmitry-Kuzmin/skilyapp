@@ -116,7 +116,7 @@ const BOOST_GRID_STYLE = {
   gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 17.5rem), 1fr))",
 };
 
-const BOOST_PADDLE_FRAME_CLASS = "boost-paddle-frame";
+const BOOST_PADDLE_FRAME_ID = "boost-paddle-frame";
 
 interface BoostShopModalProps {
   open: boolean;
