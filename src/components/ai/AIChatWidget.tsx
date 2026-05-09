@@ -273,7 +273,8 @@ export function AIChatWidget() {
     const openModal = useModalStore(s => s.openModal);
     const { sendRequest } = useAIRequest();
 
-    // Счётчик оставшихся AI-сообщений (isOpen уже объявлен выше)
+    // Счётчик оставшихся AI-сообщений — только для free пользователей.
+    // enabled: не запускаем для premium (экономим запрос) и пока isPremium loading.
     const { data: aiUsage, refetch: refetchUsage } = useQuery({
         queryKey: ['ai-usage-limit', profileId],
         queryFn: async () => {
@@ -281,13 +282,15 @@ export function AIChatWidget() {
             const { data } = await supabase.rpc('check_ai_usage_limit', { p_user_id: profileId });
             return data?.[0] ?? null;
         },
-        enabled: !!profileId && isOpen,
+        enabled: !!profileId && isOpen && !isPremium && !premiumLoading,
         staleTime: 0,
     });
 
-    const aiLimit = aiUsage?.limit || 5;
-    const aiUsed = aiUsage?.current_count ?? 0;
-    const aiRemaining = Math.max(aiLimit - aiUsed, 0);
+    const FREE_DAILY_LIMIT = 5;
+    // aiUsage?.remaining — прямо из RPC (GREATEST(limit - count, 0))
+    // aiUsage == null (double-equals: ловит undefined ДО загрузки И null)
+    const aiRemaining = aiUsage?.remaining ?? FREE_DAILY_LIMIT;
+    const usageLoaded = aiUsage != null; // != ловит и undefined и null
 
     const {
         closeChat,
