@@ -85,14 +85,12 @@ const BenefitItem = ({ icon: Icon, text, color, delay }: { icon: any, text: stri
   </motion.div>
 );
 
-const PADDLE_FRAME_ID = "paywall-paddle-frame";
+const PADDLE_FRAME_CLASS = "paywall-paddle-frame";
 
 export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
   const { profileId, platform } = useUserContext();
   const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null);
   const [checkoutTransactionId, setCheckoutTransactionId] = useState<string | null>(null);
-  const [checkoutStatus, setCheckoutStatus] = useState<'idle' | 'loading' | 'ready' | 'error'>('idle');
-  const [checkoutError, setCheckoutError] = useState<string | null>(null);
   const isMobile = useIsMobile();
   const { language } = useLanguage();
   const [paddle, setPaddle] = useState<Paddle | null>(null);
@@ -112,49 +110,27 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
     getPaddleInstance().then(inst => inst && setPaddle(inst)).catch(() => { });
   }, [open, showPaddlePayment]);
 
-  // Сбрасываем состояние checkout при закрытии модалки
   useEffect(() => {
     if (!open) {
       try { paddle?.Checkout.close(); } catch { /* noop */ }
       setCheckoutTransactionId(null);
-      setCheckoutStatus('idle');
-      setCheckoutError(null);
     }
   }, [open, paddle]);
 
-  // Открываем Paddle inline в родительской модалке когда есть transactionId
   useEffect(() => {
     if (!checkoutTransactionId) return;
-
     let cancelled = false;
-    setCheckoutStatus('loading');
-    setCheckoutError(null);
 
-    const openInline = async () => {
+    const openCheckout = async () => {
       let instance = paddle || getPaddleInstanceSync();
       if (!instance) instance = await getPaddleInstance();
-      if (cancelled) return;
-      if (!instance) {
-        setCheckoutError('Paddle SDK unavailable');
-        setCheckoutStatus('error');
-        return;
-      }
+      if (cancelled || !instance) return;
 
-      // Ждём пока контейнер появится в DOM (Paddle ищет его по className через getElementsByClassName)
-      let attempts = 0;
-      let container: HTMLElement | null = null;
-      while (attempts < 20 && !container) {
-        container = document.getElementsByClassName(PADDLE_FRAME_ID)[0] as HTMLElement | undefined ?? null;
-        if (!container) await new Promise(r => setTimeout(r, 50));
-        attempts++;
-      }
+      await new Promise(r => setTimeout(r, 300));
       if (cancelled) return;
-      if (!container) {
-        setCheckoutError('Container not found');
-        setCheckoutStatus('error');
-        return;
-      }
 
+      const container = document.getElementsByClassName(PADDLE_FRAME_CLASS)[0] as HTMLElement | undefined;
+      if (!container) return;
       container.innerHTML = '';
 
       try {
@@ -162,7 +138,7 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
           transactionId: checkoutTransactionId,
           settings: {
             displayMode: 'inline',
-            frameTarget: PADDLE_FRAME_ID,
+            frameTarget: PADDLE_FRAME_CLASS,
             frameInitialHeight: 450,
             frameStyle: 'width: 100%; border: none; background: transparent;',
             theme: 'dark',
@@ -170,30 +146,18 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
           },
           eventCallback: (event: any) => {
             console.log('[PaywallModal] Paddle event:', event?.name);
-            if (event?.name === 'checkout.loaded') {
-              setCheckoutStatus('ready');
-            } else if (event?.name === 'checkout.completed') {
+            if (event?.name === 'checkout.completed') {
               toast({ title: t.paymentSuccess, description: t.paymentSuccessDesc });
-              setTimeout(() => {
-                setCheckoutTransactionId(null);
-                onOpenChange(false);
-              }, 1200);
-            } else if (event?.name === 'checkout.error') {
-              const msg = event?.data?.error?.message || event?.data?.message || t.unknownError;
-              setCheckoutError(msg);
-              setCheckoutStatus('error');
+              setTimeout(() => { setCheckoutTransactionId(null); onOpenChange(false); }, 1200);
             }
           },
         });
-      } catch (err: any) {
+      } catch (err) {
         console.error('[PaywallModal] Checkout.open failed:', err);
-        setCheckoutError(err?.message || 'Checkout failed');
-        setCheckoutStatus('error');
       }
     };
 
-    openInline();
-
+    openCheckout();
     return () => { cancelled = true; };
   }, [checkoutTransactionId, paddle, paddleLocale, onOpenChange]);
 
@@ -584,35 +548,10 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
                 </div>
               </div>
 
-              {/* Body */}
-              <div className="relative flex-1 overflow-y-auto px-3 sm:px-6 py-4">
-                {checkoutStatus === 'loading' && (
-                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 z-20 bg-[#0A0D1B]/95">
-                    <Loader2 className="w-8 h-8 text-violet-400 animate-spin" />
-                    <p className="text-xs text-slate-400 font-medium">{t.loadingCheckout}</p>
-                  </div>
-                )}
-                {checkoutStatus === 'error' && (
-                  <div className="flex flex-col items-center justify-center gap-4 py-12">
-                    <div className="w-12 h-12 rounded-full bg-red-500/10 flex items-center justify-center">
-                      <XIcon className="w-6 h-6 text-red-400" />
-                    </div>
-                    <p className="text-sm text-slate-300 text-center max-w-xs">{checkoutError || t.unknownError}</p>
-                    <button
-                      onClick={() => {
-                        const tx = checkoutTransactionId;
-                        setCheckoutTransactionId(null);
-                        setTimeout(() => setCheckoutTransactionId(tx), 50);
-                      }}
-                      className="px-5 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-sm font-bold transition-colors"
-                    >
-                      {t.tryAgain}
-                    </button>
-                  </div>
-                )}
+              {/* Body — no overlay, Paddle iframe renders directly */}
+              <div className="flex-1 overflow-y-auto">
                 <div
-                  id={PADDLE_FRAME_ID}
-                  className={cn(PADDLE_FRAME_ID, "w-full")}
+                  className={cn(PADDLE_FRAME_CLASS, "w-full")}
                   style={{ minHeight: 450 }}
                 />
               </div>
