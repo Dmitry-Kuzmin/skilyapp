@@ -468,8 +468,9 @@ export function AIChatWidget() {
 
     const chatContent = (
         <div className="flex flex-col" style={{ height: '100%' }}>
-            {/* Header — Claude-style: круглая X слева, заголовок по центру, бейдж справа */}
-            <div className="grid grid-cols-[auto_1fr_auto] items-center gap-2 px-3 py-2.5 border-b border-border/10 shrink-0 bg-white/50 dark:bg-zinc-900/50 backdrop-blur-md z-10">
+            {/* Header — Claude-style: круглая X слева, заголовок по центру, бейдж справа.
+                Без своего фона/border — сливается с drawer'ом, как в Claude app */}
+            <div className="grid grid-cols-[auto_1fr_auto] items-center gap-2 px-3 py-2.5 shrink-0 z-10">
                 {/* Left: круглая X */}
                 <Button
                     variant="ghost"
