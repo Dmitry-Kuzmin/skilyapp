@@ -417,22 +417,9 @@ function PaymentItem({
         )}
         {badges && badges.length > 0 && (
           <div className="flex items-center gap-2 mt-3 flex-wrap">
-            {badges.map((b, i) => {
-              const isBank = ["visa", "mastercard", "apple pay", "google pay", "paypal", "applepay", "googlepay"].includes(b.toLowerCase());
-              return (
-                <div 
-                  key={i} 
-                  className={cn(
-                    "flex items-center justify-center px-2 py-1.5 rounded-xl border shadow-xl backdrop-blur-md transition-all",
-                    isBank 
-                      ? "bg-white border-white scale-105" 
-                      : "bg-white/10 dark:bg-white/20 border-white/20"
-                  )}
-                >
-                  <BrandLogo name={b} size={22} />
-                </div>
-              );
-            })}
+            {badges.map((b, i) => (
+              <BrandLogo key={i} name={b} size={20} />
+            ))}
           </div>
         )}
       </div>
