@@ -38,7 +38,7 @@ import { usePDDContext } from "@/contexts/PDDContext";
 import { useOfflineQueue } from "@/hooks/useOfflineQueue";
 import { useOnlineStatus } from "@/hooks/useOnlineStatus";
 
-import { AIWidget } from "@/components/AIWidget";
+const AIWidget = lazy(() => import("@/components/AIWidget").then((m) => ({ default: m.AIWidget })));
 import { useAIChat } from "@/hooks/useAIChat";
 import { useTestProgress } from "@/hooks/useTestProgress";
 import { useTestTimer } from "@/hooks/useTestTimer";
