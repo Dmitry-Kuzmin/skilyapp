@@ -170,7 +170,7 @@ export const QuestionCard = ({
                                 {(isPracticeLikeMode || mode === 'by-topic') && (
                                     <div className={cn(
                                         "relative group",
-                                        (!isRussia && !isTelegramMiniApp() && isPracticeLikeMode && mode !== 'blitz' && mode !== 'exam' && mode !== 'exam-russia') && "lg:hidden"
+                                        (!isRussia && !isTelegramMiniApp() && isPracticeLikeMode && mode !== 'blitz' && mode !== 'exam' && mode !== 'exam-russia') && "min-[1020px]:hidden"
                                     )}>
                                         <Popover.Root open={showExplanation} onOpenChange={setShowExplanation}>
                                             <Popover.Trigger asChild>
@@ -368,7 +368,7 @@ export const QuestionCard = ({
                                     {(isPracticeLikeMode || mode === 'by-topic') && (
                                         <div className={cn(
                                             "relative group",
-                                            (!isRussia && !isTelegramMiniApp() && isPracticeLikeMode && mode !== 'blitz' && mode !== 'exam' && mode !== 'exam-russia') && "lg:hidden"
+                                            (!isRussia && !isTelegramMiniApp() && isPracticeLikeMode && mode !== 'blitz' && mode !== 'exam' && mode !== 'exam-russia') && "min-[1020px]:hidden"
                                         )}>
                                             <Popover.Root open={showExplanation} onOpenChange={setShowExplanation}>
                                                 <Popover.Trigger asChild>
@@ -561,7 +561,7 @@ export const QuestionCard = ({
                         {(isPracticeLikeMode || mode === 'by-topic') && (
                             <div className={cn(
                                 "relative group",
-                                (!isRussia && !isTelegramMiniApp() && isPracticeLikeMode && mode !== 'blitz' && mode !== 'exam' && mode !== 'exam-russia') && "lg:hidden"
+                                (!isRussia && !isTelegramMiniApp() && isPracticeLikeMode && mode !== 'blitz' && mode !== 'exam' && mode !== 'exam-russia') && "min-[1020px]:hidden"
                             )}>
                                 <Popover.Root open={showExplanation} onOpenChange={setShowExplanation}>
                                     <Popover.Trigger asChild>
