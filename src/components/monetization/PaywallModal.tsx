@@ -605,11 +605,7 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
                 )}
                 <div
                   id={PADDLE_FRAME_ID}
-                  className={cn(
-                    PADDLE_FRAME_ID,
-                    "w-full transition-opacity duration-300",
-                    checkoutStatus === 'ready' ? "opacity-100" : "opacity-0 pointer-events-none"
-                  )}
+                  className={cn(PADDLE_FRAME_ID, "w-full")}
                   style={{ minHeight: 450 }}
                 />
               </div>
