@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { usePremium } from "@/hooks/usePremium";
 import { useUserContext } from "@/contexts/UserContext";
 import { Crown, Check, ShieldCheck, Zap, Star, Sparkles, Trophy, Lock, ChevronRight, X as XIcon, ArrowLeft, Brain, BarChart3, Infinity, Swords } from "lucide-react";
-import { isTelegramMiniApp, getTelegramWebApp } from "@/lib/telegram";
+import { isTelegramMiniApp } from "@/lib/telegram";
 import { PRICING_PLANS } from "@/lib/pricing-config";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -91,8 +91,10 @@ const PADDLE_FRAME_CLASS = "paywall-paddle-frame";
 
 export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
   const { profileId, platform } = useUserContext();
-  const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null);
+  const { isPremium } = usePremium();
   const [checkoutTransactionId, setCheckoutTransactionId] = useState<string | null>(null);
+  const [showExitTrial, setShowExitTrial] = useState(false);
+  const [hasSeenExitTrial, setHasSeenExitTrial] = useState(false);
   const isMobile = useIsMobile();
 
   // Принудительно держим пейволл в стеке, пока он открыт (даже если перешли к оплате),
@@ -113,6 +115,25 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
     if (existing) { setPaddle(existing); return; }
     getPaddleInstance().then(inst => inst && setPaddle(inst)).catch(() => { });
   }, [open, showPaddlePayment]);
+
+  useEffect(() => {
+    if (open) {
+      setShowExitTrial(false);
+      setCheckoutTransactionId(null);
+    }
+  }, [open]);
+
+  const handleOpenChange = (newOpen: boolean) => {
+    if (!newOpen && !isPremium && !hasSeenExitTrial && !checkoutTransactionId) {
+      setShowExitTrial(true);
+      setHasSeenExitTrial(true);
+      return;
+    }
+    if (!newOpen) {
+      setShowExitTrial(false);
+    }
+    onOpenChange(newOpen);
+  };
 
   useEffect(() => {
     if (!open) {
@@ -486,7 +507,7 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
     <>
       <UnifiedModal
         open={open && !checkoutTransactionId}
-        onOpenChange={onOpenChange}
+        onOpenChange={handleOpenChange}
         modalRouteKey="paywall"
         showTitleBar={false}
         showHandle={true}
@@ -504,6 +525,27 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
             !isMobile && "overflow-hidden rounded-[32px] shadow-2xl min-h-[650px] max-h-[85vh]"
           )}
         >
+          {showExitTrial ? (
+            <div className="w-full h-full flex flex-col items-center justify-center p-8 md:p-12 text-center bg-gradient-to-br from-[#080B16] to-[#1E1B2E]">
+              <div className="w-16 h-16 rounded-2xl bg-amber-500/20 flex items-center justify-center mb-6 shadow-[0_0_40px_-10px_rgba(245,158,11,0.5)]">
+                <Crown className="w-8 h-8 text-amber-400" />
+              </div>
+              <h2 className="text-2xl md:text-3xl font-black text-white mb-3">Подожди, не уходи!</h2>
+              <p className="text-slate-300 mb-8 max-w-sm mx-auto leading-relaxed">
+                Ты уже здесь, давай сделаем этот шаг проще. Забирай 3 дня Premium бесплатно и проверь всё сам. Никаких привязок карт.
+              </p>
+              
+              <div className="w-full max-w-sm mx-auto space-y-4">
+                <TrialCTA onTrialStarted={() => onOpenChange(false)} variant="inline" />
+                <button 
+                  onClick={() => onOpenChange(false)}
+                  className="w-full py-3 text-sm font-medium text-slate-500 hover:text-slate-300 transition-colors"
+                >
+                  Нет, спасибо, я уверен
+                </button>
+              </div>
+            </div>
+          ) : (
           <>
           {/* LEFTSIDE (PREMIUM DARK) */}
           <div className="relative w-full md:w-[42%] bg-[#0A0D1B] dark:bg-[#080B16] text-white p-6 md:p-8 flex flex-col justify-between overflow-hidden z-10 border-r border-white/5">
@@ -566,8 +608,6 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
                 <h3 className="text-2xl font-black text-slate-900 dark:text-white">{t.selectPlan}</h3>
                 <p className="text-sm text-slate-500 font-medium">{t.investmentText}</p>
               </motion.div>
-
-              <TrialCTA onTrialStarted={() => onOpenChange(false)} />
 
               <motion.div
                 variants={containerVariants}
@@ -689,42 +729,42 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
             </motion.div>
           </div>
             </>
+          )}
         </ContentWrapper>
       </UnifiedModal>
 
-      <PaymentSelectorModal
-        open={!!selectedPlanForPayment && !checkoutTransactionId}
-        onOpenChange={(open) => { if (!open) setSelectedPlanForPayment(null); }}
-        pack={selectedPlanForPayment ? (() => {
-          const plan = PRICING_PLANS.find(p => p.id === selectedPlanForPayment)!;
-          return {
-            id: selectedPlanForPayment,
-            catalogKey: PLAN_TO_CATALOG[selectedPlanForPayment],
-            packageKey: PLAN_TO_CATALOG[selectedPlanForPayment],
-            title: plan?.title ?? '',
-            price: plan?.price ?? '',
-            priceValue: 0,
-            priceCoins: 0,
-          };
-        })() : null}
-        onSuccess={() => onOpenChange(false)}
-        onTonClick={() => {}}
-        onCryptoClick={async () => {
-          if (!selectedPlanForPayment) throw new Error('no plan');
-          return handleCryptomusPurchase(selectedPlanForPayment);
-        }}
-        onCardClick={() => {
-          const planId = selectedPlanForPayment;
-          setSelectedPlanForPayment(null);
-          if (planId) handlePaddlePurchase(planId);
-        }}
-        availability={{
-          stars: isTelegramMiniApp(),
-          ton: false,
-          crypto: showCryptomusPayment,
-          card: showPaddlePayment,
-        }}
-      />
+      {selectedPlanForPayment && !checkoutTransactionId && (() => {
+        const plan = PRICING_PLANS.find(p => p.id === selectedPlanForPayment)!;
+        return (
+          <PaymentSelectorModal
+            open={true}
+            onOpenChange={(open) => { if (!open) setSelectedPlanForPayment(null); }}
+            pack={{
+              id: selectedPlanForPayment,
+              catalogKey: PLAN_TO_CATALOG[selectedPlanForPayment],
+              packageKey: PLAN_TO_CATALOG[selectedPlanForPayment],
+              title: plan?.title ?? '',
+              price: plan?.price ?? '',
+              priceValue: 0,
+              priceCoins: 0,
+            }}
+            onSuccess={() => onOpenChange(false)}
+            onTonClick={() => {}}
+            onCryptoClick={async () => handleCryptomusPurchase(selectedPlanForPayment)}
+            onCardClick={() => {
+              const planId = selectedPlanForPayment;
+              setSelectedPlanForPayment(null);
+              if (planId) handlePaddlePurchase(planId);
+            }}
+            availability={{
+              stars: isTelegramMiniApp(),
+              ton: false,
+              crypto: showCryptomusPayment,
+              card: showPaddlePayment,
+            }}
+          />
+        );
+      })()}
 
       {/* Mobile checkout: Vaul drawer with transparent overlay, rounded corners, swipe-anywhere */}
       {isMobile && (
