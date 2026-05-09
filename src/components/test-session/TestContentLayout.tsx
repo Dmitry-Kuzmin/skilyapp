@@ -36,10 +36,9 @@ export const TestContentLayout = ({
                 : isExamMode
                     ? "max-w-full xl:max-w-[1600px] 2xl:max-w-[1920px] px-2 sm:px-4 lg:px-8"
                     // Grid Layout for Practice Mode on Desktop (with Sidebar)
-                    // Grid Layout for Practice Mode on Desktop (with Sidebar)
-                    // We now move sidebar to the side on 1020px+ to satisfy user request exactly
+                    // We only move sidebar to the side on XL (1280px+) to ensure enough room for question content
                     : !isTelegramApp && isPracticeLikeMode && sidebar
-                        ? "flex flex-col min-[1020px]:grid min-[1020px]:grid-cols-[minmax(0,1fr)_340px] xl:grid-cols-[minmax(0,1fr)_380px] 2xl:grid-cols-[minmax(0,1fr)_440px] min-[1020px]:items-start min-[1020px]:justify-center min-[1020px]:gap-4 xl:gap-6 2xl:gap-8 max-w-full min-[1020px]:max-w-[1200px] xl:max-w-[1750px] 2xl:max-w-[1900px] mx-auto px-2 sm:px-4 lg:px-6 xl:px-8 2xl:px-12"
+                        ? "flex flex-col xl:grid xl:grid-cols-[minmax(0,1fr)_380px] 2xl:grid-cols-[minmax(0,1fr)_440px] xl:items-start xl:justify-center xl:gap-8 2xl:gap-12 max-w-full xl:max-w-[1750px] 2xl:max-w-[1900px] mx-auto px-2 sm:px-4 lg:px-6 xl:px-8 2xl:px-12"
                         : (!isTelegramApp && isPracticeLikeMode)
                             ? "max-w-4xl mx-auto px-2 sm:px-4 lg:px-6"
                             // Default Container
@@ -71,9 +70,9 @@ export const TestContentLayout = ({
             {/* Sidebar Column (Desktop Practice Only) - NOT for Blitz/Exam */}
             {sidebar && !isTelegramApp && isPracticeLikeMode && !isBlitzMode && !isExamMode && (
                 <div className={cn(
-                    "hidden min-[1020px]:flex min-[1020px]:flex-col pt-4",
+                    "hidden xl:flex xl:flex-col pt-4",
                     "pb-2 md:pb-3",
-                    "min-[1020px]:min-w-[320px] xl:min-w-[380px] 2xl:min-w-[420px]"
+                    "xl:min-w-[380px] 2xl:min-w-[420px]"
                 )}>
                     <div className="sticky top-6 w-full flex flex-col">
                         {sidebar}

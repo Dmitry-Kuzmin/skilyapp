@@ -53,6 +53,8 @@ import { QuestionCard } from "@/components/test-session/QuestionCard";
 import { MidTestAITeaser } from "@/components/test-session/MidTestAITeaser";
 import { useTestState } from "@/hooks/test-session/useTestState";
 import { TestSettingsMenu } from "@/components/TestSettingsMenu";
+import { FloatingAITrigger } from "@/components/ai/FloatingAITrigger";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 
 import { useTestSettings } from "@/hooks/test-session/useTestSettings";
 import { useTestAudio } from "@/hooks/test-session/useTestAudio";
@@ -133,6 +135,7 @@ const TestSession = () => {
   const [searchParams] = useSearchParams();
   const { profileId, isAuthenticated, isLoading: authLoading } = useUserContext();
   const { isPremium } = usePremium();
+  const isWide = useMediaQuery("(min-width: 1280px)");
   const { enqueue: enqueueOfflineAction } = useOfflineQueue(profileId || undefined);
   const { selectedCountry, selectedCategory } = usePDDContext();
   const isRussia = (countryParam || selectedCountry) === 'russia';
@@ -1604,6 +1607,30 @@ const TestSession = () => {
           onViewResults={onViewResults}
         />
 
+        {/* Floating AI Assistant for Tablets/Laptops where sidebar is hidden */}
+        <FloatingAITrigger
+          isVisible={!isWide && isPracticeLikeMode && !isBlitzMode && !isExamMode}
+          questionContext={{
+            question: getQuestionText(effectiveLanguage),
+            correctAnswer: sortedOptions.find((opt) => opt.is_correct)?.[
+              effectiveLanguage === 'ru' ? 'text_ru' :
+                (effectiveLanguage === 'en' ? 'text_en' : 'text_es')] || '',
+            userAnswer: selectedOption ? sortedOptions.find((opt) => opt.id === selectedOption)?.[
+              effectiveLanguage === 'ru' ? 'text_ru' :
+                (effectiveLanguage === 'en' ? 'text_en' : 'text_es')] : undefined,
+            isCorrect: sortedOptions.find((opt) => opt.id === selectedOption)?.is_correct || false,
+            explanation: selectedOption ? (showTranslation ? currentQuestion.explanation_ru :
+              (effectiveLanguage === 'ru' ? currentQuestion.explanation_ru :
+                (effectiveLanguage === 'en' ? currentQuestion.explanation_en : currentQuestion.explanation_es))) : null,
+            explanationRu: currentQuestion.explanation_ru,
+            explanationEs: currentQuestion.explanation_es,
+            explanationEn: currentQuestion.explanation_en,
+            topic: currentQuestion.topics?.title_es,
+            imageUrl: currentQuestion.image_url,
+            testLanguage: effectiveLanguage,
+            country: isRussia ? 'russia' : 'spain',
+          }}
+        />
       </TestContentLayout>
     </Layout >
   );
