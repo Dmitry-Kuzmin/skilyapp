@@ -910,8 +910,8 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
                 transition={{ type: 'spring', stiffness: 420, damping: 36, mass: 0.8 }}
                 onClick={(e) => e.stopPropagation()}
                 onPointerDown={(e) => e.stopPropagation()}
-                className="relative w-full sm:max-w-[540px] bg-slate-950 rounded-t-3xl sm:rounded-3xl shadow-2xl flex flex-col"
-                style={{ maxHeight: '88vh', border: '1px solid rgba(255,255,255,0.07)' }}
+                className="relative w-full sm:max-w-[540px] bg-slate-950 rounded-t-3xl sm:rounded-3xl shadow-2xl flex flex-col overflow-hidden"
+                style={{ maxHeight: '90vh', border: '1px solid rgba(255,255,255,0.1)' }}
               >
                 {/* Drag handle visual */}
                 <div className="flex justify-center pt-3 pb-0 flex-shrink-0">
@@ -957,8 +957,8 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
 
                 {/* Scrollable body */}
                 <div
-                  className="overflow-y-auto flex-1 px-5 pb-2"
-                  style={{ WebkitOverflowScrolling: 'touch', overscrollBehavior: 'contain' }}
+                  className="overflow-y-auto flex-1 px-5 pb-2 min-h-0"
+                  style={{ WebkitOverflowScrolling: 'touch' }}
                 >
                   {TABLE_SECTIONS.map((section, si) => (
                     <div key={si} className="mb-1">
@@ -1003,11 +1003,9 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
                             {/* Premium value */}
                             <div className="flex justify-center items-center">
                               {isBool ? (
-                                <span className="w-6 h-6 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
-                                  <Check className="w-3 h-3 text-amber-400" />
-                                </span>
+                                <Check className="w-5 h-5 text-amber-400" />
                               ) : (
-                                <span className="text-[12px] font-black text-amber-400 text-center bg-amber-500/10 border border-amber-500/20 px-3 py-1 rounded-xl leading-tight">
+                                <span className="text-[13px] font-bold text-amber-400 text-center leading-tight">
                                   {String(row.pro)}
                                 </span>
                               )}

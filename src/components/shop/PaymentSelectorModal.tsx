@@ -418,8 +418,8 @@ function PaymentItem({
         {badges && badges.length > 0 && (
           <div className="flex items-center gap-2 mt-3 flex-wrap">
             {badges.map((b, i) => (
-              <div key={i} className="flex items-center justify-center p-1.5 bg-white/5 dark:bg-white/10 rounded-lg border border-white/5 shadow-sm">
-                <BrandLogo name={b} size={18} />
+              <div key={i} className="flex items-center justify-center px-2 py-1.5 bg-white/10 dark:bg-white/15 rounded-xl border border-white/10 shadow-lg backdrop-blur-sm">
+                <BrandLogo name={b} size={22} />
               </div>
             ))}
           </div>
