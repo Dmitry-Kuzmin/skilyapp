@@ -276,7 +276,13 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
       refreshPage: "Please refresh the page",
       unknownPlan: "Unknown plan",
       loginRequired: "Please log in first",
-      unknownError: "An unexpected error occurred. Please try again later."
+      unknownError: "An unexpected error occurred. Please try again later.",
+      backToPlans: "Back to plans",
+      protectedByPaddle: "Secured by Paddle",
+      loadingCheckout: "Loading secure checkout…",
+      paymentSuccess: "Payment successful",
+      paymentSuccessDesc: "Premium activated 🎉",
+      tryAgain: "Try again"
     },
     es: {
       premiumAccess: "Premium Access",
