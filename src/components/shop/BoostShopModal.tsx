@@ -368,7 +368,7 @@ export function BoostShopModal({
     openInline();
 
     return () => { cancelled = true; };
-  }, [checkoutTransactionId, paddle, language, t, loadData]);
+  }, [checkoutTransactionId, paddle, language, t]);
 
   // userContext проверен на null в самом конце компонента перед рендером
   const translateBoostField = (
