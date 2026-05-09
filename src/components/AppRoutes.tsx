@@ -112,7 +112,6 @@ const LingoPage = lazy(() => import("../pages/LingoPage"));
 const LingoLessonPage = lazy(() => import("../pages/LingoLessonPage"));
 
 const DailyBonus = lazy(() => import("../pages/DailyBonus"));
-const SkilyChatPage = lazy(() => import("../pages/SkilyChatPage"));
 const DGTTestsSimple = lazy(() => import("../pages/DGTTestsSimple"));
 // Terms, Privacy, SubscriptionTerms, RefundPolicy moved to Legal.tsx or redirects
 const Features = lazy(() => import("../pages/Features"));
@@ -153,12 +152,8 @@ export function AppRoutes() {
           <LearningMap />
         </Suspense>
       } />
-      <Route path="/ai-assistant" element={<Navigate to="/chat" replace />} />
-      <Route path="/chat" element={
-        <Suspense fallback={<PageSkeleton />}>
-          <SkilyChatPage />
-        </Suspense>
-      } />
+      <Route path="/ai-assistant" element={<Navigate to="/dashboard" replace />} />
+      <Route path="/chat" element={<Navigate to="/dashboard" replace />} />
       <Route path="/achievements" element={<Navigate to="/" replace />} />
       {/* Handbook Routes */}
       <Route path="/learn/russia/handbook" element={

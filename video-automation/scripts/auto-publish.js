@@ -20,6 +20,13 @@ const AUTH_ES = path.join(__dirname, "../auth-state-es.json");
 const AUTH_RU = path.join(__dirname, "../auth-state-ru.json");
 const RENDERS_DIR = path.join(__dirname, "../renders");
 const PUBLISH_DATA_FILE = path.join(RENDERS_DIR, "publish-data.json");
+const LOG_FILE = path.join(__dirname, "../auto-publish.log");
+
+function plog(msg) {
+  const line = `[${new Date().toISOString()}] ${msg}`;
+  console.log(line);
+  try { fs.appendFileSync(LOG_FILE, line + "\n"); } catch {}
+}
 
 // ── Parse CLI args ────────────────────────────────────────────────────────────
 const args = process.argv.slice(2);
@@ -101,9 +108,12 @@ function notify(title, message) {
   } catch {}
 }
 
+// Track per-platform failures to report at the end
+const failures = [];
+
 // ── TikTok upload ─────────────────────────────────────────────────────────────
 async function uploadTikTok(context, videoPath, lang) {
-  console.log(`\n🎵 TikTok [${lang.toUpperCase()}] → ${path.basename(videoPath)}`);
+  plog(`\n🎵 TikTok [${lang.toUpperCase()}] → ${path.basename(videoPath)}`);
   const page = await context.newPage();
   try {
     await page.goto("https://www.tiktok.com/tiktokstudio/upload?from=creator_center", {
@@ -111,7 +121,7 @@ async function uploadTikTok(context, videoPath, lang) {
     });
 
     await delay(3000);
-    console.log("  📍 Current URL:", page.url());
+    plog(`  📍 Current URL: ${page.url()}`);
 
     // Auth check — TikTok redirects to login or passport page if session expired
     const tiktokUrl = page.url();
