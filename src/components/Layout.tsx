@@ -574,7 +574,7 @@ const Layout = memo(({ children, hideNavigation = false }: LayoutProps) => {
       {isAuthenticated && isAdmin && (
         <button
           onClick={() => navigate('/admin')}
-          className="fixed bottom-6 right-6 z-[200] w-12 h-12 rounded-full bg-amber-500 text-white shadow-[0_4px_24px_rgba(245,158,11,0.5)] flex items-center justify-center hover:bg-amber-400 hover:scale-110 active:scale-95 transition-all duration-200 group"
+          className="fixed bottom-6 right-6 z-[200] w-12 h-12 rounded-full bg-amber-500 text-white shadow-[0_4px_24px_rgba(245,158,11,0.5)] hidden md:flex items-center justify-center hover:bg-amber-400 hover:scale-110 active:scale-95 transition-all duration-200 group"
           title="Открыть Админ-панель"
         >
           <AdminShield className="w-5 h-5" />

@@ -5,7 +5,7 @@ import { UnifiedModal } from "@/components/ui/unified-modal";
 import { Button } from "@/components/ui/button";
 import { usePremium } from "@/hooks/usePremium";
 import { useUserContext } from "@/contexts/UserContext";
-import { Crown, Check, ShieldCheck, Zap, Star, Sparkles, Trophy, Lock, CreditCard, Bitcoin, Wallet, ChevronRight, X as XIcon, ArrowLeft, Loader2, Brain, BarChart3, Infinity, Swords } from "lucide-react";
+import { Crown, Check, ShieldCheck, Zap, Star, Sparkles, Trophy, Lock, ChevronRight, X as XIcon, ArrowLeft, Brain, BarChart3, Infinity, Swords } from "lucide-react";
 import { isTelegramMiniApp, getTelegramWebApp } from "@/lib/telegram";
 import { PRICING_PLANS } from "@/lib/pricing-config";
 import { Badge } from "@/components/ui/badge";
@@ -19,10 +19,10 @@ import { toast } from "@/lib/toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import type { Paddle } from "@paddle/paddle-js";
 
-import { StarsPaymentButton } from "@/components/monetization/StarsPaymentButton";
 import { TrialCTA } from "@/components/monetization/TrialCTA";
 import { SocialTrustBadge } from "@/components/shared/SocialTrustBadge";
 import { useModalStack } from "@/hooks/useModalStack";
+import { PaymentSelectorModal } from "@/components/shop/PaymentSelectorModal";
 
 interface PaywallModalProps {
   open: boolean;
@@ -105,9 +105,7 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
   const currentPlatform = platform === 'telegram' ? 'telegram' : 'web';
   const showPaddlePayment = isPaymentMethodAvailable('paddle', currentPlatform);
   const showCryptomusPayment = isPaymentMethodAvailable('cryptomus', currentPlatform);
-  const [paymentMethod, setPaymentMethod] = useState<'paddle' | 'cryptomus'>(
-    showPaddlePayment ? 'paddle' : 'cryptomus'
-  );
+  const [selectedPlanForPayment, setSelectedPlanForPayment] = useState<string | null>(null);
 
   useEffect(() => {
     if (!open || !showPaddlePayment) return;
@@ -387,91 +385,71 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
     </div>
   );
 
-  const handlePurchase = async (planId: string) => {
+  const handlePaddlePurchase = async (planId: string) => {
     if (!profileId) {
       toast({ title: "Error", description: t.loginRequired, variant: "destructive" });
       return;
     }
-
     const catalogKey = PLAN_TO_CATALOG[planId];
     if (!catalogKey) {
       toast({ title: "Error", description: t.unknownPlan, variant: "destructive" });
       return;
     }
-
-    setSelectedPlanId(planId);
-
     try {
-      if (paymentMethod === 'paddle') {
-        let paddleInstance = paddle || getPaddleInstanceSync();
-        if (!paddleInstance && showPaddlePayment) {
-          paddleInstance = await getPaddleInstance();
-          if (paddleInstance) setPaddle(paddleInstance);
-        }
-
-        const partnerCode = localStorage.getItem('partner_code');
-        const { data, error } = await supabase.functions.invoke("paddle-payment", {
-          body: {
-            user_id: profileId,
-            catalog_key: catalogKey,
-            ...(partnerCode ? { partner_code: partnerCode } : {}),
-          },
-        });
-
-        let parsedData = data;
-        if (typeof data === 'string') {
-          try {
-            parsedData = JSON.parse(data);
-          } catch (e) {
-            console.error("[PaywallModal] Failed to parse data string:", e);
-          }
-        }
-
-        if (error || parsedData?.error || !parsedData?.transaction_id) {
-          const rawError = error?.message || parsedData?.error || (error ? JSON.stringify(error) : null);
-          const errMsg = rawError && rawError !== "null" ? rawError : "Paddle API Error";
-
-          if (errMsg.includes('Refresh Token')) {
-            toast({ title: t.sessionExpired, description: t.refreshPage, variant: "destructive" });
-          } else {
-            toast({ title: "Error", description: errMsg, variant: "destructive" });
-          }
-          setSelectedPlanId(null);
-          return;
-        }
-
-        sessionStorage.setItem('paddle_transaction_id', parsedData.transaction_id);
-        localStorage.setItem('paddle_transaction_id', parsedData.transaction_id);
-
-        setSelectedPlanId(null);
-        // Открываем Paddle inline внутри этой же модалки — useEffect ниже подхватит transactionId
-        setCheckoutTransactionId(parsedData.transaction_id);
-      } else if (paymentMethod === 'cryptomus') {
-        const { data, error } = await supabase.functions.invoke("cryptomus-payment", {
-          body: {
-            user_id: profileId,
-            catalog_key: catalogKey,
-          },
-        });
-
-        const parsed = typeof data === 'string' ? JSON.parse(data) : data;
-
-        if (error || parsed?.error || !parsed?.url) {
-          toast({
-            title: "Error (Cryptomus)",
-            description: (error?.message || parsed?.error || t.unknownError),
-            variant: "destructive"
-          });
-          setSelectedPlanId(null);
-          return;
-        }
-
-        window.open(parsed.url, '_blank');
+      let paddleInstance = paddle || getPaddleInstanceSync();
+      if (!paddleInstance && showPaddlePayment) {
+        paddleInstance = await getPaddleInstance();
+        if (paddleInstance) setPaddle(paddleInstance);
       }
+      const partnerCode = localStorage.getItem('partner_code');
+      const { data, error } = await supabase.functions.invoke("paddle-payment", {
+        body: {
+          user_id: profileId,
+          catalog_key: catalogKey,
+          ...(partnerCode ? { partner_code: partnerCode } : {}),
+        },
+      });
+      let parsedData = data;
+      if (typeof data === 'string') {
+        try { parsedData = JSON.parse(data); } catch (e) { console.error("[PaywallModal] Failed to parse data string:", e); }
+      }
+      if (error || parsedData?.error || !parsedData?.transaction_id) {
+        const rawError = error?.message || parsedData?.error || (error ? JSON.stringify(error) : null);
+        const errMsg = rawError && rawError !== "null" ? rawError : "Paddle API Error";
+        if (errMsg.includes('Refresh Token')) {
+          toast({ title: t.sessionExpired, description: t.refreshPage, variant: "destructive" });
+        } else {
+          toast({ title: "Error", description: errMsg, variant: "destructive" });
+        }
+        return;
+      }
+      sessionStorage.setItem('paddle_transaction_id', parsedData.transaction_id);
+      localStorage.setItem('paddle_transaction_id', parsedData.transaction_id);
+      setCheckoutTransactionId(parsedData.transaction_id);
     } catch (err: any) {
       toast({ title: "Error", description: err?.message || t.unknownError, variant: "destructive" });
-      setSelectedPlanId(null);
     }
+  };
+
+  const handleCryptomusPurchase = async (planId: string) => {
+    if (!profileId) throw new Error(t.loginRequired);
+    const catalogKey = PLAN_TO_CATALOG[planId];
+    if (!catalogKey) throw new Error(t.unknownPlan);
+    const plan = PRICING_PLANS.find(p => p.id === planId);
+    const { data, error } = await supabase.functions.invoke("cryptomus-payment", {
+      body: { user_id: profileId, catalog_key: catalogKey },
+    });
+    const parsed = typeof data === 'string' ? JSON.parse(data) : data;
+    if (error || parsed?.error || !parsed?.url) {
+      throw new Error(error?.message || parsed?.error || t.unknownError);
+    }
+    return {
+      paymentUrl: parsed.url as string,
+      orderId: (parsed.order_id ?? parsed.orderId ?? '') as string,
+      amount: (parsed.amount ?? 0) as number,
+      currency: (parsed.currency ?? 'USD') as string,
+      itemName: plan?.title ?? 'Premium',
+    };
   };
 
   const containerVariants = {
@@ -583,42 +561,10 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4 }}
-                className="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-6 gap-4"
+                className="mb-6"
               >
-                <div>
-                  <h3 className="text-2xl font-black text-slate-900 dark:text-white">{t.selectPlan}</h3>
-                  <p className="text-sm text-slate-500 font-medium">{t.investmentText}</p>
-                </div>
-                <div className="flex bg-slate-100 dark:bg-slate-900/50 p-1 rounded-xl border border-slate-200 dark:border-slate-800">
-                  {showPaddlePayment && (
-                    <button
-                      onClick={() => setPaymentMethod('paddle')}
-                      className={cn(
-                        "flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-all",
-                        paymentMethod === 'paddle'
-                          ? "bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm"
-                          : "text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
-                      )}
-                    >
-                      <CreditCard className="w-3.5 h-3.5" />
-                      <span>{t.card}</span>
-                    </button>
-                  )}
-                  {showCryptomusPayment && (
-                    <button
-                      onClick={() => setPaymentMethod('cryptomus')}
-                      className={cn(
-                        "flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-all",
-                        paymentMethod === 'cryptomus'
-                          ? "bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm"
-                          : "text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
-                      )}
-                    >
-                      <Bitcoin className="w-3.5 h-3.5" />
-                      <span>{t.crypto}</span>
-                    </button>
-                  )}
-                </div>
+                <h3 className="text-2xl font-black text-slate-900 dark:text-white">{t.selectPlan}</h3>
+                <p className="text-sm text-slate-500 font-medium">{t.investmentText}</p>
               </motion.div>
 
               <TrialCTA onTrialStarted={() => onOpenChange(false)} />
@@ -704,47 +650,23 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
                           isPopular ? "bg-white/10 group-hover:bg-white/20" : "bg-slate-100 dark:bg-slate-800 group-hover:bg-violet-100 dark:group-hover:bg-violet-900/30"
                         )} />
                         <div className="mt-auto">
-                          {isTelegramMiniApp() ? (
-                            <div className="space-y-2">
-                              <StarsPaymentButton
-                                packageKey={PLAN_TO_CATALOG[plan.id]}
-                                priceCoins={0}
-                                className={cn(
-                                  "w-full font-bold h-12 rounded-xl transition-all duration-300 shadow-lg",
-                                  isPopular ? "bg-white text-slate-900 hover:bg-slate-100 shadow-black/20" : "bg-slate-50 text-slate-900 border border-slate-200 hover:bg-white"
-                                )}
-                              />
-                              <button
-                                onClick={(e) => { e.stopPropagation(); handlePurchase(plan.id); }}
-                                className="w-full text-[10px] text-muted-foreground hover:text-violet-500 transition-colors uppercase tracking-widest font-bold text-center"
-                              >{t.payWithCard}</button>
-                            </div>
-                          ) : (
-                            <Button
-                              variant="ghost"
-                              onClick={(e) => { e.stopPropagation(); handlePurchase(plan.id); }}
-                              className={cn(
-                                "w-full font-bold h-12 rounded-xl transition-all duration-300 relative overflow-hidden group/btn",
-                                isPopular
-                                  ? "bg-white text-slate-900 hover:bg-white hover:text-violet-700 shadow-lg shadow-black/20"
-                                  : "bg-slate-50 text-slate-900 border border-slate-200 hover:bg-violet-50 hover:border-violet-200 hover:text-violet-700 dark:bg-slate-800 dark:border-slate-700 dark:text-white dark:hover:bg-violet-900/30 dark:hover:border-violet-500/30"
-                              )}
-                            >
-                              {selectedPlanId === plan.id ? (
-                                <svg className="w-5 h-5 animate-spin text-current" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                </svg>
-                              ) : (
-                                <span className="relative z-10 flex items-center justify-center gap-2">
-                                  {t.select}
-                                  <motion.div animate={{ x: [0, 4, 0] }} transition={{ duration: 1.5, repeat: 999, ease: "easeInOut", repeatDelay: 3 }}>
-                                    {isPopular ? <Sparkles className="w-4 h-4" /> : <span className="text-lg leading-none">→</span>}
-                                  </motion.div>
-                                </span>
-                              )}
-                            </Button>
-                          )}
+                          <Button
+                            variant="ghost"
+                            onClick={(e) => { e.stopPropagation(); setSelectedPlanForPayment(plan.id); }}
+                            className={cn(
+                              "w-full font-bold h-12 rounded-xl transition-all duration-300 relative overflow-hidden group/btn",
+                              isPopular
+                                ? "bg-white text-slate-900 hover:bg-white hover:text-violet-700 shadow-lg shadow-black/20"
+                                : "bg-slate-50 text-slate-900 border border-slate-200 hover:bg-violet-50 hover:border-violet-200 hover:text-violet-700 dark:bg-slate-800 dark:border-slate-700 dark:text-white dark:hover:bg-violet-900/30 dark:hover:border-violet-500/30"
+                            )}
+                          >
+                            <span className="relative z-10 flex items-center justify-center gap-2">
+                              {t.select}
+                              <motion.div animate={{ x: [0, 4, 0] }} transition={{ duration: 1.5, repeat: 999, ease: "easeInOut", repeatDelay: 3 }}>
+                                {isPopular ? <Sparkles className="w-4 h-4" /> : <span className="text-lg leading-none">→</span>}
+                              </motion.div>
+                            </span>
+                          </Button>
                         </div>
                       </div>
                     </motion.div>
@@ -769,6 +691,40 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
             </>
         </ContentWrapper>
       </UnifiedModal>
+
+      <PaymentSelectorModal
+        open={!!selectedPlanForPayment && !checkoutTransactionId}
+        onOpenChange={(open) => { if (!open) setSelectedPlanForPayment(null); }}
+        pack={selectedPlanForPayment ? (() => {
+          const plan = PRICING_PLANS.find(p => p.id === selectedPlanForPayment)!;
+          return {
+            id: selectedPlanForPayment,
+            catalogKey: PLAN_TO_CATALOG[selectedPlanForPayment],
+            packageKey: PLAN_TO_CATALOG[selectedPlanForPayment],
+            title: plan?.title ?? '',
+            price: plan?.price ?? '',
+            priceValue: 0,
+            priceCoins: 0,
+          };
+        })() : null}
+        onSuccess={() => onOpenChange(false)}
+        onTonClick={() => {}}
+        onCryptoClick={async () => {
+          if (!selectedPlanForPayment) throw new Error('no plan');
+          return handleCryptomusPurchase(selectedPlanForPayment);
+        }}
+        onCardClick={() => {
+          const planId = selectedPlanForPayment;
+          setSelectedPlanForPayment(null);
+          if (planId) handlePaddlePurchase(planId);
+        }}
+        availability={{
+          stars: isTelegramMiniApp(),
+          ton: false,
+          crypto: showCryptomusPayment,
+          card: showPaddlePayment,
+        }}
+      />
 
       {/* Mobile checkout: Vaul drawer with transparent overlay, rounded corners, swipe-anywhere */}
       {isMobile && (
