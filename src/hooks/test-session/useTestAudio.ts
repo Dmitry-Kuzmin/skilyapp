@@ -57,6 +57,8 @@ export const useTestAudio = (
     const isPlayingRef = useRef(false);
     const lastRequestTimeRef = useRef<number>(0);
 
+    const setSpeaking = useTTSStore((s) => s.setSpeaking);
+
     // Get system voice for fallback
     const getSystemVoice = useCallback(() => {
         if (typeof window === 'undefined' || !window.speechSynthesis) return null;
