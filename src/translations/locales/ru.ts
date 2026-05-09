@@ -1653,6 +1653,7 @@ export const ru = {
     escToClose: "закрыть",
     settings: "Настройки",
     voiceOver: "Озвучка",
+    autoExplain: "Объяснение голосом",
     statistics: "Статистика",
     wordHints: "Подсказки слов",
     ambientMusic: "Фоновая музыка",
