@@ -1633,6 +1633,7 @@ export const es = {
     escToClose: "cerrar",
     settings: "Configuración",
     voiceOver: "Locución",
+    autoExplain: "Explicación por voz",
     statistics: "Estadísticas",
     wordHints: "Pistas de palabras",
     ambientMusic: "Música de fondo",
