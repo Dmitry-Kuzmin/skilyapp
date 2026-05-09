@@ -122,39 +122,34 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
     let cancelled = false;
 
     const openCheckout = async () => {
-      let instance = paddle || getPaddleInstanceSync();
-      if (!instance) instance = await getPaddleInstance();
+      const instance = paddle ?? getPaddleInstanceSync() ?? await getPaddleInstance();
       if (cancelled || !instance) return;
 
+      // Wait for the container to mount in DOM after the React commit
       await new Promise(r => setTimeout(r, 300));
       if (cancelled) return;
 
-      const container = document.getElementsByClassName(PADDLE_FRAME_CLASS)[0] as HTMLElement | undefined;
+      const container = document.getElementsByClassName(PADDLE_FRAME_CLASS)[0];
       if (!container) return;
       container.innerHTML = '';
 
-      try {
-        (instance.Checkout.open as (opts: any) => void)({
-          transactionId: checkoutTransactionId,
-          settings: {
-            displayMode: 'inline',
-            frameTarget: PADDLE_FRAME_CLASS,
-            frameInitialHeight: 450,
-            frameStyle: 'width: 100%; border: none; background: transparent;',
-            theme: 'dark',
-            locale: paddleLocale,
-          },
-          eventCallback: (event: any) => {
-            console.log('[PaywallModal] Paddle event:', event?.name);
-            if (event?.name === 'checkout.completed') {
-              toast({ title: t.paymentSuccess, description: t.paymentSuccessDesc });
-              setTimeout(() => { setCheckoutTransactionId(null); onOpenChange(false); }, 1200);
-            }
-          },
-        });
-      } catch (err) {
-        console.error('[PaywallModal] Checkout.open failed:', err);
-      }
+      (instance.Checkout.open as (opts: unknown) => void)({
+        transactionId: checkoutTransactionId,
+        settings: {
+          displayMode: 'inline',
+          frameTarget: PADDLE_FRAME_CLASS,
+          frameInitialHeight: 450,
+          frameStyle: 'width: 100%; border: none;',
+          theme: 'light',
+          locale: paddleLocale,
+        },
+        eventCallback: (event: { name: string }) => {
+          if (event?.name === 'checkout.completed') {
+            toast({ title: t.paymentSuccess, description: t.paymentSuccessDesc });
+            setTimeout(() => { setCheckoutTransactionId(null); onOpenChange(false); }, 1200);
+          }
+        },
+      });
     };
 
     openCheckout();

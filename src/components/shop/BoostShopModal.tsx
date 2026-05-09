@@ -180,8 +180,6 @@ export function BoostShopModal({
   const [activeTab, setActiveTab] = useState<'boosts' | 'coins' | 'premium' | 'history'>(initialTab || 'boosts');
   const [paddleCheckoutUrl, setPaddleCheckoutUrl] = useState<string | null>(null);
   const [checkoutTransactionId, setCheckoutTransactionId] = useState<string | null>(null);
-  const [checkoutStatus, setCheckoutStatus] = useState<'idle' | 'loading' | 'ready' | 'error'>('idle');
-  const [checkoutError, setCheckoutError] = useState<string | null>(null);
   const [paywallOpen, setPaywallOpen] = useState(false);
   const [showRewardedAdModal, setShowRewardedAdModal] = useState(false);
   const [adTestLoading, setAdTestLoading] = useState(false);
@@ -289,92 +287,56 @@ export function BoostShopModal({
     return () => clearTimeout(timeoutId);
   }, [activeTab, open]);
 
-  // Закрываем Paddle и сбрасываем checkout state при закрытии модалки
   useEffect(() => {
     if (!open) {
       try { paddle?.Checkout.close(); } catch { /* noop */ }
       setCheckoutTransactionId(null);
-      setCheckoutStatus('idle');
-      setCheckoutError(null);
     }
   }, [open, paddle]);
 
-  // Открываем Paddle inline в нашем контейнере при появлении transactionId
   useEffect(() => {
     if (!checkoutTransactionId) return;
-
     let cancelled = false;
-    setCheckoutStatus('loading');
-    setCheckoutError(null);
     const locale = language === "ru" ? "ru" : language === "es" ? "es" : "en";
 
-    const openInline = async () => {
-      let instance = paddle || getPaddleInstanceSync();
-      if (!instance) instance = await getPaddleInstance();
-      if (cancelled) return;
-      if (!instance) {
-        setCheckoutError('Paddle SDK unavailable');
-        setCheckoutStatus('error');
-        return;
-      }
+    const openCheckout = async () => {
+      const instance = paddle ?? getPaddleInstanceSync() ?? await getPaddleInstance();
+      if (cancelled || !instance) return;
 
-      // Paddle ищет контейнер через getElementsByClassName(frameTarget), не getElementById
-      let attempts = 0;
-      let container: HTMLElement | null = null;
-      while (attempts < 20 && !container) {
-        container = document.getElementsByClassName(BOOST_PADDLE_FRAME_ID)[0] as HTMLElement | undefined ?? null;
-        if (!container) await new Promise(r => setTimeout(r, 50));
-        attempts++;
-      }
+      // Wait for the container to mount in DOM after the React commit
+      await new Promise(r => setTimeout(r, 300));
       if (cancelled) return;
-      if (!container) {
-        setCheckoutError('Container not found');
-        setCheckoutStatus('error');
-        return;
-      }
 
+      const container = document.getElementsByClassName(BOOST_PADDLE_FRAME_ID)[0];
+      if (!container) return;
       container.innerHTML = '';
 
-      try {
-        (instance.Checkout.open as (opts: any) => void)({
-          transactionId: checkoutTransactionId,
-          settings: {
-            displayMode: 'inline',
-            frameTarget: BOOST_PADDLE_FRAME_ID,
-            frameInitialHeight: 450,
-            frameStyle: 'width: 100%; border: none; background: transparent;',
-            theme: 'dark',
-            locale,
-          },
-          eventCallback: (event: any) => {
-            console.log('[BoostShopModal] Paddle event:', event?.name);
-            if (event?.name === 'checkout.loaded') {
-              setCheckoutStatus('ready');
-            } else if (event?.name === 'checkout.completed') {
-              toast({
-                title: t("boostShop.toasts.purchaseSuccess") || "Оплата прошла успешно",
-                description: t("boostShop.toasts.purchaseSuccessDescription") || "🎉",
-              });
-              setTimeout(() => {
-                setCheckoutTransactionId(null);
-                loadDataRef.current?.();
-              }, 1200);
-            } else if (event?.name === 'checkout.error') {
-              const msg = event?.data?.error?.message || event?.data?.message || 'Checkout error';
-              setCheckoutError(msg);
-              setCheckoutStatus('error');
-            }
-          },
-        });
-      } catch (err: any) {
-        console.error('[BoostShopModal] Checkout.open failed:', err);
-        setCheckoutError(err?.message || 'Checkout failed');
-        setCheckoutStatus('error');
-      }
+      (instance.Checkout.open as (opts: unknown) => void)({
+        transactionId: checkoutTransactionId,
+        settings: {
+          displayMode: 'inline',
+          frameTarget: BOOST_PADDLE_FRAME_ID,
+          frameInitialHeight: 450,
+          frameStyle: 'width: 100%; border: none;',
+          theme: 'light',
+          locale,
+        },
+        eventCallback: (event: { name: string }) => {
+          if (event?.name === 'checkout.completed') {
+            toast({
+              title: t("boostShop.toasts.purchaseSuccess") || "Оплата прошла успешно",
+              description: t("boostShop.toasts.purchaseSuccessDescription") || "🎉",
+            });
+            setTimeout(() => {
+              setCheckoutTransactionId(null);
+              loadDataRef.current?.();
+            }, 1200);
+          }
+        },
+      });
     };
 
-    openInline();
-
+    openCheckout();
     return () => { cancelled = true; };
   }, [checkoutTransactionId, paddle, language, t]);
 
@@ -2135,70 +2097,26 @@ export function BoostShopModal({
         <div className="relative flex-1 flex flex-col h-full overflow-hidden">
           {loading ? <ModalSkeleton rows={4} /> : <ModalContent />}
 
-          {/* Inline Paddle Checkout — оверлеит контент модалки */}
           {checkoutTransactionId && (
-            <div className="absolute inset-0 z-30 flex flex-col bg-[#0A0D14]">
-              <div className="flex items-center justify-between px-4 sm:px-6 py-3 border-b border-white/5 shrink-0">
+            <div className="absolute inset-0 z-30 flex flex-col bg-white">
+              <div className="flex items-center justify-between px-5 py-3 border-b border-slate-200 shrink-0">
                 <button
                   onClick={() => {
                     try { paddle?.Checkout.close(); } catch { /* noop */ }
                     setCheckoutTransactionId(null);
-                    setCheckoutStatus('idle');
-                    setCheckoutError(null);
                   }}
-                  className="flex items-center gap-1.5 text-sm text-slate-400 hover:text-white transition-colors"
+                  className="flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-900 transition-colors"
                 >
                   <ArrowLeft className="w-4 h-4" />
                   <span>{t("boostShop.back") || "Назад"}</span>
                 </button>
-                <div className="flex items-center gap-1.5 text-[11px] text-slate-500">
+                <div className="flex items-center gap-1.5 text-[11px] text-slate-400">
                   <Shield className="w-3.5 h-3.5 text-emerald-500" />
                   <span>{t("boostShop.protectedByPaddle") || "Защищено Paddle"}</span>
                 </div>
               </div>
 
-              <div className="relative flex-1 overflow-y-auto px-3 sm:px-6 py-4">
-                {checkoutStatus === 'loading' && (
-                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 z-20 bg-[#0A0D14]/95">
-                    <div className="w-8 h-8 rounded-full border-2 border-violet-400 border-t-transparent animate-spin" />
-                    <p className="text-xs text-slate-400 font-medium">
-                      {t("boostShop.loadingCheckout") || "Загрузка безопасной оплаты…"}
-                    </p>
-                  </div>
-                )}
-                {checkoutStatus === 'error' && (
-                  <div className="flex flex-col items-center justify-center gap-4 py-12">
-                    <div className="w-12 h-12 rounded-full bg-red-500/10 flex items-center justify-center">
-                      <X className="w-6 h-6 text-red-400" />
-                    </div>
-                    <p className="text-sm text-slate-300 text-center max-w-xs">
-                      {checkoutError || t("boostShop.toasts.purchaseErrorDescription")}
-                    </p>
-                    <button
-                      onClick={() => {
-                        const tx = checkoutTransactionId;
-                        setCheckoutTransactionId(null);
-                        setTimeout(() => setCheckoutTransactionId(tx), 50);
-                      }}
-                      className="px-5 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-sm font-bold transition-colors"
-                    >
-                      {t("boostShop.retry") || "Повторить"}
-                    </button>
-                  </div>
-                )}
-                <div
-                  id={BOOST_PADDLE_FRAME_ID}
-                  className={cn(BOOST_PADDLE_FRAME_ID, "w-full")}
-                  style={{ minHeight: 450 }}
-                />
-              </div>
-
-              <div className="px-4 py-3 border-t border-white/5 flex items-center justify-center gap-2 shrink-0">
-                <Lock className="w-3 h-3 text-emerald-500" />
-                <p className="text-[10px] text-slate-500 font-mono uppercase tracking-widest">
-                  Secure checkout by Paddle
-                </p>
-              </div>
+              <div className={cn(BOOST_PADDLE_FRAME_ID, "flex-1")} />
             </div>
           )}
         </div>
