@@ -744,10 +744,10 @@ export function AIChatWidget() {
 
     // Mobile: Vaul Drawer
     if (isMobile) {
-        // Оставляем сверху отступ для notch + 16px воздуха, как в Claude app
-        const heightExpr = viewportHeight > 0
-            ? `calc(${viewportHeight}px - env(safe-area-inset-top, 0px) - 16px)`
-            : `calc(100dvh - env(safe-area-inset-top, 0px) - 16px)`;
+        // Высота drawer = полный layout − notch − 16px воздуха − клавиатура
+        // bottom = keyboardOffset → drawer всегда «плавает» над клавиатурой без чёрного провала
+        const baseHeight = layoutHeight > 0 ? `${layoutHeight}px` : '100dvh';
+        const heightExpr = `calc(${baseHeight} - env(safe-area-inset-top, 0px) - 16px - ${keyboardOffset}px)`;
 
         return (
             <>
@@ -761,7 +761,8 @@ export function AIChatWidget() {
                         style={{
                             height: heightExpr,
                             maxHeight: heightExpr,
-                            transition: 'height 0.2s ease',
+                            bottom: `${keyboardOffset}px`,
+                            transition: 'height 0.25s cubic-bezier(0.32, 0.72, 0, 1), bottom 0.25s cubic-bezier(0.32, 0.72, 0, 1)',
                         }}
                     >
                         {chatContent}
