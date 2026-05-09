@@ -32,6 +32,8 @@ interface TestSettingsMenuProps {
   hideLanguageSelector?: boolean; // Скрыть выбор языка (для русских тестов ПДД)
   smartVocabulary: boolean;
   onSmartVocabularyChange: (value: boolean) => void;
+  autoExplain: boolean;
+  onAutoExplainChange: (value: boolean) => void;
 }
 
 export const TestSettingsMenu = ({
