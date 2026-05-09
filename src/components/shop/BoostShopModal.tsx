@@ -288,6 +288,88 @@ export function BoostShopModal({
     return () => clearTimeout(timeoutId);
   }, [activeTab, open]);
 
+  // Закрываем Paddle и сбрасываем checkout state при закрытии модалки
+  useEffect(() => {
+    if (!open) {
+      try { paddle?.Checkout.close(); } catch { /* noop */ }
+      setCheckoutTransactionId(null);
+      setCheckoutStatus('idle');
+      setCheckoutError(null);
+    }
+  }, [open, paddle]);
+
+  // Открываем Paddle inline в нашем контейнере при появлении transactionId
+  useEffect(() => {
+    if (!checkoutTransactionId) return;
+
+    let cancelled = false;
+    setCheckoutStatus('loading');
+    setCheckoutError(null);
+    const locale = language === "ru" ? "ru" : language === "es" ? "es" : "en";
+
+    const openInline = async () => {
+      let instance = paddle || getPaddleInstanceSync();
+      if (!instance) instance = await getPaddleInstance();
+      if (cancelled) return;
+      if (!instance) {
+        setCheckoutError('Paddle SDK unavailable');
+        setCheckoutStatus('error');
+        return;
+      }
+
+      let attempts = 0;
+      let container: HTMLElement | undefined;
+      while (attempts < 20 && !container) {
+        const els = document.getElementsByClassName(BOOST_PADDLE_FRAME_CLASS);
+        if (els.length > 0) container = els[0] as HTMLElement;
+        else await new Promise(r => setTimeout(r, 50));
+        attempts++;
+      }
+      if (cancelled) return;
+      if (!container) {
+        setCheckoutError('Container not found');
+        setCheckoutStatus('error');
+        return;
+      }
+
+      container.innerHTML = '';
+
+      (instance.Checkout.open as (opts: any) => void)({
+        transactionId: checkoutTransactionId,
+        settings: {
+          displayMode: 'inline',
+          frameTarget: BOOST_PADDLE_FRAME_CLASS,
+          frameInitialHeight: 500,
+          frameStyle: 'width: 100%; min-width: 100%; border: none; background: transparent;',
+          theme: 'dark',
+          locale,
+        },
+        eventCallback: (event: any) => {
+          if (event?.name === 'checkout.loaded') {
+            setCheckoutStatus('ready');
+          } else if (event?.name === 'checkout.completed') {
+            toast({
+              title: t("boostShop.toasts.purchaseSuccess") || "Оплата прошла успешно",
+              description: t("boostShop.toasts.purchaseSuccessDescription") || "🎉",
+            });
+            setTimeout(() => {
+              setCheckoutTransactionId(null);
+              loadData();
+            }, 1200);
+          } else if (event?.name === 'checkout.error') {
+            const msg = event?.data?.error?.message || event?.data?.message || 'Checkout error';
+            setCheckoutError(msg);
+            setCheckoutStatus('error');
+          }
+        },
+      });
+    };
+
+    openInline();
+
+    return () => { cancelled = true; };
+  }, [checkoutTransactionId, paddle, language, t, loadData]);
+
   // userContext проверен на null в самом конце компонента перед рендером
   const translateBoostField = (
     boostType: string | undefined,
