@@ -901,7 +901,6 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
               className="fixed inset-0 flex items-end sm:items-center justify-center sm:p-6"
               style={{ zIndex: 200000, background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(8px)', pointerEvents: 'auto' }}
               onClick={() => setShowComparison(false)}
-              onPointerDown={(e) => e.stopPropagation()}
             >
               <motion.div
                 initial={{ y: '100%', opacity: 0 }}
