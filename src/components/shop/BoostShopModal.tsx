@@ -1056,15 +1056,11 @@ export function BoostShopModal({
         sessionStorage.setItem("paddle_transaction_id", data.transaction_id);
         localStorage.setItem("paddle_transaction_id", data.transaction_id);
 
-        // Open Paddle checkout via Paddle.js overlay (buy.paddle.com/checkout/{txn} URLs are invalid)
+        // Открываем Paddle inline внутри этой же модалки — useEffect ниже подхватит transactionId
         let paddleForCheckout = paddle || getPaddleInstanceSync();
         if (!paddleForCheckout) paddleForCheckout = await getPaddleInstance();
         if (paddleForCheckout) {
-          const locale = language === "ru" ? "ru" : language === "es" ? "es" : "en";
-          paddleForCheckout.Checkout.open({
-            transactionId: data.transaction_id,
-            settings: { displayMode: "overlay", theme: "dark", locale },
-          });
+          setCheckoutTransactionId(data.transaction_id);
         } else {
           console.warn("[BoostShop] Paddle SDK unavailable, falling back to iframe");
           setPaddleCheckoutUrl(`https://checkout.paddle.com/transaction/${data.transaction_id}`);
