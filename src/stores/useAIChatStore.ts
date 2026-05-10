@@ -15,7 +15,9 @@ export type AIChatMessage = {
     role: 'user' | 'assistant';
     content: string;
     timestamp: number;
-    rating?: 1 | -1; // Feedback для AI
+    rating?: 1 | -1;
+    imageUrl?: string;
+    dbId?: string;
 };
 
 export type QuestionContext = {
@@ -62,6 +64,7 @@ interface AIChatState {
     addMessage: (message: Omit<AIChatMessage, 'id' | 'timestamp'>) => void;
     updateLastMessage: (content: string) => void;
     setMessageRating: (messageId: string, rating: 1 | -1) => void;
+    setMessageDbId: (messageId: string, dbId: string) => void;
     clearMessages: () => void;
 
     // Actions — состояние
@@ -175,6 +178,12 @@ export const useAIChatStore = create<AIChatState>()(
             setMessageRating: (messageId, rating) => set((state) => ({
                 messages: state.messages.map(msg =>
                     msg.id === messageId ? { ...msg, rating } : msg
+                ),
+            })),
+
+            setMessageDbId: (messageId, dbId) => set((state) => ({
+                messages: state.messages.map(msg =>
+                    msg.id === messageId ? { ...msg, dbId } : msg
                 ),
             })),
 
