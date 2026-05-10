@@ -507,7 +507,13 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
         open={open && !checkoutTransactionId}
         onOpenChange={handleOpenChange}
         modalRouteKey="paywall"
-        showTitleBar={false}
+        showTitleBar={isMobile}
+        title={isMobile ? t.pro : undefined}
+        headerRight={
+          isMobile ? (
+            <Crown className="w-4 h-4 text-amber-400 fill-amber-400" />
+          ) : undefined
+        }
         showHandle={true}
         preventClose={showComparison}
         className={cn(

@@ -75,12 +75,17 @@ export function ResponsiveModal({
       >
         <DrawerContent
           className={cn(
-            "flex flex-col fixed left-0 right-0 z-[99999] outline-none",
+            "flex flex-col fixed z-[99999] outline-none",
             mobileFullscreen
-              ? "inset-x-0 bottom-0 top-0 h-[100dvh] max-h-[100dvh] rounded-none"
-              : "bottom-0 max-h-[100dvh] h-auto",
+              ? "inset-x-0 bottom-0 top-0 h-[100dvh] max-h-[100dvh] rounded-none left-0 right-0"
+              : "inset-x-2 max-h-[92dvh] h-auto !rounded-[28px] border border-white/[0.06]",
             className
           )}
+          style={
+            mobileFullscreen
+              ? undefined
+              : { bottom: 'max(8px, calc(env(safe-area-inset-bottom) + 4px))' }
+          }
           hideHandle={hideHandle}
           onInteractOutside={(e) => {
             if (document.body.classList.contains('tc-disable-scroll') || isExternalOverlay) {
@@ -102,7 +107,7 @@ export function ResponsiveModal({
           {!title && showCloseBtn && (
             <button
               onClick={() => onOpenChange(false)}
-              className="absolute top-2.5 left-4 z-10 w-9 h-9 flex items-center justify-center rounded-full bg-white/10 text-foreground active:bg-white/20 transition-colors"
+              className="absolute top-3 left-3 z-10 w-9 h-9 flex items-center justify-center rounded-full bg-white/10 text-foreground active:bg-white/20 transition-colors"
               aria-label="Закрыть"
             >
               <X className="w-4 h-4" />
@@ -114,7 +119,7 @@ export function ResponsiveModal({
 
             {/* iOS nav bar: × | title | right-icon (only when title exists) */}
             {title && (
-              <div className="flex items-center shrink-0 px-3 pt-1 pb-2">
+              <div className="flex items-center shrink-0 px-3 pt-2 pb-2">
                 <div className="w-9 h-9 flex items-center justify-center shrink-0">
                   {showCloseBtn && (
                     <button
