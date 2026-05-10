@@ -421,9 +421,10 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
     };
     loadTop3();
 
-    // Onboarding check
+    // Onboarding check — флаг сохраняем сразу, чтобы закрытие через X тоже считалось "ознакомлен"
     const hasSeenOnboarding = localStorage.getItem('duel_pass_onboarding_v1');
     if (!hasSeenOnboarding) {
+      localStorage.setItem('duel_pass_onboarding_v1', 'true');
       setCurrentView('onboarding');
     }
 
@@ -1791,36 +1792,24 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
                     </motion.div>
                   </div>
 
-                  {/* User Stats & Action (Clean Center Alignment) */}
-                  <div className="flex flex-col items-center gap-6">
-                    {userLeaderboardPos && (
-                      <motion.div 
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.5 }}
-                        className="flex items-center gap-6 px-10 py-4 rounded-full bg-black/40 backdrop-blur-3xl border border-white/10 shadow-2xl"
-                      >
-                        <div className="flex flex-col items-center">
-                          <span className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em] mb-1">Clasificación</span>
-                          <span className="text-2xl font-black text-white tracking-tighter italic">#{userLeaderboardPos.position}</span>
-                        </div>
-                        <div className="w-px h-8 bg-white/10" />
-                        <div className="flex flex-col items-center">
-                          <span className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em] mb-1">Total jugadores</span>
-                          <span className="text-lg font-bold text-white/60 tabular-nums">{userLeaderboardPos.total.toLocaleString()}</span>
-                        </div>
-                      </motion.div>
-                    )}
-
+                  {/* Кнопка рейтинга с позицией пользователя */}
+                  <div className="flex flex-col items-center gap-3">
                     <button
-                      onClick={() => setCurrentView('hall_of_fame')}
-                      className="flex items-center gap-3 px-8 py-3 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 transition-all duration-300 active:scale-95"
+                      onClick={() => setShowFullLeaderboard(v => !v)}
+                      className="group flex flex-col items-center gap-1 px-8 py-3 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 transition-all duration-300 active:scale-95"
                     >
-                      <Trophy className="w-4 h-4 text-yellow-500" />
-                      <span className="text-[11px] font-black text-white/40 uppercase tracking-widest">
-                        {dp("leaderboard.hallOfFame")}
-                      </span>
-                      <ChevronRight className="w-4 h-4 text-white/20" />
+                      <div className="flex items-center gap-2.5">
+                        <BarChart3 className="w-4 h-4 text-white/40 group-hover:text-white/70 transition-colors" />
+                        <span className="text-[11px] font-black text-white/40 group-hover:text-white/70 uppercase tracking-widest transition-colors">
+                          {showFullLeaderboard ? (uiText.hideRanking || 'Скрыть') : (uiText.showRanking || 'Полный рейтинг')}
+                        </span>
+                        <ChevronDown className={cn("w-4 h-4 text-white/20 transition-transform duration-500", showFullLeaderboard && "rotate-180")} />
+                      </div>
+                      {userLeaderboardPos && !showFullLeaderboard && (
+                        <span className="text-[9px] font-bold text-white/25 tracking-wider">
+                          #{userLeaderboardPos.position} · {userLeaderboardPos.total} игроков
+                        </span>
+                      )}
                     </button>
                   </div>
                 </div>
@@ -1829,26 +1818,13 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
           </div>
         </div>
 
-        {/* ── 2. Sequential Interaction (Clean Transition) ─────────── */}
-        <div className={cn("py-6", isMobile ? "px-4" : "px-8")}>
-          <button
-            onClick={() => setShowFullLeaderboard(!showFullLeaderboard)}
-            className="w-full group flex flex-col items-center gap-2 py-4 rounded-[2.5rem] bg-muted/30 hover:bg-muted/50 border border-border/40 transition-all duration-300"
-          >
-            <div className="flex items-center gap-3">
-              <BarChart3 className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
-              <span className="text-xs font-black text-muted-foreground group-hover:text-foreground uppercase tracking-tight transition-colors">
-                {showFullLeaderboard ? (uiText.hideRanking || 'Ocultar clasificación completa') : (uiText.showRanking || 'Ver clasificación completa')}
-              </span>
-              <ChevronDown className={cn("w-4 h-4 text-muted-foreground/40 transition-transform duration-500", showFullLeaderboard && "rotate-180")} />
-            </div>
-          </button>
-
+        {/* ── 2. Full Leaderboard (expand) ─────────────────────────── */}
+        <div className={cn("pb-2", isMobile ? "px-0" : "px-0")}>
           {showFullLeaderboard && (
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
-              className="mt-6 border-t border-border/20"
+              className="border-t border-white/10"
             >
               <DuelPassLeaderboardView
                 embedded
@@ -1922,23 +1898,19 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
                 {/* Responsive Reward Track */}
                 <div className="space-y-1">
                   {/* Header row */}
-                  <div className="flex items-center gap-2 px-1 pb-1">
-                    <div className="w-10 shrink-0 text-center">
-                      <span className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">
-                        {dp("table.columns.level") || "LV"}
-                      </span>
-                    </div>
+                  <div className="flex items-center gap-2 px-1 pb-2 border-b border-border/20">
+                    <div className="w-10 shrink-0" />
                     <div className="flex-1 grid grid-cols-2 gap-2 min-w-0">
                       <div className="flex items-center gap-1.5">
                         <div className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
-                        <span className="text-[9px] font-black uppercase tracking-[0.15em] text-muted-foreground/40">
-                          {dp("table.columns.free") || "Gratis"}
+                        <span className="text-[9px] font-black uppercase tracking-[0.15em] text-muted-foreground/50">
+                          {dp("table.columns.free") || "Бесплатно"}
                         </span>
                       </div>
                       <div className="flex items-center gap-1.5">
                         <Crown className="w-3 h-3 text-yellow-500 shrink-0" />
-                        <span className="text-[9px] font-black uppercase tracking-[0.15em] text-muted-foreground/40">
-                          {dp("table.columns.premium") || "Premium"}
+                        <span className="text-[9px] font-black uppercase tracking-[0.15em] text-yellow-500/60">
+                          Premium
                         </span>
                       </div>
                     </div>

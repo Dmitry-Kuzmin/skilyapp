@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo, useContext } from "react";
+import { useEffect, useState, useMemo, useContext, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -157,7 +157,7 @@ export function DuelPassLeaderboardView({
     total: 0,
     total_pages: 0,
   });
-  const [showMyPosition, setShowMyPosition] = useState(false);
+  const [userPosLoading, setUserPosLoading] = useState(false);
   // Данные сезона и прогресса из React Query (кэш, без лишних запросов)
   const { data: activeSeason } = useActiveSeason();
   const { data: dashboardData } = useDashboardData();
@@ -224,34 +224,29 @@ export function DuelPassLeaderboardView({
     return () => clearInterval(timer);
   }, [seasonEndDate]);
 
-  // Загрузка позиции пользователя
+  // Загрузка позиции пользователя (отдельный лоадинг, не блокирует топ)
   const loadUserPosition = async () => {
     if (!profileId) return;
 
-    setLoading(true);
-    setError(null);
+    setUserPosLoading(true);
     try {
       const { data, error } = await supabase.functions.invoke("duel-pass-leaderboard", {
         body: {
           type: "user_position",
           user_id: profileId,
-          neighbors_count: 5,
+          neighbors_count: 3,
           filter_type: filterType,
           filter_value: filterType === "country" ? user?.language_code || null : null,
         },
       });
 
-      if (error) {
-        throw error;
-      }
+      if (error) throw error;
 
       setUserPositionData(data);
-      setShowMyPosition(true);
     } catch (err: any) {
       console.error("[DuelPassLeaderboard] Error loading user position:", err);
-      setError(lp("errors.position"));
     } finally {
-      setLoading(false);
+      setUserPosLoading(false);
     }
   };
 
@@ -260,6 +255,13 @@ export function DuelPassLeaderboardView({
       loadTopLeaderboard(1);
     }
   }, [filterType, activeSeasonId]);
+
+  // Авто-загрузка позиции пользователя при открытии (Duolingo-паттерн)
+  useEffect(() => {
+    if (activeSeasonId !== null && profileId) {
+      loadUserPosition();
+    }
+  }, [activeSeasonId, profileId, filterType]);
 
   // Фильтрация по поиску
   const filteredLeaders = useMemo(() => {
@@ -272,11 +274,23 @@ export function DuelPassLeaderboardView({
     });
   }, [leaders, searchQuery]);
 
-  // Проверка, находится ли пользователь в топе
+  // Проверка, находится ли пользователь в топе (текущая страница)
   const isUserInTop = useMemo(() => {
     if (!profileId) return false;
     return leaders.some((leader) => leader.user_id === profileId);
   }, [leaders, profileId]);
+
+  // user_id-ы, уже отображённые в соседском блоке — исключаем их из основного списка
+  const neighborhoodIds = useMemo(() => {
+    if (!userPositionData?.neighbors) return new Set<string>();
+    return new Set(userPositionData.neighbors.map((n) => n.user_id));
+  }, [userPositionData]);
+
+  // Список без дублей — фильтруем соседей только на стр.1
+  const displayLeaders = useMemo(() => {
+    if (isUserInTop || neighborhoodIds.size === 0 || pagination.page !== 1) return filteredLeaders;
+    return filteredLeaders.filter((l) => !neighborhoodIds.has(l.user_id));
+  }, [filteredLeaders, isUserInTop, neighborhoodIds, pagination.page]);
 
   const disableAnimations = loading;
 
@@ -529,101 +543,11 @@ export function DuelPassLeaderboardView({
                   />
                 </div>
 
-                {/* Кнопка "Моё место" */}
-                {profileId && !isUserInTop && (
-                  <Button
-                    variant="outline"
-                    onClick={loadUserPosition}
-                    className="gap-2"
-                    disabled={loading}
-                  >
-                    <TrendingUp className="w-4 h-4" />
-                    {lp("myPlace")}
-                  </Button>
-                )}
               </div>
             </Card>
 
-            {/* Блок "Моё место" с соседями */}
-            {showMyPosition && userPositionData && (
-              <Card className="p-6 space-y-4 bg-gradient-to-br from-primary/5 to-secondary/5 border-2 border-primary/20">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h2 className="text-2xl font-bold flex items-center gap-2">
-                      <TrendingUp className="w-6 h-6 text-primary" />
-                      {lp("myPlace")}
-                    </h2>
-                    <p className="text-muted-foreground mt-1">
-                      {lp("positionOf", {
-                        position: formatNumber(userPositionData.position),
-                        total: formatNumber(userPositionData.total_players),
-                      })}
-                    </p>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setShowMyPosition(false)}
-                  >
-                    {lp("hide")}
-                  </Button>
-                </div>
-
-                {/* Соседи */}
-                {userPositionData.neighbors && userPositionData.neighbors.length > 0 && (
-                  <div className="space-y-2">
-                    <h3 className="text-sm font-semibold text-muted-foreground">{lp("neighbors")}</h3>
-                    <div className="space-y-1">
-                      {userPositionData.neighbors.map((neighbor) => {
-                        const name = neighbor.profile?.first_name || neighbor.profile?.username || lp("player");
-                        const isCurrentUser = neighbor.user_id === profileId;
-                        const rank = (neighbor.rank || getRankFromLevel(neighbor.duel_pass_level)) as RankType;
-
-                        return (
-                          <div
-                            key={neighbor.user_id}
-                            className={cn(
-                              "flex items-center gap-3 p-3 rounded-lg transition-all",
-                              isCurrentUser
-                                ? "bg-primary/10 border-2 border-primary/30"
-                                : "bg-muted/50 hover:bg-muted"
-                            )}
-                          >
-                            <div className="font-bold w-12 text-center">
-                              {neighbor.position}
-                            </div>
-                            <UserAvatar
-                              profileId={neighbor.user_id}
-                              size="md"
-                              showPremiumGlow={false}
-                            />
-                            <div className="flex-1">
-                              <p className="font-semibold flex items-center gap-2">
-                                {name}
-                                {isCurrentUser && (
-                                  <Badge variant="outline" className="text-xs bg-primary/10 border-primary/30">
-                                    {lp("you")}
-                                  </Badge>
-                                )}
-                              </p>
-                              <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                                <RankBadge rank={rank} size="xs" variant="pill" />
-                                <span>{lp("level", { level: neighbor.duel_pass_level })}</span>
-                                <span>•</span>
-                                <span>{formatNumber(neighbor.season_points ?? neighbor.duel_pass_xp)} {neighbor.season_points !== undefined ? 'SP' : 'XP'}</span>
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
-              </Card>
-            )}
-
             {/* ТОП-3 — Премиальный подиум */}
-            {absoluteTop3.length >= 3 && !showMyPosition && (
+            {absoluteTop3.length >= 3 && (
               <div className="flex items-end justify-center gap-3 md:gap-8 pb-8 pt-10 px-4 relative">
                 {/* Фоновое свечение для всего блока */}
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full max-w-2xl bg-primary/5 blur-[100px] -z-10" />
@@ -719,6 +643,101 @@ export function DuelPassLeaderboardView({
               </Badge>
             </div>
 
+            {/* Duolingo-паттерн: позиция пользователя + соседи — только на стр.1 */}
+            {!isUserInTop && pagination.page === 1 && (userPosLoading || userPositionData) && (
+              <div className="space-y-1">
+                {userPosLoading ? (
+                  <div className="flex items-center gap-3 p-4 rounded-2xl bg-white/[0.02] border border-white/[0.02] animate-pulse">
+                    <div className="w-7 h-7 rounded-full bg-white/10 shrink-0" />
+                    <div className="w-10 h-10 rounded-full bg-white/10 shrink-0" />
+                    <div className="flex-1 space-y-1.5">
+                      <div className="h-3 bg-white/10 rounded-full w-24" />
+                      <div className="h-2 bg-white/5 rounded-full w-16" />
+                    </div>
+                    <div className="h-4 bg-white/10 rounded-full w-12" />
+                  </div>
+                ) : userPositionData?.neighbors && userPositionData.neighbors.length > 0 ? (
+                  <>
+                    {userPositionData.neighbors.map((neighbor) => {
+                      const isCurrentUser = neighbor.user_id === profileId;
+                      const name = isCurrentUser
+                        ? lp("you")
+                        : (neighbor.profile?.first_name || neighbor.profile?.username || lp("player"));
+                      const rank = (neighbor.rank || getRankFromLevel(neighbor.duel_pass_level)) as RankType;
+                      const position = neighbor.position ?? 0;
+
+                      return (
+                        <div
+                          key={neighbor.user_id}
+                          className={cn(
+                            "flex items-center p-4 rounded-2xl transition-all backdrop-blur-md",
+                            isCurrentUser
+                              ? highlightedRowClass
+                              : isLightTheme
+                                ? "bg-slate-50 hover:bg-slate-100 border border-slate-200/60 opacity-60"
+                                : "bg-white/[0.02] hover:bg-white/[0.05] border border-white/[0.02] opacity-60"
+                          )}
+                        >
+                          <div className="w-10 flex flex-col items-center justify-center shrink-0">
+                            <span className={cn(
+                              "w-7 h-7 rounded-full flex items-center justify-center text-xs font-black shadow-lg shadow-black/20",
+                              isCurrentUser
+                                ? (isLightTheme ? "bg-indigo-500 text-white" : "bg-white/20 text-white")
+                                : "text-muted-foreground/60 bg-white/5"
+                            )}>
+                              {position}
+                            </span>
+                          </div>
+
+                          <div className="flex-1 ml-4 flex items-center gap-3 min-w-0">
+                            <UserAvatar
+                              profileId={neighbor.user_id}
+                              size="md"
+                              showPremiumGlow={false}
+                              avatarClassName="rounded-full"
+                              className={cn(
+                                "rounded-full ring-2 shrink-0",
+                                isCurrentUser ? "ring-white/30" : "ring-white/5"
+                              )}
+                            />
+                            <div className="min-w-0 flex-1 flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
+                              <p className={cn(
+                                "font-bold text-sm md:text-base truncate max-w-[120px] md:max-w-[200px]",
+                                isLightTheme ? "text-foreground" : "text-white"
+                              )}>
+                                {name}
+                              </p>
+                              <div className="shrink-0 flex items-center">
+                                <RankIcon rank={rank} size="xs" />
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="hidden sm:flex w-24 flex-col items-center shrink-0">
+                            <div className="px-2 py-0.5 rounded-full bg-white/5 border border-white/10 text-[10px] font-bold text-muted-foreground uppercase">
+                              {lp("levelShort", { level: neighbor.duel_pass_level })}
+                            </div>
+                          </div>
+
+                          <div className="w-24 text-right shrink-0">
+                            <p className={cn(
+                              "font-mono font-black tabular-nums tracking-tighter",
+                              isCurrentUser
+                                ? (isLightTheme ? "text-foreground text-lg" : "text-white text-lg")
+                                : (isLightTheme ? "text-foreground text-sm md:text-base" : "text-white/90 text-sm md:text-base")
+                            )}>
+                              {formatNumber(neighbor.season_points ?? 0)}
+                              <span className="text-[9px] ml-1 opacity-50 uppercase font-black">SP</span>
+                            </p>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </>
+                ) : null}
+              </div>
+            )}
+
             <div className="space-y-2">
               {/* Шапка "таблицы" */}
               <div className="flex items-center px-6 py-2 text-[10px] uppercase font-black text-muted-foreground tracking-widest">
@@ -729,7 +748,7 @@ export function DuelPassLeaderboardView({
               </div>
 
               <div className="space-y-2">
-                {filteredLeaders.map((leader, index) => {
+                {displayLeaders.map((leader, index) => {
                   const name = leader.profile?.first_name || leader.profile?.username || lp("podium.racer");
                   const isCurrentUser = leader.user_id === profileId;
                   const rank = (leader.rank || getRankFromLevel(leader.duel_pass_level)) as RankType;
