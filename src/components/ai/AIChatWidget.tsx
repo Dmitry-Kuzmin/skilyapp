@@ -255,7 +255,7 @@ function useStableViewportHeight(isOpen: boolean) {
 export function AIChatWidget() {
     const isMobile = useIsMobile();
     const isTelegram = isTelegramMiniApp();
-    const { t } = useLanguage();
+    const { t, language: uiLanguage } = useLanguage();
     const { profileData } = useProfileData();
     const { selectedCountry } = usePDDContext();
     const { isPremium, loading: premiumLoading } = usePremium();
@@ -448,9 +448,38 @@ export function AIChatWidget() {
         });
     }, [messages, isLoading]);
 
+    /**
+     * Язык интерфейса/ответов AI:
+     *   1. Пользователь явно переключил перевод RU ↔ ES — уважаем showTranslation
+     *   2. UI приложения на русском/английском — отвечаем на нём же
+     *   3. Иначе берём язык вопроса теста, если открыт через explanation
+     *   4. Иначе по стране профиля
+     */
     const currentProfileCountry = useProfileData().profileData?.preferred_country || 'russia';
-    const baseInterfaceLanguage = showTranslation ? 'ru' : (questionContext?.testLanguage || 'es');
-    const interfaceLanguage = currentProfileCountry === 'russia' ? 'ru' : baseInterfaceLanguage;
+    const interfaceLanguage: 'ru' | 'es' | 'en' = (() => {
+        if (showTranslation) return 'ru';
+        const ui = (uiLanguage || '').toLowerCase();
+        if (ui === 'ru') return 'ru';
+        if (ui === 'en') return 'en';
+        if (ui === 'es') return 'es';
+        if (questionContext?.testLanguage) return questionContext.testLanguage;
+        return currentProfileCountry === 'russia' ? 'ru' : 'es';
+    })();
+
+    /**
+     * Per-turn override: если пользователь пишет кириллицей — отвечаем на русском,
+     * даже если в профиле выбрана Испания. Это решает кейс "пишу по-русски,
+     * получаю ответ на испанском".
+     */
+    const detectReplyLang = useCallback((userMessage: string): 'ru' | 'es' | 'en' => {
+        const text = userMessage || '';
+        const cyrillic = (text.match(/[Ѐ-ӿ]/g) || []).length;
+        const latin = (text.match(/[A-Za-z]/g) || []).length;
+        if (cyrillic > 0 && cyrillic >= latin) return 'ru';
+        // Латиница: если UI русский, но человек написал по-испански — пусть будет испанский
+        if (latin > 0 && interfaceLanguage === 'ru') return 'es';
+        return interfaceLanguage;
+    }, [interfaceLanguage]);
 
     // TTS — должен быть после interfaceLanguage, иначе IIFE получает TDZ-ошибку
     const ttsLang: TTSLang = ((): TTSLang => {
@@ -479,6 +508,7 @@ export function AIChatWidget() {
         addMessage({ role: 'user', content: userMessage });
 
         const context = questionContext;
+        const replyLang = detectReplyLang(userMessage);
 
         const aiPrompt = generateAIChatPrompt(
             context ? {
@@ -497,7 +527,7 @@ export function AIChatWidget() {
                 streak: profileData.streak_days || 0,
                 prevWeakness: null,
             } : undefined,
-            interfaceLanguage
+            replyLang
         );
 
         const allMessages = messages.map(m => ({ role: m.role as 'user' | 'assistant', content: m.content }));
@@ -522,7 +552,7 @@ export function AIChatWidget() {
             : allMessages;
 
         await sendRequest(
-            { messages: apiMessages, country: selectedCountry, language: interfaceLanguage, mode: 'chat', showComparison: false },
+            { messages: apiMessages, country: selectedCountry, language: replyLang, mode: 'chat', showComparison: false },
             {
                 onChunk: (text) => updateLastMessage(text),
                 onDone: () => { if (isTelegram) triggerHapticFeedback('success'); },
@@ -537,7 +567,7 @@ export function AIChatWidget() {
 
         setLoading(false);
         if (!isPremium) refetchUsage();
-    }, [messages, questionContext, interfaceLanguage, isLoading, isTelegram, isPremium, aiLimitReached, aiUsed, refetchUsage]);
+    }, [messages, questionContext, interfaceLanguage, detectReplyLang, isLoading, isTelegram, isPremium, aiLimitReached, aiUsed, refetchUsage]);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -688,7 +718,7 @@ export function AIChatWidget() {
                                     : 'bg-white/95 dark:bg-slate-800/90 backdrop-blur-md rounded-2xl rounded-tl-none border-indigo-100/50 dark:border-white/5 text-slate-800 dark:text-slate-200'
                             )}>
                                 {message.role === 'assistant' ? (
-                                    <MarkdownContent onOpenShop={() => openModal('BOOST_SHOP')}>{message.content}</MarkdownContent>
+                                    <MarkdownContent onOpenShop={() => { closeChat(); openModal('PAYWALL'); }}>{message.content}</MarkdownContent>
                                 ) : (
                                     <p className="text-sm font-medium tracking-tight leading-relaxed">{message.content}</p>
                                 )}
