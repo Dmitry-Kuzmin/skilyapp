@@ -10,7 +10,7 @@
  */
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Bot, Loader2, Sparkles, Send, ThumbsUp, ThumbsDown, Languages, X, Mic, MicOff, Zap, Crown, Volume2, VolumeX } from 'lucide-react';
+import { Bot, Loader2, Sparkles, Send, ThumbsUp, ThumbsDown, Languages, X, Mic, MicOff, Zap, Crown, Volume2, VolumeX, ImagePlus, XCircle } from 'lucide-react';
 import { SkilyAICharacter } from '@/components/skily-ai/SkilyAICharacter';
 // TON_DISABLED: import { TonPaymentWidget } from '@/components/monetization/LazyTonPaymentWidget';
 import { Button } from '@/components/ui/button';
@@ -25,7 +25,8 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { AILimitReachedModal } from '@/components/ai/AILimitReachedModal';
 import { useAIChatStore, selectIsOpen, selectMessages, selectIsLoading, selectSmartSuggestions, selectQuestionContext } from '@/stores/useAIChatStore';
 import { useModalStore } from '@/store/modalStore';
-import { useAIRequest } from '@/hooks/useAIRequest';
+import { useAIRequest, uploadChatImage } from '@/hooks/useAIRequest';
+import { useAIChatHistory } from '@/hooks/useAIChatHistory';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Drawer, DrawerContent } from '@/components/ui/drawer';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
@@ -305,6 +306,7 @@ export function AIChatWidget() {
         addMessage,
         updateLastMessage,
         setMessageRating,
+        setMessageDbId,
         setLoading,
         setSmartSuggestions,
         setGeneratingSuggestions,
@@ -312,10 +314,24 @@ export function AIChatWidget() {
         conversationId,
     } = useAIChatStore();
 
+    const { saveMessage, loadHistory, updateRating } = useAIChatHistory();
+
     const [input, setInput] = useState('');
+    const [pendingImage, setPendingImage] = useState<{ file: File; previewUrl: string } | null>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
     const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+    // Load history from DB when chat opens (only if store is empty for this conversation)
+    useEffect(() => {
+        if (!isOpen || !profileId || !conversationId || messages.length > 0) return;
+        loadHistory(profileId, conversationId).then((dbMessages) => {
+            if (dbMessages.length > 0) {
+                useAIChatStore.setState({ messages: dbMessages });
+            }
+        });
+    }, [isOpen, profileId, conversationId]);
 
     // Стабильная высота viewport + offset клавиатуры (решает iOS + Telegram + keyboard)
     const { layoutHeight, keyboardOffset } = useStableViewportHeight(isOpen);
@@ -517,8 +533,8 @@ export function AIChatWidget() {
         speakAi(cleaned, ttsLang, id);
     }, [speakAi, ttsLang]);
 
-    const askAI = useCallback(async (userMessage: string) => {
-        if (!userMessage.trim() || isLoading) return;
+    const askAI = useCallback(async (userMessage: string, imageFile?: File) => {
+        if (!userMessage.trim() && !imageFile || isLoading) return;
 
         // Клиентская пре-проверка: не тратить запрос если лимит уже исчерпан
         // Сначала закрываем чат-Dialog (иначе его focus-trap блокирует клики по модалу)
@@ -529,7 +545,26 @@ export function AIChatWidget() {
         }
 
         setLoading(true);
-        addMessage({ role: 'user', content: userMessage });
+
+        // Upload image if attached
+        let imageUrl: string | undefined;
+        if (imageFile && profileId) {
+            const uploaded = await uploadChatImage(imageFile, profileId);
+            if (uploaded) imageUrl = uploaded;
+        }
+        setPendingImage(null);
+
+        const userMsg = { role: 'user' as const, content: userMessage || '📷', imageUrl };
+        addMessage(userMsg);
+
+        // Save user message to DB (fire-and-forget)
+        if (profileId && conversationId) {
+            const storeMessages = useAIChatStore.getState().messages;
+            const savedUserMsg = storeMessages[storeMessages.length - 1];
+            saveMessage(profileId, conversationId, { ...savedUserMsg, ...userMsg }).then((dbId) => {
+                if (dbId && savedUserMsg) setMessageDbId(savedUserMsg.id, dbId);
+            });
+        }
 
         const context = questionContext;
         const replyLang = detectReplyLang(userMessage);
@@ -576,10 +611,22 @@ export function AIChatWidget() {
             : allMessages;
 
         await sendRequest(
-            { messages: apiMessages, country: selectedCountry, language: replyLang, mode: 'chat', showComparison: false },
+            { messages: apiMessages, country: selectedCountry, language: replyLang, mode: 'chat', showComparison: false, imageUrl: imageUrl ?? null },
             {
                 onChunk: (text) => updateLastMessage(text),
-                onDone: () => { if (isTelegram) triggerHapticFeedback('success'); },
+                onDone: () => {
+                    if (isTelegram) triggerHapticFeedback('success');
+                    // Save assistant response to DB after streaming completes
+                    if (profileId && conversationId) {
+                        const finalMessages = useAIChatStore.getState().messages;
+                        const assistantMsg = finalMessages[finalMessages.length - 1];
+                        if (assistantMsg?.role === 'assistant' && assistantMsg.content) {
+                            saveMessage(profileId, conversationId, assistantMsg).then((dbId) => {
+                                if (dbId) setMessageDbId(assistantMsg.id, dbId);
+                            });
+                        }
+                    }
+                },
                 onLimitReached: (data) => {
                     // Закрываем чат-Dialog перед показом модала, иначе focus-trap блокирует клики
                     closeChat();
@@ -595,10 +642,24 @@ export function AIChatWidget() {
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        if (!input.trim() || isLoading) return;
+        if ((!input.trim() && !pendingImage) || isLoading) return;
         const userMessage = input.trim();
+        const imageFile = pendingImage?.file;
         setInput('');
-        askAI(userMessage);
+        askAI(userMessage, imageFile);
+    };
+
+    const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        if (pendingImage) URL.revokeObjectURL(pendingImage.previewUrl);
+        setPendingImage({ file, previewUrl: URL.createObjectURL(file) });
+        e.target.value = '';
+    };
+
+    const removePendingImage = () => {
+        if (pendingImage) URL.revokeObjectURL(pendingImage.previewUrl);
+        setPendingImage(null);
     };
 
     const chatContent = (
@@ -744,7 +805,18 @@ export function AIChatWidget() {
                                 {message.role === 'assistant' ? (
                                     <MarkdownContent onOpenShop={() => { closeChat(); openModal('PAYWALL'); }}>{message.content}</MarkdownContent>
                                 ) : (
-                                    <p className="text-sm font-medium tracking-tight leading-relaxed">{message.content}</p>
+                                    <div className="flex flex-col gap-2">
+                                        {message.imageUrl && (
+                                            <img
+                                                src={message.imageUrl}
+                                                alt=""
+                                                className="rounded-xl max-h-48 max-w-full object-cover"
+                                            />
+                                        )}
+                                        {message.content && message.content !== '📷' && (
+                                            <p className="text-sm font-medium tracking-tight leading-relaxed">{message.content}</p>
+                                        )}
+                                    </div>
                                 )}
 
                                 {message.role === 'assistant' && message.content && (
@@ -772,7 +844,10 @@ export function AIChatWidget() {
                                             variant="ghost"
                                             size="icon"
                                             className={cn("h-6 w-6 hover:bg-black/5 dark:hover:bg-white/10", message.rating === 1 && "text-green-500")}
-                                            onClick={() => setMessageRating(message.id, 1)}
+                                            onClick={() => {
+                                                setMessageRating(message.id, 1);
+                                                if (message.dbId) updateRating(message.dbId, 1);
+                                            }}
                                         >
                                             <ThumbsUp className="w-3.5 h-3.5" />
                                         </Button>
@@ -780,7 +855,10 @@ export function AIChatWidget() {
                                             variant="ghost"
                                             size="icon"
                                             className={cn("h-6 w-6 hover:bg-black/5 dark:hover:bg-white/10", message.rating === -1 && "text-red-500")}
-                                            onClick={() => setMessageRating(message.id, -1)}
+                                            onClick={() => {
+                                                setMessageRating(message.id, -1);
+                                                if (message.dbId) updateRating(message.dbId, -1);
+                                            }}
                                         >
                                             <ThumbsDown className="w-3.5 h-3.5" />
                                         </Button>
@@ -839,6 +917,34 @@ export function AIChatWidget() {
                     paddingBottom: keyboardOffset > 0 ? '12px' : 'max(env(safe-area-inset-bottom, 8px), 12px)',
                 }}
             >
+                {/* Image preview above input */}
+                {pendingImage && (
+                    <div className="flex items-center gap-2 mb-2 max-w-2xl mx-auto">
+                        <div className="relative inline-block">
+                            <img
+                                src={pendingImage.previewUrl}
+                                alt=""
+                                className="h-16 w-16 rounded-xl object-cover border border-slate-200 dark:border-slate-700"
+                            />
+                            <button
+                                type="button"
+                                onClick={removePendingImage}
+                                className="absolute -top-1.5 -right-1.5 bg-slate-800 text-white rounded-full p-0.5"
+                            >
+                                <XCircle className="w-4 h-4" />
+                            </button>
+                        </div>
+                    </div>
+                )}
+
+                <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleFileSelect}
+                />
+
                 <form onSubmit={handleSubmit} className="flex gap-2 items-end max-w-2xl mx-auto w-full">
                     <div className="flex-1 relative">
                         <input
@@ -861,6 +967,23 @@ export function AIChatWidget() {
                             style={{ fontSize: '16px' }}
                         />
                     </div>
+
+                    <Button
+                        type="button"
+                        onClick={() => fileInputRef.current?.click()}
+                        disabled={isLoading}
+                        size="icon"
+                        variant="ghost"
+                        className={cn(
+                            "h-12 w-12 shrink-0 rounded-full transition-all active:scale-90",
+                            pendingImage
+                                ? "bg-indigo-100 dark:bg-indigo-500/20 text-indigo-600"
+                                : "bg-slate-100 hover:bg-slate-200 text-slate-600 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-300"
+                        )}
+                        title={interfaceLanguage === 'ru' ? 'Прикрепить фото' : 'Adjuntar foto'}
+                    >
+                        <ImagePlus className="w-5 h-5" />
+                    </Button>
 
                     <Button
                         type="button"
@@ -892,11 +1015,11 @@ export function AIChatWidget() {
 
                     <Button
                         type="submit"
-                        disabled={!input.trim() || isLoading}
+                        disabled={(!input.trim() && !pendingImage) || isLoading}
                         size="icon"
                         className={cn(
                             "h-12 w-12 shrink-0 rounded-full shadow-lg transition-all active:scale-90",
-                            !input.trim()
+                            (!input.trim() && !pendingImage)
                                 ? "bg-blue-500/50 text-white shadow-none"
                                 : "bg-blue-500 hover:bg-blue-600 text-white shadow-blue-500/30"
                         )}

@@ -17,6 +17,18 @@ import { useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useModalStore } from '@/store/modalStore';
 
+export async function uploadChatImage(file: File, profileId: string): Promise<string | null> {
+  const ext = file.name.split('.').pop() ?? 'jpg';
+  const path = `${profileId}/${crypto.randomUUID()}.${ext}`;
+  const { error } = await supabase.storage.from('chat-images').upload(path, file, {
+    cacheControl: '3600',
+    upsert: false,
+  });
+  if (error) { console.error('[chat-image] upload error', error); return null; }
+  const { data } = supabase.storage.from('chat-images').getPublicUrl(path);
+  return data.publicUrl;
+}
+
 export interface AIRequestMessage {
   role: 'user' | 'assistant' | 'system';
   content: string;
