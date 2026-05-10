@@ -2258,3 +2258,14 @@ html {
 /* Custom transforms */
 .scale-125 { transform: scale(1.25); }
 .scale-150 { transform: scale(1.5); }
+
+/* Modal marquee — scrolls long titles that overflow the header */
+@keyframes modal-marquee {
+  0%      { transform: translateX(0); }
+  10%     { transform: translateX(0); }   /* pause at start */
+  90%     { transform: translateX(-50%); }
+  100%    { transform: translateX(-50%); } /* pause at end before reset */
+}
+@media (prefers-reduced-motion: reduce) {
+  .modal-marquee-inner { animation: none !important; }
+}
