@@ -12,7 +12,6 @@
     "content-platform-manifest.json"
   ],
   "prerenderRoutes": [
-    "/pricing",
     "/help",
     "/road-signs",
     "/dgt-tests",
@@ -47,11 +46,6 @@
       "outputPath": "es.html",
       "canonical": "https://skilyapp.com/es",
       "langAssert": "es"
-    },
-    {
-      "route": "/pricing",
-      "outputPath": "pricing.html",
-      "canonical": "https://skilyapp.com/pricing"
     },
     {
       "route": "/curso",
