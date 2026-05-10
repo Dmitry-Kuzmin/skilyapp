@@ -48,15 +48,21 @@ export function useDuelOpponentEvents({
         }
     }, [state.opponentScore]);
 
-    // 1. Polling for Bot Completion (Fallback)
+    // 1. Polling for Completion (Fallback for both bot and PvP)
     useEffect(() => {
         let pollingInterval: NodeJS.Timeout | null = null;
         if (isWaitingForOpponent && duelId && profileId) {
             const isBotDuel = players.some((p: any) => p.is_bot);
             if (isBotDuel) {
+                // Bot duel: fast polling (3s) — bot answers are determined server-side
                 pollingInterval = setInterval(() => {
                     finishDuel(true);
                 }, 3000);
+            } else {
+                // PvP duel: slower polling (8s) — fallback if Realtime subscription missed the finish event
+                pollingInterval = setInterval(() => {
+                    finishDuel(true);
+                }, 8000);
             }
         }
         return () => {

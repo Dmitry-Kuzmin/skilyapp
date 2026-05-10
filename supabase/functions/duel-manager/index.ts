@@ -4594,9 +4594,9 @@ Deno.serve(async (req) => {
           .eq('id', duel_id)
           .single();
 
-        // If duel already finished by opponent - return immediately
-        if (currentDuelStatus?.status === 'finished') {
-          console.log('[finish_duel] ✅ Duel already finished by opponent - returning finished: true');
+        // If duel already finished/cancelled/drawn - return immediately
+        if (['finished', 'technical_draw', 'cancelled'].includes(currentDuelStatus?.status)) {
+          console.log('[finish_duel] ✅ Duel already in terminal state - returning finished: true', currentDuelStatus?.status);
           return new Response(JSON.stringify({
             success: true,
             finished: true,
@@ -4743,7 +4743,7 @@ Deno.serve(async (req) => {
               match_summary: matchSummary as any, // Save compact match summary
             })
             .eq('id', duel_id)
-            .eq('status', 'active') // CRITICAL: Only update if status is still 'active'
+            .in('status', ['active', 'waiting_for_opponent']) // CRITICAL: Match both real-time and async duel states
             .select('id, status');
 
           // If no rows updated - another player already finished the duel
