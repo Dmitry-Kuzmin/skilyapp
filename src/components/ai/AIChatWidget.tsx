@@ -10,7 +10,7 @@
  */
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Bot, Loader2, Sparkles, Send, ThumbsUp, ThumbsDown, Languages, X, Mic, MicOff, Zap, Crown } from 'lucide-react';
+import { Bot, Loader2, Sparkles, Send, ThumbsUp, ThumbsDown, Languages, X, Mic, MicOff, Zap, Crown, Volume2, VolumeX } from 'lucide-react';
 import { SkilyAICharacter } from '@/components/skily-ai/SkilyAICharacter';
 // TON_DISABLED: import { TonPaymentWidget } from '@/components/monetization/LazyTonPaymentWidget';
 import { Button } from '@/components/ui/button';
@@ -37,6 +37,26 @@ import { usePremium } from '@/hooks/usePremium';
 import { useQuery } from '@tanstack/react-query';
 import { useUserContext } from '@/contexts/UserContext';
 import { SignWidget } from '@/components/chat/SignWidget';
+import { useTTS } from '@/hooks/useTTS';
+import type { TTSLang } from '@/lib/ttsEngine';
+
+/**
+ * Уберём markdown/виджеты/эмодзи перед отправкой в TTS — иначе движок будет
+ * проговаривать символы "звёздочка", "решётка" и т.п.
+ */
+const cleanForSpeech = (text: string): string =>
+    text
+        .replace(/\[\s*(?:WIDGET|W)\s*:[^\]]+\]/gi, '')
+        .replace(/```[\s\S]*?```/g, '')
+        .replace(/`([^`]+)`/g, '$1')
+        .replace(/!\[[^\]]*\]\([^)]*\)/g, '')
+        .replace(/\[([^\]]+)\]\([^)]*\)/g, '$1')
+        .replace(/^\s*\|.*\|\s*$/gm, '') // markdown table rows
+        .replace(/^\s*[-*_]{3,}\s*$/gm, '')
+        .replace(/[*_~#>]+/g, '')
+        .replace(/\p{Extended_Pictographic}/gu, '')
+        .replace(/\s+/g, ' ')
+        .trim();
 
 type MarkdownProps = {
     children: string;
@@ -305,62 +325,111 @@ export function AIChatWidget() {
     const mediaRecorderRef = useRef<MediaRecorder | null>(null);
     const audioChunksRef = useRef<Blob[]>([]);
 
-    const startRecording = async () => {
-        try {
-            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            const mediaRecorder = new MediaRecorder(stream);
-            mediaRecorderRef.current = mediaRecorder;
-            audioChunksRef.current = [];
+    // TTS (озвучка ответов AI) — тот же движок, что и в тестах
+    const ttsLang: TTSLang = ((): TTSLang => {
+        const l = (interfaceLanguage || 'es') as string;
+        return l === 'ru' || l === 'en' ? l : 'es';
+    })();
+    const { speak: speakAi, isActive: isSpeakingMessage } = useTTS(ttsLang);
+    const handleSpeakMessage = useCallback((id: string, content: string) => {
+        const cleaned = cleanForSpeech(content);
+        if (!cleaned) return;
+        speakAi(cleaned, ttsLang, id);
+    }, [speakAi, ttsLang]);
 
-            mediaRecorder.ondataavailable = (event) => {
-                if (event.data.size > 0) {
-                    audioChunksRef.current.push(event.data);
-                }
-            };
-
-            mediaRecorder.onstop = async () => {
-                const mimeType = mediaRecorder.mimeType;
-                const audioBlob = new Blob(audioChunksRef.current, { type: mimeType });
-
-                setIsRecording(false);
-                setIsProcessingVoice(true);
-
-                try {
-                    const formData = new FormData();
-                    formData.append('file', audioBlob, 'voice.webm');
-                    formData.append('language', selectedCountry === 'russia' ? 'ru' : 'es');
-
-                    const { data, error } = await supabase.functions.invoke('speech-to-text', {
-                        body: formData,
-                    });
-
-                    if (error) throw error;
-
-                    if (data?.text) {
-                        const newText = data.text.trim();
-                        setInput(prev => {
-                            const trimmed = prev.trim();
-                            if (!trimmed) return newText;
-                            return `${trimmed} ${newText}`;
-                        });
-                        triggerHapticFeedback('success');
-                        setTimeout(() => inputRef.current?.focus(), 150);
-                    }
-                } catch (err) {
-                    toast.error('Не удалось распознать речь');
-                    triggerHapticFeedback('error');
-                } finally {
-                    setIsProcessingVoice(false);
-                    stream.getTracks().forEach(track => track.stop());
-                }
-            };
-
-            mediaRecorder.start();
-            setIsRecording(true);
-            triggerHapticFeedback('light');
-        } catch (err) {
-            toast.error('Нет доступа к микрофону');
+    // Подберём лучший mime, который поддерживает текущий браузер (Safari ≠ Chrome)
+    const pickRecorderMime = (): string => {
+        const candidates = [
+            'audio/webm;codecs=opus',
+            'audio/webm',
+            'audio/ogg;codecs=opus',
+            'audio/mp4',
+            'audio/mp4;codecs=mp4a.40.2',
+        ];
+        const MR: any = (typeof window !== 'undefined' && (window as any).MediaRecorder) || null;
+        if (MR && typeof MR.isTypeSupported === 'function') {
+            for (const m of candidates) if (MR.isTypeSupported(m)) return m;
         }
+        return '';
+    };
+
+    const startRecording = async () => {
+        if (typeof window === 'undefined' || !navigator.mediaDevices?.getUserMedia) {
+            toast.error('Браузер не поддерживает запись голоса');
+            return;
+        }
+
+        let stream: MediaStream;
+        try {
+            stream = await navigator.mediaDevices.getUserMedia({
+                audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true },
+            });
+        } catch (err: any) {
+            const msg = err?.name === 'NotAllowedError'
+                ? 'Доступ к микрофону запрещён. Разрешите в настройках браузера.'
+                : 'Нет доступа к микрофону';
+            toast.error(msg);
+            return;
+        }
+
+        const mimeType = pickRecorderMime();
+        const mediaRecorder = mimeType ? new MediaRecorder(stream, { mimeType }) : new MediaRecorder(stream);
+        mediaRecorderRef.current = mediaRecorder;
+        audioChunksRef.current = [];
+
+        mediaRecorder.ondataavailable = (event) => {
+            if (event.data.size > 0) audioChunksRef.current.push(event.data);
+        };
+
+        mediaRecorder.onstop = async () => {
+            const usedMime = mediaRecorder.mimeType || mimeType || 'audio/webm';
+            const audioBlob = new Blob(audioChunksRef.current, { type: usedMime });
+            stream.getTracks().forEach(track => track.stop());
+
+            setIsRecording(false);
+
+            // Слишком короткая запись — не дёргаем сеть
+            if (audioBlob.size < 2048) {
+                toast.message(interfaceLanguage === 'ru' ? 'Запись слишком короткая' : 'Grabación demasiado corta');
+                return;
+            }
+
+            setIsProcessingVoice(true);
+            try {
+                const ext = usedMime.includes('mp4') ? 'mp4' : usedMime.includes('ogg') ? 'ogg' : 'webm';
+                const formData = new FormData();
+                formData.append('file', audioBlob, `voice.${ext}`);
+                formData.append('language', interfaceLanguage === 'ru' ? 'ru' : interfaceLanguage === 'en' ? 'en' : 'es');
+
+                const { data, error } = await supabase.functions.invoke('speech-to-text', {
+                    body: formData,
+                });
+
+                if (error) throw error;
+
+                const recognised = (data?.text || '').trim();
+                if (recognised) {
+                    setInput(prev => {
+                        const trimmed = prev.trim();
+                        return trimmed ? `${trimmed} ${recognised}` : recognised;
+                    });
+                    triggerHapticFeedback('success');
+                    setTimeout(() => inputRef.current?.focus(), 150);
+                } else {
+                    toast.message(interfaceLanguage === 'ru' ? 'Ничего не услышал — попробуйте ещё раз' : 'No te he entendido, inténtalo de nuevo');
+                }
+            } catch (err: any) {
+                console.error('[STT] error', err);
+                toast.error(interfaceLanguage === 'ru' ? 'Не удалось распознать речь' : 'No se pudo reconocer la voz');
+                triggerHapticFeedback('error');
+            } finally {
+                setIsProcessingVoice(false);
+            }
+        };
+
+        mediaRecorder.start();
+        setIsRecording(true);
+        triggerHapticFeedback('light');
     };
 
     const stopRecording = () => {
@@ -626,6 +695,25 @@ export function AIChatWidget() {
 
                                 {message.role === 'assistant' && message.content && (
                                     <div className="flex items-center gap-1 mt-2 pt-2 border-t border-black/5 dark:border-white/5">
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className={cn(
+                                                "h-6 w-6 hover:bg-black/5 dark:hover:bg-white/10",
+                                                isSpeakingMessage(message.id) && "text-indigo-500",
+                                            )}
+                                            onClick={() => handleSpeakMessage(message.id, message.content)}
+                                            aria-label={isSpeakingMessage(message.id)
+                                                ? (interfaceLanguage === 'ru' ? 'Остановить' : 'Detener')
+                                                : (interfaceLanguage === 'ru' ? 'Озвучить ответ' : 'Escuchar respuesta')}
+                                            title={isSpeakingMessage(message.id)
+                                                ? (interfaceLanguage === 'ru' ? 'Остановить' : 'Detener')
+                                                : (interfaceLanguage === 'ru' ? 'Озвучить ответ' : 'Escuchar respuesta')}
+                                        >
+                                            {isSpeakingMessage(message.id)
+                                                ? <VolumeX className="w-3.5 h-3.5" />
+                                                : <Volume2 className="w-3.5 h-3.5" />}
+                                        </Button>
                                         <Button
                                             variant="ghost"
                                             size="icon"
