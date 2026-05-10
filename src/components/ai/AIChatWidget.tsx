@@ -40,11 +40,16 @@ import { useQuery } from '@tanstack/react-query';
 import { useUserContext } from '@/contexts/UserContext';
 import { SignWidget } from '@/components/chat/SignWidget';
 import { useTTS } from '@/hooks/useTTS';
+import { useTypewriter } from '@/hooks/useTypewriter';
 import type { TTSLang } from '@/lib/ttsEngine';
 
 /**
  * Уберём markdown/виджеты/эмодзи перед отправкой в TTS — иначе движок будет
- * проговаривать символы "звёздочка", "решётка" и т.п.
+ * проговаривать "звёздочка", "решётка", "флаг Испании" и т.п.
+ *
+ * Цифры сохраняем (нужны для номеров знаков, скоростей и т.д.).
+ * Удаляем: pictographic emoji, regional indicators (флаги),
+ *          variation selector (FE0F), zero-width joiner (200D).
  */
 const cleanForSpeech = (text: string): string =>
     text
@@ -56,7 +61,12 @@ const cleanForSpeech = (text: string): string =>
         .replace(/^\s*\|.*\|\s*$/gm, '') // markdown table rows
         .replace(/^\s*[-*_]{3,}\s*$/gm, '')
         .replace(/[*_~#>]+/g, '')
+        // Pictographic emojis (😀 🚗 ⚠️ ...)
         .replace(/\p{Extended_Pictographic}/gu, '')
+        // Regional indicator pairs (флаги: 🇪🇸 🇷🇺 ...)
+        .replace(/[\u{1F1E6}-\u{1F1FF}]/gu, '')
+        // Emoji modifiers/joiners that остались висеть после удаления базы
+        .replace(/[\u{FE00}-\u{FE0F}\u{200D}]/gu, '')
         .replace(/\s+/g, ' ')
         .trim();
 
@@ -315,6 +325,7 @@ export function AIChatWidget() {
     } = useAIChatStore();
 
     const { saveMessage, loadHistory, updateRating } = useAIChatHistory();
+    const typewriter = useTypewriter({ charsPerSecond: 60 });
 
     const [input, setInput] = useState('');
     const [pendingImage, setPendingImage] = useState<{ file: File; previewUrl: string } | null>(null);
@@ -526,12 +537,17 @@ export function AIChatWidget() {
         const l = (interfaceLanguage || 'es') as string;
         return l === 'ru' || l === 'en' ? l : 'es';
     })();
-    const { speak: speakAi, isActive: isSpeakingMessage } = useTTS(ttsLang);
+    const { speak: speakAi, stop: stopAi, isActive: isSpeakingMessage } = useTTS(ttsLang);
     const handleSpeakMessage = useCallback((id: string, content: string) => {
+        // Toggle: повторный клик по играющему сообщению — стоп
+        if (isSpeakingMessage(id)) {
+            stopAi();
+            return;
+        }
         const cleaned = cleanForSpeech(content);
         if (!cleaned) return;
         speakAi(cleaned, ttsLang, id);
-    }, [speakAi, ttsLang]);
+    }, [speakAi, stopAi, isSpeakingMessage, ttsLang]);
 
     const askAI = useCallback(async (userMessage: string, imageFile?: File) => {
         if (!userMessage.trim() && !imageFile || isLoading) return;
@@ -610,29 +626,40 @@ export function AIChatWidget() {
             ? allMessages.slice(1)
             : allMessages;
 
+        // Typewriter: чанки от Gemini могут прилетать пачкой за 0.5с — буферизируем
+        // и выпускаем в UI со скоростью ~60 chars/sec, чтобы текст красиво «печатался».
+        // onComplete срабатывает когда хвост допечатан → тогда сохраняем в БД.
+        typewriter.start(
+            (slice) => updateLastMessage(slice),
+            () => {
+                if (!profileId || !conversationId) return;
+                const finalMessages = useAIChatStore.getState().messages;
+                const assistantMsg = finalMessages[finalMessages.length - 1];
+                if (assistantMsg?.role === 'assistant' && assistantMsg.content) {
+                    saveMessage(profileId, conversationId, assistantMsg).then((dbId) => {
+                        if (dbId) setMessageDbId(assistantMsg.id, dbId);
+                    });
+                }
+            },
+        );
+
         await sendRequest(
             { messages: apiMessages, country: selectedCountry, language: replyLang, mode: 'chat', showComparison: false, imageUrl: imageUrl ?? null },
             {
-                onChunk: (text) => updateLastMessage(text),
+                onChunk: (text) => typewriter.push(text),
                 onDone: () => {
+                    typewriter.finish();
                     if (isTelegram) triggerHapticFeedback('success');
-                    // Save assistant response to DB after streaming completes
-                    if (profileId && conversationId) {
-                        const finalMessages = useAIChatStore.getState().messages;
-                        const assistantMsg = finalMessages[finalMessages.length - 1];
-                        if (assistantMsg?.role === 'assistant' && assistantMsg.content) {
-                            saveMessage(profileId, conversationId, assistantMsg).then((dbId) => {
-                                if (dbId) setMessageDbId(assistantMsg.id, dbId);
-                            });
-                        }
-                    }
                 },
                 onLimitReached: (data) => {
                     // Закрываем чат-Dialog перед показом модала, иначе focus-trap блокирует клики
                     closeChat();
                     setLimitModal(true, { currentCount: data.currentCount, limit: data.limit, message: data.message || '' });
                 },
-                onError: () => toast.error('Ошибка при получении ответа'),
+                onError: () => {
+                    typewriter.cancel();
+                    toast.error('Ошибка при получении ответа');
+                },
             },
         );
 
