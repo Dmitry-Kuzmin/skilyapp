@@ -1,272 +1,243 @@
-# CLAUDE.md
+# CLAUDE.md — Skily / sdadim-dgt-prep
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+Руководство для Claude Code. Читай целиком в начале каждой сессии.
 
-## ⚠️ Git Push to Main — ОБЯЗАТЕЛЬНО
+---
 
-`main` защищён от прямых пушей (branch protection). `git push origin main` вернёт 403.
+## 🚨 КРИТИЧНО: Git Push в main
 
-**Правильный порядок для веб/агент окружения:**
-1. Разработка — на feature-ветке (`git checkout -b ...` или уже назначенная ветка)
-2. Коммит + `git push origin <feature-branch>`
-3. Создать PR через `mcp__github__create_pull_request` (owner: `Dmitry-Kuzmin`, repo: `sdadim-dgt-prep`, base: `main`)
-4. Сразу смержить через `mcp__github__merge_pull_request` (merge_method: `squash`)
-5. Синхронизировать локальный main: `git pull origin main`
+`main` защищён. `git push origin main` → **403, заблокировано**.
 
-**НИКОГДА не делать:** `git push origin main` — это заблокировано.
+**Единственный правильный способ:**
+```
+1. git checkout -b <feature-branch>
+2. git add ... && git commit -m "..."
+3. git push origin <feature-branch>
+4. mcp__github__create_pull_request  (owner: Dmitry-Kuzmin, repo: sdadim-dgt-prep, base: main)
+5. mcp__github__merge_pull_request   (merge_method: squash)
+6. git checkout main && git reset --hard origin/main
+```
 
-## Commands
+На маке (с правами admin) — git push origin main работает напрямую.
+В веб/агент окружении — только через MCP PR.
+
+---
+
+## 📍 Проект — что это
+
+**Skily** — веб-платформа для подготовки к экзамену по вождению (DGT Испания + ПДД Россия).
+Геймификация: PvP дуэли, квизы, флэшкарты, AI-тьютор, монеты, premium.
+
+- Прод: `https://skilyapp.com`
+- Supabase project ref: `yffjnqegeiorunyvcxkn`
+- Supabase URL: `https://yffjnqegeiorunyvcxkn.supabase.co`
+- Telegram бот: `@skilyapp_bot` (id: 8526928539)
+- GitHub: `Dmitry-Kuzmin/sdadim-dgt-prep`
+
+---
+
+## 🔒 Никогда не трогать
+
+- `package.json`, `vite.config.ts`, `tsconfig.json` — заблокировано `.cursorrules`
+- `src/integrations/supabase/types.ts` — генерируется автоматически
+- Не делать `git push origin main` напрямую
+
+**Можно менять всё в:** `components/`, `pages/`, `hooks/`, `contexts/`, `lib/`, `utils/`, `types/`, `integrations/`, `core/`, `data/`, `supabase/`, `stores/`
+
+---
+
+## ⚡ Команды
 
 ```bash
-# Development (runs 3 services in parallel: Vite + validator server + maintenance)
-npm run dev
-
-# Frontend only (port 8080)
-npm run dev:frontend
-
-# Validator microservice only (port 3030)
-npm run validator
-
-# Build
-npm run build          # tsc + vite build
-npm run typecheck      # TypeScript only, no emit
+npm run dev            # Vite + validator + maintenance (параллельно)
+npm run dev:frontend   # только Vite, порт 8080
+npm run typecheck      # TypeScript без emit
 npm run lint           # ESLint
+npm run build          # tsc + vite build
 
-# Database
-npm run supabase:apply              # Apply DB migrations
-npm run supabase:deploy             # Deploy Edge Functions
-
-# Import driving test content
-npm run import:pdd-russia           # Import Russian PDD questions
-npm run generate:images             # Batch generate question images via AI
+npm run supabase:apply   # применить DB миграции
+npm run supabase:deploy  # задеплоить Edge Functions
 ```
 
-**Do not modify:** `package.json`, `vite.config.ts`, `tsconfig.json` — these are locked per `.cursorrules`.
+---
 
-## 🤖 Telegram Bot — ОБЯЗАТЕЛЬНЫЕ ПРАВИЛА
+## 🗂 Файловая карта — куда идти сразу
 
-### Файлы бота
+### Роутинг
+- `src/App.tsx` — все роуты, lazy-loading, Telegram WebApp init
+- `src/components/AppRoutes.tsx` — роуты для авторизованных
+
+### Главная / Dashboard
+- `src/pages/Index.tsx` — dashboard, WelcomeOverlay
+
+### AI Чат
+- `src/components/ai/AIChatWidget.tsx` — **главный файл чата** (Drawer/Dialog, markdown, виджеты)
+- `src/components/chat/SignWidget.tsx` — виджет показа дорожного знака по коду (R-1, P-6 и т.д.)
+- `src/hooks/useAIRequest.ts` — отправка запросов к AI Edge Function
+- `src/stores/useAIChatStore.ts` — Zustand store чата (сообщения, лимиты, состояние)
+- `supabase/functions/ai-chat/` — Edge Function AI
+- `src/lib/aiPrompts.ts` — генерация промптов
+- `src/lib/prompts/spain.ts`, `src/lib/prompts/russia.ts` — промпты по стране
+
+### AI Widget система (в AIChatWidget.tsx → MarkdownContent)
+ИИ может вставлять виджеты в текст ответа:
+```
+[WIDGET:SIGN:R-1]           → SignWidget (картинка знака из БД road_signs)
+[WIDGET:CTA:PREMIUM:текст]  → кнопка открытия BoostShop (openModal('BOOST_SHOP'))
+[WIDGET:MEME:BADGE:Имя]     → карточка достижения
+```
+Все виджеты парсятся в `MarkdownContent` через `WIDGET_REGEX`.
+Таблицы в markdown рендерятся через `mdComponents` (table/thead/tbody/tr/th/td).
+
+### Магазин / Оплата
+- `src/components/shop/BoostShopModal.tsx` — весь UI магазина
+- `src/lib/payment-config.ts` — включить/выключить провайдеры
+- `src/lib/paddle.ts` — Paddle init
+- `src/components/monetization/` — upsell компоненты
+- `supabase/functions/cryptomus-payment/` — крипто Edge Function
+
+### Модальное окно — как открыть
+```typescript
+import { useModalStore } from '@/store/modalStore';
+const openModal = useModalStore(s => s.openModal);
+openModal('BOOST_SHOP');   // магазин
+// Другие типы: см. src/store/modalStore.ts → ModalType
+```
+
+### Дуэли / PvP
+- `src/components/duel/Duel.tsx` — UI дуэли
+- `src/hooks/useDuelGame.ts` — логика ответов, комбо, победа
+- `src/hooks/useActiveDuel.ts` — получить/создать duelId
+- `src/store/duelStore.ts` — Zustand состояние игры
+- `src/hooks/duel-realtime/` — Supabase подписка
+
+### Тесты / Экзамен
+- `src/pages/TestSession.tsx` — контроллер теста
+- `src/pages/Tests.tsx` — список тестов
+- `src/components/test-session/` — UI теста
+- `src/hooks/useDGTExamQuestions.ts` — загрузка вопросов
+
+### Обучение
+- `src/pages/Learning.tsx` — хаб обучения
+- `src/components/FlashCards.tsx` — флэшкарты
+- `src/pages/TopicDetail.tsx` — страница темы
+- `src/pages/Dictionary.tsx` — словарь терминов
+
+### Auth / Пользователь
+- `src/contexts/UserContext.tsx` — profileId, session, isPremium, balance
+- `src/contexts/TelegramContext.tsx` — Telegram.WebApp, haptics, тема
+- `src/components/AuthModalNew.tsx` — login/signup
+- `src/hooks/useProfile.ts` — профиль через React Query
+- `src/hooks/usePremium.ts` — проверка премиума
+
+### i18n
+- `src/i18n/locales/` — JSON переводы (es, ru, en...)
+- `src/contexts/LanguageContext.tsx` — хук `t(key, params?)`
+
+### Навигация / Layout
+- `src/components/navigation/` — нижняя навигация, tab bar
+- `src/components/layout/` — обёртки страниц
+
+### Уведомления
+- `src/contexts/NotificationContext.tsx`
+- `src/components/NotificationsPanel.tsx`
+- `src/components/NotificationToast.tsx`
+
+### Дорожные знаки
+- `src/components/RoadSignCard.tsx` — карточка знака (с диалогом)
+- `src/components/chat/SignWidget.tsx` — компактный виджет для чата
+- `src/pages/RoadSigns.tsx` — страница библиотеки знаков
+- БД таблица: `road_signs` (поля: `sign_number`, `image_url`, `name_ru`, `name_es`, `description_ru`, `description_es`)
+
+### Supabase
+- `src/integrations/supabase/client.ts` — eager клиент
+- `src/integrations/supabase/lazyClient.ts` — lazy клиент (предпочтительно в компонентах)
+- `src/integrations/supabase/types.ts` — **не редактировать** (авто-генерация)
+- `supabase/functions/` — Edge Functions
+- `supabase/migrations/` — миграции БД
+
+### Стартовая последовательность
+1. `index.html` → `.app-skeleton` (CSS, без React)
+2. `main.tsx` → монтирует React
+3. `WelcomeOverlay` (z-index 10000) — первое посещение дня
+4. `StartupCurtain` → убирает skeleton когда данные загружены
+
+---
+
+## 🤖 Telegram Bot
+
 ```
 supabase/functions/telegram-bot/
-  index.ts        — webhook handler, роутинг всех обновлений
-  keyboards.ts    — ВСЕ inline-клавиатуры. ВСЕГДА импортировать InlineKeyboardButton и InlineKeyboardMarkup из ./types.ts
-  commands.ts     — обработчики команд (/start, /stats, /help, ...)
-  translations.ts — переводы ru/en/es. Добавлять ключ ДО использования в keyboards.ts
-  types.ts        — TypeScript типы. НЕ редактировать вручную
+  index.ts        — webhook, роутинг обновлений
+  keyboards.ts    — ВСЕ inline-клавиатуры (импортировать типы из ./types.ts)
+  commands.ts     — /start, /stats, /help...
+  translations.ts — переводы ru/en/es (добавлять ключ ДО использования)
+  types.ts        — TypeScript типы, не редактировать вручную
   season.ts       — логика сезонов Duel Pass
 ```
 
-### КРИТИЧНО: После любых изменений в боте — ВСЕГДА деплоить
+**Деплой бота (только Mac):**
 ```bash
 export PATH="/Users/dimka/.nvm/versions/node/v24.11.0/bin:/opt/homebrew/bin:$PATH"
 /opt/homebrew/bin/supabase functions deploy telegram-bot
 ```
-**Без деплоя изменения не применяются.** Локальный git ≠ продакшн.
+Без деплоя изменения не применяются. Локальный git ≠ продакшн.
 
-### Структура главного меню (getMainMenuKeyboard)
+**Главное меню бота:**
 ```
-Row 1: [🚀 Открыть Skily]          ← web_app, icon: 5188481279963715781
-Row 2: [👤 Профиль] [⚔️ Вызвать]  ← callback: profile / duel_inline
-Row 3: [🎮 Duel Pass]              ← web_app → /duel-pass, icon: 5118744200921219799
-Row 4: [🏎 Сезон: NAME]            ← только если activeSeasonName != null
-```
-
-### Иконки кнопок (icon_custom_emoji_id)
-- `5188481279963715781` — ракета (Открыть Skily)
-- `5105344272324887540` — лицо/профиль (Профиль)
-- `5116175844837950263` — Вызвать друга
-- `5118744200921219799` — Duel Pass
-- `6005661956931850799` — золотая звезда (Сезон)
-
-### Доступ к БД (без пароля, через linked project)
-```bash
-export PATH="/opt/homebrew/bin:$PATH"
-./scripts/db.sh "SELECT * FROM profiles LIMIT 5"
-./scripts/db.sh profiles              # таблица целиком (20 строк)
-./scripts/db.sh tables                # список всех таблиц
-/opt/homebrew/bin/supabase db query "SQL" --linked
+Row 1: [🚀 Открыть Skily]          web_app, icon: 5188481279963715781
+Row 2: [👤 Профиль] [⚔️ Вызвать]  callback: profile / duel_inline
+Row 3: [🎮 Duel Pass]              web_app → /duel-pass, icon: 5118744200921219799
+Row 4: [🏎 Сезон: NAME]            только если activeSeasonName != null
 ```
 
-### Project info
-- Project ref: `yffjnqegeiorunyvcxkn`
-- URL: `https://yffjnqegeiorunyvcxkn.supabase.co`
-- Bot: `@skilyapp_bot` (telegram_id: 8526928539)
-- Mini App URL: `https://skilyapp.com`
+---
 
-**Safe to modify:** `components/`, `pages/`, `hooks/`, `contexts/`, `lib/`, `utils/`, `types/`, `integrations/`, `core/`, `data/`, `supabase/`.
+## 🏗 Архитектура
 
-## Architecture
+### State layers
+| Слой | Инструмент | Что хранит |
+|------|-----------|------------|
+| Server state | React Query v5 | профиль, вопросы, лидерборд (IndexedDB, offline-first) |
+| Game state | Zustand (`src/store/`) | дуэль, экзамен, модалы |
+| Auth | UserContext | profileId, session, isPremium, balance |
+| Real-time | Supabase subscriptions | ходы дуэли, уведомления |
+| Telegram | TelegramContext | WebApp, haptics, тема |
 
-### What This Is
-A **web platform** for driving test (DGT) exam preparation — gamified learning platform with real-time PvP duels, quizzes, flashcards, AI tutoring, and a coin/premium economy. Accessible via browser at skilyapp.com. Telegram Mini App support is an additional channel, not the primary one.
+### React Query правила
+- `staleTime: 5 * 60 * 1000`, `gcTime: 7 * 24 * 60 * 60 * 1000`
+- `refetchOnWindowFocus: false`, `refetchOnReconnect: false`
+- Оптимистичные обновления в `onMutate`, откат в `onError`
+- Query keys всегда включают `profileId`: `['profile-data', profileId]`
 
-### Route Architecture (App.tsx)
-Two completely separate trees:
+### Supabase правила
+- Предпочитай `lazyClient.ts` в компонентах
+- `supabase.rpc()` для атомарных счётчиков
+- Чувствительные мутации (оплата, награды) — только через Edge Functions
 
-**Public (no auth, no providers):**
-- `/` → `Landing.tsx` — lightweight, fast, no AppProviders loaded
-- `/login`, `/pricing`, `/partners`, `/blog`, `/about`, `/purchase`
+### Платёжные провайдеры (порядок кнопок в BoostShopModal)
+Stars → Crypto → TON → Card
 
-**Authenticated (`/dashboard`, `/app/*`):**
-- Lazy-loads `AppProviders` + `AppRoutes` only when accessed
-- AppProviders wraps: Supabase, React Query (with IndexedDB persister), UserContext, TelegramContext, LanguageContext, NotificationContext
+---
 
-The split is intentional for performance — the landing bundle does not include Supabase, React Query, or any app vendors.
+## 🧠 Правила эффективной работы
 
-### State Layers
+1. **Сначала смотри File Map** — иди сразу в нужный файл, не исследуй папки
+2. **Grep вместо Explore** — `grep -n "pattern" src/...` быстрее любого агента
+3. **Edit, не Write** — точечные правки, не переписывай файл целиком
+4. **Минимум чтений** — читай только нужный файл, не "соседние для контекста"
+5. **Верь пользователю** — "баг в X строке Y" → иди туда сразу
+6. **typecheck после правок** — `npm run typecheck` перед коммитом
+7. **Комментарии не нужны** — только если WHY неочевиден
 
-| Layer | Tool | What It Holds |
-|-------|------|---------------|
-| Server state | **React Query v5** | User profile, questions, leaderboard (cached to IndexedDB, offline-first) |
-| Game state | **Zustand** (`src/store/`) | Duel scores, exam session, modal visibility, settings |
-| Auth | **UserContext** | `profileId`, session, isPremium, balance |
-| Real-time | **Supabase subscriptions** | Duel opponent moves, live notifications |
-| Telegram | **TelegramContext** | `window.Telegram.WebApp`, haptics, theme color |
+---
 
-### React Query Conventions
-- `staleTime: 5 * 60 * 1000` (5 min fresh)
-- `gcTime: 7 * 24 * 60 * 60 * 1000` (7 days offline cache)
-- `refetchOnWindowFocus: false`, `refetchOnReconnect: false` — prevents floods
-- Always use **optimistic updates** in `onMutate`, revert in `onError`
-- Query keys always include `profileId`: `['profile-data', profileId]`
+## 🌍 Переменные окружения
 
-### Supabase Usage
-- Client: `src/integrations/supabase/client.ts` (eager) or `src/integrations/supabase/lazyClient.ts` (lazy, preferred in components)
-- **Always use generated types** from `src/integrations/supabase/types.ts`
-- Prefer server-side Edge Functions for sensitive mutations (payments, rewards, daily bonuses) — never trust client-side coin counting
-- Use `supabase.rpc()` for atomic counter operations (increment, not read-modify-write)
-
-### Payment Architecture
-Configured in `src/lib/payment-config.ts`. Active providers:
-
-- **Paddle** — Merchant of Record (taxes, compliance), initialized lazily via `src/lib/paddle.ts`, preloaded on app start
-- **Telegram Stars** — Native Telegram currency, via `Telegram.WebApp` API
-- **Cryptomus** — Crypto payments, server-side via Edge Function `cryptomus-payment`
-- **TON Blockchain** — via `@ton/appkit-react`, wallet connection in `TonWalletHeader`
-
-Button order convention (established in BoostShopModal): Stars → Crypto (primary) → TON → Card (secondary outline).
-
-### Real-time Duel Flow
 ```
-useActiveDuel() → gets or creates duelId
-useDuelRealtime() → Supabase postgres_changes subscription on duels table
-duelStore (Zustand) → game state: questions, scores, timer, status
-useDuelGame() → answer handling, combo logic, win detection
-Duel.tsx → rendering
+VITE_SUPABASE_URL              — обязательно
+VITE_SUPABASE_PUBLISHABLE_KEY  — обязательно
+VITE_PADDLE_CLIENT_TOKEN       — без него Paddle не работает
+VITE_TON_ANALYTICS_KEY         — опционально
+VITE_DEBUG_AUDIO=true          — логи аудио
 ```
-
-### Startup / Loading Sequence
-1. `index.html` renders `.app-skeleton` (pure HTML, `pointer-events: none`) — shows before React mounts
-2. `main.tsx` mounts React
-3. `WelcomeOverlay` (z-index 10000) shows over the skeleton for first visit of the day
-4. `StartupCurtain` component (renders null, side-effect only) calls `liftStartupCurtain()` once data loads — removes `.app-skeleton` from DOM
-5. `welcome_shown_date` in localStorage controls daily WelcomeOverlay display
-
-### Audio / Haptics
-- `src/services/audioService.ts` — Web Audio API, single AudioContext, requires user gesture unlock
-- `src/lib/sounds.ts` — preloaded sound effects
-- `src/lib/haptics.ts` — Telegram WebApp haptic feedback
-- Audio errors must never block UI flow — always fire-and-forget with try/catch
-
-### i18n
-`LanguageContext` provides `t(key, params?)`. Translation files in `src/i18n/locales/`. Language driven by user profile setting or browser locale.
-
-### Chunk Splitting Strategy (vite.config.ts)
-Manual chunks: `react-core`, `framer-motion`, `lucide-react`, `recharts`, `carousel`, `supabase-vendor`. Landing page loads none of these. Any new heavy dependency should be added to the appropriate manual chunk.
-
-### Validator Microservice (port 3030)
-Express.js server (`validator-server.js`) for admin image generation/validation. Uses Puppeteer + Sharp + Google Vertex AI. Not needed for regular frontend dev — only for admin image workflows.
-
-## Key Files
-
-- `src/App.tsx` — All routing, lazy loading, Telegram WebApp init
-- `src/pages/Index.tsx` — Main authenticated dashboard, WelcomeOverlay logic
-- `src/components/shop/BoostShopModal.tsx` — Full shop UI (coins, premium, TON/crypto payments)
-- `src/store/duelStore.ts` — Duel game Zustand store
-- `src/hooks/useDuelRealtime.ts` — Real-time duel subscriptions
-- `src/integrations/supabase/client.ts` — Supabase client config (realtime params, heartbeat)
-- `src/lib/payment-config.ts` — Enable/disable payment providers
-- `src/services/audioService.ts` — Audio context management
-- `index.html` — App skeleton + startup CSS (z-index 9999, `pointer-events: none`)
-
-## File Map by Feature
-
-**Auth & User:**
-- `src/contexts/UserContext.tsx` — profileId, session, isPremium, balance
-- `src/contexts/TelegramContext.tsx` — Telegram.WebApp, haptics, theme
-- `src/components/AuthModalNew.tsx` — login/signup modal
-- `src/hooks/useProfile.ts` — profile React Query hook
-
-**Duel / PvP:**
-- `src/components/duel/Duel.tsx` — main duel UI
-- `src/hooks/useDuelGame.ts` — answer logic, combo, win detection
-- `src/hooks/useActiveDuel.ts` — get/create duelId
-- `src/hooks/duel-realtime/` — Supabase subscription
-- `src/store/duelStore.ts` — Zustand game state
-
-**Tests / Exam:**
-- `src/pages/TestSession.tsx` — test flow controller
-- `src/pages/Tests.tsx` — test list
-- `src/components/test-session/` — test UI components
-- `src/hooks/useDGTExamQuestions.ts` — question fetching
-
-**Shop / Payments:**
-- `src/components/shop/BoostShopModal.tsx` — main shop
-- `src/lib/payment-config.ts` — provider toggles
-- `src/lib/paddle.ts` — Paddle init
-- `src/components/monetization/` — upsell components
-- `supabase/functions/cryptomus-payment/` — crypto Edge Function
-
-**Learning / Flashcards:**
-- `src/pages/Learning.tsx` — learning hub
-- `src/components/FlashCards.tsx` — flashcard UI
-- `src/pages/TopicDetail.tsx` — topic page
-- `src/pages/Dictionary.tsx` — term dictionary
-
-**Notifications:**
-- `src/contexts/NotificationContext.tsx` — notification state
-- `src/components/NotificationsPanel.tsx` — panel UI
-- `src/components/NotificationToast.tsx` — toast component
-
-**AI Features:**
-- `src/hooks/useAIChat.ts` — AI tutor chat
-- `src/components/ai/` — AI UI components
-- `src/components/AIWidget.tsx` — floating AI widget
-- `supabase/functions/ai-chat/` — AI Edge Function
-
-**Onboarding:**
-- `src/components/onboarding/` — onboarding flow components
-- `src/components/PasskeyOnboardingWrapper.tsx` — passkey flow
-
-**Navigation / Layout:**
-- `src/components/navigation/` — bottom nav, tab bar
-- `src/components/layout/` — page layout wrappers
-- `src/components/AppRoutes.tsx` — authenticated route definitions
-
-**i18n:**
-- `src/i18n/locales/` — translation JSON files (es, ru, en, etc.)
-- `src/contexts/LanguageContext.tsx` — `t()` provider
-
-**Supabase:**
-- `src/integrations/supabase/types.ts` — generated DB types (never edit manually)
-- `supabase/functions/` — Edge Functions
-- `supabase/migrations/` — DB migrations
-
-## Efficiency Rules for Claude
-
-**Before reading files:** Check this File Map first — go directly to the right file, don't Glob/Explore.
-**Minimal reads:** Read only the specific file mentioned in the task. Don't read related files unless the fix requires it.
-**No broad exploration:** Never use Explore agent for navigation — use Grep with a specific pattern instead.
-**Edit don't rewrite:** Prefer targeted Edit over full file rewrites.
-**Trust the user:** If the user says "bug in X file at line Y" — go there directly, don't verify by reading surrounding files.
-
-## Environment Variables
-
-Required:
-- `VITE_SUPABASE_URL`
-- `VITE_SUPABASE_PUBLISHABLE_KEY`
-
-Optional but affect features:
-- `VITE_PADDLE_CLIENT_TOKEN` — disables Paddle checkout if missing
-- `VITE_TON_ANALYTICS_KEY`
-- `VITE_DEBUG_AUDIO=true` — enables audio debug logging
