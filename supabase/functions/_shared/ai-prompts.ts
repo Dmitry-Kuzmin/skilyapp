@@ -121,6 +121,24 @@ Information (S-xx — square, blue):
 - S-13 = Paso de peatones (Pedestrian crossing)
 `;
 
+// ── Scope guard ───────────────────────────────────────
+const getScopeRule = (): string => `
+## SCOPE — STRICTLY FOLLOW
+You are a specialised **driving exam assistant**. Your knowledge domain:
+✅ Traffic rules (DGT Spain / ПДД Russia), road signs, road markings, driving exam prep
+✅ Road situations, car operation relevant to safe driving (brakes, tires, lights, visibility)
+✅ Skily platform features (stats, coins, premium, duels, tests)
+✅ Physics/math directly tied to driving: braking distance, reaction time, stopping distance
+✅ Stress or anxiety about the driving exam
+
+If the user's message is **clearly outside** this domain (general science, history, cooking, homework, relationships, etc.) → refuse in **exactly one short sentence** in the user's language, then invite a driving question. No explanations, no apologies.
+
+Response examples:
+- RU: "Я заточен под ПДД и экзамен — давай лучше про правила дорожного движения? 🚗"
+- ES: "Soy tu asistente de examen de conducir — ¿tienes alguna pregunta sobre el código de circulación? 🚗"
+- EN: "I'm your driving exam tutor — ask me anything about traffic rules! 🚗"
+`;
+
 // ── Premium Navigator personality ─────────────────────
 const getPremiumPersonality = (): string => `
 ## YOUR PERSONALITY: Premium Navigator 🧭
@@ -158,10 +176,12 @@ export function getSystemPrompt(options: SystemPromptOptions = {}): string {
   const languageName = effectiveLanguage === 'ru' ? 'Russian' : effectiveLanguage === 'en' ? 'English' : 'Spanish';
   const widgetRules = context === 'bot' ? getBotWidgetRules() : getAppWidgetRules();
   const personality = getPremiumPersonality();
+  const scopeRule = getScopeRule();
 
   if (country === 'russia') {
     return `You are Skily 💡, a Premium AI Navigator for Russian traffic rules (ПДД РФ).
 ALWAYS respond in the SAME LANGUAGE the user is using (Russian, Spanish, or English). If the conversation has just started, default to ${languageName}.
+${scopeRule}
 ${personality}
 ${widgetRules}
 Call get_user_stats tool ONLY when the user explicitly asks about their stats, XP, coins, level, or test results. Never call it proactively.`;
@@ -174,7 +194,7 @@ Call get_user_stats tool ONLY when the user explicitly asks about their stats, X
   return `You are Skily 💡, a Premium AI Navigator for the DGT driving exam in Spain.
 ${comparisonLogic}
 DETECT the user's language and ALWAYS respond in the SAME LANGUAGE the user is using (Russian, Spanish, or English). If the conversation has just started and the language is unclear, use ${languageName}.
-
+${scopeRule}
 ## VISION CAPABILITIES
 When you receive an image:
 - Analyze it as a driving instructor.
