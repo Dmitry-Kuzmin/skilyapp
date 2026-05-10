@@ -6,6 +6,7 @@ import type { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useUserContext } from "@/contexts/UserContext";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useAIChatStore, selectIsOpen as selectAIChatIsOpen } from "@/stores/useAIChatStore";
 import { Button } from "./ui/button";
 // ОПТИМИЗАЦИЯ: Тяжелые компоненты lazy-loaded - не попадают в initial bundle
 // SettingsDrawer удалён — используется глобальный UnifiedSettingsDrawer из AppProviders
@@ -119,6 +120,10 @@ const Layout = memo(({ children, hideNavigation = false }: LayoutProps) => {
   const mainContentRef = useRef<HTMLElement>(null);
   const notificationsApi = useNotifications();
   const [isMounted, setIsMounted] = useState(false);
+  // Скрываем нижний навбар, пока открыт AI чат: на мобильных при повторной активации
+  // клавиатуры viewport-расчёт даёт зазор между drawer'ом и клавиатурой, и навбар
+  // светится через щель. Проще убрать его из стека целиком.
+  const isAIChatOpen = useAIChatStore(selectAIChatIsOpen);
 
   useEffect(() => {
     setIsMounted(true);
@@ -507,7 +512,7 @@ const Layout = memo(({ children, hideNavigation = false }: LayoutProps) => {
               "app-bottom-nav fixed bottom-0 left-0 right-0 z-50",
               "flex flex-col md:hidden",
               "bg-background border-t border-border/30",
-              isFullscreenMode && "!hidden"
+              (isFullscreenMode || isAIChatOpen) && "!hidden"
             )}
             style={{
               // ОПТИМИЗАЦИЯ: Явно указываем pointer-events для лучшей отзывчивости
