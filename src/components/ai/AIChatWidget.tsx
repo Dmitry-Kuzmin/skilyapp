@@ -36,92 +36,77 @@ import { usePDDContext } from '@/contexts/PDDContext';
 import { usePremium } from '@/hooks/usePremium';
 import { useQuery } from '@tanstack/react-query';
 import { useUserContext } from '@/contexts/UserContext';
+import { SignWidget } from '@/components/chat/SignWidget';
 
 type MarkdownProps = {
     children: string;
     className?: string;
+    onOpenShop?: () => void;
 };
 
-const MarkdownContent: React.FC<MarkdownProps> = ({ children, className }) => {
-    /**
-     * Парсинг виджетов из ответа ИИ.
-     *
-     * Регулярка ловит ВСЕ варианты которые пишет ИИ:
-     *   [WIDGET:SIGN:R-2]     ← правильно
-     *   [W:SIGN:R-2]          ← сокращение (ловим)
-     *   [WTON:CONNECT]        ← опечатка (ловим)
-     *   [WIDGET : TON : CONNECT] ← пробелы (ловим)
-     *
-     * Группы: 1=(type), 2=(param)
-     */
+// Shared ReactMarkdown components — includes full table support
+const mdComponents = {
+    p: ({ children }: any) => <p className="mb-2 last:mb-0">{children}</p>,
+    ul: ({ children }: any) => <ul className="list-disc pl-4 mb-2">{children}</ul>,
+    ol: ({ children }: any) => <ol className="list-decimal pl-4 mb-2">{children}</ol>,
+    li: ({ children }: any) => <li className="mb-1">{children}</li>,
+    strong: ({ children }: any) => (
+        <span className="font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-500/10 px-1 rounded">{children}</span>
+    ),
+    em: ({ children }: any) => (
+        <span className="font-semibold text-gray-900 dark:text-white not-italic">{children}</span>
+    ),
+    code: ({ children }: any) => <code className="bg-muted px-1 rounded text-xs">{children}</code>,
+    table: ({ children }: any) => (
+        <div className="overflow-x-auto my-3 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
+            <table className="w-full text-xs border-collapse">{children}</table>
+        </div>
+    ),
+    thead: ({ children }: any) => <thead className="bg-indigo-50 dark:bg-indigo-500/10">{children}</thead>,
+    tbody: ({ children }: any) => <tbody className="divide-y divide-slate-100 dark:divide-slate-800">{children}</tbody>,
+    tr: ({ children }: any) => <tr className="even:bg-slate-50/30 dark:even:bg-slate-800/20">{children}</tr>,
+    th: ({ children }: any) => <th className="px-3 py-2 text-left font-bold text-indigo-700 dark:text-indigo-300 whitespace-nowrap">{children}</th>,
+    td: ({ children }: any) => <td className="px-3 py-2 text-slate-700 dark:text-slate-300 align-top">{children}</td>,
+};
+
+const MarkdownContent: React.FC<MarkdownProps> = ({ children, className, onOpenShop }) => {
+    // Regex catches all widget variants the AI might write:
+    //   [WIDGET:SIGN:R-2]  [W:SIGN:R-2]  [WIDGET : CTA : PREMIUM:text]
     const WIDGET_REGEX = /\[\s*(?:WIDGET|W)\s*:\s*(SIGN|CTA|TON|MEME|WTON)\s*:\s*([^\]]+?)\s*\]/gi;
 
-    // Проверяем наличие виджета: ищем [WIDGET: или [W: (любой регистр)
     const lc = children.toLowerCase();
     const hasWidget = lc.includes('[widget:') || lc.includes('[w:') || lc.includes('wton:');
     if (!children || !hasWidget) {
         return (
             <div className={cn("text-sm leading-relaxed", className)}>
-                <ReactMarkdown
-                    components={{
-                        p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
-                        ul: ({ children }) => <ul className="list-disc pl-4 mb-2">{children}</ul>,
-                        ol: ({ children }) => <ol className="list-decimal pl-4 mb-2">{children}</ol>,
-                        li: ({ children }) => <li className="mb-1">{children}</li>,
-                        strong: ({ children }) => (
-                            <span className="font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-500/10 px-1 rounded">{children}</span>
-                        ),
-                        em: ({ children }) => (
-                            <span className="font-semibold text-gray-900 dark:text-white not-italic">{children}</span>
-                        ),
-                        code: ({ children }) => <code className="bg-muted px-1 rounded text-xs">{children}</code>,
-                    }}
-                >
-                    {children}
-                </ReactMarkdown>
+                <ReactMarkdown components={mdComponents}>{children}</ReactMarkdown>
             </div>
         );
     }
 
-    // Разбиваем текст, сохраняя разделители (тип и параметр)
     const elements: React.ReactNode[] = [];
     let lastIndex = 0;
     let match;
-
-    // Сбрасываем индекс регулярки (важно для /g)
     WIDGET_REGEX.lastIndex = 0;
 
     while ((match = WIDGET_REGEX.exec(children)) !== null) {
-        // 1. Добавляем текст ДО виджета
+        // Text before the widget
         const textBefore = children.substring(lastIndex, match.index);
         if (textBefore.trim()) {
             elements.push(
                 <div key={`text-${lastIndex}`} className={cn("text-sm leading-relaxed", className)}>
-                    <ReactMarkdown
-                        components={{
-                            p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
-                            strong: ({ children }) => <span className="font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-500/10 px-1 rounded">{children}</span>,
-                            em: ({ children }) => <span className="font-semibold text-gray-900 dark:text-white not-italic">{children}</span>,
-                        }}
-                    >
-                        {textBefore}
-                    </ReactMarkdown>
+                    <ReactMarkdown components={mdComponents}>{textBefore}</ReactMarkdown>
                 </div>
             );
         }
 
-        // 2. Рендерим сам виджет
         const [fullMatch, type, param] = match;
         const key = `widget-${match.index}`;
+        const upperType = type.toUpperCase();
 
         try {
-            // TON: CONNECT / WTON:CONNECT (опечатка ИИ) / PAY:
-            const upperType = type.toUpperCase();
-            const upperParam = param.trim().toUpperCase();
-
-            // TON_DISABLED: if (upperType === 'TON' || upperType === 'WTON') { ... }
-            if (false as boolean) {
-                // TON_DISABLED: TonPaymentWidget widgets removed
+            if (upperType === 'SIGN') {
+                elements.push(<SignWidget key={key} code={param.trim()} />);
             } else if (upperType === 'MEME' && param.toUpperCase().startsWith('BADGE:')) {
                 const badgeName = param.split(':')[1] || 'Новичок';
                 elements.push(
@@ -144,17 +129,20 @@ const MarkdownContent: React.FC<MarkdownProps> = ({ children, className }) => {
                     </div>
                 );
             } else if (upperType === 'CTA' && param.toUpperCase().startsWith('PREMIUM')) {
-                const ctaText = param.split(':').slice(1).join(':') || 'Активировать Premium';
+                const ctaText = param.split(':').slice(1).join(':').trim() || 'Активировать Premium';
                 elements.push(
-                    <div key={key} className="my-4">
-                        <Button className="w-full h-12 bg-gradient-to-r from-amber-400 to-orange-500 text-white font-bold rounded-xl shadow-lg border-none" onClick={() => window.location.hash = '#pricing'}>
-                            <Sparkles className="w-4 h-4 mr-2" />
+                    <div key={key} className="mt-3">
+                        <Button
+                            className="w-full h-auto py-3 px-4 bg-gradient-to-r from-amber-400 to-orange-500 text-white font-bold rounded-xl shadow-lg border-none whitespace-normal text-center leading-snug"
+                            onClick={onOpenShop}
+                        >
+                            <Sparkles className="w-4 h-4 mr-2 shrink-0" />
                             {ctaText}
                         </Button>
                     </div>
                 );
             }
-            // Неизвестный тип виджета — ничего не рендерим (не засоряем UI)
+            // Unknown widget type — silently skip (no UI pollution)
         } catch (err) {
             console.error('Error rendering widget:', err);
         }
@@ -162,20 +150,12 @@ const MarkdownContent: React.FC<MarkdownProps> = ({ children, className }) => {
         lastIndex = match.index + fullMatch.length;
     }
 
-    // 3. Добавляем оставшийся текст ПОСЛЕ последнего виджета
+    // Remaining text after the last widget
     const remainingText = children.substring(lastIndex);
     if (remainingText.trim()) {
         elements.push(
-            <div key={`text-end`} className={cn("text-sm leading-relaxed", className)}>
-                <ReactMarkdown
-                    components={{
-                        p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
-                        strong: ({ children }) => <span className="font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-500/10 px-1 rounded">{children}</span>,
-                        em: ({ children }) => <span className="font-semibold text-gray-900 dark:text-white not-italic">{children}</span>,
-                    }}
-                >
-                    {remainingText}
-                </ReactMarkdown>
+            <div key="text-end" className={cn("text-sm leading-relaxed", className)}>
+                <ReactMarkdown components={mdComponents}>{remainingText}</ReactMarkdown>
             </div>
         );
     }
@@ -633,13 +613,13 @@ export function AIChatWidget() {
                             )}
                         >
                             <Card className={cn(
-                                "max-w-[85%] p-4 shadow-md transition-all",
+                                "max-w-[85%] p-4 shadow-md transition-all overflow-hidden",
                                 message.role === 'user'
                                     ? 'bg-indigo-600 text-white rounded-2xl rounded-tr-none border-transparent'
                                     : 'bg-white/95 dark:bg-slate-800/90 backdrop-blur-md rounded-2xl rounded-tl-none border-indigo-100/50 dark:border-white/5 text-slate-800 dark:text-slate-200'
                             )}>
                                 {message.role === 'assistant' ? (
-                                    <MarkdownContent>{message.content}</MarkdownContent>
+                                    <MarkdownContent onOpenShop={() => openModal('BOOST_SHOP')}>{message.content}</MarkdownContent>
                                 ) : (
                                     <p className="text-sm font-medium tracking-tight leading-relaxed">{message.content}</p>
                                 )}
