@@ -305,7 +305,7 @@ export function AIChatWidget() {
     const [pendingImage, setPendingImage] = useState<{ file: File; previewUrl: string } | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const messagesEndRef = useRef<HTMLDivElement>(null);
-    const inputRef = useRef<HTMLInputElement>(null);
+    const inputRef = useRef<HTMLTextAreaElement>(null);
     const scrollContainerRef = useRef<HTMLDivElement>(null);
 
     // Load history from DB when chat opens (only if store is empty for this conversation)
@@ -445,6 +445,14 @@ export function AIChatWidget() {
             setTimeout(() => inputRef.current?.focus(), 400);
         }
     }, [isOpen]);
+
+    // Авто-высота textarea
+    useEffect(() => {
+        const el = inputRef.current;
+        if (!el) return;
+        el.style.height = 'auto';
+        el.style.height = `${el.scrollHeight}px`;
+    }, [input]);
 
     // Автоскролл к последнему сообщению
     useEffect(() => {
@@ -930,10 +938,19 @@ export function AIChatWidget() {
 
                 <form onSubmit={handleSubmit} className="flex gap-2 items-end max-w-2xl mx-auto w-full">
                     <div className="flex-1 relative">
-                        <input
+                        <textarea
                             ref={inputRef}
                             value={input}
+                            rows={1}
                             onChange={(e) => { if (!isRecording) setInput(e.target.value); }}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter' && !e.shiftKey) {
+                                    e.preventDefault();
+                                    if ((input.trim() || pendingImage) && !isLoading) {
+                                        (e.currentTarget.form as HTMLFormElement | null)?.requestSubmit();
+                                    }
+                                }
+                            }}
                             placeholder={
                                 isRecording
                                     ? (interfaceLanguage === 'ru' ? '🎙 Слушаю...' : '🎙 Escuchando...')
@@ -944,7 +961,7 @@ export function AIChatWidget() {
                             readOnly={isRecording || isProcessingVoice}
                             disabled={isLoading}
                             className={cn(
-                                "w-full min-h-[48px] py-3 rounded-[24px] px-5 border bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500/50 transition-all shadow-sm text-base",
+                                "w-full min-h-[48px] max-h-32 py-3 rounded-[24px] px-5 border bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500/50 transition-all shadow-sm text-base resize-none overflow-y-auto leading-relaxed",
                                 isRecording
                                     ? "border-red-400 dark:border-red-500 ring-2 ring-red-400/20"
                                     : "border-slate-200 dark:border-slate-700"
