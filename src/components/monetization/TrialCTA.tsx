@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { useUserContext } from '@/contexts/UserContext';
 import { usePremium } from '@/hooks/usePremium';
 import { supabase } from '@/integrations/supabase/client';
+import { getPaddleInstance } from '@/lib/paddle';
 import { Sparkles, Loader2 } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { toast } from 'sonner';
@@ -12,39 +13,36 @@ interface TrialCTAProps {
   variant?: 'banner' | 'inline';
 }
 
-const TEXT: Record<string, { headline: string; sub: string; cta: string; success: string; alreadyUsed: string; alreadyPremium: string; genericError: string }> = {
+const TEXT: Record<string, { headline: string; sub: string; cta: string; success: string; alreadyPremium: string; genericError: string }> = {
   ru: {
     headline: '3 дня Premium бесплатно',
-    sub: 'Безлимит тестов, AI помнит твои ошибки, без рекламы. База остаётся 300 вопросов.',
+    sub: 'Безлимит тестов, AI без ограничений, дуэли. Карта привязывается, но списания нет 3 дня.',
     cta: 'Попробовать 3 дня free',
-    success: 'Trial активирован — 3 дня Premium включены!',
-    alreadyUsed: 'Ты уже использовал бесплатный пробный период',
+    success: 'Открываем checkout...',
     alreadyPremium: 'У тебя уже активна Premium-подписка',
-    genericError: 'Не удалось активировать trial. Попробуй позже.',
+    genericError: 'Не удалось открыть checkout. Попробуй позже.',
   },
   en: {
     headline: '3-day Premium trial',
-    sub: 'Unlimited tests, AI remembers your weak topics, no ads. Question pool stays at 300.',
+    sub: 'Unlimited tests, AI without limits, duels. Card required but no charge for 3 days.',
     cta: 'Try 3 days free',
-    success: 'Trial activated — 3 days of Premium are on!',
-    alreadyUsed: 'Free trial already used',
+    success: 'Opening checkout...',
     alreadyPremium: 'Premium is already active',
-    genericError: 'Could not start trial. Please try again later.',
+    genericError: 'Could not open checkout. Please try again later.',
   },
   es: {
     headline: 'Premium gratis 3 días',
-    sub: 'Tests ilimitados, IA recuerda tus puntos débiles, sin anuncios. Banco de 300 preguntas.',
+    sub: 'Tests ilimitados, IA sin límites, duelos. Se vincula tarjeta pero sin cobro 3 días.',
     cta: 'Probar 3 días gratis',
-    success: '¡Trial activado — Premium gratis 3 días!',
-    alreadyUsed: 'Ya usaste tu periodo de prueba gratuito',
+    success: 'Abriendo checkout...',
     alreadyPremium: 'Tu Premium ya está activo',
-    genericError: 'No se pudo iniciar el trial. Inténtalo más tarde.',
+    genericError: 'No se pudo abrir el checkout. Inténtalo más tarde.',
   },
 };
 
 export function TrialCTA({ onTrialStarted, variant = 'banner' }: TrialCTAProps) {
   const { profileId } = useUserContext();
-  const { isPremium, refresh } = usePremium();
+  const { isPremium } = usePremium();
   const { language } = useLanguage();
   const t = TEXT[language] || TEXT.en;
   const [loading, setLoading] = useState(false);
@@ -56,30 +54,24 @@ export function TrialCTA({ onTrialStarted, variant = 'banner' }: TrialCTAProps) 
     if (loading) return;
     setLoading(true);
     try {
-      const { data, error } = await supabase.rpc('start_premium_trial', { p_user_id: profileId });
+      // Create Paddle transaction for trial price
+      const { data, error } = await supabase.functions.invoke('paddle-payment', {
+        body: { user_id: profileId, catalog_key: 'premium_trial' },
+      });
       if (error) throw error;
 
-      const row = Array.isArray(data) ? data[0] : data;
+      const parsed = typeof data === 'string' ? JSON.parse(data) : data;
+      if (!parsed?.transaction_id) throw new Error('No transaction_id from paddle-payment');
 
-      if (!row?.success) {
-        const reason = row?.reason || 'unknown';
-        if (reason === 'trial_already_used') {
-          toast.info(t.alreadyUsed);
-          setHidden(true);
-        } else if (reason === 'already_premium' || reason === 'already_lifetime') {
-          toast.info(t.alreadyPremium);
-          setHidden(true);
-        } else {
-          toast.error(t.genericError);
-        }
-        return;
-      }
+      const paddle = await getPaddleInstance();
+      if (!paddle) throw new Error('Paddle SDK not loaded');
 
-      toast.success(t.success);
-      await refresh();
+      toast.info(t.success);
       onTrialStarted?.();
+
+      paddle.Checkout.open({ transactionId: parsed.transaction_id });
     } catch (err) {
-      console.error('[TrialCTA] start_premium_trial failed:', err);
+      console.error('[TrialCTA] Paddle trial checkout failed:', err);
       toast.error(t.genericError);
     } finally {
       setLoading(false);
