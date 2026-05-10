@@ -223,7 +223,8 @@ serve(async (req) => {
         const pRes = await processReward(rewardRow.premium_reward as RewardPayload, true, "error");
         if (!pRes) return new Response(JSON.stringify({ error: "Premium reward fail" }), { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } });
         if (pRes.status === "already_claimed") {
-          return new Response(JSON.stringify({ error: "Already claimed", message: "Уже получено" }), { status: 409, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+          // Идемпотентность: повторный claim не считается ошибкой
+          return new Response(JSON.stringify({ success: true, alreadyClaimed: true, message: "Уже получено" }), { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } });
         }
         grantedRewards.push(pRes.reward);
         claimedEntries.push({ reward: pRes.reward, is_premium: true });
@@ -231,14 +232,14 @@ serve(async (req) => {
         return new Response(JSON.stringify({ error: "No rewards available for this level" }), { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } });
       } else if (grantedRewards.length === 0) {
         // Free reward was already claimed
-        return new Response(JSON.stringify({ error: "Already claimed", message: "Уже получено" }), { status: 409, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+        return new Response(JSON.stringify({ success: true, alreadyClaimed: true, message: "Уже получено" }), { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } });
       }
     } else {
       if (!hasFreeReward) return new Response(JSON.stringify({ error: "Free reward not available" }), { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } });
       const fRes = await processReward(rewardRow.free_reward as RewardPayload, false, "error");
       if (!fRes) return new Response(JSON.stringify({ error: "Free reward fail" }), { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } });
       if (fRes.status === "already_claimed") {
-        return new Response(JSON.stringify({ error: "Already claimed", message: "Уже получено" }), { status: 409, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+        return new Response(JSON.stringify({ success: true, alreadyClaimed: true, message: "Уже получено" }), { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } });
       }
       grantedRewards.push(fRes.reward);
       claimedEntries.push({ reward: fRes.reward, is_premium: false });

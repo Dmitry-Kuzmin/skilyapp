@@ -6,7 +6,7 @@
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createPooledSupabaseClient } from '../_shared/supabase-client.ts';
-import { SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { createClient, SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import {
   UserMetrics,
   UserNotificationSettings,
@@ -22,6 +22,7 @@ const corsHeaders = {
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+const SUPABASE_ANON_KEY = Deno.env.get('SUPABASE_ANON_KEY')!;
 const NOTIFICATION_SENDER_URL = `${SUPABASE_URL}/functions/v1/notification-sender`;
 const IMPORTANT_CATEGORIES = new Set(['duel', 'progress', 'system', 'monetization', 'premium']);
 
@@ -40,13 +41,42 @@ serve(async (req) => {
     return new Response('ok', { headers: corsHeaders });
   }
 
-  // Проверка авторизации (безопасность для публичного репо)
-  const authHeader = req.headers.get('Authorization');
-  if (authHeader !== `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`) {
-    return new Response(JSON.stringify({ error: 'Unauthorized' }), {
-      status: 401,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+  // Проверка авторизации:
+  // - Service-role key → server-to-server вызов (от других edge-функций)
+  // - User JWT → клиентский вызов; user_id в body должен совпадать с sub из токена
+  const authHeader = req.headers.get('Authorization') ?? '';
+  const isServiceRole = authHeader === `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`;
+  let authenticatedUserId: string | null = null;
+
+  if (!isServiceRole) {
+    if (!authHeader.startsWith('Bearer ')) {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    try {
+      const supabaseAuth = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+        global: { headers: { Authorization: authHeader } },
+        auth: { persistSession: false, autoRefreshToken: false },
+      });
+      const { data: { user }, error: authError } = await supabaseAuth.auth.getUser();
+      if (authError || !user) {
+        console.warn('[EventDispatcher] Auth failed:', authError?.message);
+        return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+          status: 401,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+      authenticatedUserId = user.id;
+    } catch (err) {
+      console.error('[EventDispatcher] Auth check error:', err);
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
   }
 
   try {
@@ -55,7 +85,8 @@ serve(async (req) => {
       method: req.method,
       contentType: req.headers.get('content-type'),
       userAgent: req.headers.get('user-agent'),
-      origin: req.headers.get('origin')
+      origin: req.headers.get('origin'),
+      auth: isServiceRole ? 'service_role' : 'user_jwt'
     });
 
     if (req.method !== 'POST') {
@@ -87,6 +118,15 @@ serve(async (req) => {
       console.warn('[EventDispatcher] Missing required fields:', { user_id, event_type });
       return new Response(JSON.stringify({ error: 'user_id and event_type are required' }), {
         status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    // Клиентский вызов может писать события только за себя
+    if (!isServiceRole && authenticatedUserId !== user_id) {
+      console.warn('[EventDispatcher] User mismatch:', { authenticated: authenticatedUserId, requested: user_id });
+      return new Response(JSON.stringify({ error: 'Forbidden: user_id mismatch' }), {
+        status: 403,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
