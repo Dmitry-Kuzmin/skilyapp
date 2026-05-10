@@ -323,8 +323,10 @@ export function AIChatWidget() {
     // Voice Input State (Whisper API)
     const [isRecording, setIsRecording] = useState(false);
     const [isProcessingVoice, setIsProcessingVoice] = useState(false);
+    const [liveText, setLiveText] = useState('');          // промежуточный текст из Web Speech API
     const mediaRecorderRef = useRef<MediaRecorder | null>(null);
     const audioChunksRef = useRef<Blob[]>([]);
+    const speechRecRef = useRef<any>(null);                // SpeechRecognition (live preview)
 
     // Подберём лучший mime, который поддерживает текущий браузер (Safari ≠ Chrome)
     const pickRecorderMime = (): string => {
@@ -419,9 +421,30 @@ export function AIChatWidget() {
         mediaRecorder.start();
         setIsRecording(true);
         triggerHapticFeedback('light');
+
+        // Live preview — Web Speech API (Chrome/Safari, graceful degradation)
+        const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+        if (SpeechRecognition) {
+            const rec = new SpeechRecognition();
+            rec.lang = interfaceLanguage === 'ru' ? 'ru-RU' : interfaceLanguage === 'en' ? 'en-US' : 'es-ES';
+            rec.interimResults = true;
+            rec.continuous = true;
+            rec.onresult = (e: any) => {
+                const interim = Array.from(e.results).map((r: any) => r[0].transcript).join('');
+                setLiveText(interim);
+            };
+            rec.onerror = () => {};  // не мешаем основной записи
+            speechRecRef.current = rec;
+            try { rec.start(); } catch { /* уже запущен */ }
+        }
     };
 
     const stopRecording = () => {
+        if (speechRecRef.current) {
+            try { speechRecRef.current.stop(); } catch { /* ignore */ }
+            speechRecRef.current = null;
+        }
+        setLiveText('');
         if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
             mediaRecorderRef.current.stop();
             triggerHapticFeedback('medium');
@@ -820,12 +843,22 @@ export function AIChatWidget() {
                     <div className="flex-1 relative">
                         <input
                             ref={inputRef}
-                            value={input}
-                            onChange={(e) => setInput(e.target.value)}
-                            placeholder={interfaceLanguage === 'ru' ? 'Напиши свой вопрос...' : 'Escribe tu pregunta...'}
+                            value={isRecording && liveText ? liveText : input}
+                            onChange={(e) => { if (!isRecording) setInput(e.target.value); }}
+                            placeholder={
+                                isRecording
+                                    ? (interfaceLanguage === 'ru' ? '🎙 Слушаю...' : '🎙 Escuchando...')
+                                    : (interfaceLanguage === 'ru' ? 'Напиши свой вопрос...' : 'Escribe tu pregunta...')
+                            }
+                            readOnly={isRecording}
                             disabled={isLoading}
-                            className="w-full min-h-[48px] py-3 rounded-[24px] px-5 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500/50 transition-all shadow-sm text-base"
-                            style={{ fontSize: '16px' }} // предотвращает zoom на iOS
+                            className={cn(
+                                "w-full min-h-[48px] py-3 rounded-[24px] px-5 border bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500/50 transition-all shadow-sm text-base",
+                                isRecording
+                                    ? "border-red-400 dark:border-red-500 ring-2 ring-red-400/20 text-slate-400 dark:text-slate-500 italic"
+                                    : "border-slate-200 dark:border-slate-700"
+                            )}
+                            style={{ fontSize: '16px' }}
                         />
                     </div>
 
