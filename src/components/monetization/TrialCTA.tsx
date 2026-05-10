@@ -17,7 +17,7 @@ const TEXT: Record<string, { headline: string; sub: string; cta: string; success
   ru: {
     headline: '3 дня Premium бесплатно',
     sub: 'Безлимит тестов, AI без ограничений, дуэли. Карта привязывается, но списания нет 3 дня.',
-    cta: 'Попробовать 3 дня free',
+    cta: 'Попробовать бесплатно →',
     success: 'Открываем checkout...',
     alreadyPremium: 'У тебя уже активна Premium-подписка',
     genericError: 'Не удалось открыть checkout. Попробуй позже.',
@@ -25,7 +25,7 @@ const TEXT: Record<string, { headline: string; sub: string; cta: string; success
   en: {
     headline: '3-day Premium trial',
     sub: 'Unlimited tests, AI without limits, duels. Card required but no charge for 3 days.',
-    cta: 'Try 3 days free',
+    cta: 'Try free for 3 days →',
     success: 'Opening checkout...',
     alreadyPremium: 'Premium is already active',
     genericError: 'Could not open checkout. Please try again later.',
@@ -33,7 +33,7 @@ const TEXT: Record<string, { headline: string; sub: string; cta: string; success
   es: {
     headline: 'Premium gratis 3 días',
     sub: 'Tests ilimitados, IA sin límites, duelos. Se vincula tarjeta pero sin cobro 3 días.',
-    cta: 'Probar 3 días gratis',
+    cta: 'Probar gratis 3 días →',
     success: 'Abriendo checkout...',
     alreadyPremium: 'Tu Premium ya está activo',
     genericError: 'No se pudo abrir el checkout. Inténtalo más tarde.',
