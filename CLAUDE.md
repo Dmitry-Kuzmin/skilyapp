@@ -2,6 +2,19 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## ⚠️ Git Push to Main — ОБЯЗАТЕЛЬНО
+
+`main` защищён от прямых пушей (branch protection). `git push origin main` вернёт 403.
+
+**Правильный порядок для веб/агент окружения:**
+1. Разработка — на feature-ветке (`git checkout -b ...` или уже назначенная ветка)
+2. Коммит + `git push origin <feature-branch>`
+3. Создать PR через `mcp__github__create_pull_request` (owner: `Dmitry-Kuzmin`, repo: `sdadim-dgt-prep`, base: `main`)
+4. Сразу смержить через `mcp__github__merge_pull_request` (merge_method: `squash`)
+5. Синхронизировать локальный main: `git pull origin main`
+
+**НИКОГДА не делать:** `git push origin main` — это заблокировано.
+
 ## Commands
 
 ```bash
