@@ -61,6 +61,88 @@ npm run supabase:deploy  # задеплоить Edge Functions
 
 ---
 
+## 🚀 Деплой — полный гайд (всё делает Claude без участия пользователя)
+
+### Переменные окружения для CLI
+
+```bash
+export PATH="/Users/dimka/.nvm/versions/node/v24.11.0/bin:/opt/homebrew/bin:$PATH"
+```
+
+**Всегда добавляй эту строку перед любой командой `supabase` или `node`.**
+
+### Edge Functions
+
+```bash
+# Деплой одной функции
+/opt/homebrew/bin/supabase functions deploy <function-name> --project-ref yffjnqegeiorunyvcxkn
+
+# Деплой нескольких
+/opt/homebrew/bin/supabase functions deploy duel-manager --project-ref yffjnqegeiorunyvcxkn
+/opt/homebrew/bin/supabase functions deploy telegram-bot --project-ref yffjnqegeiorunyvcxkn
+/opt/homebrew/bin/supabase functions deploy user-event-dispatcher --project-ref yffjnqegeiorunyvcxkn
+/opt/homebrew/bin/supabase functions deploy duel-pass-claim --project-ref yffjnqegeiorunyvcxkn
+```
+
+Docker НЕ нужен. Функции деплоятся через Management API.
+
+### Миграции БД
+
+```bash
+# ❌ НЕ ИСПОЛЬЗОВАТЬ: npm run supabase:apply (работает через APPLY_NOW.sql, ломается)
+# ❌ НЕ ИСПОЛЬЗОВАТЬ: supabase db push (требует Docker, применяет ВСЕ локальные миграции)
+
+# ✅ ПРАВИЛЬНЫЙ СПОСОБ — применить конкретный SQL-файл напрямую:
+/opt/homebrew/bin/supabase db query \
+  --linked \
+  --file supabase/migrations/<имя_файла>.sql
+
+# Пример:
+/opt/homebrew/bin/supabase db query \
+  --linked \
+  --file supabase/migrations/20260510210000_fix_duel_payout_search_path.sql
+```
+
+Перед применением проверь, что файл существует:
+```bash
+ls supabase/migrations/ | tail -5
+```
+
+### Фронтенд (Vercel)
+
+Деплой происходит **автоматически** при пуше в `main`. Вручную ничего делать не нужно.
+
+### Git-workflow (Mac, admin-права)
+
+```bash
+# Просто:
+git add <файлы>
+git commit -m "fix: описание"
+git push origin main   # напрямую в main ✓
+```
+
+### Проверка после деплоя функций
+
+```bash
+# Список задеплоенных функций:
+/opt/homebrew/bin/supabase functions list --project-ref yffjnqegeiorunyvcxkn
+
+# Проверка конкретной миграции в БД (SQL):
+/opt/homebrew/bin/supabase db query \
+  --linked \
+  --sql "SELECT proname, proconfig FROM pg_proc WHERE proname = 'handle_duel_payout_atomic';"
+```
+
+### Применение произвольного SQL в прод
+
+```bash
+/opt/homebrew/bin/supabase db query \
+  --linked \
+  --sql "UPDATE profiles SET coins = coins + 20 WHERE id = 'xxx';"
+```
+
+---
+
 ## 🗂 Файловая карта — куда идти сразу
 
 ### Роутинг
