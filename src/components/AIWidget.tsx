@@ -229,6 +229,7 @@ const AIWidgetContent = ({
   const recognitionRef = useRef<any>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const widgetRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const { t, language: profileLanguage } = useLanguage();
 
@@ -435,6 +436,14 @@ const AIWidgetContent = ({
       resizeObserver.disconnect();
     };
   }, [question, isExpanded]);
+
+  // Авто-высота textarea
+  useEffect(() => {
+    const el = textareaRef.current;
+    if (!el) return;
+    el.style.height = 'auto';
+    el.style.height = `${el.scrollHeight}px`;
+  }, [input]);
 
   const askAI = async (userMessage: string) => {
     // Клиентская пре-проверка: не тратить запрос если лимит уже исчерпан
@@ -915,14 +924,24 @@ ${imageUrl ? `\n⚠️ К вопросу есть иллюстрация — о�
         {/* Input Area - стиль Officer Frank */}
         <div className="p-3 xl:p-4 border-t shrink-0 bg-background dark:bg-slate-900/60 dark:border-white/5">
           <form onSubmit={handleSubmit} className="relative">
-            <input
+            <textarea
+              ref={textareaRef}
               value={input}
+              rows={1}
               onChange={(e) => setInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  if (input.trim() && !isLoading) {
+                    (e.currentTarget.form as HTMLFormElement | null)?.requestSubmit();
+                  }
+                }
+              }}
               placeholder={interfaceLanguage === 'ru' ? t('lumiPlaceholder') : interfaceLanguage === 'en' ? 'Ask your question here...' : 'Haz tu pregunta aquí...'}
-              className="w-full h-10 xl:h-12 pr-[100px] xl:pr-[120px] pl-4 text-xs xl:text-sm rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500/50 transition-all shadow-sm"
+              className="w-full min-h-[40px] xl:min-h-[48px] max-h-28 pr-[100px] xl:pr-[120px] pl-4 py-2.5 xl:py-3 text-xs xl:text-sm rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500/50 transition-all shadow-sm resize-none overflow-y-auto leading-relaxed"
               disabled={isLoading}
             />
-            <div className="absolute right-1 top-1/2 -translate-y-1/2 flex items-center gap-0.5">
+            <div className="absolute right-1 bottom-1 flex items-center gap-0.5">
               <Button
                 type="button"
                 size="icon"
