@@ -46,7 +46,7 @@ const skipInstagram = hasFlag("--skip-instagram");
 let publishData = { es: {}, ru: {} };
 if (fs.existsSync(PUBLISH_DATA_FILE)) {
   try { publishData = JSON.parse(fs.readFileSync(PUBLISH_DATA_FILE, "utf-8")); }
-  catch(e) { console.warn("⚠️  Could not parse publish-data.json:", e.message); }
+  catch(e) { plog("⚠️  Could not parse publish-data.json:", e.message); }
 }
 
 function cleanMarkdown(text) {
@@ -126,14 +126,15 @@ async function uploadTikTok(context, videoPath, lang) {
     // Auth check — TikTok redirects to login or passport page if session expired
     const tiktokUrl = page.url();
     if (tiktokUrl.includes("login") || tiktokUrl.includes("passport") || tiktokUrl.includes("accounts")) {
-      await page.screenshot({ path: `/tmp/tiktok-auth-error-${lang}.png` });
-      throw new Error(`TikTok сессия истекла — запусти: node scripts/setup-login.js ${lang} (скрин: /tmp/tiktok-auth-error-${lang}.png)`);
+      const screenshotPath = `/tmp/tiktok-auth-error-${lang}-${Date.now()}.png`;
+      await page.screenshot({ path: screenshotPath });
+      throw new Error(`TikTok сессия истекла — запусти: node scripts/setup-login.js ${lang} (скрин: ${screenshotPath})`);
     }
 
     // TikTok hides the file input — set files directly without clicking
     await page.waitForSelector('input[type="file"]', { state: "attached", timeout: 45000 });
     await page.locator('input[type="file"]').first().setInputFiles(videoPath);
-    console.log("  ✓ File selected, waiting for upload...");
+    plog("  ✓ File selected, waiting for upload...");
 
     // Wait a bit for page to settle after upload starts
     await delay(5000);
@@ -152,7 +153,7 @@ async function uploadTikTok(context, videoPath, lang) {
         const el = page.locator(sel).first();
         if (await el.isVisible({ timeout: 1500 })) {
           await el.click();
-          console.log(`  ✓ Dismissed popup (${sel})`);
+          plog(`  ✓ Dismissed popup (${sel})`);
           await delay(500);
         }
       } catch {}
@@ -173,14 +174,15 @@ async function uploadTikTok(context, videoPath, lang) {
     try {
       await page.waitForSelector(captionSelector, { timeout: 60000 });
     } catch(waitErr) {
-      await page.screenshot({ path: "/tmp/tiktok-after-upload.png" });
-      console.log("  📸 /tmp/tiktok-after-upload.png");
+      const screenshotPath = `/tmp/tiktok-after-upload-${lang}-${Date.now()}.png`;
+      await page.screenshot({ path: screenshotPath });
+      plog(`  📸 ${screenshotPath}`);
       // Log all contenteditable elements for debugging
       const editables = await page.$$eval('[contenteditable="true"]', els => els.map(e => e.className));
-      console.log("  Contenteditable elements found:", JSON.stringify(editables));
+      plog(`  Contenteditable elements found: ${JSON.stringify(editables)}`);
       throw waitErr;
     }
-    console.log("  ✓ Upload complete");
+    plog("  ✓ Upload complete");
 
     // Dismiss any tutorial/onboarding overlays (react-joyride, etc.)
     try {
@@ -193,7 +195,7 @@ async function uploadTikTok(context, videoPath, lang) {
           await overlay.click({ force: true });
           await delay(500);
         }
-        console.log("  ✓ Dismissed tutorial overlay");
+        plog("  ✓ Dismissed tutorial overlay");
       }
     } catch {}
 
@@ -210,24 +212,63 @@ async function uploadTikTok(context, videoPath, lang) {
     await page.evaluate((text) => navigator.clipboard.writeText(text), caption);
     await page.keyboard.press("Meta+V");
     await delay(500);
-    console.log("  ✓ Caption filled");
+    plog("  ✓ Caption filled");
 
     await delay(2000);
 
-    // Click Post button
-    const postBtn = page.locator('button[data-e2e="post-button"], button:has-text("Post"), button:has-text("Опубликовать")').first();
+    // Dismiss TikTok cookie/privacy banner (locale="ru-RU") — blocks the Post button click
+    try {
+      const bannerDismissed = await page.evaluate(() => {
+        const banner = document.querySelector("tiktok-cookie-banner");
+        if (!banner) return false;
+        // Try shadow DOM buttons first
+        const shadow = banner.shadowRoot;
+        if (shadow) {
+          const btn = shadow.querySelector("button") || shadow.querySelector('[class*="accept"], [class*="close"], [class*="decline"]');
+          if (btn) { btn.click(); return "shadow-btn"; }
+        }
+        // Fallback: remove the element entirely
+        banner.remove();
+        return "removed";
+      });
+      if (bannerDismissed) {
+        plog(`  ✓ Cookie banner dismissed (${bannerDismissed})`);
+        await delay(800);
+      }
+    } catch(bannerErr) {
+      plog(`  ⚠️  Cookie banner dismissal error: ${bannerErr.message}`);
+    }
+
+    // Click Post button — use JS click as fallback if Playwright click is blocked
+    const postBtn = page.locator([
+      'button[data-e2e="post-button"]',
+      'button[data-e2e="post_video_button"]',
+      'button:has-text("Post")',
+      'button:has-text("Опубликовать")',
+    ].join(", ")).first();
     await postBtn.waitFor({ timeout: 10000 });
-    await postBtn.click();
-    console.log("  ✓ Post clicked");
+    try {
+      await postBtn.click({ timeout: 5000 });
+    } catch {
+      // If Playwright click is still blocked, use JS click which ignores overlay
+      plog("  ⚠️  Playwright click blocked — using JS click fallback");
+      await page.evaluate(() => {
+        const btn = document.querySelector('button[data-e2e="post-button"], button[data-e2e="post_video_button"]');
+        if (btn) btn.click();
+      });
+    }
+    plog("  ✓ Post clicked");
 
     // Wait for success confirmation
     await page.waitForURL(/\/manage\/videos|\/tiktokstudio\/content/, { timeout: 30000 }).catch(() => {});
-    console.log(`  ✅ TikTok [${lang.toUpperCase()}] published!`);
+    plog(`  ✅ TikTok [${lang.toUpperCase()}] published!`);
     notify("Skily Video Maker", `✅ TikTok ${lang.toUpperCase()} опубликован`);
   } catch(e) {
-    console.error(`  ❌ TikTok [${lang.toUpperCase()}] error:`, e.message);
-    try { await page.screenshot({ path: `/tmp/tiktok-error-${lang}-${Date.now()}.png` }); } catch {}
+    const screenshotPath = `/tmp/tiktok-error-${lang}-${Date.now()}.png`;
+    plog(`  ❌ TikTok [${lang.toUpperCase()}] error: ${e.message}`);
+    try { await page.screenshot({ path: screenshotPath }); plog(`  📸 ${screenshotPath}`); } catch {}
     notify("Skily Video Maker", `❌ TikTok ${lang.toUpperCase()} ошибка: ${e.message.slice(0, 60)}`);
+    failures.push(`TikTok [${lang.toUpperCase()}]: ${e.message}`);
   } finally {
     await page.close();
   }
@@ -235,7 +276,7 @@ async function uploadTikTok(context, videoPath, lang) {
 
 // ── YouTube Shorts upload ─────────────────────────────────────────────────────
 async function uploadYouTube(context, videoPath, lang) {
-  console.log(`\n▶️  YouTube [${lang.toUpperCase()}] → ${path.basename(videoPath)}`);
+  plog(`\n▶️  YouTube [${lang.toUpperCase()}] → ${path.basename(videoPath)}`);
   const page = await context.newPage();
   try {
     await page.goto("https://studio.youtube.com", {
@@ -243,13 +284,14 @@ async function uploadYouTube(context, videoPath, lang) {
     });
 
     await delay(5000);
-    console.log("  📍 Current URL:", page.url());
+    plog(`  📍 Current URL: ${page.url()}`);
 
     // Auth check — YouTube Studio redirects to Google login if session expired
     const ytUrl = page.url();
     if (ytUrl.includes("accounts.google.com") || ytUrl.includes("signin") || ytUrl.includes("ServiceLogin")) {
-      await page.screenshot({ path: `/tmp/youtube-auth-error-${lang}.png` });
-      throw new Error(`YouTube сессия истекла — запусти: node scripts/setup-login.js ${lang} (скрин: /tmp/youtube-auth-error-${lang}.png)`);
+      const screenshotPath = `/tmp/youtube-auth-error-${lang}-${Date.now()}.png`;
+      await page.screenshot({ path: screenshotPath });
+      throw new Error(`YouTube сессия истекла — запусти: node scripts/setup-login.js ${lang} (скрин: ${screenshotPath})`);
     }
 
     // Dismiss any error dialogs
@@ -262,7 +304,7 @@ async function uploadYouTube(context, videoPath, lang) {
     await page.locator('button[aria-label="Create"], .ytcpAppHeaderCreateIcon button').first()
       .waitFor({ timeout: 20000 });
     await page.locator('button[aria-label="Create"], .ytcpAppHeaderCreateIcon button').first().click();
-    console.log("  ✓ Clicked Create");
+    plog("  ✓ Clicked Create");
 
     await delay(1500);
     // Pick "Upload videos" from dropdown — try all languages
@@ -278,7 +320,7 @@ async function uploadYouTube(context, videoPath, lang) {
       // Fallback: first item in the Create dropdown menu
       'tp-yt-paper-listbox tp-yt-paper-item:first-child',
     ].join(", ")).first().click();
-    console.log("  ✓ Selected Upload videos");
+    plog("  ✓ Selected Upload videos");
 
     await delay(2000);
 
@@ -286,14 +328,14 @@ async function uploadYouTube(context, videoPath, lang) {
     const fileInput = page.locator("input[type='file']").first();
     await fileInput.waitFor({ state: "attached", timeout: 15000 });
     await fileInput.setInputFiles(videoPath);
-    console.log("  ✓ File selected, uploading...");
+    plog("  ✓ File selected, uploading...");
 
     // Wait for title field — also wait for any loading scrim to disappear
     await page.waitForSelector("#textbox", { timeout: 120000 });
     // Wait until dialog-scrim is gone (upload dialog loading overlay)
     await page.waitForSelector(".dialog-scrim", { state: "hidden", timeout: 30000 }).catch(() => {});
     await delay(2000);
-    console.log("  ✓ Upload started");
+    plog("  ✓ Upload started");
 
     const { title, description } = getCaption(lang, "youtube");
 
@@ -302,13 +344,13 @@ async function uploadYouTube(context, videoPath, lang) {
     await titleEl.click();
     await page.keyboard.press("Meta+A");  // Select all (macOS)
     await titleEl.type(title, { delay: 15 });
-    console.log("  ✓ Title filled");
+    plog("  ✓ Title filled");
 
     // Fill description (second textbox)
     const descEl = page.locator("#textbox").nth(1);
     await descEl.click();
     await descEl.type(description, { delay: 5 });
-    console.log("  ✓ Description filled");
+    plog("  ✓ Description filled");
 
     // Answer "Not made for kids" — required before Next
     await delay(1000);
@@ -316,13 +358,13 @@ async function uploadYouTube(context, videoPath, lang) {
     try {
       await notForKids.waitFor({ timeout: 5000 });
       await notForKids.click();
-      console.log("  ✓ Not made for kids selected");
+      plog("  ✓ Not made for kids selected");
     } catch {
       // Try by text
       try {
         await page.locator("tp-yt-paper-radio-button").filter({ hasText: /not made for kids|не для детей/i }).first().click();
-        console.log("  ✓ Not made for kids selected (text match)");
-      } catch { console.log("  ⚠️  Kids question not found"); }
+        plog("  ✓ Not made for kids selected (text match)");
+      } catch { plog("  ⚠️  Kids question not found"); }
     }
 
     // Click Next through steps (Details → Video elements → Checks → Visibility)
@@ -332,16 +374,16 @@ async function uploadYouTube(context, videoPath, lang) {
       try {
         await nextBtn.waitFor({ timeout: 8000 });
         await nextBtn.click();
-        console.log(`  ✓ Next step ${step + 1}`);
+        plog(`  ✓ Next step ${step + 1}`);
       } catch {
-        console.log(`  ⚠️  Next button not found on step ${step + 1}, continuing...`);
+        plog(`  ⚠️  Next button not found on step ${step + 1}, continuing...`);
       }
     }
 
     // Set visibility to Public — screenshot if fails
     await delay(2000);
     await page.screenshot({ path: "/tmp/youtube-visibility.png" });
-    console.log("  📍 Visibility page URL:", page.url());
+    plog("  📍 Visibility page URL:", page.url());
 
     // Try multiple selectors for the Public radio
     const publicLocator = page.locator([
@@ -356,13 +398,22 @@ async function uploadYouTube(context, videoPath, lang) {
     try {
       await publicLocator.waitFor({ timeout: 8000 });
       await publicLocator.click();
-      console.log("  ✓ Set to Public");
+      plog("  ✓ Set to Public");
     } catch {
-      console.log("  ⚠️  Public radio not found, trying to publish as-is...");
+      plog("  ⚠️  Public radio not found, trying to publish as-is...");
     }
 
     // Publish / Save
     await delay(1000);
+
+    // Прокручиваем вниз — попап "Советы перед публикацией" может перекрывать кнопку
+    await page.evaluate(() => {
+      const dialog = document.querySelector("ytcp-uploads-dialog, tp-yt-paper-dialog");
+      if (dialog) dialog.scrollTop = dialog.scrollHeight;
+      window.scrollTo(0, document.body.scrollHeight);
+    }).catch(() => {});
+    await delay(500);
+
     const publishBtn = page.locator([
       "ytcp-button#done-button",
       "button:has-text('Publish')",
@@ -371,17 +422,21 @@ async function uploadYouTube(context, videoPath, lang) {
       "button:has-text('Сохранить')",
     ].join(", ")).first();
     await publishBtn.waitFor({ timeout: 10000 });
-    await publishBtn.click();
-    console.log("  ✓ Publish clicked");
+
+    // Принудительный клик — обходит любые перекрывающие элементы
+    await publishBtn.click({ force: true });
+    plog("  ✓ Publish clicked");
 
     // Wait for publish confirmation
     await page.waitForSelector("ytcp-video-share-dialog, yt-icon-button.close-button", { timeout: 30000 }).catch(() => {});
-    console.log(`  ✅ YouTube [${lang.toUpperCase()}] published!`);
+    plog(`  ✅ YouTube [${lang.toUpperCase()}] published!`);
     notify("Skily Video Maker", `✅ YouTube ${lang.toUpperCase()} опубликован`);
   } catch(e) {
-    console.error(`  ❌ YouTube [${lang.toUpperCase()}] error:`, e.message);
-    try { await page.screenshot({ path: `/tmp/youtube-error-${lang}-${Date.now()}.png` }); } catch {}
+    const screenshotPath = `/tmp/youtube-error-${lang}-${Date.now()}.png`;
+    plog(`  ❌ YouTube [${lang.toUpperCase()}] error: ${e.message}`);
+    try { await page.screenshot({ path: screenshotPath }); plog(`  📸 ${screenshotPath}`); } catch {}
     notify("Skily Video Maker", `❌ YouTube ${lang.toUpperCase()} ошибка: ${e.message.slice(0, 60)}`);
+    failures.push(`YouTube [${lang.toUpperCase()}]: ${e.message}`);
   } finally {
     await page.close();
   }
@@ -389,14 +444,14 @@ async function uploadYouTube(context, videoPath, lang) {
 
 // ── Instagram Reels upload ────────────────────────────────────────────────────
 async function uploadInstagram(context, videoPath, lang) {
-  console.log(`\n📸 Instagram [${lang.toUpperCase()}] → ${path.basename(videoPath)}`);
+  plog(`\n📸 Instagram [${lang.toUpperCase()}] → ${path.basename(videoPath)}`);
   const page = await context.newPage();
   try {
     await page.goto("https://www.instagram.com/", {
       waitUntil: "domcontentloaded", timeout: 30000,
     });
     await delay(3000);
-    console.log("  📍 URL:", page.url());
+    plog(`  📍 URL: ${page.url()}`);
 
     // If redirected to login — session expired
     if (page.url().includes("accounts") || page.url().includes("login")) {
@@ -409,7 +464,7 @@ async function uploadInstagram(context, videoPath, lang) {
         const btn = page.locator(`button:has-text("${txt}")`).first();
         if (await btn.isVisible({ timeout: 2000 })) {
           await btn.click();
-          console.log(`  ✓ Dismissed popup (${txt})`);
+          plog(`  ✓ Dismissed popup (${txt})`);
           await delay(800);
           break;
         }
@@ -442,13 +497,13 @@ async function uploadInstagram(context, videoPath, lang) {
         if (btn) btn.click();
       });
     }
-    console.log("  ✓ Create clicked");
+    plog("  ✓ Create clicked");
     await delay(2000);
 
     // Now wait for "Публикация" sub-menu item to appear, then capture filechooser
     const pubVisible = await page.locator('text="Публикация"').first().isVisible({ timeout: 3000 }).catch(() => false);
     if (pubVisible) {
-      console.log("  Sub-menu detected → clicking Публикация");
+      plog("  Sub-menu detected → clicking Публикация");
       try {
         const [fileChooser] = await Promise.all([
           page.waitForEvent("filechooser", { timeout: 8000 }),
@@ -456,19 +511,19 @@ async function uploadInstagram(context, videoPath, lang) {
         ]);
         await fileChooser.setFiles(videoPath);
         fileSet = true;
-        console.log("  ✓ File set via Публикация (filechooser)");
+        plog("  ✓ File set via Публикация (filechooser)");
       } catch(fcErr) {
-        console.log("  No filechooser from Публикация — waiting for file input:", fcErr.message.slice(0, 60));
+        plog("  No filechooser from Публикация — waiting for file input:", fcErr.message.slice(0, 60));
         await page.locator('text="Публикация"').first().click().catch(() => {});
         await delay(3000);
       }
     } else {
-      console.log("  No sub-menu (personal account) — looking for file input directly");
+      plog("  No sub-menu (personal account) — looking for file input directly");
     }
 
     // Diagnostic screenshot
     await page.screenshot({ path: "/tmp/instagram-after-create.png" });
-    console.log("  📸 /tmp/instagram-after-create.png");
+    plog("  📸 /tmp/instagram-after-create.png");
 
     // Click "Select from computer" / use hidden file input
     if (!fileSet) {
@@ -497,12 +552,12 @@ async function uploadInstagram(context, videoPath, lang) {
         fileSet = true;
       } catch {
         await page.screenshot({ path: "/tmp/instagram-no-file-input.png" });
-        console.log("  📸 /tmp/instagram-no-file-input.png");
+        plog("  📸 /tmp/instagram-no-file-input.png");
       }
     }
 
     if (!fileSet) throw new Error("Could not set file on Instagram");
-    console.log("  ✓ File selected");
+    plog("  ✓ File selected");
 
     // Helper: dismiss any modal popups (Reels info, etc.) before navigating
     const dismissPopups = async () => {
@@ -511,7 +566,7 @@ async function uploadInstagram(context, videoPath, lang) {
           const btn = page.locator(sel).first();
           if (await btn.isVisible({ timeout: 1500 })) {
             await btn.click();
-            console.log(`  ✓ Dismissed popup (${sel})`);
+            plog(`  ✓ Dismissed popup (${sel})`);
             await delay(600);
           }
         } catch {}
@@ -535,7 +590,7 @@ async function uploadInstagram(context, videoPath, lang) {
 
     // Открываем пикер соотношения — иконка "стрелки друг на друга" внизу-слева превью
     await page.screenshot({ path: "/tmp/instagram-crop-dialog.png" });
-    console.log("  📸 /tmp/instagram-crop-dialog.png");
+    plog("  📸 /tmp/instagram-crop-dialog.png");
 
     // Логгируем все кнопки в диалоге (для отладки позиции)
     const dialogBtns = await page.evaluate(() => {
@@ -546,7 +601,7 @@ async function uploadInstagram(context, videoPath, lang) {
         return { x: Math.round(r.left), y: Math.round(r.top), w: Math.round(r.width), h: Math.round(r.height), label: b.getAttribute('aria-label') || b.textContent?.trim().slice(0,20) };
       }).filter(b => b.w > 8 && b.h > 8);
     });
-    console.log("  Кнопки в диалоге:", JSON.stringify(dialogBtns));
+    plog("  Кнопки в диалоге:", JSON.stringify(dialogBtns));
 
     // Кнопка иконки "стрелки" — самая левая среди кнопок в нижней части превью
     // Ищем среди маленьких кнопок (не "Далее") в нижней половине диалога
@@ -568,10 +623,10 @@ async function uploadInstagram(context, videoPath, lang) {
     });
 
     if (ratioBtn) {
-      console.log(`  Кликаю иконку пикера: "${ratioBtn.label}" at (${Math.round(ratioBtn.x)}, ${Math.round(ratioBtn.y)})`);
+      plog(`  Кликаю иконку пикера: "${ratioBtn.label}" at (${Math.round(ratioBtn.x)}, ${Math.round(ratioBtn.y)})`);
       await page.mouse.click(ratioBtn.x, ratioBtn.y);
     } else {
-      console.log("  ⚠️ Кнопка пикера не найдена по позиции — пробую aria-label");
+      plog("  ⚠️ Кнопка пикера не найдена по позиции — пробую aria-label");
       for (const sel of ['[aria-label*="Выбрать размер" i]', '[aria-label*="размер и обр" i]',
                           '[aria-label*="crop" i]', '[aria-label*="кадр" i]', '[aria-label*="ratio" i]',
                           '[aria-label*="Select crop" i]', '[aria-label*="Обрезка" i]']) {
@@ -587,7 +642,7 @@ async function uploadInstagram(context, videoPath, lang) {
 
     await delay(1200);
     await page.screenshot({ path: "/tmp/instagram-ratio-picker.png" });
-    console.log("  📸 /tmp/instagram-ratio-picker.png");
+    plog("  📸 /tmp/instagram-ratio-picker.png");
 
     // Кликаем 9:16 через mouse.click по координатам
     const pos916 = await page.evaluate(() => {
@@ -599,19 +654,19 @@ async function uploadInstagram(context, videoPath, lang) {
     });
     if (pos916) {
       await page.mouse.click(pos916.x, pos916.y);
-      console.log(`  ✓ Selected 9:16 at (${Math.round(pos916.x)}, ${Math.round(pos916.y)})`);
+      plog(`  ✓ Selected 9:16 at (${Math.round(pos916.x)}, ${Math.round(pos916.y)})`);
       await delay(800);
     } else {
-      console.log("  ⚠️  9:16 не найдено — продолжаем без смены формата");
+      plog("  ⚠️  9:16 не найдено — продолжаем без смены формата");
     }
 
     // Click Далее: Crop → Filters
     await delay(1000);
-    if (await clickNext()) { console.log("  ✓ Next: crop → filters"); }
+    if (await clickNext()) { plog("  ✓ Next: crop → filters"); }
     await delay(2000);
 
     // Click Далее: Filters → Caption
-    if (await clickNext()) { console.log("  ✓ Next: filters → caption"); }
+    if (await clickNext()) { plog("  ✓ Next: filters → caption"); }
     await delay(2000);
 
     // Caption step
@@ -633,13 +688,13 @@ async function uploadInstagram(context, videoPath, lang) {
       await captionEl.waitFor({ timeout: 12000 });
     } catch {
       await page.screenshot({ path: "/tmp/instagram-caption-step.png" });
-      console.log("  📸 /tmp/instagram-caption-step.png");
+      plog("  📸 /tmp/instagram-caption-step.png");
       throw new Error("Caption field not found");
     }
     await captionEl.click();
     await page.evaluate((text) => navigator.clipboard.writeText(text), caption);
     await page.keyboard.press("Meta+V");
-    console.log("  ✓ Caption filled");
+    plog("  ✓ Caption filled");
 
     await delay(1500);
 
@@ -664,7 +719,7 @@ async function uploadInstagram(context, videoPath, lang) {
       if (await discardHeader.isVisible({ timeout: 800 })) {
         await page.locator('button:has-text("Отмена"), button:has-text("Cancel")').last().click();
         await delay(600);
-        console.log("  ✓ Dismissed Discard dialog (guard)");
+        plog("  ✓ Dismissed Discard dialog (guard)");
       }
     } catch {}
 
@@ -688,20 +743,20 @@ async function uploadInstagram(context, videoPath, lang) {
     });
 
     if (!sharePos) throw new Error("Share button (leaf node) not found in dialog");
-    console.log(`  Share button found: <${sharePos.tag}> "${sharePos.text}" at (${Math.round(sharePos.x)}, ${Math.round(sharePos.y)})`);
+    plog(`  Share button found: <${sharePos.tag}> "${sharePos.text}" at (${Math.round(sharePos.x)}, ${Math.round(sharePos.y)})`);
     await page.screenshot({ path: "/tmp/instagram-before-share.png" });
 
     // Click at exact position (bypasses all event interception)
     await page.mouse.click(sharePos.x, sharePos.y);
-    console.log("  ✓ Share clicked via mouse.click");
+    plog("  ✓ Share clicked via mouse.click");
 
     // Сначала ждём появления диалога "Публикация" (spinner загрузки)
     await page.waitForSelector('div[role="dialog"] >> text="Публикация"', { timeout: 15000 })
-      .then(() => console.log("  ✓ Идёт загрузка ролика..."))
-      .catch(() => console.log("  ⚠️  Диалог загрузки не появился — продолжаем"));
+      .then(() => plog("  ✓ Идёт загрузка ролика..."))
+      .catch(() => plog("  ⚠️  Диалог загрузки не появился — продолжаем"));
 
     await page.screenshot({ path: "/tmp/instagram-after-share.png" });
-    console.log("  📸 /tmp/instagram-after-share.png");
+    plog("  📸 /tmp/instagram-after-share.png");
 
     // Ждём пока диалог-загрузчик исчезнет (Instagram закрывает его после успеха)
     // Или ловим текст успеха — таймаут 3 минуты (большие файлы грузятся долго)
@@ -722,19 +777,22 @@ async function uploadInstagram(context, videoPath, lang) {
     ]).catch(() => null);
 
     await page.screenshot({ path: "/tmp/instagram-share-done.png" });
-    console.log("  📸 /tmp/instagram-share-done.png");
-    console.log("  📍 URL после публикации:", page.url());
+    plog("  📸 /tmp/instagram-share-done.png");
+    plog("  📍 URL после публикации:", page.url());
 
     if (!uploadDone) {
       throw new Error("Таймаут ожидания публикации — ролик мог не загрузиться");
     }
     // Небольшая пауза чтобы Instagram завершил обработку
     await delay(3000);
-    console.log(`  ✅ Instagram [${lang.toUpperCase()}] published! (${uploadDone})`);
+    plog(`  ✅ Instagram [${lang.toUpperCase()}] published! (${uploadDone})`);
     notify("Skily Video Maker", `✅ Instagram ${lang.toUpperCase()} опубликован`);
   } catch(e) {
-    console.error(`  ❌ Instagram [${lang.toUpperCase()}] error:`, e.message);
+    const screenshotPath = `/tmp/instagram-error-${lang}-${Date.now()}.png`;
+    plog(`  ❌ Instagram [${lang.toUpperCase()}] error: ${e.message}`);
+    try { await page.screenshot({ path: screenshotPath }); plog(`  📸 ${screenshotPath}`); } catch {}
     notify("Skily Video Maker", `❌ Instagram ${lang.toUpperCase()} ошибка: ${e.message.slice(0, 60)}`);
+    failures.push(`Instagram [${lang.toUpperCase()}]: ${e.message}`);
   } finally {
     await page.close();
   }
@@ -744,8 +802,8 @@ async function uploadInstagram(context, videoPath, lang) {
 async function launchContext(authFile) {
   if (!fs.existsSync(authFile)) {
     const lang = authFile.includes("-es.") ? "es" : "ru";
-    console.error(`\n❌ Нет файла сессии: ${authFile}`);
-    console.error(`   Сначала запусти: node scripts/setup-login.js ${lang}\n`);
+    plog(`\n❌ Нет файла сессии: ${authFile}`);
+    plog(`   Сначала запусти: node scripts/setup-login.js ${lang}\n`);
     process.exit(1);
   }
 
@@ -777,22 +835,22 @@ async function launchContext(authFile) {
 // ── Main ──────────────────────────────────────────────────────────────────────
 (async () => {
   if (!esVideo && !ruVideo) {
-    console.error("Usage: node scripts/auto-publish.js --es path/to/video-es.mp4 [--ru path/to/video-ru.mp4]");
+    plog("Usage: node scripts/auto-publish.js --es path/to/video-es.mp4 [--ru path/to/video-ru.mp4]");
     process.exit(1);
   }
 
   if (!fs.existsSync(CHROME_PATH)) {
-    console.error("❌ Chrome not found at:", CHROME_PATH);
+    plog(`❌ Chrome not found at: ${CHROME_PATH}`);
     process.exit(1);
   }
 
-  console.log("🚀 Starting Skily Auto-Publisher...");
-  console.log(`   ES video: ${esVideo || "(none)"} → auth: auth-state-es.json`);
-  console.log(`   RU video: ${ruVideo || "(none)"} → auth: auth-state-ru.json`);
+  plog("🚀 Starting Skily Auto-Publisher...");
+  plog(`   ES video: ${esVideo || "(none)"} → auth: auth-state-es.json`);
+  plog(`   RU video: ${ruVideo || "(none)"} → auth: auth-state-ru.json`);
 
   // ── ES: Spanish accounts ───────────────────────────────────────────────────
   if (esVideo) {
-    console.log("\n── ES accounts (Spanish audience) ──");
+    plog("\n── ES accounts (Spanish audience) ──");
     const ctxES = await launchContext(AUTH_ES);
     try {
       if (!skipTikTok)    await uploadTikTok(ctxES,    path.resolve(esVideo), "es");
@@ -806,7 +864,7 @@ async function launchContext(authFile) {
 
   // ── RU: Expat accounts ─────────────────────────────────────────────────────
   if (ruVideo) {
-    console.log("\n── RU accounts (Expat audience) ──");
+    plog("\n── RU accounts (Expat audience) ──");
     const ctxRU = await launchContext(AUTH_RU);
     try {
       if (!skipTikTok)    await uploadTikTok(ctxRU,    path.resolve(ruVideo), "ru");
@@ -817,6 +875,12 @@ async function launchContext(authFile) {
     }
   }
 
-  console.log("\n✅ Auto-publisher finished.");
-  notify("Skily Video Maker", "✅ Все видео опубликованы!");
+  if (failures.length > 0) {
+    plog(`\n⚠️  ${failures.length} upload(s) failed:`);
+    failures.forEach(f => plog(`   ✗ ${f}`));
+    notify("Skily Video Maker", `⚠️ ${failures.length} ошибок публикации — см. auto-publish.log`);
+  } else {
+    plog("\n✅ Auto-publisher finished — all uploads succeeded.");
+    notify("Skily Video Maker", "✅ Все видео опубликованы!");
+  }
 })();

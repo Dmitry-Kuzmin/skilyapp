@@ -13,14 +13,13 @@ interface SocialTrustBadgeProps {
 
 export const SocialTrustBadge: React.FC<SocialTrustBadgeProps> = ({
   className,
-  totalCount = "50,000+",
   showStars = true
 }) => {
   const { language } = useLanguage();
   const { data: onlineData } = useOnlinePlayers();
 
   const socialProofAvatars = (onlineData?.players ?? [])
-    .filter(p => p.photoUrl)
+    .filter(p => p.photoUrl && p.photoUrl.trim() !== '' && p.photoUrl.startsWith('http'))
     .slice(0, 3)
     .map(p => ({
       id: p.id,
@@ -28,15 +27,14 @@ export const SocialTrustBadge: React.FC<SocialTrustBadgeProps> = ({
       initials: p.initials
     }));
 
-  const trustText = language === 'ru' ? `Доверяют ${totalCount} учеников`
-    : language === 'es' ? `Más de ${totalCount} alumnos confían`
-    : `Trusted by ${totalCount} students`;
+  const trustText = language === 'ru' ? `Выбор тысяч учеников`
+    : language === 'es' ? `La elección de miles de alumnos`
+    : `Trusted by thousands of students`;
 
   return (
     <div className={cn("flex items-center gap-4", className)}>
       <AvatarGroup 
         avatars={socialProofAvatars}
-        totalCount={totalCount.includes('+') ? totalCount : `+${totalCount}`}
         size="md"
         overlap={-12}
         ringColor="ring-[#080B16]"

@@ -1713,6 +1713,8 @@ const server = http.createServer(async (req, res) => {
               hookAudioDurationSec: videoQuestion.hookAudioDurationSecRu || videoQuestion.hookAudioDurationSec,
               outroAudioFile:       videoQuestion.outroAudioFileRu || null,
               outroAudioDurationSec:videoQuestion.outroAudioDurationSecRu || null,
+              // Use a different background than ES to prevent TikTok duplicate detection
+              backgroundVideo: videoQuestion.backgroundVideoRU || videoQuestion.backgroundVideo,
             };
             outputRU = path.join(RENDERS_DIR, `question-${question.id}-ru.mp4`);
             console.log(`[Render] RU overlay video…`);

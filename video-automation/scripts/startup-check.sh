@@ -1,52 +1,40 @@
 #!/bin/bash
-# startup-check.sh
-# Fires at login + 9:00/9:30/10:00/10:30/11:00.
-# If today's pipeline hasn't run yet — runs it.
+# startup-check.sh — запускает пайплайн если сегодня ещё не запускался.
+# Вызывается по расписанию LaunchAgent (9:00–11:00, 15:00, 19:00).
 
-export PATH="/Users/dimka/.nvm/versions/node/v24.11.0/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin"
+export PATH="/usr/sbin:/usr/local/bin:/usr/bin:/bin:/opt/homebrew/bin:/Users/dimka/.nvm/versions/node/v24.11.0/bin"
 
 LOG="/Users/dimka/Desktop/Skily/sdadim-dgt-prep/video-automation/morning-pipeline.log"
-PIPELINE="/Users/dimka/Desktop/Skily/sdadim-dgt-prep/video-automation/scripts/morning-pipeline.js"
-NODE="/Users/dimka/.nvm/versions/node/v24.11.0/bin/node"
 LOCKFILE="/tmp/skily-pipeline.lock"
+NODE="/Users/dimka/.nvm/versions/node/v24.11.0/bin/node"
+PIPELINE="/Users/dimka/Desktop/Skily/sdadim-dgt-prep/video-automation/scripts/morning-pipeline.js"
 TODAY=$(date +%Y-%m-%d)
 
-# Ждём 90 сек при запуске — только при загрузке системы (uptime < 300 сек)
-UPTIME_SEC=$(sysctl -n kern.boottime | awk '{print $4}' | tr -d ',')
-NOW=$(date +%s)
-UPTIME=$((NOW - UPTIME_SEC))
-if [ "$UPTIME" -lt 300 ]; then
-  sleep 90
-fi
-
-# Только в рабочие часы (07:00–22:00)
-HOUR=$(date +%H)
-if [ "$HOUR" -lt 7 ] || [ "$HOUR" -gt 22 ]; then
-  exit 0
-fi
-
-# Lockfile: не запускать два экземпляра одновременно
+# Уже запущен?
 if [ -f "$LOCKFILE" ]; then
   PID=$(cat "$LOCKFILE" 2>/dev/null)
   if kill -0 "$PID" 2>/dev/null; then
-    echo "[$TODAY $(date +%H:%M)] startup-check: pipeline уже запущен (pid $PID), пропускаю." >> "$LOG"
     exit 0
   fi
   rm -f "$LOCKFILE"
 fi
 
-# Проверяем — был ли пайплайн уже запущен сегодня
-if grep -q "Morning pipeline started" "$LOG" 2>/dev/null && grep -q "$TODAY" "$LOG" 2>/dev/null; then
+# Уже запускался сегодня?
+if grep -q "$TODAY" "$LOG" 2>/dev/null && grep -q "Morning pipeline started" "$LOG" 2>/dev/null; then
   exit 0
 fi
 
-echo "[$TODAY $(date +%H:%M)] startup-check: запускаю пайплайн..." >> "$LOG"
+# Убиваем зависшие процессы от прошлых запусков
+pkill -f "chrome-headless-shell" 2>/dev/null
+pkill -f "remotion render" 2>/dev/null
+sleep 3
+
+# Запускаем
 echo $$ > "$LOCKFILE"
 trap "rm -f $LOCKFILE" EXIT
 
 cd "/Users/dimka/Desktop/Skily/sdadim-dgt-prep/video-automation"
 "$NODE" "$PIPELINE"
-EC=$?
 
-# Никогда не возвращаем 78 — launchd его воспринимает как «отключить навсегда»
-[ $EC -eq 78 ] && exit 1 || exit 0
+# Всегда выходим с 0 — launchd не должен видеть код 78
+exit 0

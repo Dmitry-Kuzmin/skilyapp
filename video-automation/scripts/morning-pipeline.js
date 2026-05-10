@@ -22,6 +22,23 @@ const RENDERS_DIR = path.join(ROOT, "renders");
 const PUBLISH_DATA_FILE = path.join(RENDERS_DIR, "publish-data.json");
 const STATE_FILE = path.join(RENDERS_DIR, "series-state.json");
 const LOG_FILE = path.join(ROOT, "morning-pipeline.log");
+const LOCK_FILE = path.join(ROOT, "pipeline.lock");
+
+// ── Lock: prevent concurrent pipeline runs ────────────────────────────────────
+if (fs.existsSync(LOCK_FILE)) {
+  const lockAge = Date.now() - fs.statSync(LOCK_FILE).mtimeMs;
+  if (lockAge < 90 * 60 * 1000) { // 90-minute max run time
+    const pid = fs.readFileSync(LOCK_FILE, "utf-8").trim();
+    console.log(`[${new Date().toISOString()}] ⏭  Pipeline already running (pid ${pid}, ${Math.round(lockAge/60000)}m ago) — skipping.`);
+    process.exit(0);
+  }
+  // Stale lock — remove and continue
+  fs.unlinkSync(LOCK_FILE);
+}
+fs.writeFileSync(LOCK_FILE, String(process.pid));
+process.on("exit", () => { try { fs.unlinkSync(LOCK_FILE); } catch {} });
+process.on("SIGINT", () => process.exit(1));
+process.on("SIGTERM", () => process.exit(1));
 
 // Load .env
 try {
@@ -226,6 +243,8 @@ async function renderViaApi(question) {
 }
 
 // ── Build video question object ───────────────────────────────────────────────
+// ES always uses bg1, RU always uses bg2 — guarantees different visual fingerprint.
+// On odd series numbers the assignment swaps so feeds look varied over time.
 const BG_VIDEOS = ["backgrounds/bg1.mp4", "backgrounds/bg2.mp4"];
 
 function buildVideoQuestion(q, seriesNumber) {
@@ -241,7 +260,10 @@ function buildVideoQuestion(q, seriesNumber) {
   // VideoTemplate.tsx uses q.language ("es"/"ru") — not q.country
   const language = q.country === "russia" ? "ru" : "es";
 
-  const backgroundVideo = BG_VIDEOS[Math.floor(Math.random() * BG_VIDEOS.length)];
+  // ES and RU always use DIFFERENT backgrounds to avoid TikTok duplicate detection
+  const bgIndex = seriesNumber % 2;
+  const backgroundVideoES = BG_VIDEOS[bgIndex];
+  const backgroundVideoRU = BG_VIDEOS[1 - bgIndex];
 
   return {
     ...q,
@@ -253,8 +275,69 @@ function buildVideoQuestion(q, seriesNumber) {
     explanationRu: q.explanation_ru || q.explanation || "",
     question_ru: q.question_ru || q.question,
     show_explanation: true,
-    backgroundVideo,
+    backgroundVideo: backgroundVideoES,
+    backgroundVideoRU,                // ← RU uses the opposite background
   };
+}
+
+// ── ffmpeg: re-encode RU video with subtle visual variation ───────────────────
+// Changes the perceptual hash so TikTok doesn't flag it as duplicate of ES video.
+// Applies a slight warm color grade + different CRF — invisible to human eye.
+const FFMPEG = "/opt/homebrew/bin/ffmpeg";
+
+function reencodeRU(inputPath) {
+  const outputPath = inputPath.replace(".mp4", "-ru-final.mp4");
+  // Slight warm hue shift (+5°), saturation +5%, brightness +1.5%, different CRF
+  const cmd = `${FFMPEG} -y -i "${inputPath}" \
+    -vf "hue=h=5:s=1.05,eq=brightness=0.015:contrast=1.02" \
+    -c:v libx264 -crf 26 -preset fast \
+    -c:a aac -b:a 192k \
+    "${outputPath}" 2>&1`;
+  log("  🎨 Re-encoding RU with color variation...");
+  try {
+    execSync(cmd, { timeout: 120000 });
+    log(`  ✅ RU re-encoded: ${path.basename(outputPath)}`);
+    return outputPath;
+  } catch(e) {
+    log(`  ⚠️  ffmpeg re-encode failed (using original): ${e.message.slice(0, 100)}`);
+    return inputPath;
+  }
+}
+
+// ── Delayed RU publish (runs in background, exits independently) ──────────────
+const RU_DELAY_HOURS = 4;
+
+function scheduleRUPublish(ruVideoPath) {
+  const delayMs = RU_DELAY_HOURS * 60 * 60 * 1000;
+  const fireAt = new Date(Date.now() + delayMs).toISOString();
+  log(`  ⏰ RU publish scheduled for ${fireAt} (${RU_DELAY_HOURS}h from now)`);
+
+  // Spawn a detached background process that sleeps then publishes
+  const script = `
+    setTimeout(() => {
+      const { execSync } = require('child_process');
+      const fs = require('fs');
+      const logFile = '${LOG_FILE.replace(/\\/g, "\\\\")}';
+      const ts = () => new Date().toISOString();
+      const log = (m) => { const l = '[' + ts() + '] ' + m; console.log(l); try { fs.appendFileSync(logFile, l + '\\n'); } catch {} };
+      log('⏰ Firing delayed RU publish...');
+      try {
+        execSync('${NODE} ${path.join(__dirname, "auto-publish.js").replace(/\\/g, "\\\\")} --ru "${ruVideoPath.replace(/\\/g, "\\\\")}" --skip-youtube --skip-instagram', {
+          cwd: '${ROOT.replace(/\\/g, "\\\\")}',
+          stdio: 'inherit',
+          timeout: 600000,
+        });
+        log('✅ Delayed RU publish done.');
+      } catch(e) { log('❌ Delayed RU publish error: ' + e.message); }
+    }, ${delayMs});
+  `;
+
+  const child = spawn(NODE, ["-e", script], {
+    detached: true,
+    stdio: "ignore",
+    env: { ...process.env, PATH: `/Users/dimka/.nvm/versions/node/v24.11.0/bin:/opt/homebrew/bin:${process.env.PATH}` },
+  });
+  child.unref(); // let parent exit independently
 }
 
 // ── Main pipeline ─────────────────────────────────────────────────────────────
@@ -293,11 +376,16 @@ function buildVideoQuestion(q, seriesNumber) {
     }
 
     const finalES = result.output;
-    const finalRU = result.outputRU || null;
+    let finalRU = result.outputRU || null;
     log(`   ✅ ES: ${finalES}`);
     if (finalRU) log(`   ✅ RU: ${finalRU}`);
 
     stopPickerServer();
+
+    // 2b. Re-encode RU with subtle color variation to avoid TikTok duplicate detection
+    if (finalRU) {
+      finalRU = reencodeRU(finalRU);
+    }
 
     // 3. Save publish-data.json for auto-publish.js
     const pubData = {
@@ -322,22 +410,25 @@ function buildVideoQuestion(q, seriesNumber) {
 
     notify("Skily Video Maker", "🎬 Видео готово, начинаю публикацию...");
 
-    // 4. Run auto-publish
-    log("📤 Starting auto-publisher...");
-    const publishArgs = [
-      path.join(__dirname, "auto-publish.js"),
-      "--es", finalES,
-    ];
-    if (finalRU) publishArgs.push("--ru", finalRU);
+    // 4. Publish strategy: ES и RU → все платформы сразу
 
-    await new Promise((resolve, reject) => {
-      const proc = spawn(NODE, publishArgs, {
+    const runPublish = (args, label) => new Promise((resolve, reject) => {
+      log(`📤 ${label}`);
+      const proc = spawn(NODE, [path.join(__dirname, "auto-publish.js"), ...args], {
         cwd: ROOT,
         stdio: "inherit",
         env: { ...process.env, PATH: `/Users/dimka/.nvm/versions/node/v24.11.0/bin:/opt/homebrew/bin:${process.env.PATH}` },
       });
       proc.on("close", code => code === 0 ? resolve() : reject(new Error(`auto-publish exited with code ${code}`)));
     });
+
+    // ES → TikTok + YouTube + Instagram
+    await runPublish(["--es", finalES], "Publishing ES to all platforms...");
+
+    // RU → TikTok + YouTube + Instagram (сразу, без задержки)
+    if (finalRU) {
+      await runPublish(["--ru", finalRU], "Publishing RU to all platforms...");
+    }
 
     // 5. Mark as published in Supabase + local log
     await markPublished(question.id, seriesNumber);

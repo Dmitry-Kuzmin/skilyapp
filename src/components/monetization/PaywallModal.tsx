@@ -616,7 +616,7 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
               transition={{ delay: 0.9 }}
               className="relative z-10 hidden md:flex items-center gap-4 pt-6 border-t border-white/5 mt-6"
             >
-              <SocialTrustBadge totalCount="50,000+" />
+              <SocialTrustBadge />
             </motion.div>
           </div>
 

@@ -608,7 +608,7 @@ const Tests = () => {
               </div>
 
               {/* Status row — single line under title */}
-              <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar flex-nowrap">
+              <div className="flex items-center gap-2 overflow-x-auto px-4 sm:px-6 lg:px-10 -mx-4 sm:-mx-6 lg:-mx-10 pb-2 no-scrollbar flex-nowrap">
 
                 {/* Streak */}
                 <Tooltip delayDuration={300}>

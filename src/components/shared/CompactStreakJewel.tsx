@@ -36,17 +36,22 @@ export const CompactStreakJewel: React.FC<CompactStreakJewelProps> = ({
             animate={{ opacity: 1, scale: 1 }}
             key={`streak-${streak}-${hasClaimedToday}`}
             className={cn(
-                "relative flex items-center justify-center gap-3 overflow-hidden transition-all",
-                // Glassmorphism pill background
-                "bg-orange-500/10 dark:bg-orange-950/30 backdrop-blur-md border border-orange-500/20",
-                "shadow-[0_4px_12px_rgba(249,115,22,0.15)]",
-                // Compact sizing (auto width, not full width)
+                "relative flex items-center justify-center gap-3 transition-all",
+                // Shadow moved to a wrapper or handled carefully
+                "shadow-[0_4px_16px_rgba(249,115,22,0.25)]",
+                // Compact sizing
                 size === 'lg' ? "h-11 px-4 rounded-full" : "h-9 px-3 rounded-full",
                 className
             )}
         >
-            {/* Subtle glow effect */}
-            <div className="absolute inset-0 bg-gradient-to-r from-orange-500/10 to-transparent opacity-50 pointer-events-none" />
+            {/* Background Layer with Blur and Rounded Corners */}
+            <div className={cn(
+                "absolute inset-0 rounded-full overflow-hidden pointer-events-none",
+                "bg-orange-500/10 dark:bg-orange-950/40 backdrop-blur-md border border-orange-500/20"
+            )}>
+                {/* Subtle glow effect */}
+                <div className="absolute inset-0 bg-gradient-to-r from-orange-500/20 to-transparent opacity-50" />
+            </div>
 
             {/* Content Group: Icon + Number */}
             <div className="relative z-10 flex items-center gap-2.5">
