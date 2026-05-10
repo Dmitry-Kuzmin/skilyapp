@@ -325,18 +325,6 @@ export function AIChatWidget() {
     const mediaRecorderRef = useRef<MediaRecorder | null>(null);
     const audioChunksRef = useRef<Blob[]>([]);
 
-    // TTS (озвучка ответов AI) — тот же движок, что и в тестах
-    const ttsLang: TTSLang = ((): TTSLang => {
-        const l = (interfaceLanguage || 'es') as string;
-        return l === 'ru' || l === 'en' ? l : 'es';
-    })();
-    const { speak: speakAi, isActive: isSpeakingMessage } = useTTS(ttsLang);
-    const handleSpeakMessage = useCallback((id: string, content: string) => {
-        const cleaned = cleanForSpeech(content);
-        if (!cleaned) return;
-        speakAi(cleaned, ttsLang, id);
-    }, [speakAi, ttsLang]);
-
     // Подберём лучший mime, который поддерживает текущий браузер (Safari ≠ Chrome)
     const pickRecorderMime = (): string => {
         const candidates = [
@@ -463,6 +451,18 @@ export function AIChatWidget() {
     const currentProfileCountry = useProfileData().profileData?.preferred_country || 'russia';
     const baseInterfaceLanguage = showTranslation ? 'ru' : (questionContext?.testLanguage || 'es');
     const interfaceLanguage = currentProfileCountry === 'russia' ? 'ru' : baseInterfaceLanguage;
+
+    // TTS — должен быть после interfaceLanguage, иначе IIFE получает TDZ-ошибку
+    const ttsLang: TTSLang = ((): TTSLang => {
+        const l = (interfaceLanguage || 'es') as string;
+        return l === 'ru' || l === 'en' ? l : 'es';
+    })();
+    const { speak: speakAi, isActive: isSpeakingMessage } = useTTS(ttsLang);
+    const handleSpeakMessage = useCallback((id: string, content: string) => {
+        const cleaned = cleanForSpeech(content);
+        if (!cleaned) return;
+        speakAi(cleaned, ttsLang, id);
+    }, [speakAi, ttsLang]);
 
     const askAI = useCallback(async (userMessage: string) => {
         if (!userMessage.trim() || isLoading) return;
