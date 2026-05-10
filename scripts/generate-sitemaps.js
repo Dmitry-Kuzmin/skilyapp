@@ -53,7 +53,6 @@ const PRERENDER_ROUTES = [
   // /, /ru, /es, /en, /features, /partners, /blog, /article/*, /demo-tests
   // are served by the Astro landing (see scripts/copy-landing.js).
   // /about — removed: renders only a shell in headless context (no session).
-  "/pricing",
   "/help",
   "/road-signs",
   "/dgt-tests",
@@ -70,7 +69,6 @@ const ASSERT_CORE_PAGES = [
   // en.html has no Astro page yet (/en → /es.html via vercel rewrite)
   { route: "/ru", outputPath: "ru.html", canonical: `${SITE_URL}/ru`, langAssert: "ru" },
   { route: "/es", outputPath: "es.html", canonical: `${SITE_URL}/es`, langAssert: "es" },
-  { route: "/pricing", outputPath: "pricing.html", canonical: `${SITE_URL}/pricing` },
   { route: "/curso", outputPath: "curso.html", canonical: `${SITE_URL}/curso` },
   { route: "/blog", outputPath: "blog.html", canonical: `${SITE_URL}/blog` },
   { route: "/legal/privacy", outputPath: "legal/privacy.html", canonical: `${SITE_URL}/legal/privacy`, minBodyChars: 30 },
