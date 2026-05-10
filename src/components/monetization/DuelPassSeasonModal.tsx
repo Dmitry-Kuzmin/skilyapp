@@ -1120,13 +1120,20 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
     content: React.ReactNode,
     title?: string,
     description?: string,
-    options?: { showHandle?: boolean; contentClassName?: string; loading?: boolean }
+    options?: {
+      showHandle?: boolean;
+      contentClassName?: string;
+      loading?: boolean;
+      showTitleBar?: boolean;
+      headerRight?: React.ReactNode;
+    }
   ) => (
     <UnifiedModal
       open={open}
       onOpenChange={onOpenChange}
       title={title || dp("title")}
-      showTitleBar={false}
+      showTitleBar={options?.showTitleBar ?? false}
+      headerRight={options?.headerRight}
       className={cn(
         "max-h-[85vh] p-0 flex flex-col",
         isMobile ? "w-screen max-w-none" : "w-[95vw] max-w-5xl"
@@ -1667,18 +1674,6 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
               </div>
               
               <div className="space-y-2">
-                <div className="flex items-center justify-center gap-2">
-                  <h1 className="text-4xl sm:text-6xl font-black text-white tracking-tight uppercase leading-none drop-shadow-lg">
-                    {activeSeasonName}
-                  </h1>
-                  <button 
-                    onClick={() => setCurrentView('onboarding')}
-                    className="p-1.5 sm:p-2 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-md transition-colors border border-white/10"
-                    title="О Duel Pass"
-                  >
-                    <Info className="w-4 h-4 sm:w-5 sm:h-5 text-white/80" />
-                  </button>
-                </div>
                 <div className="flex items-center justify-center gap-3 py-1 px-4 rounded-full bg-white/5 border border-white/10 backdrop-blur-md mx-auto w-fit">
                   <Clock className="w-3.5 h-3.5 text-white/40" />
                   <span className="text-[10px] font-bold text-white/60 uppercase tracking-[0.1em]">
@@ -2135,13 +2130,30 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
     );
   }, [showUpcoming, loading, upcomingSeasonContent, currentView, showFullLeaderboard]);
 
+  const showStandardHeader = currentView === 'main' && !showUpcoming && !!activeSeasonName;
+
   return (
     <>
-      {renderModalShell(modalContent, undefined, showUpcoming ? dp("migration.description") : undefined, {
-        showHandle: true,
-        contentClassName: showUpcoming ? "px-4 sm:px-6 py-4" : "px-0",
-        loading: false,
-      })}
+      {renderModalShell(
+        modalContent,
+        showStandardHeader ? activeSeasonName : undefined,
+        showUpcoming ? dp("migration.description") : undefined,
+        {
+          showHandle: true,
+          contentClassName: showUpcoming ? "px-4 sm:px-6 py-4" : "px-0",
+          loading: false,
+          showTitleBar: showStandardHeader,
+          headerRight: showStandardHeader ? (
+            <button
+              onClick={() => setCurrentView('onboarding')}
+              className="w-9 h-9 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 transition-colors"
+              aria-label={dp("hero.aboutDuelPass") || "About Duel Pass"}
+            >
+              <Info className="w-4 h-4 text-foreground/80" />
+            </button>
+          ) : undefined,
+        }
+      )}
       <PaywallModal 
         open={showPaywall} 
         onOpenChange={(open) => {
