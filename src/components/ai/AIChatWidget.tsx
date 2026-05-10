@@ -18,6 +18,7 @@ import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
 import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { toast } from 'sonner';
 import { isTelegramMiniApp, triggerHapticFeedback } from '@/lib/telegram';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -99,7 +100,7 @@ const MarkdownContent: React.FC<MarkdownProps> = ({ children, className, onOpenS
     if (!children || !hasWidget) {
         return (
             <div className={cn("text-sm leading-relaxed", className)}>
-                <ReactMarkdown components={mdComponents}>{children}</ReactMarkdown>
+                <ReactMarkdown components={mdComponents} remarkPlugins={[remarkGfm]}>{children}</ReactMarkdown>
             </div>
         );
     }
@@ -115,7 +116,7 @@ const MarkdownContent: React.FC<MarkdownProps> = ({ children, className, onOpenS
         if (textBefore.trim()) {
             elements.push(
                 <div key={`text-${lastIndex}`} className={cn("text-sm leading-relaxed", className)}>
-                    <ReactMarkdown components={mdComponents}>{textBefore}</ReactMarkdown>
+                    <ReactMarkdown components={mdComponents} remarkPlugins={[remarkGfm]}>{textBefore}</ReactMarkdown>
                 </div>
             );
         }
@@ -175,7 +176,7 @@ const MarkdownContent: React.FC<MarkdownProps> = ({ children, className, onOpenS
     if (remainingText.trim()) {
         elements.push(
             <div key="text-end" className={cn("text-sm leading-relaxed", className)}>
-                <ReactMarkdown components={mdComponents}>{remainingText}</ReactMarkdown>
+                <ReactMarkdown components={mdComponents} remarkPlugins={[remarkGfm]}>{remainingText}</ReactMarkdown>
             </div>
         );
     }
