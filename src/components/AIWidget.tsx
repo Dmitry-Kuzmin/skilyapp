@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { SkilyAICharacter } from "@/components/skily-ai/SkilyAICharacter";
 import { useAIRequest } from "@/hooks/useAIRequest";
+import { useTypewriter } from "@/hooks/useTypewriter";
 import { supabase } from "@/integrations/supabase/client";
 import ReactMarkdown from 'react-markdown';
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -186,6 +187,7 @@ const AIWidgetContent = ({
   const [isLoading, setIsLoading] = useState(false);
   const isSpeaking = useTTSStore((s) => s.isSpeaking);
   const { sendRequest } = useAIRequest();
+  const typewriter = useTypewriter({ charsPerSecond: 60 });
   const [input, setInput] = useState('');
   const [isExpanded, setIsExpanded] = useState(false);
   const [messageRatings, setMessageRatings] = useState<Record<number, 1 | -1>>({});
@@ -442,7 +444,6 @@ const AIWidgetContent = ({
       return;
     }
     setIsLoading(true);
-    let assistantMessage = "";
 
     // Адаптивный контекст и системный промпт в зависимости от страны
     const getRussiaSystemPrompt = () => `
@@ -527,6 +528,19 @@ ${imageUrl ? `\n⚠️ К вопросу есть иллюстрация — о�
       ? newMessages.slice(1)
       : newMessages;
 
+    // Typewriter throttle — печатаем ответ AI со скоростью 60 chars/sec,
+    // даже если Gemini Flash отдал всё за полсекунды (одинаковый UX в обоих чатах)
+    typewriter.start((slice) => {
+      setMessages(prev => {
+        const updated = [...prev];
+        const last = updated[updated.length - 1];
+        if (last?.role === 'assistant') {
+          updated[updated.length - 1] = { role: 'assistant', content: last.content + slice };
+        }
+        return updated;
+      });
+    });
+
     await sendRequest(
       {
         messages: [{ role: 'system', content: context }, ...apiMessages],
@@ -535,21 +549,16 @@ ${imageUrl ? `\n⚠️ К вопросу есть иллюстрация — о�
         imageUrl: imageUrl || null,
       },
       {
-        onChunk: (text) => {
-          assistantMessage += text;
-          setMessages(prev => {
-            const updated = [...prev];
-            updated[updated.length - 1] = { role: "assistant", content: assistantMessage };
-            return updated;
-          });
-        },
-        onDone: () => { /* setIsLoading handled in finally */ },
+        onChunk: (text) => typewriter.push(text),
+        onDone: () => { typewriter.finish(); },
         onLimitReached: (data) => {
+          typewriter.cancel();
           setLimitData({ currentCount: data.currentCount, limit: data.limit, message: data.message || '' });
           setLimitModalOpen(true);
           setMessages(prev => prev.slice(0, -1));
         },
         onError: () => {
+          typewriter.cancel();
           setMessages(prev => {
             const updated = [...prev];
             updated[updated.length - 1] = {
