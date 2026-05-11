@@ -49,9 +49,12 @@ async function verifyPaddleSignature(payload: string, signatureHeader: string, s
 
     const key = await crypto.subtle.importKey("raw", keyData, { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
     const computedSignature = await crypto.subtle.sign("HMAC", key, messageData);
-    const computedBase64 = btoa(String.fromCharCode(...new Uint8Array(computedSignature)));
+    // Paddle uses hex-encoded HMAC-SHA256, not base64
+    const computedHex = Array.from(new Uint8Array(computedSignature))
+      .map(b => b.toString(16).padStart(2, '0'))
+      .join('');
 
-    return computedBase64 === signatureValue;
+    return computedHex === signatureValue;
   } catch { return false; }
 }
 

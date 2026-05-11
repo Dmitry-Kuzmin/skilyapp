@@ -1,11 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Drawer as VaulDrawer } from "vaul";
-import { ShieldCheck, ArrowLeft, X as XIcon } from "lucide-react";
+import { ShieldCheck, ArrowLeft, X as XIcon, CheckCircle2 } from "lucide-react";
 import { UnifiedModal } from "@/components/ui/unified-modal";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { getPaddleInstance, getPaddleInstanceSync } from "@/lib/paddle";
-import { toast } from "@/lib/toast";
 import { cn } from "@/lib/utils";
 import type { Paddle } from "@paddle/paddle-js";
 
@@ -21,11 +20,31 @@ interface PaddleCheckoutShellProps {
   onOpenChange?: (open: boolean) => void;
 }
 
-const SHELL_T: Record<string, { back: string; protected: string; success: string; successDesc: string }> = {
-  ru: { back: "Назад к планам", protected: "Защищено Paddle", success: "Оплата прошла успешно", successDesc: "Premium активирован 🎉" },
-  en: { back: "Back to plans",  protected: "Secured by Paddle", success: "Payment successful",     successDesc: "Premium activated 🎉" },
-  es: { back: "Volver a los planes", protected: "Protegido por Paddle", success: "Pago realizado", successDesc: "Premium activado 🎉" },
+const SHELL_T: Record<string, { back: string; protected: string; success: string; successDesc: string; closing: string }> = {
+  ru: { back: "Назад к планам", protected: "Защищено Paddle", success: "Оплата прошла успешно!", successDesc: "Premium активирован 🎉", closing: "Закрытие через" },
+  en: { back: "Back to plans",  protected: "Secured by Paddle", success: "Payment successful!",   successDesc: "Premium activated 🎉",  closing: "Closing in" },
+  es: { back: "Volver a los planes", protected: "Protegido por Paddle", success: "¡Pago realizado!", successDesc: "Premium activado 🎉", closing: "Cerrando en" },
 };
+
+function SuccessOverlay({ t, countdown }: { t: typeof SHELL_T.en; countdown: number }) {
+  return (
+    <div className="absolute inset-0 flex flex-col items-center justify-center bg-white z-20 gap-4 px-6">
+      <div className="relative">
+        <div className="w-20 h-20 rounded-full bg-emerald-50 flex items-center justify-center">
+          <CheckCircle2 className="w-11 h-11 text-emerald-500 stroke-[1.5]" />
+        </div>
+        <div className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center">
+          <span className="text-white text-sm font-bold tabular-nums">{countdown}</span>
+        </div>
+      </div>
+      <div className="text-center space-y-1">
+        <p className="text-xl font-bold text-slate-900">{t.success}</p>
+        <p className="text-sm text-slate-500">{t.successDesc}</p>
+      </div>
+      <p className="text-xs text-slate-400">{t.closing} {countdown}s</p>
+    </div>
+  );
+}
 
 export function PaddleCheckoutShell({ transactionId: txProp, onClose, onCompleted, open, onOpenChange }: PaddleCheckoutShellProps) {
   const isMobile = useIsMobile();
@@ -33,10 +52,15 @@ export function PaddleCheckoutShell({ transactionId: txProp, onClose, onComplete
   const t = SHELL_T[language] || SHELL_T.en;
   const paddleLocale = language === "ru" ? "ru" : language === "es" ? "es" : "en";
   const [paddle, setPaddle] = useState<Paddle | null>(null);
+  const [countdown, setCountdown] = useState<number | null>(null);
+  const onCompletedRef = useRef(onCompleted);
+  const onOpenChangeRef = useRef(onOpenChange);
+  const onCloseRef = useRef(onClose);
+  onCompletedRef.current = onCompleted;
+  onOpenChangeRef.current = onOpenChange;
+  onCloseRef.current = onClose;
 
   // Effective transactionId: учитываем оба пути входа
-  // - GlobalModalManager передаёт `open=true` + `transactionId` через props
-  // - PaywallModal передаёт `transactionId` напрямую (без open)
   const transactionId = open === false ? null : (txProp ?? null);
 
   useEffect(() => {
@@ -45,6 +69,19 @@ export function PaddleCheckoutShell({ transactionId: txProp, onClose, onComplete
     if (existing) { setPaddle(existing); return; }
     getPaddleInstance().then(inst => inst && setPaddle(inst)).catch(() => { });
   }, [transactionId]);
+
+  // Countdown: 3 → 2 → 1 → 0 → close
+  useEffect(() => {
+    if (countdown === null) return;
+    if (countdown === 0) {
+      onCompletedRef.current?.();
+      onOpenChangeRef.current?.(false);
+      onCloseRef.current?.();
+      return;
+    }
+    const timer = setTimeout(() => setCountdown(c => (c ?? 1) - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [countdown]);
 
   useEffect(() => {
     if (!transactionId) return;
@@ -73,12 +110,7 @@ export function PaddleCheckoutShell({ transactionId: txProp, onClose, onComplete
         },
         eventCallback: (event: { name: string }) => {
           if (event?.name === "checkout.completed") {
-            toast({ title: t.success, description: t.successDesc });
-            setTimeout(() => {
-              onCompleted?.();
-              onOpenChange?.(false);
-              onClose?.();
-            }, 1200);
+            setCountdown(3);
           }
         },
       });
@@ -86,7 +118,7 @@ export function PaddleCheckoutShell({ transactionId: txProp, onClose, onComplete
 
     openCheckout();
     return () => { cancelled = true; };
-  }, [transactionId, paddle, paddleLocale, onClose, onOpenChange, onCompleted, t.success, t.successDesc]);
+  }, [transactionId, paddle, paddleLocale]);
 
   const handleClose = () => {
     try { paddle?.Checkout.close(); } catch { /* noop */ }
@@ -101,7 +133,7 @@ export function PaddleCheckoutShell({ transactionId: txProp, onClose, onComplete
         onOpenChange={(next) => { if (!next) handleClose(); }}
         closeThreshold={0.2}
         shouldScaleBackground={false}
-        dismissible={true}
+        dismissible={countdown === null}
         modal={true}
         noBodyStyles={false}
       >
@@ -131,10 +163,13 @@ export function PaddleCheckoutShell({ transactionId: txProp, onClose, onComplete
               </div>
             </div>
 
-            <div
-              className={cn(PADDLE_FRAME_CLASS, "px-2 pb-4 min-h-[480px] overflow-y-auto")}
-              style={{ paddingBottom: "max(24px, env(safe-area-inset-bottom))" }}
-            />
+            <div className="relative">
+              {countdown !== null && <SuccessOverlay t={t} countdown={countdown} />}
+              <div
+                className={cn(PADDLE_FRAME_CLASS, "px-2 pb-4 min-h-[480px] overflow-y-auto")}
+                style={{ paddingBottom: "max(24px, env(safe-area-inset-bottom))" }}
+              />
+            </div>
           </VaulDrawer.Content>
         </VaulDrawer.Portal>
       </VaulDrawer.Root>
@@ -165,10 +200,13 @@ export function PaddleCheckoutShell({ transactionId: txProp, onClose, onComplete
             <span>{t.protected}</span>
           </div>
         </div>
-        <div
-          className={cn(PADDLE_FRAME_CLASS, "px-4 pt-2 min-h-[450px] flex-1")}
-          style={{ paddingBottom: "24px" }}
-        />
+        <div className="relative flex-1">
+          {countdown !== null && <SuccessOverlay t={t} countdown={countdown} />}
+          <div
+            className={cn(PADDLE_FRAME_CLASS, "px-4 pt-2 min-h-[450px] flex-1")}
+            style={{ paddingBottom: "24px" }}
+          />
+        </div>
       </div>
     </UnifiedModal>
   );
