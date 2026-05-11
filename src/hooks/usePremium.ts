@@ -142,8 +142,13 @@ export function usePremium() {
   };
   }
 
+  // dashboardPremium is always fresher (staleTime 30s, refetchOnMount true)
+  // than state from useQuery (staleTime 2min, refetchOnMount false, IndexedDB-persisted).
+  // Prioritise dashboard data to avoid stale cache showing wrong premium status.
+  const effective = dashboardPremium ?? state;
+
   return {
-    ...state,
+    ...effective,
     loading,
     refresh,
     invalidate,
