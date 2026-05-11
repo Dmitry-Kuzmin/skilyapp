@@ -1,7 +1,7 @@
 import { useState, useMemo, useCallback } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useCountry } from "@/contexts/CountryContext";
-import { Swords, Zap, CreditCard, Puzzle, Languages, Shield, Flag, TrendingUp, Crown, Trophy, Brain, Gamepad2, Hourglass, Snowflake, Timer, Car, AlertTriangle, Users, Lock } from "lucide-react";
+import { Swords, Zap, CreditCard, Puzzle, Languages, Shield, Flag, TrendingUp, Crown, Trophy, Brain, Gamepad2, Hourglass, Snowflake, Timer, Car, AlertTriangle, Users, Lock, Gauge } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -112,6 +112,18 @@ const Games = () => {
       route: "/games/road-cards",
       featured: true,
       gradient: "from-indigo-600 via-blue-600 to-violet-700",
+    },
+    {
+      id: 12,
+      title: "Знай скорости",
+      description: "Проверь знание лимитов скорости Испании: от магистралей до жилых зон.",
+      icon: Gauge,
+      color: "primary",
+      premium: false,
+      difficulty: t('gamesPage.difficulties.medium'),
+      route: "/games/speed-quiz",
+      featured: true,
+      gradient: "from-blue-600 via-indigo-600 to-purple-700",
     },
     {
       id: 4,

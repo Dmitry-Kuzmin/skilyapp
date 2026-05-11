@@ -98,6 +98,7 @@ const RoadRace = lazy(() => import("../pages/games/RoadRace"));
 const FlashCardsGame = lazy(() => import("../pages/games/FlashCardsGame"));
 const RoadCardsGame = lazy(() => import("../pages/games/RoadCardsGame"));
 const IntersectionGame = lazy(() => import("../pages/games/IntersectionGame"));
+const SpeedQuizGame = lazy(() => import("../pages/games/SpeedQuizGame"));
 const ReferralRedirect = lazy(() => import("../components/ReferralRedirect").then(m => ({ default: m.ReferralRedirect })));
 const PartnerRedirect = lazy(() => import("../components/PartnerRedirect").then(m => ({ default: m.PartnerRedirect })));
 const SequentialTests = lazy(() => import("../pages/SequentialTests"));
@@ -295,8 +296,13 @@ export function AppRoutes() {
         </Suspense>
       } />
       <Route path="/games/intersection" element={
-        <Suspense fallback={<PageSkeleton />}>
+        <Suspense fallback={<PageLoader />}>
           <IntersectionGame />
+        </Suspense>
+      } />
+      <Route path="/games/speed-quiz" element={
+        <Suspense fallback={<PageLoader />}>
+          <SpeedQuizGame />
         </Suspense>
       } />
       <Route path="/join/:code" element={
