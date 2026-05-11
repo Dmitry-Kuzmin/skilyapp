@@ -4,6 +4,7 @@ import { useUserContext } from '@/contexts/UserContext';
 import { usePremium } from '@/hooks/usePremium';
 import { supabase } from '@/integrations/supabase/client';
 import { Sparkles, Loader2 } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { toast } from 'sonner';
 import { useModalStore } from '@/store/modalStore';
@@ -82,24 +83,40 @@ export function TrialCTA({ onTrialStarted, variant = 'banner' }: TrialCTAProps) 
   }
 
   return (
-    <div className="rounded-2xl border border-amber-400/30 bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-500/10 dark:to-orange-500/5 dark:border-amber-500/20 p-4 mb-4">
-      <div className="flex items-start gap-3">
-        <div className="shrink-0 w-9 h-9 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center shadow-md">
-          <Sparkles className="w-5 h-5 text-white" />
+    <motion.div 
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="group relative overflow-hidden rounded-2xl border border-white/5 bg-zinc-900/30 p-5 mb-6 backdrop-blur-md transition-all hover:border-amber-500/20"
+    >
+      {/* Subtle Glow Background Effect */}
+      <div className="absolute -top-12 -right-12 w-32 h-32 bg-amber-500/5 blur-[60px] rounded-full pointer-events-none" />
+      
+      <div className="flex flex-col sm:flex-row items-center gap-5 sm:items-start relative z-10">
+        <div className="shrink-0 w-11 h-11 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center shadow-[0_0_15px_rgba(245,158,11,0.1)] transition-transform group-hover:scale-110">
+          <Sparkles className="w-5 h-5 text-amber-500" />
         </div>
-        <div className="flex-1 min-w-0">
-          <p className="font-bold text-sm text-amber-900 dark:text-amber-100">{t.headline}</p>
-          <p className="text-xs text-amber-800/80 dark:text-amber-200/70 mt-0.5">{t.sub}</p>
+        
+        <div className="flex-1 text-center sm:text-left min-w-0">
+          <h3 className="text-[15px] font-bold text-white tracking-tight leading-none mb-2">
+            {t.headline}
+          </h3>
+          <p className="text-[13px] text-zinc-400 leading-relaxed max-w-[400px]">
+            {t.sub}
+          </p>
+          
           <Button
             onClick={handleStartTrial}
             disabled={loading}
-            size="sm"
-            className="mt-3 h-9 px-4 rounded-lg bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold text-xs shadow-md"
+            className="mt-5 w-full sm:w-auto h-11 px-8 rounded-xl bg-white hover:bg-zinc-100 text-black font-bold text-sm transition-all active:scale-[0.98] shadow-[0_10px_20px_rgba(255,255,255,0.1)]"
           >
-            {loading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : t.cta}
+            {loading ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              t.cta
+            )}
           </Button>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }
