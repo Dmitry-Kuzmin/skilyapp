@@ -5,6 +5,7 @@ import { haptics } from '@/lib/haptics';
 import { toast } from 'sonner';
 import { getImageUrl } from '@/utils/imageUtils';
 import { useDuelStore } from '@/store/duelStore';
+import { withRetry } from '@/hooks/useRetryableCall';
 
 // ОПТИМИЗАЦИЯ: Условное логирование только в development
 const isDev = import.meta.env.DEV;
@@ -320,73 +321,52 @@ export function useDuelGame({
     });
 
     try {
-      const maxRetries = 3;
       let data: any = null;
-      let lastError: any = null;
 
-      for (let attempt = 0; attempt < maxRetries; attempt++) {
-        try {
-          const timeoutPromise = new Promise((_, reject) => {
-            setTimeout(() => reject(new Error('Timeout: Edge Function не ответил за 20 секунд')), 20000);
-          });
+      const timeTaken = Math.max(0, Math.min(60000, 60000 - currentTimeLeft));
+      const requestBody = {
+        action: 'submit_answer',
+        duel_id: duelId,
+        profile_id: profileId,
+        duel_question_id: question.id,
+        selected_option_id: optionId,
+        time_taken_ms: timeTaken,
+        is_timeout: false
+      };
 
-          const timeTaken = Math.max(0, Math.min(60000, 60000 - currentTimeLeft));
-          const requestBody = {
-            action: 'submit_answer',
-            duel_id: duelId,
-            profile_id: profileId,
-            duel_question_id: question.id,
-            selected_option_id: optionId,
-            time_taken_ms: timeTaken,
-            is_timeout: false
-          };
+      log('[useDuelGame] Request body:', requestBody);
 
-          log('[useDuelGame] Request body:', requestBody);
-
-          const invokePromise = supabase.functions.invoke('duel-manager', { body: requestBody });
-          const result = await Promise.race([invokePromise, timeoutPromise]) as any;
-          const { data: resultData, error: resultError } = result;
-
-          if (resultError) {
-            lastError = resultError;
-            const isRateLimited = resultError?.status === 429 || resultError?.message?.includes('429');
-
-            logWarn(`[useDuelGame] ⚠️ Submit answer attempt ${attempt + 1} failed${isRateLimited ? ' (Rate Limited)' : ''}:`, {
-              message: resultError?.message,
-              status: resultError?.status,
-              error: resultError
-            });
-
-            if (attempt < maxRetries - 1) {
-              const delay = isRateLimited
-                ? (4000 + Math.random() * 3000)
-                : Math.min(1000 * Math.pow(2, attempt), 5000);
-
-              log(`[useDuelGame] ⏳ Retrying submit_answer in ${Math.round(delay)}ms...`);
-              await new Promise(resolve => setTimeout(resolve, delay));
-              continue;
-            }
-            throw resultError;
+      try {
+        const result = await withRetry(
+          () => supabase.functions.invoke('duel-manager', { body: requestBody }),
+          {
+            maxRetries: 3,
+            baseDelay: 1000,
+            maxDelay: 5000,
+            timeoutMs: 20000,
+            onRetry: (attempt, err) => {
+              const isRateLimited = err?.status === 429 || err?.message?.includes('429');
+              logWarn(`[useDuelGame] ⚠️ Submit answer attempt ${attempt} failed${isRateLimited ? ' (Rate Limited)' : ''}:`, err?.message);
+            },
           }
+        ) as any;
 
-          data = resultData;
-          log(`[useDuelGame] ✅ Submit answer successful (attempt ${attempt + 1})`);
-          break;
-
-        } catch (attemptError: any) {
-          lastError = attemptError;
-          logWarn(`[useDuelGame] ⚠️ Submit answer attempt ${attempt + 1} exception:`, attemptError?.message);
-
-          if (attempt < maxRetries - 1) {
-            const delay = Math.min(1000 * Math.pow(2, attempt), 5000);
-            await new Promise(resolve => setTimeout(resolve, delay));
-          } else {
-            logError('[useDuelGame] ❌ All submit_answer attempts failed, continuing anyway');
-            const errorDetails = lastError instanceof Error ? lastError.message : String(lastError);
-            toast.error(`Не удалось сохранить ответ (${errorDetails}), но игра продолжается`);
-            data = null;
+        if (result?.error) {
+          const isRateLimited = result.error?.status === 429 || result.error?.message?.includes('429');
+          if (isRateLimited) {
+            // Give rate-limited error an extra grace period before continuing
+            await new Promise(resolve => setTimeout(resolve, 4000 + Math.random() * 3000));
           }
+          throw result.error;
         }
+
+        data = result?.data ?? null;
+        log('[useDuelGame] ✅ Submit answer successful');
+      } catch (retryErr: any) {
+        logError('[useDuelGame] ❌ All submit_answer attempts failed, continuing anyway');
+        const errorDetails = retryErr instanceof Error ? retryErr.message : String(retryErr);
+        toast.error(`Не удалось сохранить ответ (${errorDetails}), но игра продолжается`);
+        data = null;
       }
 
       if (data && data.new_score !== undefined) {

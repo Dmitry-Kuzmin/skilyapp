@@ -1,6 +1,7 @@
 import { useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { sounds } from '@/lib/sounds';
+import { withRetry } from '@/hooks/useRetryableCall';
 
 // ОПТИМИЗАЦИЯ: Условное логирование только в development
 const isDev = import.meta.env.DEV;
@@ -55,17 +56,11 @@ export function useDuelTimeout({
     sounds.wrongAnswer();
 
     try {
-      // Retry логика с экспоненциальной задержкой для timeout
-      const maxRetries = 3;
       let data: any = null;
 
-      for (let attempt = 0; attempt < maxRetries; attempt++) {
-        try {
-          const timeoutPromise = new Promise((_, reject) => {
-            setTimeout(() => reject(new Error('Timeout: Edge Function не ответил за 20 секунд')), 20000);
-          });
-
-          const invokePromise = supabase.functions.invoke('duel-manager', {
+      try {
+        const result = await withRetry(
+          () => supabase.functions.invoke('duel-manager', {
             body: {
               action: 'submit_answer',
               duel_id: duelId,
@@ -74,33 +69,22 @@ export function useDuelTimeout({
               selected_option_id: null,
               time_taken_ms: 60000,
             },
-          });
-
-          const result = await Promise.race([invokePromise, timeoutPromise]) as any;
-          const { data: resultData, error: resultError } = result;
-
-          if (resultError) {
-            if (attempt < maxRetries - 1) {
-              const delay = Math.min(1000 * Math.pow(2, attempt), 5000);
-              log(`[useDuelTimeout] ⏳ Retrying timeout submit in ${delay}ms...`);
-              await new Promise(resolve => setTimeout(resolve, delay));
-              continue;
-            }
-            throw resultError;
+          }),
+          {
+            maxRetries: 3,
+            baseDelay: 1000,
+            maxDelay: 5000,
+            timeoutMs: 20000,
+            onRetry: (attempt, err) => log(`[useDuelTimeout] ⏳ Retrying timeout submit (attempt ${attempt}):`, err?.message),
           }
+        ) as any;
 
-          data = resultData;
-          log(`[useDuelTimeout] ✅ Timeout submit successful (attempt ${attempt + 1})`);
-          break;
-        } catch (attemptError: any) {
-          if (attempt < maxRetries - 1) {
-            const delay = Math.min(1000 * Math.pow(2, attempt), 5000);
-            await new Promise(resolve => setTimeout(resolve, delay));
-          } else {
-            logWarn('[useDuelTimeout] ⚠️ Timeout submit failed, continuing anyway');
-            data = null;
-          }
-        }
+        if (result?.error) throw result.error;
+        data = result?.data ?? null;
+        log('[useDuelTimeout] ✅ Timeout submit successful');
+      } catch (_err) {
+        logWarn('[useDuelTimeout] ⚠️ Timeout submit failed, continuing anyway');
+        data = null;
       }
 
       // Update score and combo from server (combo should be 0 for timeout)
