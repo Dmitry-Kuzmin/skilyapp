@@ -68,3 +68,4 @@ tmp_*
 *.tmp
 *.tmp_*
 sdadim-eu/
+.claude/worktrees/
