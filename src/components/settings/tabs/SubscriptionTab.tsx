@@ -2,8 +2,8 @@ import React, { useState, useContext, useEffect } from 'react';
 import {
   Sparkles, ChevronRight, Crown, Clock, AlertCircle,
   Zap, BarChart3, Trophy, ExternalLink, MessageCircle,
-  CreditCard, Star, Bitcoin, Shield, CheckCircle2, XCircle,
-  CalendarDays, Infinity as InfinityIcon, RefreshCw
+  Star, Shield, XCircle,
+  CalendarDays, Infinity as InfinityIcon
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
@@ -21,7 +21,6 @@ import {
 import { useSettingsStore } from '@/store/settingsStore';
 import { usePremium } from '@/hooks/usePremium';
 import { triggerHaptic } from '@/lib/haptics';
-import { toast } from 'sonner';
 import { format, differenceInDays } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
@@ -174,7 +173,7 @@ function StatusBadge({ isTrial, isPremium, isLifetime, daysRemaining }: {
 
 export const SubscriptionTab: React.FC = () => {
   const { closeSettings } = useSettingsStore();
-  const { isPremium, isLifetime, isTrial, activeUntil, subscriptionType, daysRemaining, loading, refresh } = usePremium();
+  const { isPremium, isLifetime, isTrial, activeUntil, subscriptionType, daysRemaining, loading } = usePremium();
   const userContext = useContext(UserContext);
   const profileId = userContext?.profileId ?? null;
 
@@ -209,12 +208,6 @@ export const SubscriptionTab: React.FC = () => {
     triggerHaptic('light');
     closeSettings();
     window.location.href = '/premium';
-  };
-
-  const handleRestore = async () => {
-    triggerHaptic('light');
-    await refresh();
-    toast.success('Статус подписки обновлён');
   };
 
   if (loading) {
@@ -410,16 +403,6 @@ export const SubscriptionTab: React.FC = () => {
 
       {/* ── Дополнительные действия ── */}
       <div className="space-y-1">
-        {/* Восстановить покупку */}
-        <button
-          onClick={handleRestore}
-          className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800/60 transition-colors"
-        >
-          <RefreshCw className="w-4 h-4 text-slate-400" />
-          <span className="text-sm text-slate-400">Восстановить покупку</span>
-        </button>
-
-        {/* Поддержка */}
         <button
           onClick={() => window.open('https://t.me/skilyapp_bot', '_blank')}
           className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800/60 transition-colors"
