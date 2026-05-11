@@ -18,6 +18,7 @@ interface PremiumState {
   isPremium: boolean;
   isTrial: boolean;
   isLifetime: boolean;
+  hasUsedTrial: boolean;
   activeUntil: string | null;
   daysRemaining: number;
   coins: number;
@@ -29,6 +30,7 @@ const initialState: PremiumState = {
   isPremium: false,
   isTrial: false,
   isLifetime: false,
+  hasUsedTrial: false,
   activeUntil: null,
   daysRemaining: 0,
   coins: 0,
@@ -61,6 +63,7 @@ export function usePremium() {
         isPremium: dashboardData.premium.is_premium,
         isTrial: dashboardData.premium.subscription_status === 'trial',
         isLifetime: dashboardData.premium.subscription_status === 'lifetime',
+        hasUsedTrial: dashboardData.premium.has_used_trial ?? false,
         activeUntil: dashboardData.premium.subscription_end_date ?? null,
         daysRemaining: 0,
         coins: dashboardData.profile?.coins ?? 0,

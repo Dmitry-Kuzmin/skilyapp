@@ -89,7 +89,7 @@ const BenefitItem = ({ icon: Icon, text, color, delay }: { icon: any, text: stri
 
 export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
   const { profileId, platform } = useUserContext();
-  const { isPremium } = usePremium();
+  const { isPremium, hasUsedTrial } = usePremium();
   const [checkoutTransactionId, setCheckoutTransactionId] = useState<string | null>(null);
   const [showExitTrial, setShowExitTrial] = useState(false);
   const [hasSeenExitTrial, setHasSeenExitTrial] = useState(false);
@@ -124,7 +124,7 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
   const TRIAL_COOLDOWN_MS = 3 * 24 * 60 * 60 * 1000; // 3 дня
 
   const handleOpenChange = (newOpen: boolean) => {
-    if (!newOpen && !isPremium && !hasSeenExitTrial && !checkoutTransactionId) {
+    if (!newOpen && !isPremium && !hasUsedTrial && !hasSeenExitTrial && !checkoutTransactionId) {
       const dismissedAt = localStorage.getItem('trial_offer_dismissed_at');
       const inCooldown = dismissedAt && Date.now() - Number(dismissedAt) < TRIAL_COOLDOWN_MS;
       if (!inCooldown) {

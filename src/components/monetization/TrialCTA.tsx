@@ -37,14 +37,14 @@ const TEXT: Record<string, { headline: string; sub: string; cta: string; generic
 
 export function TrialCTA({ onTrialStarted, variant = 'banner' }: TrialCTAProps) {
   const { profileId } = useUserContext();
-  const { isPremium } = usePremium();
+  const { isPremium, hasUsedTrial } = usePremium();
   const { language } = useLanguage();
   const t = TEXT[language] || TEXT.en;
   const openModal = useModalStore(s => s.openModal);
   const [loading, setLoading] = useState(false);
   const [hidden, setHidden] = useState(false);
 
-  if (!profileId || isPremium || hidden) return null;
+  if (!profileId || isPremium || hasUsedTrial || hidden) return null;
 
   const handleStartTrial = async () => {
     if (loading) return;
