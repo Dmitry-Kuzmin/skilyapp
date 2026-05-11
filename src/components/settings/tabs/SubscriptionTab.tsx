@@ -75,6 +75,12 @@ export const SubscriptionTab: React.FC = () => {
         } else if (errCode === 'lifetime_not_cancellable') {
           toast.error('Вечную подписку нельзя отменить');
           setCancelStep('idle');
+        } else if (errCode === 'no_active_subscription') {
+          // Триал уже истёк — обновляем кэш и показываем экран "отменено"
+          dashboardRefresh(true);
+          queryClient.removeQueries({ queryKey: ['premium-status', profileId] });
+          setCancelMethod('trial');
+          setCancelStep('cancelled');
         } else {
           toast.error('Не удалось отменить. Попробуй позже или напиши в поддержку.');
           setCancelStep('confirm');

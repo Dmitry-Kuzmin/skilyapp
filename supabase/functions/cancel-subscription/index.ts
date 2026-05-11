@@ -164,9 +164,10 @@ serve(async (req) => {
 
     const now = new Date();
     const hasLifetime = !!profile.premium_forever_purchased_at;
+    // Считаем триал активным если: trial_until ещё не истёк ИЛИ статус ещё не сброшен в 'free'/'pro'
     const hasTrial =
       (profile.trial_until && new Date(profile.trial_until) > now) ||
-      profile.subscription_status === "trial";
+      (profile.subscription_status === "trial");
     const hasPremium = profile.premium_until && new Date(profile.premium_until) > now;
 
     console.log("[cancel-subscription] hasLifetime:", hasLifetime, "hasTrial:", hasTrial, "hasPremium:", !!hasPremium);
