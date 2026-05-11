@@ -87,10 +87,20 @@ serve(async (req) => {
       console.log("[cancel-subscription] Paddle status:", paddleRes.status, "data:", JSON.stringify(paddleData).slice(0, 200));
 
       if (!paddleRes.ok) {
+        // Handle specific Paddle error codes
+        const errorCode = paddleData?.error?.code;
+
+        if (errorCode === "subscription_locked_pending_changes") {
+          return json({
+            error: "subscription_locked",
+            detail: "Подписка имеет запланированные изменения. Попробуй позже.",
+          }, 423);
+        }
+
         return json({
           error: "paddle_error",
           detail: paddleData?.error?.detail ?? "Paddle API error",
-        }, 502);
+        }, paddleRes.status >= 500 ? 502 : paddleRes.status);
       }
 
       // Помечаем purchase как cancelled, profile.subscription_status НЕ трогаем —
