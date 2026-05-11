@@ -16,6 +16,8 @@ import { ru } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 import { UserContext } from '@/contexts/UserContext';
+import { useModalStore } from '@/store/modalStore';
+import { TrialCTA } from '@/components/monetization/TrialCTA';
 
 type CancelStep = 'idle' | 'confirm' | 'cancelling' | 'cancelled' | 'manual';
 
@@ -36,6 +38,8 @@ export const SubscriptionTab: React.FC = () => {
   const userContext = useContext(UserContext);
   const profileId = userContext?.profileId ?? null;
   const queryClient = useQueryClient();
+
+  const openModal = useModalStore(s => s.openModal);
 
   const [cancelStep, setCancelStep] = useState<CancelStep>('idle');
   const [cancelling, setCancelling] = useState(false);
@@ -94,7 +98,7 @@ export const SubscriptionTab: React.FC = () => {
   const handleUpgrade = () => {
     triggerHaptic('light');
     closeSettings();
-    window.location.href = '/premium';
+    openModal('PAYWALL');
   };
 
   if (loading) {
@@ -176,6 +180,11 @@ export const SubscriptionTab: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* ── Trial banner ─────────────────────────────────────────────────────── */}
+      {!isPremium && !isTrial && !isLifetime && cancelStep === 'idle' && (
+        <TrialCTA variant="banner" onTrialStarted={closeSettings} />
+      )}
 
       {/* ── Actions ──────────────────────────────────────────────────────────── */}
       {cancelStep === 'idle' && (
