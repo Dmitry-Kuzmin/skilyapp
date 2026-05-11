@@ -1,14 +1,14 @@
 import React, { useState, useContext } from 'react';
 import {
-  Sparkles, ChevronRight, Crown, Clock, AlertCircle,
-  Zap, BarChart3, Trophy, ExternalLink, MessageCircle,
-  Star, Shield, XCircle, CalendarDays, Infinity as InfinityIcon,
-  ArrowLeft, RefreshCw, CheckCircle2,
+  Crown, Clock, AlertCircle,
+  ExternalLink, MessageCircle,
+  ArrowLeft, RefreshCw, CheckCircle2, Infinity as InfinityIcon,
 } from 'lucide-react';
-import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
+import { useQueryClient } from '@tanstack/react-query';
 import { useSettingsStore } from '@/store/settingsStore';
 import { usePremium } from '@/hooks/usePremium';
+import { useDashboardData } from '@/hooks/useDashboardData';
 import { triggerHaptic } from '@/lib/haptics';
 import { toast } from 'sonner';
 import { format, differenceInDays } from 'date-fns';
@@ -19,81 +19,54 @@ import { UserContext } from '@/contexts/UserContext';
 
 type CancelStep = 'idle' | 'confirm' | 'cancelling' | 'cancelled' | 'manual';
 
-const LOSE_BULLETS = [
-  { icon: Zap,       color: 'text-amber-400',  text: '9 500+ вопросов, Challenge Bank и AI-разборы' },
-  { icon: Sparkles,  color: 'text-violet-400', text: 'Профессор Skily без ограничений' },
-  { icon: BarChart3, color: 'text-emerald-400',text: 'Глубокая статистика и прогноз сдачи' },
-  { icon: Trophy,    color: 'text-rose-400',   text: 'Duel Pass Premium: скины, монеты и бонусы' },
-];
-
 const PLAN_TITLES: Record<string, string> = {
-  monthly:  'Premium · 1 месяц',
-  quarterly:'Premium · 3 месяца',
-  biannual: 'Premium · 6 месяцев',
-  yearly:   'Premium · 1 год',
-  lifetime: 'Premium Forever',
+  monthly:   'Premium · 1 месяц',
+  quarterly: 'Premium · 3 месяца',
+  biannual:  'Premium · 6 месяцев',
+  yearly:    'Premium · 1 год',
+  lifetime:  'Premium навсегда',
 };
 
-const FEATURE_PILLS = [
-  { icon: Zap,       color: 'text-amber-400',  label: '9 500+ вопросов' },
-  { icon: Sparkles,  color: 'text-violet-400', label: 'AI без лимитов' },
-  { icon: BarChart3, color: 'text-emerald-400',label: 'Глубокая статистика' },
-  { icon: Trophy,    color: 'text-rose-400',   label: 'Duel Pass Premium' },
-  { icon: Shield,    color: 'text-sky-400',    label: 'Без рекламы' },
-  { icon: Star,      color: 'text-yellow-400', label: 'Приоритет поддержки' },
-];
 
-function StatusBadge({ isTrial, isPremium, isLifetime, daysRemaining }: {
-  isTrial: boolean; isPremium: boolean; isLifetime: boolean; daysRemaining: number;
-}) {
-  if (isLifetime) return <Badge className="bg-amber-500/20 text-amber-400 border-amber-500/30 text-xs">Навсегда</Badge>;
-  if (isTrial) {
-    const cls = daysRemaining <= 3 ? 'bg-red-500/20 text-red-400 border-red-500/30' :
-                daysRemaining <= 7 ? 'bg-amber-500/20 text-amber-400 border-amber-500/30' :
-                                     'bg-blue-500/20 text-blue-400 border-blue-500/30';
-    return <Badge className={cn('text-xs', cls)}>Триал · {daysRemaining}д.</Badge>;
-  }
-  if (isPremium) return <Badge className="bg-emerald-500/20 text-emerald-400 border-emerald-500/30 text-xs">Активна</Badge>;
-  return <Badge className="bg-slate-500/20 text-slate-400 border-slate-500/30 text-xs">Базовый</Badge>;
-}
 
 export const SubscriptionTab: React.FC = () => {
   const { closeSettings } = useSettingsStore();
   const { isPremium, isLifetime, isTrial, activeUntil, subscriptionType, daysRemaining, loading } = usePremium();
+  const { refresh: dashboardRefresh } = useDashboardData();
   const userContext = useContext(UserContext);
   const profileId = userContext?.profileId ?? null;
+  const queryClient = useQueryClient();
 
   const [cancelStep, setCancelStep] = useState<CancelStep>('idle');
   const [cancelling, setCancelling] = useState(false);
+  const [cancelMethod, setCancelMethod] = useState<string | null>(null);
+  const [cancelNotifications, setCancelNotifications] = useState<{ telegram: boolean; email: boolean } | null>(null);
 
   const computedDaysRemaining = activeUntil
     ? Math.max(0, differenceInDays(new Date(activeUntil), new Date()))
     : daysRemaining;
 
-  const startCancel = () => {
-    triggerHaptic('warning');
-    setCancelStep('confirm');
-  };
+  const formattedDate = activeUntil
+    ? format(new Date(activeUntil), 'd MMMM yyyy', { locale: ru })
+    : null;
 
   const executeCancel = async () => {
     triggerHaptic('warning');
     setCancelling(true);
     setCancelStep('cancelling');
-
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      const res = await supabase.functions.invoke('cancel-subscription', {
-        headers: session?.access_token
-          ? { Authorization: `Bearer ${session.access_token}` }
-          : undefined,
-      });
-
-      const result = res.data as { success?: boolean; method?: string; error?: string; scheduledEnd?: string } | null;
+      const res = await supabase.functions.invoke('cancel-subscription');
+      const result = res.data as {
+        success?: boolean;
+        method?: string;
+        error?: string;
+        scheduledEnd?: string;
+        notifications?: { telegram: boolean; email: boolean };
+      } | null;
 
       if (res.error || !result?.success) {
         const errCode = result?.error;
         if (errCode === 'no_paddle_subscription') {
-          // Stars/Crypto — нет автоотмены, показываем ручной путь
           setCancelStep('manual');
         } else if (errCode === 'lifetime_not_cancellable') {
           toast.error('Вечную подписку нельзя отменить');
@@ -103,9 +76,12 @@ export const SubscriptionTab: React.FC = () => {
           setCancelStep('confirm');
         }
       } else {
+        setCancelMethod(result.method ?? null);
+        setCancelNotifications(result.notifications ?? null);
         setCancelStep('cancelled');
-        // Обновляем premium статус через небольшую задержку
-        setTimeout(() => { window.location.reload(); }, 3000);
+        // Принудительный рефетч — invalidate + немедленный запрос к RPC
+        dashboardRefresh(true);
+        queryClient.removeQueries({ queryKey: ['premium-status', profileId] });
       }
     } catch {
       toast.error('Ошибка соединения. Попробуй ещё раз.');
@@ -123,280 +99,241 @@ export const SubscriptionTab: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <RefreshCw className="w-5 h-5 text-slate-500 animate-spin" />
+      <div className="flex items-center justify-center py-16">
+        <RefreshCw className="w-4 h-4 text-slate-600 animate-spin" />
       </div>
     );
   }
 
-  const planInfo = (() => {
-    if (isLifetime) return {
-      title: 'Premium Forever',
-      icon: <InfinityIcon className="w-6 h-6" />,
-      gradient: 'from-amber-500 to-orange-500',
-      bg: 'from-amber-500/10 to-orange-500/10',
-      border: 'border-amber-500/20',
-    };
-    if (isTrial) return {
-      title: 'Пробный период',
-      icon: <Clock className="w-6 h-6" />,
-      gradient: 'from-blue-500 to-cyan-500',
-      bg: 'from-blue-500/10 to-cyan-500/10',
-      border: 'border-blue-500/20',
-    };
-    if (isPremium) return {
-      title: PLAN_TITLES[subscriptionType ?? ''] ?? 'Premium',
-      icon: <Crown className="w-6 h-6" />,
-      gradient: 'from-indigo-500 to-purple-500',
-      bg: 'from-indigo-500/10 to-purple-500/10',
-      border: 'border-indigo-500/20',
-    };
-    return {
-      title: 'Базовый',
-      icon: <AlertCircle className="w-5 h-5" />,
-      gradient: 'from-slate-600 to-slate-700',
-      bg: 'from-slate-800/60 to-slate-800/40',
-      border: 'border-slate-700',
-    };
-  })();
+  // ── Plan metadata ──────────────────────────────────────────────────────────
+  const planTitle = isLifetime
+    ? 'Premium навсегда'
+    : isTrial
+    ? 'Пробный период'
+    : (PLAN_TITLES[subscriptionType ?? ''] ?? 'Premium');
 
-  const formattedDate = activeUntil
-    ? format(new Date(activeUntil), 'd MMMM yyyy', { locale: ru })
+  const PlanIcon = isLifetime ? InfinityIcon : isTrial ? Clock : isPremium ? Crown : AlertCircle;
+
+  const accent = isLifetime
+    ? { icon: 'text-amber-400', ring: 'ring-amber-500/20', bg: 'bg-amber-500/8', badge: 'bg-amber-500/10 text-amber-300 border-amber-500/20' }
+    : isTrial
+    ? { icon: 'text-blue-400',  ring: 'ring-blue-500/20',  bg: 'bg-blue-500/8',  badge: 'bg-blue-500/10  text-blue-300  border-blue-500/20'  }
+    : isPremium
+    ? { icon: 'text-indigo-400',ring: 'ring-indigo-500/20',bg: 'bg-indigo-500/8',badge: 'bg-emerald-500/10 text-emerald-300 border-emerald-500/20' }
+    : { icon: 'text-slate-400', ring: 'ring-slate-700',    bg: 'bg-slate-800/40', badge: 'bg-slate-700/40  text-slate-400  border-slate-600/30'  };
+
+  const notificationHint = cancelNotifications
+    ? cancelNotifications.telegram && cancelNotifications.email
+      ? 'Подтверждение отправлено в Telegram и на email'
+      : cancelNotifications.telegram
+      ? 'Подтверждение отправлено в Telegram'
+      : cancelNotifications.email
+      ? 'Подтверждение отправлено на email'
+      : null
     : null;
 
-  const trialUrgency = isTrial && computedDaysRemaining <= 3;
-
   return (
-    <div className="space-y-5">
+    <div className="space-y-4">
 
-      {/* ── Текущий план ── */}
-      <div>
-        <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-3">Текущий план</p>
-        <div className={cn('p-4 rounded-2xl bg-gradient-to-br border', planInfo.bg, planInfo.border)}>
-          <div className="flex items-center gap-3">
-            <div className={cn('w-12 h-12 rounded-xl bg-gradient-to-br flex items-center justify-center flex-shrink-0 shadow-lg', planInfo.gradient)}>
-              {React.cloneElement(planInfo.icon, { className: 'w-6 h-6 text-white' })}
+      {/* ── Current plan card ─────────────────────────────────────────────────── */}
+      <div className={cn('p-4 rounded-2xl ring-1', accent.bg, accent.ring)}>
+        <div className="flex items-center gap-3">
+          <div className={cn('w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 bg-slate-800/60')}>
+            <PlanIcon className={cn('w-4.5 h-4.5', accent.icon)} style={{ width: 18, height: 18 }} />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2">
+              <span className="font-semibold text-slate-100 text-sm leading-tight">{planTitle}</span>
+              <Badge className={cn('text-[11px] px-2 py-0 h-5 font-medium border', accent.badge)}>
+                {isLifetime ? 'Навсегда' : isTrial ? `${computedDaysRemaining} дн.` : isPremium ? 'Активна' : 'Базовый'}
+              </Badge>
             </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-0.5">
-                <span className="font-bold text-slate-100 text-base">{planInfo.title}</span>
-                <StatusBadge isTrial={isTrial} isPremium={isPremium} isLifetime={isLifetime} daysRemaining={computedDaysRemaining} />
-              </div>
-              {isLifetime ? (
-                <p className="text-sm text-slate-400">Вечный доступ ко всем функциям</p>
-              ) : formattedDate ? (
-                <p className={cn('text-sm', trialUrgency ? 'text-red-400' : 'text-slate-400')}>
-                  {isTrial ? 'Триал до' : 'Активен до'} {formattedDate}
-                </p>
-              ) : (
-                <p className="text-sm text-slate-400">Ограниченный доступ</p>
-              )}
+            <p className="text-[12px] text-slate-500 mt-0.5 leading-tight">
+              {isLifetime
+                ? 'Вечный доступ ко всем функциям'
+                : formattedDate
+                ? `${isTrial ? 'Триал до' : 'Активна до'} ${formattedDate}`
+                : 'Ограниченный доступ'}
+            </p>
+          </div>
+        </div>
+
+        {/* Trial progress */}
+        {isTrial && computedDaysRemaining <= 7 && cancelStep === 'idle' && (
+          <div className="mt-3 pt-3 border-t border-white/5">
+            <div className="flex justify-between text-[10px] mb-1.5">
+              <span className="text-slate-600">Осталось дней</span>
+              <span className={computedDaysRemaining <= 3 ? 'text-red-400' : 'text-amber-400'}>
+                {computedDaysRemaining}
+              </span>
+            </div>
+            <div className="h-[3px] rounded-full bg-slate-700/60 overflow-hidden">
+              <div
+                className={cn('h-full rounded-full transition-all', computedDaysRemaining <= 3 ? 'bg-red-500' : 'bg-amber-500')}
+                style={{ width: `${Math.min(100, (computedDaysRemaining / 7) * 100)}%` }}
+              />
             </div>
           </div>
+        )}
+      </div>
 
-          {isTrial && computedDaysRemaining <= 7 && (
-            <div className="mt-3 pt-3 border-t border-white/5">
-              <div className="flex items-center justify-between text-xs mb-1.5">
-                <span className={cn('font-medium', computedDaysRemaining <= 3 ? 'text-red-400' : 'text-amber-400')}>
-                  Осталось дней
-                </span>
-                <span className={cn('font-bold', computedDaysRemaining <= 3 ? 'text-red-400' : 'text-amber-400')}>
-                  {computedDaysRemaining}
+      {/* ── Actions ──────────────────────────────────────────────────────────── */}
+      {cancelStep === 'idle' && (
+        <div className="space-y-1.5">
+          <div className="border-t border-slate-700/40" />
+
+          {(!isPremium || isTrial) && !isLifetime && (
+            <button
+              onClick={handleUpgrade}
+              className="w-full flex items-center justify-between px-4 py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:opacity-90 transition-all active:scale-[0.99]"
+            >
+              <div className="flex items-center gap-2.5">
+                <Crown className="w-4 h-4 text-white/80" />
+                <span className="text-sm font-semibold text-white">
+                  {isTrial ? 'Купить Premium' : 'Активировать Premium'}
                 </span>
               </div>
-              <div className="h-1.5 rounded-full bg-slate-700 overflow-hidden">
-                <div
-                  className={cn('h-full rounded-full transition-all', computedDaysRemaining <= 3 ? 'bg-red-500' : 'bg-amber-500')}
-                  style={{ width: `${Math.min(100, (computedDaysRemaining / 7) * 100)}%` }}
-                />
-              </div>
-            </div>
+              <span className="text-xs text-white/50">→</span>
+            </button>
+          )}
+
+          {isPremium && !isTrial && !isLifetime && (
+            <button
+              onClick={handleUpgrade}
+              className="w-full flex items-center justify-between px-4 py-2.5 rounded-xl hover:bg-slate-800/50 transition-colors"
+            >
+              <span className="text-sm text-slate-400">Изменить план</span>
+              <span className="text-xs text-slate-600">→</span>
+            </button>
+          )}
+
+          {isLifetime && (
+            <p className="px-4 py-2.5 text-xs text-amber-500/60">
+              У вас максимальный тариф — Premium навсегда
+            </p>
+          )}
+
+          {(isPremium || isTrial) && !isLifetime && (
+            <button
+              onClick={() => { triggerHaptic('warning'); setCancelStep('confirm'); }}
+              className="w-full text-left px-4 py-2 rounded-xl hover:bg-red-950/20 transition-colors group"
+            >
+              <span className="text-xs text-slate-600 group-hover:text-red-400/70 transition-colors">
+                {isTrial ? 'Отменить пробный период' : 'Отменить подписку'}
+              </span>
+            </button>
           )}
         </div>
-      </div>
-
-      {/* ── Что входит ── */}
-      {(isPremium || isTrial) && cancelStep === 'idle' && (
-        <>
-          <Separator className="bg-slate-700/50" />
-          <div>
-            <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-3">Включено в план</p>
-            <div className="grid grid-cols-2 gap-2">
-              {FEATURE_PILLS.map(({ icon: Icon, color, label }) => (
-                <div key={label} className="flex items-center gap-2 p-2.5 rounded-xl bg-slate-800/60 border border-slate-700/50">
-                  <Icon className={cn('w-4 h-4 flex-shrink-0', color)} />
-                  <span className="text-xs text-slate-300 leading-tight">{label}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </>
       )}
 
-      <Separator className="bg-slate-700/50" />
+      {/* ── Confirm ──────────────────────────────────────────────────────────── */}
+      {cancelStep === 'confirm' && (
+        <div className="rounded-2xl border border-slate-700/50 bg-slate-800/30 overflow-hidden">
+          <div className="px-4 pt-4 pb-3">
+            <button
+              onClick={() => setCancelStep('idle')}
+              className="flex items-center gap-1.5 text-[11px] text-slate-500 hover:text-slate-300 transition-colors mb-4"
+            >
+              <ArrowLeft className="w-3 h-3" />
+              Назад
+            </button>
 
-      {/* ── Управление / Inline cancel ── */}
-      <div>
-        {cancelStep === 'idle' && (
-          <>
-            <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-3">Управление</p>
-            <div className="space-y-2">
-              {(!isPremium || isTrial) && !isLifetime && (
-                <button
-                  onClick={handleUpgrade}
-                  className="w-full flex items-center justify-between px-4 py-3.5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 transition-all active:scale-[0.98]"
-                >
-                  <div className="flex items-center gap-3">
-                    <Crown className="w-5 h-5 text-white" />
-                    <span className="text-sm font-semibold text-white">
-                      {isTrial ? 'Перейти на Premium' : 'Активировать Premium'}
-                    </span>
-                  </div>
-                  <ChevronRight className="w-4 h-4 text-white/70" />
-                </button>
-              )}
-
-              {isPremium && !isTrial && !isLifetime && (
-                <button
-                  onClick={handleUpgrade}
-                  className="w-full flex items-center justify-between px-4 py-3.5 rounded-xl bg-slate-800 hover:bg-slate-700/80 border border-slate-700 transition-all active:scale-[0.98]"
-                >
-                  <div className="flex items-center gap-3">
-                    <CalendarDays className="w-5 h-5 text-slate-300" />
-                    <span className="text-sm font-medium text-slate-200">Изменить план</span>
-                  </div>
-                  <ChevronRight className="w-4 h-4 text-slate-500" />
-                </button>
-              )}
-
-              {(isPremium || isTrial) && !isLifetime && (
-                <button
-                  onClick={startCancel}
-                  disabled={providerLoading}
-                  className="w-full flex items-center justify-between px-4 py-3.5 rounded-xl bg-slate-800 hover:bg-red-950/30 border border-slate-700 hover:border-red-900/50 transition-all active:scale-[0.98] disabled:opacity-50"
-                >
-                  <div className="flex items-center gap-3">
-                    <XCircle className="w-5 h-5 text-red-400" />
-                    <span className="text-sm font-medium text-red-400">
-                      {isTrial ? 'Отменить пробный период' : 'Отменить подписку'}
-                    </span>
-                  </div>
-                  {providerLoading
-                    ? <RefreshCw className="w-4 h-4 text-slate-500 animate-spin" />
-                    : <ChevronRight className="w-4 h-4 text-red-400/50" />
-                  }
-                </button>
-              )}
-
-              {isLifetime && (
-                <div className="px-4 py-3 rounded-xl bg-amber-500/5 border border-amber-500/15 flex items-center gap-2">
-                  <Shield className="w-4 h-4 text-amber-400 flex-shrink-0" />
-                  <p className="text-xs text-amber-400/80">У вас максимальный тариф — Premium навсегда</p>
-                </div>
-              )}
-            </div>
-          </>
-        )}
-
-        {/* ── Шаг 1: подтверждение ── */}
-        {cancelStep === 'confirm' && (
-          <div className="rounded-2xl bg-red-950/20 border border-red-900/30 overflow-hidden">
-            <div className="px-4 pt-4 pb-3">
-              <button
-                onClick={() => setCancelStep('idle')}
-                className="flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-300 transition-colors mb-3"
-              >
-                <ArrowLeft className="w-3.5 h-3.5" />
-                Назад
-              </button>
-              <p className="text-sm font-semibold text-white mb-1">
-                {isTrial ? 'Отменить пробный период?' : 'Отменить подписку?'}
-              </p>
-              <p className="text-xs text-slate-400 mb-4">Ты потеряешь доступ к:</p>
-              <div className="space-y-2.5 mb-4">
-                {LOSE_BULLETS.map(({ icon: Icon, color, text }) => (
-                  <div key={text} className="flex items-start gap-2.5">
-                    <Icon className={cn('w-4 h-4 mt-0.5 flex-shrink-0', color)} />
-                    <span className="text-xs text-slate-300 leading-snug">{text}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div className="flex gap-2 px-4 pb-4">
-              <button
-                onClick={() => { triggerHaptic('light'); setCancelStep('idle'); }}
-                className="flex-1 h-10 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white text-sm font-semibold transition-all active:scale-[0.98]"
-              >
-                Оставить
-              </button>
-              <button
-                onClick={executeCancel}
-                className="flex-1 h-10 rounded-xl bg-transparent hover:bg-red-500/10 text-red-400 hover:text-red-300 border border-red-500/30 text-sm font-medium transition-all active:scale-[0.98]"
-              >
-                Всё равно отменить
-              </button>
-            </div>
+            <p className="text-sm font-semibold text-white mb-0.5">
+              {isTrial ? 'Отменить пробный период?' : 'Отменить подписку?'}
+            </p>
+            <p className="text-xs text-slate-400 leading-relaxed mb-1">
+              Ты потеряешь доступ к полной базе тестов, Skily инструктору и умным алгоритмам обучения.
+            </p>
           </div>
-        )}
 
-        {/* ── Шаг 2: идёт отмена ── */}
-        {cancelStep === 'cancelling' && (
-          <div className="rounded-2xl bg-slate-800/60 border border-slate-700 px-4 py-6 flex flex-col items-center gap-3">
-            <RefreshCw className="w-6 h-6 text-slate-400 animate-spin" />
-            <p className="text-sm text-slate-300 font-medium">Отменяем подписку…</p>
+          <div className="px-4 pb-4 pt-3 border-t border-slate-700/40 space-y-2">
+            <button
+              onClick={() => { triggerHaptic('light'); setCancelStep('idle'); }}
+              className="w-full h-10 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:opacity-90 text-white text-sm font-semibold transition-all active:scale-[0.98]"
+            >
+              Оставить Premium
+            </button>
+            <button
+              onClick={executeCancel}
+              disabled={cancelling}
+              className="w-full h-9 rounded-xl text-red-400/60 hover:text-red-400/90 text-xs transition-colors"
+            >
+              Всё равно отменить
+            </button>
           </div>
-        )}
+        </div>
+      )}
 
-        {/* ── Шаг 3a: успешно отменено ── */}
-        {cancelStep === 'cancelled' && (
-          <div className="rounded-2xl bg-emerald-950/30 border border-emerald-900/40 px-4 py-5 flex flex-col items-center gap-2 text-center">
-            <CheckCircle2 className="w-7 h-7 text-emerald-400" />
-            <p className="text-sm font-semibold text-white">Подписка отменена</p>
-            <p className="text-xs text-slate-400">Доступ сохраняется до конца оплаченного периода. Страница обновится автоматически.</p>
-          </div>
-        )}
+      {/* ── Cancelling ───────────────────────────────────────────────────────── */}
+      {cancelStep === 'cancelling' && (
+        <div className="py-10 flex flex-col items-center gap-3">
+          <RefreshCw className="w-5 h-5 text-slate-600 animate-spin" />
+          <p className="text-xs text-slate-600">Отменяем подписку…</p>
+        </div>
+      )}
 
-        {/* ── Шаг 3b: Stars/Crypto — ручная отмена недоступна ── */}
-        {cancelStep === 'manual' && (
-          <div className="rounded-2xl bg-slate-800/60 border border-slate-700 overflow-hidden">
-            <div className="px-4 pt-4 pb-3">
-              <button
-                onClick={() => setCancelStep('confirm')}
-                className="flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-300 transition-colors mb-3"
-              >
-                <ArrowLeft className="w-3.5 h-3.5" />
-                Назад
-              </button>
-              <p className="text-sm font-semibold text-white mb-2">Нужна помощь</p>
-              <p className="text-xs text-slate-400 mb-1">
-                Твоя подписка оплачена через Telegram Stars или крипту — у нас нет способа отменить её автоматически.
-              </p>
-              <p className="text-xs text-slate-500">Напиши в поддержку, и мы вручную сбросим доступ.</p>
-            </div>
-            <div className="px-4 pb-4">
-              <button
-                onClick={() => window.open('https://t.me/skilyapp_bot', '_blank')}
-                className="w-full h-10 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-sm font-semibold flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
-              >
-                <MessageCircle className="w-4 h-4" />
-                Написать в поддержку
-              </button>
-            </div>
+      {/* ── Cancelled ────────────────────────────────────────────────────────── */}
+      {cancelStep === 'cancelled' && (
+        <div className="py-7 flex flex-col items-center gap-2.5 text-center">
+          <div className="w-11 h-11 rounded-full bg-emerald-500/10 ring-1 ring-emerald-500/20 flex items-center justify-center mb-1">
+            <CheckCircle2 className="w-5 h-5 text-emerald-400" />
           </div>
-        )}
+          <p className="text-sm font-semibold text-slate-100">
+            {cancelMethod === 'trial' ? 'Пробный период отменён' : 'Подписка отменена'}
+          </p>
+          <p className="text-xs text-slate-500 max-w-[220px] leading-relaxed">
+            {cancelMethod === 'trial'
+              ? 'Доступ к Premium прекращён. Ты всегда можешь вернуться.'
+              : 'Доступ сохраняется до конца оплаченного периода.'}
+          </p>
+          {notificationHint && (
+            <p className="text-[11px] text-slate-600 mt-0.5">{notificationHint}</p>
+          )}
+        </div>
+      )}
+
+      {/* ── Manual (Stars/Crypto) ─────────────────────────────────────────────── */}
+      {cancelStep === 'manual' && (
+        <div className="rounded-2xl border border-slate-700/50 bg-slate-800/30 overflow-hidden">
+          <div className="px-4 pt-4 pb-3">
+            <button
+              onClick={() => setCancelStep('confirm')}
+              className="flex items-center gap-1.5 text-[11px] text-slate-500 hover:text-slate-300 transition-colors mb-3"
+            >
+              <ArrowLeft className="w-3 h-3" />
+              Назад
+            </button>
+            <p className="text-sm font-semibold text-white mb-2">Нужна ручная отмена</p>
+            <p className="text-xs text-slate-500 leading-relaxed">
+              Твоя подписка оплачена через Telegram Stars или крипту — мы не можем отменить её автоматически. Напиши нам.
+            </p>
+          </div>
+          <div className="px-4 pb-4">
+            <button
+              onClick={() => window.open('https://t.me/skilyapp_bot', '_blank')}
+              className="w-full h-9 rounded-xl bg-sky-600/80 hover:bg-sky-600 text-white text-xs font-semibold flex items-center justify-center gap-2 transition-colors"
+            >
+              <MessageCircle className="w-3.5 h-3.5" />
+              Написать в поддержку
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── Footer ───────────────────────────────────────────────────────────── */}
+      <div className="border-t border-slate-700/30 pt-1">
+        <button
+          onClick={() => window.open('https://t.me/skilyapp_bot', '_blank')}
+          className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-slate-800/40 transition-colors"
+        >
+          <div className="flex items-center gap-2.5">
+            <MessageCircle className="w-3.5 h-3.5 text-slate-600" />
+            <span className="text-xs text-slate-600">Поддержка</span>
+          </div>
+          <ExternalLink className="w-3 h-3 text-slate-700" />
+        </button>
       </div>
 
-      <Separator className="bg-slate-700/50" />
-
-      {/* ── Поддержка ── */}
-      <button
-        onClick={() => window.open('https://t.me/skilyapp_bot', '_blank')}
-        className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800/60 transition-colors"
-      >
-        <MessageCircle className="w-4 h-4 text-slate-400" />
-        <span className="text-sm text-slate-400">Поддержка</span>
-        <ExternalLink className="w-3.5 h-3.5 text-slate-600 ml-auto" />
-      </button>
     </div>
   );
 };
