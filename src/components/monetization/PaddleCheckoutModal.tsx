@@ -14,7 +14,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { isTelegramMiniApp, getTelegramWebApp } from "@/lib/telegram";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useModalStack } from "@/hooks/useModalStack";
-import { Loader2, AlertCircle, CreditCard, ShieldCheck } from "lucide-react";
+import { Loader2, AlertCircle, CreditCard, ShieldCheck, X } from "lucide-react";
 import type { Paddle } from "@paddle/paddle-js";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
