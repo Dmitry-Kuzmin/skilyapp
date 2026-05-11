@@ -183,7 +183,7 @@ export const SubscriptionTab: React.FC = () => {
 
       {/* ── Trial banner ─────────────────────────────────────────────────────── */}
       {!isPremium && !isTrial && !isLifetime && cancelStep === 'idle' && (
-        <TrialCTA variant="banner" />
+        <TrialCTA variant="banner" onTrialStarted={closeSettings} />
       )}
 
       {/* ── Actions ──────────────────────────────────────────────────────────── */}
