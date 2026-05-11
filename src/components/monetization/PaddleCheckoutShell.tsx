@@ -12,9 +12,13 @@ import type { Paddle } from "@paddle/paddle-js";
 export const PADDLE_FRAME_CLASS = "paywall-paddle-frame";
 
 interface PaddleCheckoutShellProps {
-  transactionId: string | null;
-  onClose: () => void;
+  // Используется PaywallModal (локальный путь)
+  transactionId?: string | null;
+  onClose?: () => void;
   onCompleted?: () => void;
+  // Используется GlobalModalManager (через openModal('PADDLE_CHECKOUT', { transactionId }))
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
 const SHELL_T: Record<string, { back: string; protected: string; success: string; successDesc: string }> = {
@@ -23,12 +27,17 @@ const SHELL_T: Record<string, { back: string; protected: string; success: string
   es: { back: "Volver a los planes", protected: "Protegido por Paddle", success: "Pago realizado", successDesc: "Premium activado 🎉" },
 };
 
-export function PaddleCheckoutShell({ transactionId, onClose, onCompleted }: PaddleCheckoutShellProps) {
+export function PaddleCheckoutShell({ transactionId: txProp, onClose, onCompleted, open, onOpenChange }: PaddleCheckoutShellProps) {
   const isMobile = useIsMobile();
   const { language } = useLanguage();
   const t = SHELL_T[language] || SHELL_T.en;
   const paddleLocale = language === "ru" ? "ru" : language === "es" ? "es" : "en";
   const [paddle, setPaddle] = useState<Paddle | null>(null);
+
+  // Effective transactionId: учитываем оба пути входа
+  // - GlobalModalManager передаёт `open=true` + `transactionId` через props
+  // - PaywallModal передаёт `transactionId` напрямую (без open)
+  const transactionId = open === false ? null : (txProp ?? null);
 
   useEffect(() => {
     if (!transactionId) return;
@@ -67,7 +76,8 @@ export function PaddleCheckoutShell({ transactionId, onClose, onCompleted }: Pad
             toast({ title: t.success, description: t.successDesc });
             setTimeout(() => {
               onCompleted?.();
-              onClose();
+              onOpenChange?.(false);
+              onClose?.();
             }, 1200);
           }
         },
@@ -76,11 +86,12 @@ export function PaddleCheckoutShell({ transactionId, onClose, onCompleted }: Pad
 
     openCheckout();
     return () => { cancelled = true; };
-  }, [transactionId, paddle, paddleLocale, onClose, onCompleted, t.success, t.successDesc]);
+  }, [transactionId, paddle, paddleLocale, onClose, onOpenChange, onCompleted, t.success, t.successDesc]);
 
   const handleClose = () => {
     try { paddle?.Checkout.close(); } catch { /* noop */ }
-    onClose();
+    onOpenChange?.(false);
+    onClose?.();
   };
 
   if (isMobile) {
