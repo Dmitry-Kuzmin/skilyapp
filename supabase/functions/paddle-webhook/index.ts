@@ -128,7 +128,45 @@ serve(async (req) => {
       }
 
       case "subscription.created":
-      case "subscription.updated":
+      case "subscription.updated": {
+        const sub = event.data as any;
+        const customData = (sub.custom_data || {}) as Record<string, any>;
+        const userId = customData.user_id as string | undefined;
+        const dbType = customData.db_type as string | undefined;
+        const catalogKey = (customData.catalog_key as string) || '';
+        const status = sub.status as string;
+
+        // Link subscription ID to purchase record
+        if (userId && sub.id) {
+          await supabase.from("purchases")
+            .update({ paddle_subscription_id: sub.id, metadata: { paddle_subscription_data: sub } })
+            .eq("user_id", userId)
+            .eq("item_type", "premium")
+            .eq("status", "pending");
+        }
+        // Also try matching by existing subscription_id (for updates)
+        await supabase.from("purchases")
+          .update({ metadata: { paddle_subscription_data: sub } })
+          .eq("paddle_subscription_id", sub.id);
+
+        // Grant premium when subscription becomes active or trialing
+        if (userId && dbType === "premium" && (status === "trialing" || status === "active")) {
+          const days = catalogKey.includes("yearly") ? 365
+            : catalogKey.includes("biannual") ? 180
+            : catalogKey.includes("quarterly") ? 90
+            : 30;
+          await supabase.rpc("grant_premium_access", { p_user_id: userId, p_days: days });
+          // Mark purchase as completed
+          await supabase.from("purchases")
+            .update({ status: "completed", completed_at: new Date().toISOString() })
+            .eq("user_id", userId)
+            .eq("item_type", "premium")
+            .eq("status", "pending");
+        }
+
+        return new Response(JSON.stringify({ success: true }), { headers: corsHeaders });
+      }
+
       case "subscription.cancelled": {
         await supabase.from("purchases").update({
           paddle_subscription_id: event.data.id,
