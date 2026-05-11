@@ -61,7 +61,6 @@ export function TrialCTA({ onTrialStarted, variant = 'banner' }: TrialCTAProps) 
       const parsed = typeof data === 'string' ? JSON.parse(data) : data;
       if (!parsed?.transaction_id) throw new Error('No transaction_id from paddle-payment');
 
-      onTrialStarted?.();
       setTransactionId(parsed.transaction_id);
       setCheckoutOpen(true);
     } catch (err) {
