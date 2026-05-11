@@ -2,8 +2,9 @@ import { useEffect, useState, useRef, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { RealtimeChannel } from '@supabase/supabase-js';
 import { useUserContext } from '@/contexts/UserContext';
-import type { ActiveExploit, DuelRealtimeState } from '@/features/duel/shared';
+import type { DuelRealtimeState } from '@/features/duel/shared';
 import { useFeatureFlag } from '@/hooks/useFeatureFlag';
+import { useExploitsManager } from '@/hooks/useExploitsManager';
 
 // Re-export для обратной совместимости
 export type { ActiveExploit, DuelRealtimeState } from '@/features/duel/shared';
@@ -64,7 +65,6 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
   });
   const [channel, setChannel] = useState<RealtimeChannel | null>(null);
   const myPlayerIdRef = useRef<string | null | undefined>(myPlayerId);
-  const resolvedExploitIdsRef = useRef<Set<string>>(new Set()); // КРИТИЧНО: Список resolved exploit IDs для фильтрации
   const [connectionStatus, setConnectionStatus] = useState<'connecting' | 'connected' | 'error'>('connecting');
   const [lastEventAt, setLastEventAt] = useState(() => Date.now());
   const markEvent = () => setLastEventAt(Date.now());
@@ -116,197 +116,14 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
     }
   }, [myPlayerId, duelId]);
 
-  // 🆕 Функция восстановления состояния атак (State Recovery)
-  // КРИТИЧНО: Объявлена ДО использования в useEffect
-  const recoverActiveExploits = useCallback(async () => {
-    // ОПТИМИЗАЦИЯ: Логируем только в dev режиме
-    log('[useDuelRealtime] 🔄 recoverActiveExploits CALLED:', {
-      duelId,
-      myPlayerId,
-      profileId,
-      hasAllParams: !!(duelId && myPlayerId && profileId),
-    });
-
-    const isIdValid = isValidUUID(duelId);
-
-    if (!isIdValid || !myPlayerId || !profileId) {
-      logWarn('[useDuelRealtime] ⚠️ Cannot recover exploits: conditions not met', {
-        duelId: duelId || 'null',
-        isIdValid,
-        myPlayerId: !!myPlayerId,
-        profileId: !!profileId
-      });
-      return;
-    }
-
-    try {
-      log('[useDuelRealtime] 🔄 Starting exploit recovery...');
-
-      // myPlayerId - это уже ID из duel_players, используем его напрямую (через ref для стабильности)
-      const targetPlayerId = myPlayerIdRef.current || myPlayerId;
-      const sqlQuery = `SELECT * FROM duel_active_exploits WHERE duel_id = '${duelId}' AND attacker_player_id != '${targetPlayerId}' AND is_active = true AND expires_at > NOW() ORDER BY activated_at DESC`;
-
-      // 🆕 Используем RPC функцию вместо прямого запроса для обхода CORS проблем
-      const { data: rpcExploits, error: rpcError } = await supabase.rpc('get_active_exploits', {
-        p_duel_id: duelId,
-        p_my_player_id: targetPlayerId
-      });
-
-      let exploits: any[] = [];
-      let exploitsError: any = null;
-
-      if (rpcError) {
-        exploitsError = rpcError;
-        logError('[useDuelRealtime] ❌ RPC get_active_exploits error:', rpcError);
-        // Fallback: если RPC не работает, пробуем прямой запрос
-        const { data: fallbackExploits, error: fallbackError } = await supabase
-          .from('duel_active_exploits')
-          .select('*')
-          .eq('duel_id', duelId)
-          .neq('attacker_player_id', targetPlayerId)
-          .eq('is_active', true)
-          .gt('expires_at', new Date().toISOString())
-          .order('activated_at', { ascending: false });
-
-        if (fallbackError) {
-          exploitsError = fallbackError;
-        } else {
-          exploits = fallbackExploits || [];
-        }
-      } else {
-        // RPC функция возвращает TABLE напрямую (массив записей)
-        exploits = rpcExploits || [];
-      }
-
-      if (exploitsError) {
-        logError('[useDuelRealtime] ❌ SQL ERROR recoverActiveExploits:', exploitsError.message, { sqlQuery, duelId, targetPlayerId });
-      }
-
-      if (exploitsError) {
-        logError('[useDuelRealtime] Error recovering exploits:', exploitsError);
-        return;
-      }
-
-      if (exploits && exploits.length > 0) {
-        log('[useDuelRealtime] 🔄 Recovered active exploits:', exploits.length);
-
-        // Обновляем стейт (добавляем восстановленные атаки)
-        setState(prev => {
-          // Избегаем дубликатов - улучшенная проверка по типу, времени активации и истечения
-          const existingExploits = (prev.activeExploits || []).map(e => ({
-            type: e.type,
-            receivedAt: e.receivedAt,
-            expiresAt: e.expiresAt
-          }));
-
-          const newExploits = exploits
-            .filter(e => e.attacker_player_id !== myPlayerId) // Только атаки НЕ от меня
-            .filter(e => !resolvedExploitIdsRef.current.has(e.id)) // КРИТИЧНО: Фильтруем уже resolved exploits
-            .map(e => ({
-              id: e.id, // КРИТИЧНО: Сохраняем ID для resolve_exploit
-              type: e.exploit_type,
-              data: e.effect_data || {},
-              receivedAt: new Date(e.activated_at).getTime(),
-              expiresAt: new Date(e.expires_at).getTime()
-            }))
-            .filter(newExploit => {
-              // КРИТИЧНО: Увеличено окно дедупликации для предотвращения повторных добавлений
-              // Проверяем, что такого exploit еще нет (с учетом окна в 5 секунд для receivedAt)
-              return !existingExploits.some(existing =>
-                existing.type === newExploit.type &&
-                Math.abs(existing.receivedAt - newExploit.receivedAt) < 5000 &&
-                Math.abs(existing.expiresAt - newExploit.expiresAt) < 2000
-              );
-            });
-
-          if (newExploits.length === 0) {
-            return prev; // Нет новых exploits
-          }
-
-          return {
-            ...prev,
-            activeExploits: [...(prev.activeExploits || []), ...newExploits]
-          };
-        });
-      } else {
-        // Fallback: проверяем exploits по user_id если myPlayerId не совпадает
-        log('[useDuelRealtime] No exploits for myPlayerId, trying fallback by user_id');
-
-        // Fallback: находим наш player_id по user_id и проверяем exploits для него
-        try {
-          const { data: myPlayer } = await supabase
-            .from('duel_players')
-            .select('id')
-            .eq('duel_id', duelId)
-            .eq('user_id', profileId)
-            .maybeSingle();
-
-          if (myPlayer?.id && myPlayer.id !== myPlayerId) {
-            log('[useDuelRealtime] FALLBACK: Found different player_id by user_id');
-
-            // Пробуем восстановить exploits для правильного player_id
-            const { data: fallbackExploits } = await supabase
-              .from('duel_active_exploits')
-              .select('*')
-              .eq('duel_id', duelId)
-              .eq('target_player_id', myPlayer.id)
-              .eq('is_active', true)
-              .gt('expires_at', new Date().toISOString())
-              .order('activated_at', { ascending: false });
-
-            if (fallbackExploits && fallbackExploits.length > 0) {
-              log('[useDuelRealtime] FALLBACK: Recovered exploits by user_id:', fallbackExploits.length);
-
-              setState(prev => {
-                // Улучшенная дедупликация для fallback exploits
-                const existingExploits = (prev.activeExploits || []).map(e => ({
-                  type: e.type,
-                  receivedAt: e.receivedAt,
-                  expiresAt: e.expiresAt
-                }));
-
-                const newExploits = fallbackExploits
-                  .filter(e => !resolvedExploitIdsRef.current.has(e.id)) // КРИТИЧНО: Фильтруем уже resolved exploits
-                  .map(e => ({
-                    id: e.id, // КРИТИЧНО: Сохраняем ID для resolve_exploit
-                    type: e.exploit_type,
-                    data: e.effect_data || {},
-                    receivedAt: new Date(e.activated_at).getTime(),
-                    expiresAt: new Date(e.expires_at).getTime()
-                  }))
-                  .filter(newExploit => {
-                    // КРИТИЧНО: Увеличено окно дедупликации для предотвращения повторных добавлений
-                    // Проверяем, что такого exploit еще нет (с учетом окна в 5 секунд для receivedAt)
-                    return !existingExploits.some(existing =>
-                      existing.type === newExploit.type &&
-                      Math.abs(existing.receivedAt - newExploit.receivedAt) < 5000 &&
-                      Math.abs(existing.expiresAt - newExploit.expiresAt) < 2000
-                    );
-                  });
-
-                if (newExploits.length === 0) {
-                  return prev;
-                }
-
-                return {
-                  ...prev,
-                  activeExploits: [...(prev.activeExploits || []), ...newExploits]
-                };
-              });
-
-              return; // Успешно восстановили через fallback
-            }
-          }
-        } catch (fallbackError) {
-          logError('[useDuelRealtime] ❌ Error in fallback recovery:', fallbackError);
-        }
-
-        log('[useDuelRealtime] No active exploits to recover');
-      }
-    } catch (error) {
-      logError('[useDuelRealtime] Exception in recoverActiveExploits:', error);
-    }
-  }, [duelId, profileId]);
+  // ─── Exploit management (delegated to useExploitsManager) ─────────────────
+  const exploitsManager = useExploitsManager({
+    duelId,
+    profileId,
+    myPlayerId,
+    myPlayerIdRef,
+    channel,
+  });
 
   useEffect(() => {
     if (!duelId) return;
@@ -590,9 +407,8 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
                 // Это нужно для случаев, когда атака пришла до установки myPlayerId
                 if (newExploit.target_player_id === currentMyPlayerId && newExploit.is_active) {
                   log('[useDuelRealtime] 🔄 Triggering exploit recovery after myPlayerId load');
-                  // Небольшая задержка для гарантии, что состояние обновилось
                   setTimeout(() => {
-                    recoverActiveExploits();
+                    exploitsManager.recoverActiveExploits();
                   }, 100);
                 }
               }
@@ -849,27 +665,9 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
         });
         setConnectionStatus('connected');
 
-        // КРИТИЧНО: Проверяем активные exploits сразу после подписки
-        log('[useDuelRealtime] 🔄 Calling recoverActiveExploits after subscription...', {
-          myPlayerId,
-          profileId,
-          duelId,
-          hasMyPlayerId: !!myPlayerId,
-          hasProfileId: !!profileId,
-          hasDuelId: !!duelId,
-          isTelegram
-        });
+        // Проверяем активные exploits сразу после подписки
         if (myPlayerId && profileId) {
-          log('[useDuelRealtime] ✅✅✅ All params available, calling recoverActiveExploits ✅✅✅');
-          recoverActiveExploits();
-        } else {
-          logWarn('[useDuelRealtime] ⚠️⚠️⚠️ Cannot recover exploits: myPlayerId or profileId missing ⚠️⚠️⚠️', {
-            myPlayerId,
-            profileId,
-            duelId,
-            myPlayerIdType: typeof myPlayerId,
-            profileIdType: typeof profileId
-          });
+          exploitsManager.recoverActiveExploits();
         }
 
         // КРИТИЧНО: В Telegram Mini App добавляем polling fallback для exploits
@@ -913,387 +711,37 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
       log('[useDuelRealtime] Cleaning up channel');
       supabase.removeChannel(duelChannel);
     };
-  }, [duelId, profileId, recoverActiveExploits]);
+  }, [duelId, profileId]);
 
-  // 🆕 Вызов восстановления при подключении
-  // ИЗМЕНЕНО: Убрали проверку duelStarted, так как exploits могут быть применены до старта дуэли
+  // Recover exploits when connection is established
   useEffect(() => {
-    log('[useDuelRealtime] 🔍 useEffect для recoverActiveExploits:', {
-      connectionStatus,
-      duelStarted: state.duelStarted,
-      myPlayerId,
-      profileId,
-      duelId,
-    });
-    const isIdValid = isValidUUID(duelId);
-    const allConditionsMet = connectionStatus === 'connected' && myPlayerId && profileId && isIdValid;
-
-    // ИЗМЕНЕНО: Убрали проверку state.duelStarted - exploits могут быть применены в любой момент
-    if (allConditionsMet) {
-      log('[useDuelRealtime] ✅✅✅ All conditions met, calling recoverActiveExploits ✅✅✅');
-      log('[useDuelRealtime] Connection established, recovering exploits...');
-      recoverActiveExploits();
-    } else {
-      logWarn('[useDuelRealtime] ⚠️ Conditions not met for recoverActiveExploits:', {
-        connectionStatus,
-        duelStarted: state.duelStarted,
-        hasMyPlayerId: !!myPlayerId,
-        hasProfileId: !!profileId,
-        isDuelIdValid: isIdValid,
-        duelId: duelId || 'null'
-      });
+    if (connectionStatus === 'connected' && myPlayerId && profileId && isValidUUID(duelId)) {
+      exploitsManager.recoverActiveExploits();
     }
-  }, [connectionStatus, myPlayerId, profileId, recoverActiveExploits, duelId]);
+  }, [connectionStatus, myPlayerId, profileId, duelId]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // 🆕 Обработка broadcast событий для exploits
-  useEffect(() => {
-    if (!duelId || !channel || !profileId) return;
-
-    const handleBroadcast = (payload: any) => {
-      if (payload.event === 'exploit_triggered') {
-        markEvent();
-        const { boost_type, attacker_id, target_id, effect_data } = payload.payload;
-
-        // Проверяем, что атака направлена на нас
-        if (target_id === profileId) {
-          log('[useDuelRealtime] 🎯 Exploit received:', boost_type);
-
-          // Сохраняем в состояние
-          setState(prev => {
-            const newExploit: ActiveExploit = {
-              type: boost_type,
-              data: effect_data || {},
-              receivedAt: Date.now(),
-              expiresAt: Date.now() + (effect_data?.duration_ms || 10000),
-            };
-
-            // Проверяем на дубликаты
-            const exists = (prev.activeExploits || []).some(
-              e => e.type === newExploit.type &&
-                Math.abs(e.receivedAt - newExploit.receivedAt) < 1000
-            );
-
-            if (exists) {
-              log('[useDuelRealtime] ⚠️ Duplicate exploit ignored:', boost_type);
-              return prev;
-            }
-
-            log('[useDuelRealtime] ✅ New exploit added to state:', boost_type);
-            return {
-              ...prev,
-              activeExploits: [...(prev.activeExploits || []), newExploit]
-            };
-          });
-        }
-      }
-    };
-
-    // Подписываемся на broadcast события
-    // В Supabase Realtime v2 channel.on() возвращает сам channel для цепочки
-    channel.on('broadcast', { event: 'exploit_triggered' }, handleBroadcast);
-
-    return () => {
-      // В Supabase Realtime v2 нет метода channel.off()
-      // Подписка автоматически удалится при удалении канала через removeChannel
-      // Здесь просто проверяем, что channel существует (для безопасности)
-      if (!channel) {
-        logWarn('[useDuelRealtime] Channel is null during cleanup');
-      }
-    };
-  }, [duelId, channel, profileId]);
-
-  // 🆕 CRITICAL FIX: Ref для остановки polling при finished статусе
-  const pollingStoppedRef = useRef(false);
-
-  // КРИТИЧНО: Polling fallback для получения exploits (если Realtime не доставил)
-  // Проверяем новые exploits каждые 3 секунды через прямой запрос к БД
-  // ИЗМЕНЕНО: Работает во ВСЕХ средах (не только Telegram), загружает myPlayerId из БД если нужно
-  useEffect(() => {
-    // Сбрасываем флаг при монтировании
-    pollingStoppedRef.current = false;
-
-    if (!duelId) {
-      return;
-    }
-
-    // Polling использует REST API (не WebSocket), поэтому НЕ зависит от connectionStatus
-    log('[useDuelRealtime] 🔄 Starting exploit polling (duelId:', duelId, ')');
+  // ─── [exploit broadcast, polling, expiry handled by useExploitsManager] ──
 
 
-    // Кэш для загруженного myPlayerId
-    let cachedMyPlayerId: string | null = myPlayerId || null;
-
-    const performPolling = async () => {
-      // Проверяем статус дуэли перед polling
-      if (duelId) {
-        try {
-          const { data: duelData } = await supabase
-            .from('duels')
-            .select('status')
-            .eq('id', duelId)
-            .maybeSingle();
-
-          if (duelData?.status === 'finished') {
-            log('[useDuelRealtime] 🛑 Duel is finished, stopping polling...');
-            // Устанавливаем флаг для остановки polling
-            pollingStoppedRef.current = true;
-            return;
-          }
-        } catch (statusError) {
-          logError('[useDuelRealtime] Error checking duel status in polling:', statusError);
-          // Продолжаем polling даже при ошибке проверки статуса
-        }
-      }
-
-      try {
-        let currentMyPlayerId = myPlayerIdRef.current || cachedMyPlayerId;
-
-        // Если myPlayerId не установлен, загружаем из БД
-        if (!currentMyPlayerId && profileId && duelId) {
-          try {
-            const { data: playerData } = await supabase
-              .from('duel_players')
-              .select('id')
-              .eq('duel_id', duelId)
-              .eq('user_id', profileId)
-              .maybeSingle();
-
-            if (playerData?.id) {
-              currentMyPlayerId = playerData.id;
-              cachedMyPlayerId = playerData.id;
-              myPlayerIdRef.current = playerData.id;
-              log('[useDuelRealtime] Polling: Loaded myPlayerId from DB:', currentMyPlayerId);
-            }
-          } catch (loadError) {
-            logError('[useDuelRealtime] Polling: Error loading myPlayerId:', loadError);
-          }
-        }
-
-        if (!currentMyPlayerId || !duelId) {
-          return;
-        }
-
-        const { data: rpcExploits, error: rpcError } = await supabase.rpc('get_active_exploits', {
-          p_duel_id: duelId,
-          p_my_player_id: currentMyPlayerId
-        });
-
-        let newExploits: any[] = [];
-        let error: any = null;
-
-        if (rpcError) {
-          error = rpcError;
-          logError('[useDuelRealtime] RPC get_active_exploits error:', rpcError);
-
-          // Fallback: прямой запрос
-          const { data: fallbackExploits, error: fallbackError } = await supabase
-            .from('duel_active_exploits')
-            .select('*')
-            .eq('duel_id', duelId)
-            .neq('attacker_player_id', currentMyPlayerId)
-            .eq('is_active', true)
-            .gt('expires_at', new Date().toISOString())
-            .order('activated_at', { ascending: false });
-
-          if (fallbackError) {
-            error = fallbackError;
-          } else {
-            newExploits = fallbackExploits || [];
-          }
-        } else {
-          // RPC функция возвращает TABLE напрямую (массив записей)
-          newExploits = rpcExploits || [];
-        }
-
-        if (error) {
-          logError('[useDuelRealtime] Polling error:', error);
-          return;
-        }
-
-        if (newExploits && newExploits.length > 0) {
-          // Добавляем exploits, которых еще нет в состоянии
-          setState(prev => {
-            // КРИТИЧНО: Улучшенная дедупликация - используем комбинацию type, receivedAt и expiresAt
-            const existingExploits = (prev.activeExploits || []).map(e => ({
-              type: e.type,
-              receivedAt: e.receivedAt,
-              expiresAt: e.expiresAt
-            }));
-
-            const newExploitsToAdd = newExploits
-              .filter(e => !resolvedExploitIdsRef.current.has(e.id)) // КРИТИЧНО: Фильтруем уже resolved exploits
-              .map(e => ({
-                id: e.id, // КРИТИЧНО: Сохраняем ID для resolve_exploit
-                type: e.exploit_type,
-                data: e.effect_data || {},
-                receivedAt: new Date(e.activated_at).getTime(),
-                expiresAt: new Date(e.expires_at).getTime()
-              }))
-              .filter(newExploit => {
-                // КРИТИЧНО: Увеличено окно дедупликации для предотвращения повторных добавлений
-                return !existingExploits.some(existing =>
-                  existing.type === newExploit.type &&
-                  Math.abs(existing.receivedAt - newExploit.receivedAt) < 5000 &&
-                  Math.abs(existing.expiresAt - newExploit.expiresAt) < 2000
-                );
-              });
-
-            if (newExploitsToAdd.length === 0) {
-              return prev;
-            }
-
-            log('[useDuelRealtime] ✅ Polling: Adding exploits:', newExploitsToAdd.length);
-
-            return {
-              ...prev,
-              activeExploits: [...(prev.activeExploits || []), ...newExploitsToAdd]
-            };
-          });
-        }
-      } catch (pollingError) {
-        logError('[useDuelRealtime] ❌ Polling exception:', pollingError);
-      }
-    };
-
-    // Вызываем polling сразу после подключения
-    performPolling();
-
-    // 🆕 CRITICAL FIX: Сохраняем ссылку на интервал для возможности остановки из performPolling
-    let pollingInterval: NodeJS.Timeout | null = null;
-
-    const pollingWrapper = async () => {
-      // 🆕 CRITICAL FIX: Проверяем флаг остановки в начале
-      if (pollingStoppedRef.current) {
-        if (pollingInterval) {
-          clearInterval(pollingInterval);
-          pollingInterval = null;
-        }
-        return;
-      }
-
-      await performPolling();
-
-      // 🆕 CRITICAL FIX: Проверяем флаг после выполнения (может быть установлен в performPolling)
-      if (pollingStoppedRef.current) {
-        if (pollingInterval) {
-          clearInterval(pollingInterval);
-          pollingInterval = null;
-        }
-      }
-    };
-
-    pollingInterval = setInterval(() => {
-      if (pollingStoppedRef.current) {
-        if (pollingInterval) {
-          clearInterval(pollingInterval);
-          pollingInterval = null;
-        }
-        return;
-      }
-      pollingWrapper();
-    }, 3000);
-
-    return () => {
-      pollingStoppedRef.current = true;
-      if (pollingInterval) {
-        clearInterval(pollingInterval);
-        pollingInterval = null;
-      }
-    };
-  }, [duelId, myPlayerId, profileId]);
-
-  // ОПТИМИЗАЦИЯ: Мемоизируем broadcast функцию
+  // Broadcast function — memoized for stability
   const broadcast = useCallback((event: string, data: any) => {
     if (channel) {
-      channel.send({
-        type: 'broadcast',
-        event,
-        payload: data,
-      });
+      channel.send({ type: 'broadcast', event, payload: data });
     }
   }, [channel]);
 
-  // 🆕 Функция для принудительного обновления exploits (можно вызвать извне)
-  const refreshExploits = useCallback(async () => {
-    log('[useDuelRealtime] 🔄🔄🔄 Manual refreshExploits called 🔄🔄🔄:', {
-      duelId,
-      myPlayerId: myPlayerIdRef.current,
-      profileId,
-      connectionStatus
-    });
+  // Merge exploit state into the realtime state shape consumers expect
+  const stateWithExploits: DuelRealtimeState = {
+    ...state,
+    activeExploits: exploitsManager.activeExploits,
+  };
 
-    // Вызываем recoverActiveExploits если есть все параметры
-    if (duelId && (myPlayerIdRef.current || profileId)) {
-      await recoverActiveExploits();
-    } else {
-      logWarn('[useDuelRealtime] ⚠️ Cannot refresh exploits: missing parameters', {
-        duelId: !!duelId,
-        myPlayerId: !!myPlayerIdRef.current,
-        profileId: !!profileId
-      });
-    }
-  }, [duelId, profileId, recoverActiveExploits, connectionStatus]);
-
-  // 🆕 Функция для удаления exploit из состояния (после успешной очистки)
-  const removeExploit = useCallback((exploitId: string) => {
-    log('[useDuelRealtime] 🗑️ Removing exploit from state:', exploitId);
-    // КРИТИЧНО: Добавляем ID в список resolved, чтобы предотвратить повторное добавление
-    resolvedExploitIdsRef.current.add(exploitId);
-    setState(prev => {
-      const filtered = (prev.activeExploits || []).filter(e => e.id !== exploitId);
-      if (filtered.length === prev.activeExploits?.length) {
-        // Ничего не изменилось
-        return prev;
-      }
-      log('[useDuelRealtime] ✅ Exploit removed from state:', {
-        exploitId,
-        remainingExploits: filtered.length,
-        previousCount: prev.activeExploits?.length || 0,
-        resolvedExploitIds: Array.from(resolvedExploitIdsRef.current)
-      });
-      return {
-        ...prev,
-        activeExploits: filtered
-      };
-    });
-  }, []);
-
-  // 🆕 Функция для фильтрации истекших exploits (проверяем каждые 2 секунды)
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const now = Date.now();
-      setState(prev => {
-        if (!prev.activeExploits || prev.activeExploits.length === 0) {
-          return prev;
-        }
-
-        // Фильтруем истекшие exploits (с буфером 5 секунд для компенсации лага)
-        const NETWORK_LATENCY_BUFFER_MS = 5000;
-        const validExploits = prev.activeExploits.filter(e => {
-          const isExpired = e.expiresAt <= now;
-          const expiredBy = now - e.expiresAt;
-          // Удаляем только если истек более чем на 5 секунд
-          return !isExpired || expiredBy <= NETWORK_LATENCY_BUFFER_MS;
-        });
-
-        if (validExploits.length === prev.activeExploits.length) {
-          return prev; // Ничего не изменилось
-        }
-
-        log('[useDuelRealtime] 🧹 Cleaned up expired exploits:', {
-          removed: prev.activeExploits.length - validExploits.length,
-          remaining: validExploits.length
-        });
-
-        return {
-          ...prev,
-          activeExploits: validExploits
-        };
-      });
-    }, 2000); // Проверяем каждые 2 секунды
-
-    return () => clearInterval(interval);
-  }, []); // Запускаем только один раз
-
-  return { state, broadcast, connectionStatus, lastEventAt, refreshExploits, removeExploit };
+  return {
+    state: stateWithExploits,
+    broadcast,
+    connectionStatus,
+    lastEventAt,
+    refreshExploits: exploitsManager.refreshExploits,
+    removeExploit: exploitsManager.removeExploit,
+  };
 }
