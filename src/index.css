@@ -2255,6 +2255,19 @@ html {
   75%, 100% { transform: scale(2); opacity: 0; }
 }
 
+/* Paddle overlay: respect iOS safe-area so close button doesn't hide under notch/Dynamic Island */
+[id*="paddle"],
+[class*="paddle-checkout"],
+iframe[src*="paddle.com"],
+iframe[src*="checkout.paddle"] {
+  padding-top: env(safe-area-inset-top, 0px) !important;
+}
+
+div:has(> iframe[src*="paddle.com"]),
+div:has(> iframe[src*="checkout.paddle"]) {
+  padding-top: env(safe-area-inset-top, 0px) !important;
+}
+
 /* Custom transforms */
 .scale-125 { transform: scale(1.25); }
 .scale-150 { transform: scale(1.5); }
