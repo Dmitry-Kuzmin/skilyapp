@@ -189,10 +189,10 @@ export function PaddleCheckoutShell({ transactionId: txProp, onClose, onComplete
               </div>
             </div>
             {/* Success overlay covers entire drawer content */}
-            <div ref={containerRef} className="relative flex-1 min-h-[480px]">
+            <div ref={containerRef} className="relative">
               {countdown !== null && <SuccessOverlay t={t} countdown={countdown} containerRef={containerRef} />}
               <div
-                className={cn(PADDLE_FRAME_CLASS, "px-2 pb-4 min-h-[480px] overflow-y-auto")}
+                className={cn(PADDLE_FRAME_CLASS, "px-2 pb-4 min-h-[320px]")}
                 style={{ paddingBottom: "max(24px, env(safe-area-inset-bottom))" }}
               />
             </div>
