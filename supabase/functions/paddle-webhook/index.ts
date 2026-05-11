@@ -73,7 +73,11 @@ serve(async (req) => {
 
     const isValidSignature = await verifyPaddleSignature(bodyText, signatureHeader, paddleSignatureKey);
     if (!isValidSignature) {
-      console.error("[paddle-webhook] Invalid signature");
+      // Debug: log header details without leaking the key
+      const parts = signatureHeader.split(';');
+      let h1 = '';
+      for (const p of parts) { if (p.startsWith('h1=')) h1 = p.split('=')[1]; }
+      console.error("[paddle-webhook] Invalid signature. Header present:", !!signatureHeader, "h1 len:", h1.length, "key len:", paddleSignatureKey.length, "key prefix:", paddleSignatureKey.slice(0, 8));
       return new Response(JSON.stringify({ error: "Invalid signature" }), { status: 401, headers: corsHeaders });
     }
 
