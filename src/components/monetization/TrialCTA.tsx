@@ -3,10 +3,10 @@ import { Button } from '@/components/ui/button';
 import { useUserContext } from '@/contexts/UserContext';
 import { usePremium } from '@/hooks/usePremium';
 import { supabase } from '@/integrations/supabase/client';
-import { getPaddleInstance } from '@/lib/paddle';
 import { Sparkles, Loader2 } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { toast } from 'sonner';
+import { useModalStore } from '@/store/modalStore';
 
 interface TrialCTAProps {
   onTrialStarted?: () => void;
@@ -39,6 +39,7 @@ export function TrialCTA({ onTrialStarted, variant = 'banner' }: TrialCTAProps) 
   const { isPremium } = usePremium();
   const { language } = useLanguage();
   const t = TEXT[language] || TEXT.en;
+  const openModal = useModalStore(s => s.openModal);
   const [loading, setLoading] = useState(false);
   const [hidden, setHidden] = useState(false);
 
@@ -56,14 +57,9 @@ export function TrialCTA({ onTrialStarted, variant = 'banner' }: TrialCTAProps) 
       const parsed = typeof data === 'string' ? JSON.parse(data) : data;
       if (!parsed?.transaction_id) throw new Error('No transaction_id from paddle-payment');
 
-      const paddle = await getPaddleInstance();
-      if (!paddle) throw new Error('Paddle SDK not loaded');
-
-      // Close parent modal first, then open Paddle overlay after animation completes
+      // Close parent modal first, then open checkout via GlobalModalManager (outside Settings stack)
       onTrialStarted?.();
-      setTimeout(() => {
-        paddle.Checkout.open({ transactionId: parsed.transaction_id });
-      }, 350);
+      openModal('PADDLE_CHECKOUT', { transactionId: parsed.transaction_id }, false);
     } catch (err) {
       console.error('[TrialCTA] Paddle trial checkout failed:', err);
       toast.error(t.genericError);

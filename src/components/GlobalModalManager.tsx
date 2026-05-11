@@ -14,6 +14,7 @@ import { supabase } from '@/integrations/supabase/client';
 // Lazy-loaded модалки (загружаются только при открытии)
 const BoostShopModal = lazy(() => import('@/components/shop/BoostShopModal').then(m => ({ default: m.BoostShopModal })));
 const PaywallModal = lazy(() => import('@/components/monetization/PaywallModal').then(m => ({ default: m.PaywallModal })));
+const PaddleCheckoutModal = lazy(() => import('@/components/monetization/PaddleCheckoutModal').then(m => ({ default: m.PaddleCheckoutModal })));
 const DuelPassSeasonModal = lazy(() => import('@/components/monetization/DuelPassSeasonModal').then(m => ({ default: m.DuelPassSeasonModal })));
 const FlashCardsModal = lazy(() => import('@/components/FlashCardsModal').then(m => ({ default: m.FlashCardsModal })));
 const TermProgressModal = lazy(() => import('@/components/TermProgressModal').then(m => ({ default: m.TermProgressModal })));
@@ -54,6 +55,7 @@ const MODAL_COMPONENTS: Record<ModalType, React.ComponentType<any> | null> = {
   TON_PAY: TonPaymentModal,
   PREMIUM: PaywallModal,
   TEST_LIMIT_REACHED: TestLimitReachedModal,
+  PADDLE_CHECKOUT: PaddleCheckoutModal,
 };
 
 /**
@@ -264,7 +266,8 @@ export const GlobalModalManager = () => {
     topModal.type === 'TON_PAY' ||
     topModal.type === 'PAYWALL' ||
     topModal.type === 'PREMIUM' ||
-    topModal.type === 'DUEL_PASS';
+    topModal.type === 'DUEL_PASS' ||
+    topModal.type === 'PADDLE_CHECKOUT';
 
   if (createsOwnPortal) {
     // Модалка сама создает портал, просто рендерим её
