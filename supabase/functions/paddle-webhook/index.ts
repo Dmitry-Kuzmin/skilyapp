@@ -158,11 +158,25 @@ serve(async (req) => {
 
         // Grant premium when subscription becomes active or trialing
         if (userId && dbType === "premium" && (status === "trialing" || status === "active")) {
-          const days = catalogKey.includes("yearly") ? 365
-            : catalogKey.includes("biannual") ? 180
-            : catalogKey.includes("quarterly") ? 90
-            : 30;
-          await supabase.rpc("grant_premium_access", { p_user_id: userId, p_days: days });
+          const isTrial = catalogKey.includes("trial");
+
+          if (isTrial) {
+            // Trial: set subscription_status='trial' and trial_until
+            const trialDays = 3;
+            const trialUntil = new Date(Date.now() + trialDays * 24 * 60 * 60 * 1000).toISOString();
+            await supabase.from("profiles").update({
+              subscription_status: "trial",
+              trial_until: trialUntil
+            }).eq("id", userId);
+          } else {
+            // Paid subscription: use grant_premium_access
+            const days = catalogKey.includes("yearly") ? 365
+              : catalogKey.includes("biannual") ? 180
+              : catalogKey.includes("quarterly") ? 90
+              : 30;
+            await supabase.rpc("grant_premium_access", { p_user_id: userId, p_days: days });
+          }
+
           // Mark purchase as completed
           await supabase.from("purchases")
             .update({ status: "completed", completed_at: new Date().toISOString() })
