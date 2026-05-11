@@ -62,15 +62,14 @@ export function AuthCallback() {
         }
       }
 
-      // Небольшая задержка для UI feedback, затем редирект
-      setTimeout(() => {
-        console.log('[AuthCallback] ✅ Redirecting to dashboard...');
-        // Очищаем hash от токенов (безопасность)
-        window.location.hash = '';
-        // Используем window.location.href для полной перезагрузки
-        // Это гарантирует что UserProvider загрузится и обработает сессию
-        window.location.href = '/dashboard';
-      }, 300);
+      console.log('[AuthCallback] ✅ Redirecting to dashboard...');
+      // Очищаем hash от токенов в истории браузера (безопасность), без перезагрузки
+      try {
+        history.replaceState(null, '', window.location.pathname + window.location.search);
+      } catch {}
+      // SPA-навигация: AppProviders смонтируются на /dashboard и подхватят сессию
+      // из localStorage. Это в разы быстрее, чем window.location.href (full reload).
+      navigate('/dashboard', { replace: true });
     }
 
     console.log('[AuthCallback] Component mounted, checking for OAuth tokens...');

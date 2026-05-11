@@ -81,6 +81,12 @@ export const SubscriptionTab: React.FC = () => {
           queryClient.removeQueries({ queryKey: ['premium-status', profileId] });
           setCancelMethod('trial');
           setCancelStep('cancelled');
+        } else if (errCode === 'subscription_locked') {
+          toast.error('Подписка обновляется. Попробуй через минуту.');
+          setCancelStep('confirm');
+        } else if (errCode === 'paddle_error') {
+          toast.error('Paddle временно недоступен. Попробуй позже.');
+          setCancelStep('confirm');
         } else {
           toast.error('Не удалось отменить. Попробуй позже или напиши в поддержку.');
           setCancelStep('confirm');
