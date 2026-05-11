@@ -16,12 +16,13 @@ import { getPaddleInstance, getPaddleInstanceSync } from "@/lib/paddle";
 import { isPaymentMethodAvailable } from "@/lib/payment-config";
 import { toast } from "@/lib/toast";
 import { useLanguage } from "@/contexts/LanguageContext";
+import type { Paddle } from "@paddle/paddle-js";
 
 import { TrialCTA } from "@/components/monetization/TrialCTA";
 import { SocialTrustBadge } from "@/components/shared/SocialTrustBadge";
 import { useModalStack } from "@/hooks/useModalStack";
 import { PaymentSelectorModal } from "@/components/shop/PaymentSelectorModal";
-import { useModalStore } from "@/store/modalStore";
+import { PaddleCheckoutShell } from "@/components/monetization/PaddleCheckoutShell";
 
 interface PaywallModalProps {
   open: boolean;
@@ -89,15 +90,17 @@ const BenefitItem = ({ icon: Icon, text, color, delay }: { icon: any, text: stri
 export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
   const { profileId, platform } = useUserContext();
   const { isPremium } = usePremium();
+  const [checkoutTransactionId, setCheckoutTransactionId] = useState<string | null>(null);
   const [showExitTrial, setShowExitTrial] = useState(false);
   const [hasSeenExitTrial, setHasSeenExitTrial] = useState(false);
   const isMobile = useIsMobile();
-  const openModal = useModalStore(s => s.openModal);
 
   // Принудительно держим пейволл в стеке, пока он открыт (даже если перешли к оплате),
   // чтобы GlobalModalManager не разблокировал скролл фона.
   useModalStack("paywall-global-lock", open, "Paywall");
   const { language } = useLanguage();
+  const [paddle, setPaddle] = useState<Paddle | null>(null);
+  const paddleLocale = language === 'ru' ? 'ru' : language === 'es' ? 'es' : 'en';
 
   const currentPlatform = platform === 'telegram' ? 'telegram' : 'web';
   const showPaddlePayment = isPaymentMethodAvailable('paddle', currentPlatform);
@@ -106,20 +109,22 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
 
   useEffect(() => {
     if (!open || !showPaddlePayment) return;
-    if (getPaddleInstanceSync()) return;
-    getPaddleInstance().catch(() => { });
+    const existing = getPaddleInstanceSync();
+    if (existing) { setPaddle(existing); return; }
+    getPaddleInstance().then(inst => inst && setPaddle(inst)).catch(() => { });
   }, [open, showPaddlePayment]);
 
   useEffect(() => {
     if (open) {
       setShowExitTrial(false);
+      setCheckoutTransactionId(null);
     }
   }, [open]);
 
   const TRIAL_COOLDOWN_MS = 3 * 24 * 60 * 60 * 1000; // 3 дня
 
   const handleOpenChange = (newOpen: boolean) => {
-    if (!newOpen && !isPremium && !hasSeenExitTrial) {
+    if (!newOpen && !isPremium && !hasSeenExitTrial && !checkoutTransactionId) {
       const dismissedAt = localStorage.getItem('trial_offer_dismissed_at');
       const inCooldown = dismissedAt && Date.now() - Number(dismissedAt) < TRIAL_COOLDOWN_MS;
       if (!inCooldown) {
@@ -133,6 +138,13 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
     }
     onOpenChange(newOpen);
   };
+
+  useEffect(() => {
+    if (!open) {
+      try { paddle?.Checkout.close(); } catch { /* noop */ }
+      setCheckoutTransactionId(null);
+    }
+  }, [open, paddle]);
 
   const TRANSLATIONS: Record<string, any> = {
     ru: {
@@ -364,8 +376,10 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
       return;
     }
     try {
-      if (showPaddlePayment && !getPaddleInstanceSync()) {
-        await getPaddleInstance();
+      let paddleInstance = paddle || getPaddleInstanceSync();
+      if (!paddleInstance && showPaddlePayment) {
+        paddleInstance = await getPaddleInstance();
+        if (paddleInstance) setPaddle(paddleInstance);
       }
       const partnerCode = localStorage.getItem('partner_code');
       const { data, error } = await supabase.functions.invoke("paddle-payment", {
@@ -391,10 +405,7 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
       }
       sessionStorage.setItem('paddle_transaction_id', parsedData.transaction_id);
       localStorage.setItem('paddle_transaction_id', parsedData.transaction_id);
-
-      // Закрываем PaywallModal перед открытием checkout — точно как в TrialCTA
-      onOpenChange(false);
-      openModal('PADDLE_CHECKOUT', { transactionId: parsedData.transaction_id }, false);
+      setCheckoutTransactionId(parsedData.transaction_id);
     } catch (err: any) {
       toast({ title: "Error", description: err?.message || t.unknownError, variant: "destructive" });
     }
@@ -454,7 +465,7 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
   return (
     <>
       <UnifiedModal
-        open={open}
+        open={open && !checkoutTransactionId}
         onOpenChange={handleOpenChange}
         modalRouteKey="paywall"
         showTitleBar={isMobile}
@@ -717,7 +728,7 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
         </ContentWrapper>
       </UnifiedModal>
 
-      {selectedPlanForPayment && (() => {
+      {selectedPlanForPayment && !checkoutTransactionId && (() => {
         const plan = PRICING_PLANS.find(p => p.id === selectedPlanForPayment)!;
         return (
           <PaymentSelectorModal
@@ -749,6 +760,14 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
           />
         );
       })()}
+
+      {open && (
+        <PaddleCheckoutShell
+          transactionId={checkoutTransactionId}
+          onClose={() => setCheckoutTransactionId(null)}
+          onCompleted={() => onOpenChange(false)}
+        />
+      )}
 
       {/* Comparison popup — portal escapes framer-motion transform stacking context */}
       {typeof document !== 'undefined' && createPortal(
