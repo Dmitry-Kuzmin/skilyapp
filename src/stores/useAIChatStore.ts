@@ -222,6 +222,16 @@ export const useAIChatStore = create<AIChatState>()(
                 conversationId: state.conversationId,
                 // ❌ НЕ сохраняем: isOpen, isLoading, smartSuggestions (UI state)
             }),
+            // Гарантируем сброс UI-флагов при гидрации (на случай старых данных в storage)
+            merge: (persistedState: unknown, currentState: AIChatState): AIChatState => ({
+                ...currentState,
+                ...(persistedState as Partial<AIChatState>),
+                isOpen: false,
+                isLoading: false,
+                limitModalOpen: false,
+                smartSuggestions: [],
+                isGeneratingSuggestions: false,
+            }),
         }
     )
 );

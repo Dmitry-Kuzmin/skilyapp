@@ -242,6 +242,7 @@ export const UserProfilePopover = memo(function UserProfilePopover({ notificatio
                 profileId={profileId}
                 size={compact ? "sm" : "md"}
                 previewSkin={previewSkin}
+                forcePremium={isPremium}
               />
             )}
             {!showSkeleton && hasUnreadNotifications && (
@@ -275,7 +276,8 @@ export const UserProfilePopover = memo(function UserProfilePopover({ notificatio
                     profileId={profileId}
                     size="md"
                     previewSkin={previewSkin}
-                    showPremiumGlow={false}
+                    showPremiumGlow={true}
+                    forcePremium={isPremium}
                   />
                 </div>
                 <div className="flex-1 min-w-0 text-left">
@@ -352,14 +354,6 @@ export const UserProfilePopover = memo(function UserProfilePopover({ notificatio
                 {t('profileMenu.inventory')}
               </Button>
             </div>
-
-            {/* Subscription Status */}
-            {isProfilePremium && (
-              <div className="flex items-center gap-2 p-2 rounded-lg bg-primary/10">
-                <Crown className="h-4 w-4 text-primary" />
-                <span className="text-sm font-medium">{t('profileMenu.proBadge')}</span>
-              </div>
-            )}
 
             <Separator />
 

@@ -28,6 +28,7 @@ export const WelcomeOverlay: React.FC<WelcomeOverlayProps> = ({ onComplete, isLo
   const completedRef = useRef(false);
   const onCompleteRef = useRef(onComplete);
   onCompleteRef.current = onComplete;
+  const containerRef = useRef<HTMLDivElement>(null);
 
   // Cleanup all timers on unmount
   useEffect(() => {
@@ -43,11 +44,26 @@ export const WelcomeOverlay: React.FC<WelcomeOverlayProps> = ({ onComplete, isLo
       sonnerEl.style.pointerEvents = 'none';
     }
     return () => {
-      // Восстанавливаем при размонтировании
       if (sonnerEl) {
         sonnerEl.style.pointerEvents = '';
       }
     };
+  }, []);
+
+  // 🛡️ Защита от Radix Dialog: если любой Dialog откроется пока overlay видим,
+  // он применит aria-hidden к нашему контейнеру → блокирует клики.
+  // MutationObserver сразу убирает aria-hidden обратно.
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const observer = new MutationObserver(() => {
+      if (el.getAttribute('aria-hidden') || el.getAttribute('data-aria-hidden')) {
+        el.removeAttribute('aria-hidden');
+        el.removeAttribute('data-aria-hidden');
+      }
+    });
+    observer.observe(el, { attributes: true, attributeFilter: ['aria-hidden', 'data-aria-hidden'] });
+    return () => observer.disconnect();
   }, []);
 
   const handleStart = useCallback(() => {
@@ -94,10 +110,10 @@ export const WelcomeOverlay: React.FC<WelcomeOverlayProps> = ({ onComplete, isLo
   }
 
   return createPortal(
-    <div className="fixed inset-0 bg-[#0f172a] flex flex-col items-center justify-center p-6 transition-all duration-500 overflow-hidden selection:bg-indigo-500/30" style={{ zIndex: 2147483647 }}>
+    <div ref={containerRef} className="fixed inset-0 bg-[#0f172a] flex flex-col items-center justify-center p-6 transition-all duration-500 overflow-hidden selection:bg-indigo-500/30" style={{ zIndex: 2147483647 }}>
 
       {/* Background Ambiance */}
-      <div className="absolute inset-0 w-full h-full bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-indigo-900/20 via-[#0f172a] to-[#0f172a]"></div>
+      <div className="absolute inset-0 w-full h-full bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-indigo-900/20 via-[#0f172a] to-[#0f172a] pointer-events-none"></div>
 
       {/* ==================================================================
           MODE 1: MECHANICAL (Start Engine) 

@@ -1,9 +1,10 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { motion } from "@/components/optimized/Motion";
 import { useProfileData, useUserSkins } from "@/hooks/useProfileData";
+import { Crown } from "lucide-react";
 
 interface UserAvatarProps {
     profileId: string | null;
@@ -12,6 +13,7 @@ interface UserAvatarProps {
     size?: "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl";
     previewSkin?: any; // For shop/inventory
     showPremiumGlow?: boolean;
+    forcePremium?: boolean;
     onClick?: () => void;
 }
 
@@ -22,21 +24,24 @@ export function UserAvatar({
     size = "md",
     previewSkin,
     showPremiumGlow = true,
+    forcePremium,
     onClick
 }: UserAvatarProps) {
     const { profileData: profile, loading: isLoading } = useProfileData(profileId);
     const { data: activeSkinData } = useUserSkins(profileId);
+    const [isHovered, setIsHovered] = useState(false);
 
     const activeSkin = previewSkin || activeSkinData;
 
-    // Проверка премиума через унифицированный геттер
+    // Проверка премиума через унифицированный геттер или принудительно
     const isProfilePremium = useMemo(() => {
+        if (forcePremium !== undefined) return forcePremium;
         if (!profile) return false;
         return profile.subscription_status === 'pro' ||
             profile.subscription_status === 'lifetime' ||
             !!profile.premium_forever_purchased_at ||
             (profile.settings as any)?.subscription_type === 'lifetime';
-    }, [profile]);
+    }, [profile, forcePremium]);
 
     const sizeClasses = {
         "xs": "h-6 w-6",
@@ -60,41 +65,98 @@ export function UserAvatar({
     return (
         <div
             className={cn(
-                "relative inline-flex items-center justify-center shrink-0 isolate rounded-full",
+                "relative inline-flex items-center justify-center shrink-0 isolate rounded-full transition-transform duration-500",
+                isHovered && "scale-[1.04]",
                 className
             )}
             onClick={onClick}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
         >
-            {/* ADVANCED Premium Effects Container */}
+            {/* PREMIUM Rotating Metallic Border - RESTORED & OPTIMIZED */}
             {isProfilePremium && !activeSkin && showPremiumGlow && (
                 <>
-                    {/* Outer Pulse Glow */}
                     <motion.div
                         className={cn(
-                            "absolute rounded-full border-2 border-amber-500/20 blur-md -z-20",
-                            size === "2xl" ? "-inset-6" : "-inset-4"
-                        )}
-                        animate={{
-                            scale: [1, 1.2, 1],
-                            opacity: [0.1, 0.3, 0.1]
-                        }}
-                        transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-                    />
-
-                    {/* Rotating High-Contrast Border */}
-                    <motion.div
-                        className={cn(
-                            "absolute rounded-full pointer-events-none z-0",
-                            size === "2xl" ? "-inset-[4px]" : size === "xl" ? "-inset-[3px]" : "-inset-[2px]"
+                            "absolute rounded-full pointer-events-none z-[5]",
+                            size === "2xl" || size === "3xl" ? "-inset-[4px]" : size === "xl" ? "-inset-[3px]" : "-inset-[2.5px]"
                         )}
                         style={{
-                            background: 'conic-gradient(from 0deg, #f59e0b, #fbbf24 20%, #fff 45%, #fff 55%, #fbbf24 80%, #f59e0b 100%)',
-                            boxShadow: '0 0 15px rgba(245, 158, 11, 0.3)'
+                            padding: '2px',
+                            background: 'conic-gradient(from 0deg, #f59e0b 0%, #fbbf24 25%, #fff 50%, #fbbf24 75%, #f59e0b 100%)',
+                            boxShadow: isHovered 
+                                ? '0 0 20px rgba(245, 158, 11, 0.6)' 
+                                : '0 0 12px rgba(245, 158, 11, 0.3)'
                         }}
-                        animate={{ rotate: 360 }}
-                        transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-                    />
+                        animate={{ 
+                            rotate: 360
+                        }}
+                        transition={{ 
+                            duration: isHovered ? 2 : 4, 
+                            repeat: Infinity, 
+                            ease: "linear" 
+                        }}
+                    >
+                        {/* Inner masking to create the hollow ring effect */}
+                        <div className="w-full h-full rounded-full bg-background" />
+                    </motion.div>
+
+                    {/* Premium Aura Particles */}
+                    <div className="absolute inset-0 pointer-events-none z-0 overflow-visible">
+                        {Array.from({ length: size === "xl" || size === "2xl" || size === "3xl" ? 14 : 10 }).map((_, i) => {
+                            const angle = (i * 360) / (size === "xl" || size === "2xl" || size === "3xl" ? 14 : 10);
+                            const radius = size === "xl" || size === "2xl" || size === "3xl" ? (isHovered ? 80 : 60) : (isHovered ? 40 : 30);
+                            return (
+                                <motion.div
+                                    key={i}
+                                    className="absolute top-1/2 left-1/2 rounded-full bg-amber-500"
+                                    style={{
+                                        width: isHovered ? '1.8px' : '1.2px',
+                                        height: isHovered ? '1.8px' : '1.2px',
+                                        boxShadow: '0 0 6px rgba(245, 158, 11, 0.6)',
+                                        marginLeft: '-0.6px',
+                                        marginTop: '-0.6px'
+                                    }}
+                                    animate={{
+                                        opacity: isHovered ? [0, 0.9, 0] : [0, 0.6, 0],
+                                        scale: isHovered ? [0, 1.4, 0] : [0, 1, 0],
+                                        x: [
+                                            Math.cos(angle * Math.PI / 180) * (radius * (isHovered ? 0.4 : 0.7)),
+                                            Math.cos((angle + (isHovered ? 30 : 15)) * Math.PI / 180) * radius
+                                        ],
+                                        y: [
+                                            Math.sin(angle * Math.PI / 180) * (radius * (isHovered ? 0.4 : 0.7)),
+                                            Math.sin((angle + (isHovered ? 30 : 15)) * Math.PI / 180) * radius
+                                        ],
+                                    }}
+                                    transition={{
+                                        duration: isHovered ? 1.5 : 4,
+                                        repeat: Infinity,
+                                        delay: i * 0.4,
+                                        ease: "easeInOut"
+                                    }}
+                                />
+                            );
+                        })}
+                    </div>
                 </>
+            )}
+
+            {/* Refined Mini Crown Badge - Minimalist Style */}
+            {isProfilePremium && !activeSkin && showPremiumGlow && (
+                <motion.div
+                    className={cn(
+                        "absolute z-30 flex items-center justify-center rounded-full bg-background/60 backdrop-blur-md shadow-sm",
+                        size === "xl" || size === "2xl" || size === "3xl" 
+                            ? "w-6 h-6 bottom-[-2px] right-[-2px]" 
+                            : "w-3.5 h-3.5 -bottom-1 -right-1"
+                    )}
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                >
+                    <Crown className={cn("text-amber-500/90 fill-amber-500/90", size === "xl" || size === "2xl" || size === "3xl" ? "h-3 w-3" : "h-2 w-2")} />
+                </motion.div>
             )}
 
             {/* ADVANCED Skin Effects based on rarity or specific ID */}
@@ -135,7 +197,7 @@ export function UserAvatar({
                 sizeClasses[size],
                 "transition-all relative z-10 overflow-hidden",
                 isProfilePremium && !activeSkin
-                    ? "ring-[1px] ring-white/15"
+                    ? "ring-[1px] ring-white/10"
                     : !activeSkin ? "ring-[0.5px] ring-white/5" : "",
                 activeSkin?.rarity === "legendary" && "ring-[1px] ring-white/20",
                 activeSkin?.rarity === "epic" && "ring-[1px] ring-white/15",
@@ -177,9 +239,7 @@ export function UserAvatar({
                 )}>
                     {/* Fallback Mesh Gradient Layer */}
                     {isProfilePremium && !activeSkin && (
-                        <div className="absolute inset-0 z-0 opacity-60">
-                            <div className="absolute -inset-[10%] bg-gradient-to-br from-yellow-500 via-orange-600 to-amber-700 blur-xl" />
-                        </div>
+                        <div className="absolute inset-0 z-0 opacity-80 bg-gradient-to-br from-yellow-600 via-orange-700 to-amber-900" />
                     )}
 
                     {/* Skin Fallback Layer */}
