@@ -3,20 +3,21 @@ import {
   Sparkles, ChevronRight, Crown, Clock, AlertCircle,
   Zap, BarChart3, Trophy, ExternalLink, MessageCircle,
   Star, Shield, XCircle, CalendarDays, Infinity as InfinityIcon,
-  ArrowLeft, RefreshCw,
+  ArrowLeft, RefreshCw, CheckCircle2,
 } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { useSettingsStore } from '@/store/settingsStore';
 import { usePremium } from '@/hooks/usePremium';
 import { triggerHaptic } from '@/lib/haptics';
+import { toast } from 'sonner';
 import { format, differenceInDays } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 import { UserContext } from '@/contexts/UserContext';
 
-type CancelStep = 'idle' | 'confirm' | 'how-to-cancel';
+type CancelStep = 'idle' | 'confirm' | 'cancelling' | 'cancelled' | 'manual';
 
 const LOSE_BULLETS = [
   { icon: Zap,       color: 'text-amber-400',  text: '9 500+ вопросов, Challenge Bank и AI-разборы' },
@@ -63,28 +64,55 @@ export const SubscriptionTab: React.FC = () => {
   const profileId = userContext?.profileId ?? null;
 
   const [cancelStep, setCancelStep] = useState<CancelStep>('idle');
-  const [paddleSubId, setPaddleSubId] = useState<string | null>(null);
-  const [providerLoading, setProviderLoading] = useState(false);
+  const [cancelling, setCancelling] = useState(false);
 
   const computedDaysRemaining = activeUntil
     ? Math.max(0, differenceInDays(new Date(activeUntil), new Date()))
     : daysRemaining;
 
-  const startCancel = async () => {
+  const startCancel = () => {
     triggerHaptic('warning');
-    if (profileId && !paddleSubId) {
-      setProviderLoading(true);
-      const { data } = await supabase
-        .from('purchases')
-        .select('paddle_subscription_id')
-        .eq('user_id', profileId)
-        .not('paddle_subscription_id', 'is', null)
-        .limit(1)
-        .maybeSingle();
-      setPaddleSubId(data?.paddle_subscription_id ?? null);
-      setProviderLoading(false);
-    }
     setCancelStep('confirm');
+  };
+
+  const executeCancel = async () => {
+    triggerHaptic('warning');
+    setCancelling(true);
+    setCancelStep('cancelling');
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const res = await supabase.functions.invoke('cancel-subscription', {
+        headers: session?.access_token
+          ? { Authorization: `Bearer ${session.access_token}` }
+          : undefined,
+      });
+
+      const result = res.data as { success?: boolean; method?: string; error?: string; scheduledEnd?: string } | null;
+
+      if (res.error || !result?.success) {
+        const errCode = result?.error;
+        if (errCode === 'no_paddle_subscription') {
+          // Stars/Crypto — нет автоотмены, показываем ручной путь
+          setCancelStep('manual');
+        } else if (errCode === 'lifetime_not_cancellable') {
+          toast.error('Вечную подписку нельзя отменить');
+          setCancelStep('idle');
+        } else {
+          toast.error('Не удалось отменить. Попробуй позже или напиши в поддержку.');
+          setCancelStep('confirm');
+        }
+      } else {
+        setCancelStep('cancelled');
+        // Обновляем premium статус через небольшую задержку
+        setTimeout(() => { window.location.reload(); }, 3000);
+      }
+    } catch {
+      toast.error('Ошибка соединения. Попробуй ещё раз.');
+      setCancelStep('confirm');
+    } finally {
+      setCancelling(false);
+    }
   };
 
   const handleUpgrade = () => {
@@ -137,7 +165,6 @@ export const SubscriptionTab: React.FC = () => {
     : null;
 
   const trialUrgency = isTrial && computedDaysRemaining <= 3;
-  const hasPaddle = !!paddleSubId;
 
   return (
     <div className="space-y-5">
@@ -303,7 +330,7 @@ export const SubscriptionTab: React.FC = () => {
                 Оставить
               </button>
               <button
-                onClick={() => { triggerHaptic('warning'); setCancelStep('how-to-cancel'); }}
+                onClick={executeCancel}
                 className="flex-1 h-10 rounded-xl bg-transparent hover:bg-red-500/10 text-red-400 hover:text-red-300 border border-red-500/30 text-sm font-medium transition-all active:scale-[0.98]"
               >
                 Всё равно отменить
@@ -312,8 +339,25 @@ export const SubscriptionTab: React.FC = () => {
           </div>
         )}
 
-        {/* ── Шаг 2: как отменить ── */}
-        {cancelStep === 'how-to-cancel' && (
+        {/* ── Шаг 2: идёт отмена ── */}
+        {cancelStep === 'cancelling' && (
+          <div className="rounded-2xl bg-slate-800/60 border border-slate-700 px-4 py-6 flex flex-col items-center gap-3">
+            <RefreshCw className="w-6 h-6 text-slate-400 animate-spin" />
+            <p className="text-sm text-slate-300 font-medium">Отменяем подписку…</p>
+          </div>
+        )}
+
+        {/* ── Шаг 3a: успешно отменено ── */}
+        {cancelStep === 'cancelled' && (
+          <div className="rounded-2xl bg-emerald-950/30 border border-emerald-900/40 px-4 py-5 flex flex-col items-center gap-2 text-center">
+            <CheckCircle2 className="w-7 h-7 text-emerald-400" />
+            <p className="text-sm font-semibold text-white">Подписка отменена</p>
+            <p className="text-xs text-slate-400">Доступ сохраняется до конца оплаченного периода. Страница обновится автоматически.</p>
+          </div>
+        )}
+
+        {/* ── Шаг 3b: Stars/Crypto — ручная отмена недоступна ── */}
+        {cancelStep === 'manual' && (
           <div className="rounded-2xl bg-slate-800/60 border border-slate-700 overflow-hidden">
             <div className="px-4 pt-4 pb-3">
               <button
@@ -323,42 +367,20 @@ export const SubscriptionTab: React.FC = () => {
                 <ArrowLeft className="w-3.5 h-3.5" />
                 Назад
               </button>
-              <p className="text-sm font-semibold text-white mb-3">Как отменить</p>
-              {hasPaddle ? (
-                <div className="space-y-2 text-xs text-slate-400">
-                  <p>Подписка оформлена через <span className="text-white font-medium">Paddle</span>. Отмени на их портале:</p>
-                  <ol className="list-decimal list-inside space-y-1 text-slate-300 pl-1">
-                    <li>Нажми кнопку ниже</li>
-                    <li>Войди под email покупки</li>
-                    <li>Выбери подписку → Cancel</li>
-                  </ol>
-                  <p className="text-slate-500">Доступ сохранится до конца оплаченного периода</p>
-                </div>
-              ) : (
-                <div className="space-y-2 text-xs text-slate-400">
-                  <p>Напиши в поддержку — мы отменим вручную в течение нескольких часов.</p>
-                  <p className="text-slate-500">Возвраты рассматриваются индивидуально.</p>
-                </div>
-              )}
+              <p className="text-sm font-semibold text-white mb-2">Нужна помощь</p>
+              <p className="text-xs text-slate-400 mb-1">
+                Твоя подписка оплачена через Telegram Stars или крипту — у нас нет способа отменить её автоматически.
+              </p>
+              <p className="text-xs text-slate-500">Напиши в поддержку, и мы вручную сбросим доступ.</p>
             </div>
             <div className="px-4 pb-4">
-              {hasPaddle ? (
-                <button
-                  onClick={() => window.open('https://customer.paddle.com/', '_blank')}
-                  className="w-full h-10 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
-                >
-                  <ExternalLink className="w-4 h-4" />
-                  Открыть Paddle Portal
-                </button>
-              ) : (
-                <button
-                  onClick={() => window.open('https://t.me/skilyapp_bot', '_blank')}
-                  className="w-full h-10 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-sm font-semibold flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
-                >
-                  <MessageCircle className="w-4 h-4" />
-                  Написать в поддержку
-                </button>
-              )}
+              <button
+                onClick={() => window.open('https://t.me/skilyapp_bot', '_blank')}
+                className="w-full h-10 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-sm font-semibold flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
+              >
+                <MessageCircle className="w-4 h-4" />
+                Написать в поддержку
+              </button>
             </div>
           </div>
         )}
