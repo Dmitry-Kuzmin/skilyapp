@@ -183,9 +183,9 @@ export const useModalStore = create<ModalStore>((set, get) => ({
     // Обновляем URL без перезагрузки страницы
     const newUrl = `${window.location.pathname}${searchParams.toString() ? `?${searchParams.toString()}` : ''}${window.location.hash}`;
     if (isOpen) {
-      window.history.pushState({}, '', newUrl);
+      window.history.pushState(window.history.state, '', newUrl);
     } else {
-      window.history.replaceState({}, '', newUrl);
+      window.history.replaceState(window.history.state, '', newUrl);
     }
   },
 }));

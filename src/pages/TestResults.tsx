@@ -394,7 +394,7 @@ const TestResults = () => {
 
   // Paywall trigger: показывать после провала 1 раз в день для free-юзеров
   useEffect(() => {
-    if (isPremium || !totalQuestions || passed) return;
+    if (isPremium || isGuest || !totalQuestions || passed) return;
     const accuracy = totalQuestions > 0 ? correctCount / totalQuestions : 1;
     if (accuracy >= 0.7) return; // провал < 70%
     const todayKey = `paywall_fail_shown_${new Date().toISOString().slice(0, 10)}`;

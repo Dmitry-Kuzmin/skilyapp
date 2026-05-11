@@ -8,7 +8,7 @@ declare global {
   }
 }
 
-export function useCrispChat() {
+export function useCrispChat({ hideWidget = false }: { hideWidget?: boolean } = {}) {
   useEffect(() => {
     // Check if already injected
     if (document.getElementById('crisp-chat-script')) return;
@@ -23,12 +23,19 @@ export function useCrispChat() {
       window.$crisp = [];
       window.CRISP_WEBSITE_ID = "f75e4c12-7db0-4f2f-90fb-711aacc45df3";
 
+      if (hideWidget) {
+        window.$crisp.push(["do", "chat:hide"]);
+        window.$crisp.push(["on", "chat:closed", () => {
+          window.$crisp.push(["do", "chat:hide"]);
+        }]);
+      }
+
       const d = document;
       const s = d.createElement("script");
       s.id = "crisp-chat-script";
       s.src = "https://client.crisp.chat/l.js";
       s.async = true;
-      
+
       // Add to head
       if (d.head) {
           d.head.appendChild(s);

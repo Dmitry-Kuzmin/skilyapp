@@ -482,14 +482,15 @@ export const UserProfilePopover = memo(function UserProfilePopover({ notificatio
                   {t('nav.cookies')}
                 </button>
                 <span className="opacity-30">•</span>
-                <a
-                  href="https://t.me/skilyapp_bot"
-                  target="_blank"
-                  rel="noreferrer"
+                <button
+                  onClick={() => {
+                    window.$crisp?.push(["do", "chat:show"]);
+                    window.$crisp?.push(["do", "chat:open"]);
+                  }}
                   className="hover:text-foreground transition-colors"
                 >
                   {t('nav.help')}
-                </a>
+                </button>
               </div>
               <div className="mt-2 text-center text-[9px] text-muted-foreground/30 font-mono tracking-widest uppercase">
                 © 2026 SKILY
