@@ -21,177 +21,58 @@ export function useDuelOpponentEvents({
     transitionToResults,
     myPlayerId
 }: UseDuelOpponentEventsProps) {
-    const players = useDuelStore(state => state.players);
-    const isWaitingForOpponent = useDuelStore(state => state.isWaitingForOpponent);
-    const hasFinishedMyQuestions = useDuelStore(state => state.hasFinishedMyQuestions);
-    const duelStarted = useDuelStore(state => state.duelStarted); // Assuming this is in store, or we check state.duelStarted
+    const players = useDuelStore(s => s.players);
+    const isWaitingForOpponent = useDuelStore(s => s.isWaitingForOpponent);
+    const hasFinishedMyQuestions = useDuelStore(s => s.hasFinishedMyQuestions);
 
-    // Opponent State from Store
-    const opponentName = useDuelStore(state => state.opponentName);
-    const opponentScore = useDuelStore(state => state.opponentScore);
-    const opponentActivityStatus = useDuelStore(state => state.opponentActivityStatus);
-    const opponentLastSeen = useDuelStore(state => state.opponentLastSeen);
+    const opponentName = useDuelStore(s => s.opponentName);
+    const opponentScore = useDuelStore(s => s.opponentScore);
+    const opponentActivityStatus = useDuelStore(s => s.opponentActivityStatus);
 
-    // Actions
-    const setOpponentScore = useDuelStore(state => state.setOpponentScore);
-    const setOpponentActivityStatus = useDuelStore(state => state.setOpponentActivityStatus);
+    const setOpponentScore = useDuelStore(s => s.setOpponentScore);
+    const setOpponentActivityStatus = useDuelStore(s => s.setOpponentActivityStatus);
 
-    const previousActivityStatusRef = useRef('online');
+    // ─── 2 critical refs ──────────────────────────────────────────────────────
     const isVerifyingRef = useRef(false);
     const hasTransitionedRef = useRef(false);
-    const lastRealtimeUpdateRef = useRef<number>(0);
 
-    // 0. Update last realtime timestamp
+    // ─── Effect 1: Polling for completion when waiting ────────────────────────
+    // Bot: 3s (fast), PvP: 8s (fallback if Realtime missed the finish event)
     useEffect(() => {
-        if (typeof state.opponentScore === 'number') {
-            lastRealtimeUpdateRef.current = Date.now();
-        }
-    }, [state.opponentScore]);
-
-    // 1. Polling for Completion (Fallback for both bot and PvP)
-    useEffect(() => {
-        let pollingInterval: NodeJS.Timeout | null = null;
-        if (isWaitingForOpponent && duelId && profileId) {
-            const isBotDuel = players.some((p: any) => p.is_bot);
-            if (isBotDuel) {
-                // Bot duel: fast polling (3s) — bot answers are determined server-side
-                pollingInterval = setInterval(() => {
-                    finishDuel(true);
-                }, 3000);
-            } else {
-                // PvP duel: slower polling (8s) — fallback if Realtime subscription missed the finish event
-                pollingInterval = setInterval(() => {
-                    finishDuel(true);
-                }, 8000);
-            }
-        }
-        return () => {
-            if (pollingInterval) clearInterval(pollingInterval);
-        };
+        if (!isWaitingForOpponent || !duelId || !profileId) return;
+        const isBotDuel = players.some((p: any) => p.is_bot);
+        const interval = setInterval(() => {
+            finishDuel(true);
+        }, isBotDuel ? 3000 : 8000);
+        return () => clearInterval(interval);
     }, [isWaitingForOpponent, duelId, profileId, players, finishDuel]);
 
-    // 2. Opponent Status Notifications
+    // ─── Effect 2: Realtime-driven events ────────────────────────────────────
+    // Handles: score updates, status notifications, finish verification,
+    // score polling fallback (every 5s when duel active)
     useEffect(() => {
-        if (!opponentName || opponentActivityStatus === previousActivityStatusRef.current) return;
-
-        const statusMessages: Record<string, { title: string; description: string; icon: string; duration: number }> = {
-            online: {
-                title: `${opponentName} вернулся`,
-                description: 'Соперник снова онлайн',
-                icon: '🟢',
-                duration: 2000
-            },
-            thinking: {
-                title: `${opponentName} думает`,
-                description: 'Читает вопрос...',
-                icon: '💭',
-                duration: 1500
-            },
-            answering: {
-                title: `${opponentName} отвечает!`,
-                description: 'Торопится!',
-                icon: '⚡',
-                duration: 2000
-            },
-            reconnecting: {
-                title: `${opponentName} переподключается`,
-                description: 'Проблемы с соединением',
-                icon: '🔄',
-                duration: 3000
-            },
-            offline: {
-                title: `${opponentName} офлайн`,
-                description: 'Потеряно соединение',
-                icon: '⚠️',
-                duration: 3000
-            }
-        };
-
-        const message = statusMessages[opponentActivityStatus];
-        if (message && previousActivityStatusRef.current !== 'online') {
-            toast.info(message.title, {
-                description: message.description,
-                duration: message.duration,
-                icon: message.icon
-            });
-        }
-        previousActivityStatusRef.current = opponentActivityStatus;
-    }, [opponentActivityStatus, opponentName]);
-
-    // 3. Opponent Reconnection Detection
-    useEffect(() => {
-        if (!opponentLastSeen || opponentActivityStatus !== 'online') return;
-
-        const checkReconnection = () => {
-            if (!opponentLastSeen) return;
-            const now = Date.now();
-            const lastSeen = opponentLastSeen ? new Date(opponentLastSeen).getTime() : 0;
-            if (!lastSeen) return;
-
-            const timeSinceLastSeen = now - lastSeen;
-            if (timeSinceLastSeen > 5000 && previousActivityStatusRef.current === 'offline') {
-                setOpponentActivityStatus('reconnecting');
-                setTimeout(() => setOpponentActivityStatus('online'), 2000);
-            }
-        };
-
-        const interval = setInterval(checkReconnection, 1000);
-        return () => clearInterval(interval);
-    }, [opponentLastSeen, opponentActivityStatus, setOpponentActivityStatus]);
-
-    // 4. Opponent Answer Reaction (Immediate Score Update) & Finished Check
-    useEffect(() => {
-        // If score updated via Realtime
-        if (state.opponentAnswered && state.opponentAnswerData) {
-            if (state.opponentScore !== opponentScore) {
-                setOpponentScore(state.opponentScore);
-            }
+        // 2a. Score update from realtime
+        if (typeof state.opponentScore === 'number' && state.opponentScore !== opponentScore) {
+            setOpponentScore(state.opponentScore);
         }
 
-        // Check if this update signifies the end of the game (Emergency Check)
-        // Если мы ждем соперника и счет обновился - возможно он закончил
-        if (isWaitingForOpponent && hasFinishedMyQuestions) {
-            const statusCheckTimeout = setTimeout(async () => {
-                // ... logic to check status ...
-                // This logic from original file seemed redundant with "Finish Verification" (#5)
-                // But it included a "duel status check" specifically.
-                try {
-                    const { data: duel } = await supabase
-                        .from('duels')
-                        .select('status')
-                        .eq('id', duelId)
-                        .single();
-
-                    if (duel?.status === 'finished' && !hasTransitionedRef.current) {
-                        hasTransitionedRef.current = true;
-                        try { if (sounds?.victory) sounds.victory(); } catch (e) { /* ignore */ }
-                        toast.info('🏁 Финиш! Подводим итоги...', { duration: 2000 });
-                        transitionToResults();
-                    }
-                } catch (e) { console.error(e); }
-            }, 1000);
-            return () => clearTimeout(statusCheckTimeout);
-        }
-
-    }, [state.opponentAnswered, state.opponentAnswerData, state.opponentScore, opponentScore, setOpponentScore, isWaitingForOpponent, hasFinishedMyQuestions, duelId, transitionToResults]);
-
-
-    // 5. Opponent Finish Verification (Realtime Trigger)
-    useEffect(() => {
+        // 2b. Finish verification triggered by realtime duelFinished event
         if (state.duelFinished && isWaitingForOpponent && !isVerifyingRef.current) {
-            console.log('[useDuelOpponentEvents] Verifying opponent completion...');
             isVerifyingRef.current = true;
 
-            const verifyAndTransition = async () => {
+            (async () => {
                 try {
                     const { data: playersList } = await supabase
                         .from('duel_players')
                         .select('id, user_id')
                         .eq('duel_id', duelId);
 
-                    if (!playersList || playersList.length < 2) return;
+                    if (!playersList || playersList.length < 2) {
+                        isVerifyingRef.current = false;
+                        return;
+                    }
                     const opponent = playersList.find((p: any) => p.user_id !== profileId);
-                    if (!opponent) return;
+                    if (!opponent) { isVerifyingRef.current = false; return; }
 
                     const { data: duelInfo } = await supabase
                         .from('duels')
@@ -211,43 +92,78 @@ export function useDuelOpponentEvents({
                     } else {
                         isVerifyingRef.current = false;
                     }
-                } catch (e) {
-                    console.error(e);
+                } catch {
                     isVerifyingRef.current = false;
                 }
-            };
-
-            verifyAndTransition();
+            })();
         }
-    }, [state.duelFinished, isWaitingForOpponent, duelId, profileId, finishDuel]);
 
-    // 6. Score Polling Fallback
+        // 2c. Emergency check: if waiting and opponent score arrived, check if duel finished
+        if (isWaitingForOpponent && hasFinishedMyQuestions && state.opponentAnswered) {
+            const timer = setTimeout(async () => {
+                if (hasTransitionedRef.current) return;
+                try {
+                    const { data: duel } = await supabase
+                        .from('duels')
+                        .select('status')
+                        .eq('id', duelId)
+                        .single();
+                    if (duel?.status === 'finished' && !hasTransitionedRef.current) {
+                        hasTransitionedRef.current = true;
+                        try { sounds.victory(); } catch { /* ignore */ }
+                        toast.info('🏁 Финиш! Подводим итоги...', { duration: 2000 });
+                        transitionToResults();
+                    }
+                } catch { /* ignore */ }
+            }, 1000);
+            return () => clearTimeout(timer);
+        }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [state.opponentScore, state.duelFinished, state.opponentAnswered, isWaitingForOpponent, hasFinishedMyQuestions]);
+
+    // ─── Status notification (separate small effect — reads single store field) ─
+    // Kept separate so it only re-runs when opponentActivityStatus changes,
+    // not on every realtime event. Tracks previous via closure-local variable.
+    const prevStatusRef = useRef<string>('online');
     useEffect(() => {
-        if (!duelId || !myPlayerId || !state.duelStarted || isWaitingForOpponent) return;
+        if (!opponentName || opponentActivityStatus === prevStatusRef.current) return;
 
-        const scoreCheckInterval = setInterval(async () => {
+        const statusMessages: Record<string, { title: string; description: string; icon: string; duration: number }> = {
+            online: { title: `${opponentName} вернулся`, description: 'Соперник снова онлайн', icon: '🟢', duration: 2000 },
+            thinking: { title: `${opponentName} думает`, description: 'Читает вопрос...', icon: '💭', duration: 1500 },
+            answering: { title: `${opponentName} отвечает!`, description: 'Торопится!', icon: '⚡', duration: 2000 },
+            reconnecting: { title: `${opponentName} переподключается`, description: 'Проблемы с соединением', icon: '🔄', duration: 3000 },
+            offline: { title: `${opponentName} офлайн`, description: 'Потеряно соединение', icon: '⚠️', duration: 3000 },
+        };
+
+        const message = statusMessages[opponentActivityStatus];
+        // Show notification only when transitioning FROM non-online status
+        if (message && prevStatusRef.current !== 'online') {
+            toast.info(message.title, { description: message.description, duration: message.duration, icon: message.icon });
+        }
+        prevStatusRef.current = opponentActivityStatus;
+    }, [opponentActivityStatus, opponentName]);
+
+    // ─── Score polling fallback ────────────────────────────────────────────────
+    // Polls every 5s when duel is active (not waiting) as a safety net for Realtime misses
+    useEffect(() => {
+        if (!duelId || !myPlayerId || isWaitingForOpponent) return;
+
+        const interval = setInterval(async () => {
             try {
-                // Если realtime обновлялся менее 5 секунд назад - пропускаем fallback
-                const timeSinceRealtimeUpdate = Date.now() - lastRealtimeUpdateRef.current;
-                if (timeSinceRealtimeUpdate < 5000) return;
-
-                const { data: players, error } = await supabase
+                const { data: playersList } = await supabase
                     .from('duel_players')
                     .select('id, score, user_id')
                     .eq('duel_id', duelId);
 
-                if (error || !players) return;
-
-                const opponent = players.find((p: any) => p.user_id !== profileId);
-                if (opponent && opponent.score > opponentScore) {
-                    console.log('[useDuelOpponentEvents] Fallback score update', opponent.score);
+                if (!playersList) return;
+                const opponent = playersList.find((p: any) => p.user_id !== profileId);
+                if (opponent && typeof opponent.score === 'number' && opponent.score > opponentScore) {
                     setOpponentScore(opponent.score);
                 }
-            } catch (error) {
-                console.error('[useDuelOpponentEvents] Error checking opponent score (fallback):', error);
-            }
-        }, 3000);
+            } catch { /* ignore */ }
+        }, 5000);
 
-        return () => clearInterval(scoreCheckInterval);
-    }, [duelId, myPlayerId, state.duelStarted, isWaitingForOpponent, opponentScore, setOpponentScore, profileId]);
+        return () => clearInterval(interval);
+    }, [duelId, myPlayerId, isWaitingForOpponent, opponentScore, setOpponentScore, profileId]);
 }
