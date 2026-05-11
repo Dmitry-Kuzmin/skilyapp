@@ -1045,6 +1045,7 @@ export const ru = {
       coinsEarnedDuel: "Награда за дуэль",
       coinsEarnedDaily: "Ежедневный бонус",
       coinsEarnedPremiumBonus: "Premium бонус",
+      coinsEarnedSignupBonus: "Бонус за регистрацию",
       coinsEarnedAd: "Награда за рекламу",
       coinsSpentBoost: "Покупка буста: {{name}}",
       coinsSpentSkin: "Покупка скина",

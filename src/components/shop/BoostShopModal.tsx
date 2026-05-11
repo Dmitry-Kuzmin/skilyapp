@@ -607,6 +607,12 @@ export function BoostShopModal({
           description: t("boostShop.transactions.coinsEarnedPremiumBonus"),
           category: "earn",
         };
+      case "coins_earned_signup_bonus":
+        return {
+          icon: Gift,
+          description: t("boostShop.transactions.coinsEarnedSignupBonus"),
+          category: "reward",
+        };
       case "coins_earned_ad":
         return {
           icon: Video,

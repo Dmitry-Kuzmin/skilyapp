@@ -18,14 +18,28 @@ export function useDemoCoinsReward(profileId: string | null) {
 
     const award = async () => {
       try {
-        await supabase.rpc("increment_profile_value", {
-          p_profile_id: profileId,
-          p_column: "coins",
-          p_amount: 100,
-        });
+        const { data, error } = await supabase.functions.invoke("claim-demo-bonus");
+        const result = data as {
+          success?: boolean;
+          error?: string;
+          amount?: number;
+        } | null;
+
+        if (error || !result?.success) {
+          // already_claimed = пользователь уже получал бонус → тихо очищаем флаг
+          if (result?.error === "already_claimed") {
+            localStorage.removeItem(DEMO_COINS_KEY);
+            localStorage.setItem(DEMO_DONE_KEY, "awarded");
+            return;
+          }
+          console.error("[useDemoCoinsReward] Failed:", error, result);
+          awardedRef.current = false;
+          return;
+        }
+
         localStorage.removeItem(DEMO_COINS_KEY);
         localStorage.setItem(DEMO_DONE_KEY, "awarded");
-        toast.success("🪙 ¡100 monedas añadidas!", {
+        toast.success(`🪙 ¡${result.amount ?? 100} monedas añadidas!`, {
           description: "Por completar el test de diagnóstico. ¡Úsalas en duelos y boosters!",
         });
       } catch (e) {
@@ -34,7 +48,6 @@ export function useDemoCoinsReward(profileId: string | null) {
       }
     };
 
-    // Small delay so dashboard renders first
     const t = setTimeout(award, 1500);
     return () => clearTimeout(t);
   }, [profileId]);

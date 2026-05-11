@@ -1038,6 +1038,7 @@ export const en = {
       coinsEarnedDuel: "Duel reward",
       coinsEarnedDaily: "Daily bonus",
       coinsEarnedPremiumBonus: "Premium bonus",
+      coinsEarnedSignupBonus: "Registration bonus",
       coinsEarnedAd: "Ad reward",
       coinsSpentBoost: "Boost purchase: {{name}}",
       coinsSpentSkin: "Skin purchase",
