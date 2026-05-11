@@ -119,12 +119,12 @@ export const SubscriptionTab: React.FC = () => {
   const PlanIcon = isLifetime ? InfinityIcon : isTrial ? Clock : isPremium ? Crown : AlertCircle;
 
   const accent = isLifetime
-    ? { icon: 'text-amber-400', ring: 'ring-amber-500/20', bg: 'bg-amber-500/8', badge: 'bg-amber-500/10 text-amber-300 border-amber-500/20' }
+    ? { icon: 'text-amber-400', ring: 'ring-amber-500/20', bg: 'bg-amber-500/5', badge: 'bg-amber-500/10 text-amber-300 border-amber-500/20' }
     : isTrial
-    ? { icon: 'text-blue-400',  ring: 'ring-blue-500/20',  bg: 'bg-blue-500/8',  badge: 'bg-blue-500/10  text-blue-300  border-blue-500/20'  }
+    ? { icon: 'text-amber-400',  ring: 'ring-amber-500/20',  bg: 'bg-amber-500/5',  badge: 'bg-amber-500/10  text-amber-300  border-amber-500/20'  }
     : isPremium
-    ? { icon: 'text-indigo-400',ring: 'ring-indigo-500/20',bg: 'bg-indigo-500/8',badge: 'bg-emerald-500/10 text-emerald-300 border-emerald-500/20' }
-    : { icon: 'text-slate-400', ring: 'ring-slate-700',    bg: 'bg-slate-800/40', badge: 'bg-slate-700/40  text-slate-400  border-slate-600/30'  };
+    ? { icon: 'text-amber-400', ring: 'ring-amber-500/20', bg: 'bg-amber-500/5', badge: 'bg-amber-500/10 text-amber-300 border-amber-500/20' }
+    : { icon: 'text-zinc-500', ring: 'ring-zinc-800',    bg: 'bg-zinc-900/40', badge: 'bg-zinc-800/40  text-zinc-400  border-zinc-700/30'  };
 
   const notificationHint = cancelNotifications
     ? cancelNotifications.telegram && cancelNotifications.email
@@ -194,15 +194,15 @@ export const SubscriptionTab: React.FC = () => {
           {(!isPremium || isTrial) && !isLifetime && (
             <button
               onClick={handleUpgrade}
-              className="w-full flex items-center justify-between px-4 py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:opacity-90 transition-all active:scale-[0.99]"
+              className="w-full flex items-center justify-between px-5 py-4 rounded-2xl bg-white hover:bg-zinc-100 transition-all active:scale-[0.98] shadow-sm border-none group"
             >
-              <div className="flex items-center gap-2.5">
-                <Crown className="w-4 h-4 text-white/80" />
-                <span className="text-sm font-semibold text-white">
+              <div className="flex items-center gap-3">
+                <Crown className="w-4 h-4 text-black" />
+                <span className="text-[15px] font-bold text-black tracking-tight">
                   {isTrial ? 'Купить Premium' : 'Активировать Premium'}
                 </span>
               </div>
-              <span className="text-xs text-white/50">→</span>
+              <span className="text-sm text-black/30 group-hover:text-black/50 transition-colors">→</span>
             </button>
           )}
 
@@ -256,21 +256,24 @@ export const SubscriptionTab: React.FC = () => {
           </div>
 
           <div className="px-4 pb-4 pt-3 border-t border-slate-700/40 space-y-2">
+
+            <div className="space-y-2">
             <button
               onClick={() => { triggerHaptic('light'); setCancelStep('idle'); }}
-              className="w-full h-10 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:opacity-90 text-white text-sm font-semibold transition-all active:scale-[0.98]"
+              className="w-full h-12 rounded-xl bg-white hover:bg-zinc-200 text-black text-sm font-semibold transition-all"
             >
               Оставить Premium
             </button>
             <button
               onClick={executeCancel}
               disabled={cancelling}
-              className="w-full h-9 rounded-xl text-red-400/60 hover:text-red-400/90 text-xs transition-colors"
+              className="w-full h-12 rounded-xl border border-zinc-800 text-red-400 text-sm font-medium hover:bg-red-950/20 transition-all"
             >
               Всё равно отменить
             </button>
           </div>
         </div>
+      </div>
       )}
 
       {/* ── Cancelling ───────────────────────────────────────────────────────── */}
