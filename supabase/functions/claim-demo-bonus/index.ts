@@ -56,28 +56,32 @@ serve(async (req) => {
       }, 409);
     }
 
-    // Атомарный claim: UPDATE сработает только если demo_bonus_claimed_at ещё NULL.
-    // Если кто-то параллельно успел вызвать функцию — вернётся пустой массив.
-    const nowIso = new Date().toISOString();
-    const { data: updated, error: updErr } = await admin
+    // Два атомарных шага:
+    // 1. Флаг claimed — WHERE IS NULL гарантирует что только один запрос пройдёт.
+    // 2. Инкремент монет через RPC (coins = coins + N на стороне БД, без read-modify-write).
+    const { data: claimed, error: claimErr } = await admin
       .from("profiles")
-      .update({
-        demo_bonus_claimed_at: nowIso,
-        coins: (profile.coins ?? 0) + BONUS_AMOUNT,
-      })
+      .update({ demo_bonus_claimed_at: new Date().toISOString() })
       .eq("id", profile.id)
       .is("demo_bonus_claimed_at", null)
-      .select("coins, demo_bonus_claimed_at")
+      .select("id")
       .maybeSingle();
 
-    if (updErr) {
-      console.error("[claim-demo-bonus] update err:", updErr);
+    if (claimErr) {
+      console.error("[claim-demo-bonus] claim err:", claimErr);
       return json({ success: false, error: "update_failed" }, 500);
     }
-    if (!updated) {
-      // Race: за это время другой запрос уже выставил claim_at.
+    if (!claimed) {
       return json({ success: false, error: "already_claimed" }, 409);
     }
+
+    // Атомарный инкремент — БД сама считает coins + 100, не мы.
+    const { error: coinsErr } = await admin.rpc("increment_profile_value", {
+      p_profile_id: profile.id,
+      p_column: "coins",
+      p_amount: BONUS_AMOUNT,
+    });
+    if (coinsErr) console.error("[claim-demo-bonus] coins increment err:", coinsErr);
 
     // Записываем в историю монет (fire-and-forget, не блокируем ответ)
     admin.from("transactions").insert({
@@ -92,8 +96,6 @@ serve(async (req) => {
     return json({
       success: true,
       amount: BONUS_AMOUNT,
-      coins: updated.coins,
-      claimed_at: updated.demo_bonus_claimed_at,
     });
   } catch (err) {
     console.error("[claim-demo-bonus] unexpected:", err);
