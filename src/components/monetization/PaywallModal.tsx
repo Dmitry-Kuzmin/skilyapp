@@ -204,7 +204,6 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
       f_base: "База вопросов",
       f_ai: "AI-Помощник",
       f_stats: "Статистика",
-      f_duels: "Комиссия дуэлей",
       f_xp: "Опыт (XP)",
       unlimited: "Безлимит",
       trustText: "Доверяют 50,000+ учеников",
@@ -250,7 +249,6 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
       f_base: "Question database",
       f_ai: "AI Assistant",
       f_stats: "Statistics",
-      f_duels: "Duel Fee",
       f_xp: "Experience (XP)",
       unlimited: "Unlimited",
       trustText: "Trusted by 50,000+ students",
@@ -296,7 +294,6 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
       f_base: "Base de preguntas",
       f_ai: "Asistente IA",
       f_stats: "Estadísticas",
-      f_duels: "Comisión de duelos",
       f_xp: "Experiencia (XP)",
       unlimited: "Ilimitado",
       trustText: "Más de 50,000 alumnos confían en nosotros",
@@ -336,7 +333,6 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
     { icon: Zap,      color: "text-amber-400",  bg: "bg-amber-500/10",   text: language === 'ru' ? "Безлимит тестов каждый день" : language === 'es' ? "Tests ilimitados cada día" : "Unlimited daily tests" },
     { icon: Brain,    color: "text-violet-400",  bg: "bg-violet-500/10",  text: language === 'ru' ? "AI запоминает твои слабые темы" : language === 'es' ? "IA recuerda tus puntos débiles" : "AI remembers your weak spots" },
     { icon: BarChart3,color: "text-emerald-400", bg: "bg-emerald-500/10", text: language === 'ru' ? "Глубокая статистика и прогноз" : language === 'es' ? "Estadísticas profundas y pronóstico" : "Deep stats & forecast" },
-    { icon: Swords,   color: "text-rose-400",    bg: "bg-rose-500/10",    text: language === 'ru' ? "Комиссия дуэлей 0% (было 10%)" : language === 'es' ? "Comisión 0% en duelos" : "0% duel fee (was 10%)" },
     { icon: Infinity, color: "text-indigo-400",  bg: "bg-indigo-500/10",  text: language === 'ru' ? "3000+ вопросов вместо 300" : language === 'es' ? "3000+ preguntas en lugar de 300" : "3000+ questions instead of 300" },
   ];
 

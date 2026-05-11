@@ -16,6 +16,7 @@ import { useStreak } from "@/hooks/useStreak";
 import { useDailyBonusDefinitions } from "@/hooks/useStaticData";
 import { useSettingsSync } from "@/hooks/useSettingsSync";
 import { useDemoCoinsReward } from "@/hooks/useDemoCoinsReward";
+import { shouldShowTrialExpiry } from "@/components/monetization/TrialExpiryModal";
 // ОПТИМИЗАЦИЯ: Layout lazy-loaded - содержит UserContext, SettingsDrawer, NotificationsPanel, UserProfilePopover
 // Все эти компоненты тянут Supabase/Radix, поэтому Layout не должен быть в initial bundle
 import { Dashboard } from "@/components/dashboard-new/Dashboard";
@@ -25,6 +26,7 @@ import { StartupCurtain } from "@/components/StartupCurtain";
 const Layout = lazy(() => import("@/components/Layout").then(m => ({ default: m.default })));
 const PaywallModal = lazy(() => import("@/components/monetization/PaywallModal").then(m => ({ default: m.PaywallModal })));
 const WelcomeOverlay = lazy(() => import("@/components/dashboard-new/WelcomeOverlay").then(m => ({ default: m.WelcomeOverlay })));
+const TrialExpiryModal = lazy(() => import("@/components/monetization/TrialExpiryModal").then(m => ({ default: m.TrialExpiryModal })));
 
 // Внутренний компонент для авторизованных пользователей
 // ОПТИМИЗАЦИЯ: Мемоизирован для предотвращения лишних ре-рендеров
@@ -39,6 +41,7 @@ const DashboardContent = memo(function DashboardContent() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [claimingBonus, setClaimingBonus] = useState(false);
   const [paywallOpen, setPaywallOpen] = useState(false);
+  const [trialExpiryOpen, setTrialExpiryOpen] = useState(false);
 
   // ── Morning Quiz Answer Modal (открывается по ссылке из email) ──
   const [morningQuizAnswer, setMorningQuizAnswer] = useState<{
@@ -101,10 +104,11 @@ const DashboardContent = memo(function DashboardContent() {
   const { readiness, metrics, loading: readinessLoading } = useExamReadiness(profileId);
 
   useEffect(() => {
-    if (isTrial && daysRemaining <= 1) {
-      setPaywallOpen(true);
+    if (showWelcome) return;
+    if (isTrial && daysRemaining <= 1 && shouldShowTrialExpiry(daysRemaining)) {
+      setTrialExpiryOpen(true);
     }
-  }, [isTrial, daysRemaining]);
+  }, [isTrial, daysRemaining, showWelcome]);
 
 
   const handleClaimBonus = async () => {
@@ -354,6 +358,12 @@ const DashboardContent = memo(function DashboardContent() {
                 />
                 <Suspense fallback={null}>
                   <PaywallModal open={paywallOpen} onOpenChange={setPaywallOpen} />
+                  <TrialExpiryModal
+                    open={trialExpiryOpen}
+                    onOpenChange={setTrialExpiryOpen}
+                    daysRemaining={daysRemaining ?? 0}
+                    onUpgrade={() => setPaywallOpen(true)}
+                  />
                 </Suspense>
               </>
             ) : (
