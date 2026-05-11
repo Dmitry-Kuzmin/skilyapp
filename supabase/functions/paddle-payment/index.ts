@@ -208,6 +208,7 @@ serve(async (req) => {
       paddle_subscription_id: transactionData.subscription_id || null,
       status: "pending",
       metadata: {
+        catalog_key,
         ...entry.metadata,
         paddle_data: transactionData,
         original_price: originalAmount / 100,

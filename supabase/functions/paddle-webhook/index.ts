@@ -108,11 +108,15 @@ serve(async (req) => {
         const userId = purchase.user_id;
         const itemType = purchase.item_type;
         const itemId = purchase.item_id;
+        const purchaseCatalogKey = (purchase.metadata?.catalog_key as string) || '';
         const purchaseAmount = transaction.total ? parseFloat(transaction.total) : 0;
 
         if (itemType === "premium") {
-          const days = itemId.includes("yearly") ? 365 : 30;
-          await supabase.rpc("grant_premium_access", { p_user_id: userId, p_days: days });
+          // Skip grant for trials — subscription.created handles them with status='trial'
+          if (!purchaseCatalogKey.includes("trial")) {
+            const days = itemId.includes("yearly") ? 365 : 30;
+            await supabase.rpc("grant_premium_access", { p_user_id: userId, p_days: days });
+          }
         } else if (itemType === "coins_pack") {
           const coins = purchase.metadata?.coins || 0;
           await supabase.rpc("add_coins", { p_user_id: userId, p_amount: coins });
@@ -158,23 +162,26 @@ serve(async (req) => {
 
         // Grant premium when subscription becomes active or trialing
         if (userId && dbType === "premium" && (status === "trialing" || status === "active")) {
-          const isTrial = catalogKey.includes("trial");
+          // isTrial: only when Paddle status is 'trialing' — not when trial converts to paid (status='active')
+          const isTrial = status === "trialing" && catalogKey.includes("trial");
 
           if (isTrial) {
-            // Trial: set subscription_status='trial' and trial_until
+            // Trial period start: set subscription_status='trial' and trial_until
             const trialDays = 3;
             const trialUntil = new Date(Date.now() + trialDays * 24 * 60 * 60 * 1000).toISOString();
             await supabase.from("profiles").update({
               subscription_status: "trial",
-              trial_until: trialUntil
+              trial_until: trialUntil,
             }).eq("id", userId);
+            console.log(`[paddle-webhook] Trial granted: userId=${userId}, trial_until=${trialUntil}`);
           } else {
-            // Paid subscription: use grant_premium_access
+            // Paid subscription (or trial-to-paid conversion): use grant_premium_access
             const days = catalogKey.includes("yearly") ? 365
               : catalogKey.includes("biannual") ? 180
               : catalogKey.includes("quarterly") ? 90
               : 30;
             await supabase.rpc("grant_premium_access", { p_user_id: userId, p_days: days });
+            console.log(`[paddle-webhook] Premium granted: userId=${userId}, days=${days}`);
           }
 
           // Mark purchase as completed
