@@ -1,11 +1,10 @@
 import { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
-import { Drawer as VaulDrawer } from "vaul";
 import { UnifiedModal } from "@/components/ui/unified-modal";
 import { Button } from "@/components/ui/button";
 import { usePremium } from "@/hooks/usePremium";
 import { useUserContext } from "@/contexts/UserContext";
-import { Crown, Check, ShieldCheck, Zap, Star, Sparkles, Trophy, Lock, ChevronRight, X as XIcon, ArrowLeft, Brain, BarChart3, Infinity, Swords } from "lucide-react";
+import { Crown, Check, ShieldCheck, Zap, Star, Sparkles, Trophy, Lock, ChevronRight, X as XIcon, Brain, BarChart3, Infinity, Swords } from "lucide-react";
 import { isTelegramMiniApp } from "@/lib/telegram";
 import { PRICING_PLANS } from "@/lib/pricing-config";
 import { Badge } from "@/components/ui/badge";
@@ -23,6 +22,7 @@ import { TrialCTA } from "@/components/monetization/TrialCTA";
 import { SocialTrustBadge } from "@/components/shared/SocialTrustBadge";
 import { useModalStack } from "@/hooks/useModalStack";
 import { PaymentSelectorModal } from "@/components/shop/PaymentSelectorModal";
+import { PaddleCheckoutShell } from "@/components/monetization/PaddleCheckoutShell";
 
 interface PaywallModalProps {
   open: boolean;
@@ -87,8 +87,6 @@ const BenefitItem = ({ icon: Icon, text, color, delay }: { icon: any, text: stri
   </motion.div>
 );
 
-const PADDLE_FRAME_CLASS = "paywall-paddle-frame";
-
 export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
   const { profileId, platform } = useUserContext();
   const { isPremium } = usePremium();
@@ -147,45 +145,6 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
       setCheckoutTransactionId(null);
     }
   }, [open, paddle]);
-
-  useEffect(() => {
-    if (!checkoutTransactionId) return;
-    let cancelled = false;
-
-    const openCheckout = async () => {
-      const instance = paddle ?? getPaddleInstanceSync() ?? await getPaddleInstance();
-      if (cancelled || !instance) return;
-
-      // Wait for the container to mount in DOM after the React commit
-      await new Promise(r => setTimeout(r, 500));
-      if (cancelled) return;
-
-      const container = document.getElementsByClassName(PADDLE_FRAME_CLASS)[0];
-      if (!container) return;
-      container.innerHTML = '';
-
-      (instance.Checkout.open as (opts: unknown) => void)({
-        transactionId: checkoutTransactionId,
-        settings: {
-          displayMode: 'inline',
-          frameTarget: PADDLE_FRAME_CLASS,
-          frameInitialHeight: 450,
-          frameStyle: 'width: 100%; border: none;',
-          theme: 'light',
-          locale: paddleLocale,
-        },
-        eventCallback: (event: { name: string }) => {
-          if (event?.name === 'checkout.completed') {
-            toast({ title: t.paymentSuccess, description: t.paymentSuccessDesc });
-            setTimeout(() => { setCheckoutTransactionId(null); onOpenChange(false); }, 1200);
-          }
-        },
-      });
-    };
-
-    openCheckout();
-    return () => { cancelled = true; };
-  }, [checkoutTransactionId, paddle, paddleLocale, onOpenChange]);
 
   const TRANSLATIONS: Record<string, any> = {
     ru: {
@@ -802,102 +761,12 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
         );
       })()}
 
-      {/* Mobile checkout: Vaul drawer with transparent overlay, rounded corners, swipe-anywhere */}
-      {isMobile && (
-        <VaulDrawer.Root
-          open={open && !!checkoutTransactionId}
-          onOpenChange={(next) => {
-            if (!next) {
-              try { paddle?.Checkout.close(); } catch { /* noop */ }
-              setCheckoutTransactionId(null);
-            }
-          }}
-          closeThreshold={0.2}
-          shouldScaleBackground={false}
-          dismissible={true}
-          modal={true}
-          noBodyStyles={false}
-        >
-          <VaulDrawer.Portal>
-            <VaulDrawer.Overlay className="fixed inset-0 z-[99998] bg-black/60 backdrop-blur-[8px]" />
-            <VaulDrawer.Content
-              className="fixed bottom-0 left-0 right-0 z-[99999] flex flex-col bg-white rounded-[40px] mx-2 mb-4 overflow-hidden outline-none shadow-[0_-12px_60px_rgba(0,0,0,0.35)] border border-slate-100"
-              onContextMenu={e => e.stopPropagation()}
-              onPointerOut={e => e.stopPropagation()}
-            >
-              {/* Apple-style Handle */}
-              <div className="flex justify-center pt-3 pb-1 shrink-0 cursor-grab active:cursor-grabbing" data-vaul-drag-region>
-                <div className="w-9 h-1.5 rounded-full bg-slate-200/80" />
-              </div>
-
-              {/* Header */}
-              <div className="flex items-center justify-between px-5 py-3 shrink-0" data-vaul-drag-region>
-                <button
-                  onClick={() => {
-                    try { paddle?.Checkout.close(); } catch { /* noop */ }
-                    setCheckoutTransactionId(null);
-                  }}
-                  className="w-9 h-9 flex items-center justify-center rounded-full bg-slate-100 text-slate-900 active:scale-90 transition-all shadow-sm"
-                  aria-label={t.backToPlans}
-                  data-vaul-no-drag
-                >
-                  <XIcon className="w-5 h-5 stroke-[2.5]" />
-                </button>
-                <div className="flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-slate-50 border border-slate-100 text-[11px] font-bold text-slate-500">
-                  <ShieldCheck className="w-4 h-4 text-emerald-500" />
-                  <span>{t.protectedByPaddle}</span>
-                </div>
-              </div>
-
-              {/* Paddle iframe container */}
-              <div
-                className={cn(PADDLE_FRAME_CLASS, "px-2 pb-4 min-h-[480px] overflow-y-auto")}
-                style={{ paddingBottom: 'max(24px, env(safe-area-inset-bottom))' }}
-              />
-            </VaulDrawer.Content>
-          </VaulDrawer.Portal>
-        </VaulDrawer.Root>
-      )}
-
-      {/* Desktop checkout: dialog */}
-      {!isMobile && (
-        <UnifiedModal
-          open={open && !!checkoutTransactionId}
-          onOpenChange={(next) => {
-            if (!next) {
-              try { paddle?.Checkout.close(); } catch { /* noop */ }
-              setCheckoutTransactionId(null);
-            }
-          }}
-          showTitleBar={false}
-          showHandle={false}
-          hideCloseButton={true}
-          className="p-0 border-0 bg-white sm:max-w-[560px] overflow-hidden rounded-3xl"
-          contentClassName="p-0 bg-white border-0"
-        >
-          <div className="flex flex-col bg-white md:min-h-[640px]">
-            <div className="flex items-center justify-between px-4 py-2.5 border-b border-slate-100 shrink-0">
-              <button
-                onClick={() => {
-                  try { paddle?.Checkout.close(); } catch { /* noop */ }
-                  setCheckoutTransactionId(null);
-                }}
-                className="w-10 h-10 -ml-1 flex items-center justify-center rounded-full text-slate-500 hover:text-slate-900 hover:bg-slate-100 active:scale-95 transition-all"
-                aria-label={t.backToPlans}
-              >
-                <ArrowLeft className="w-6 h-6" />
-              </button>
-              <div className="flex items-center gap-1.5 text-[11px] text-slate-400">
-                <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
-                <span>{t.protectedByPaddle}</span>
-              </div>
-            </div>
-            <div
-              className={cn(PADDLE_FRAME_CLASS, "px-4 pt-2 min-h-[450px] flex-1")}
-              style={{ paddingBottom: '24px' }}
-            />
-          </div>
-        </UnifiedModal>
+      {open && (
+        <PaddleCheckoutShell
+          transactionId={checkoutTransactionId}
+          onClose={() => setCheckoutTransactionId(null)}
+          onCompleted={() => onOpenChange(false)}
+        />
       )}
 
       {/* Comparison popup — portal escapes framer-motion transform stacking context */}
