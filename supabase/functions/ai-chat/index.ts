@@ -286,8 +286,9 @@ Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders });
 
   const clientIP = getClientIP(req);
-  const rateLimit = await checkRateLimit({ identifier: clientIP, limit: 30, windowMs: 60000 });
-  if (!rateLimit.allowed) return new Response(JSON.stringify({ error: 'Rate limit exceeded' }), { status: 429, headers: corsHeaders });
+  // Layer 1: IP-level protection against anonymous abuse / DDoS
+  const ipRateLimit = await checkRateLimit({ identifier: `ip:${clientIP}`, limit: 60, windowMs: 60000 });
+  if (!ipRateLimit.allowed) return new Response(JSON.stringify({ error: 'Rate limit exceeded' }), { status: 429, headers: corsHeaders });
 
   try {
     const body: ChatRequest = await req.json();
@@ -330,6 +331,13 @@ Deno.serve(async (req) => {
 
         if (isPremiumUser) {
           console.log(`[ai-chat] ✅ User ${userId} is Premium`);
+        }
+
+        // Layer 2: per-user rate limit (sliding window, independent of IP)
+        const userLimit = isPremiumUser ? 20 : 10;
+        const userRateLimit = await checkRateLimit({ identifier: `user:${userId}`, limit: userLimit, windowMs: 60000 });
+        if (!userRateLimit.allowed) {
+          return new Response(JSON.stringify({ error: 'Rate limit exceeded', remaining: 0 }), { status: 429, headers: corsHeaders });
         }
 
         // 2. Инкрементируем лимит только если НЕ premium
