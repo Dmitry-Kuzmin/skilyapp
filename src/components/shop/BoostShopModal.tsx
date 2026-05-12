@@ -178,6 +178,8 @@ export function BoostShopModal({
   const [loadingHistory, setLoadingHistory] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [filterCategory, setFilterCategory] = useState<'all' | 'earn' | 'spend' | 'purchase' | 'reward'>('all');
+  const [historyMode, setHistoryMode] = useState<'coins' | 'payments'>('coins');
+  const [payments, setPayments] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState<'boosts' | 'coins' | 'premium' | 'history'>(initialTab || 'boosts');
   const [paddleCheckoutUrl, setPaddleCheckoutUrl] = useState<string | null>(null);
   const [checkoutTransactionId, setCheckoutTransactionId] = useState<string | null>(null);
@@ -842,6 +844,8 @@ export function BoostShopModal({
         const sessionId = p.metadata?.session_id || p.id;
         purchaseMap.set(sessionId, p);
       });
+      // Save purchases for Payments tab
+      setPayments(purchases);
 
       // Process transactions
       const newTransactions = transactionsResult.data;
@@ -1924,34 +1928,58 @@ export function BoostShopModal({
               value="history"
               className="flex-1 flex flex-col m-0 data-[state=inactive]:hidden outline-none overflow-hidden min-h-0"
             >
-              <div className="px-3 md:px-4 pt-3 md:pt-4 pb-3 border-b border-border/50 shrink-0 space-y-4">
+              {/* Header */}
+              <div className="px-3 md:px-4 pt-3 md:pt-4 pb-3 border-b border-border/50 shrink-0 space-y-3">
                 <div className="flex items-center justify-between">
                   <h4 className="font-bold flex items-center gap-2">
                     <History className="h-4 w-4" />
                     {t("boostShop.history.title")}
                   </h4>
                   <span className="text-xs text-muted-foreground">
-                    {t("boostShop.history.operationsCount", { count: transactions.length })}
+                    {historyMode === 'coins'
+                      ? t("boostShop.history.operationsCount", { count: transactions.length })
+                      : `${payments.length} ${payments.length === 1 ? 'платёж' : 'платежей'}`}
                   </span>
                 </div>
 
-                <div className="flex items-center gap-1 flex-wrap">
-                  {['all', 'earn', 'spend', 'purchase', 'reward'].map((cat) => (
-                    <Button
-                      key={cat}
-                      variant={filterCategory === cat ? "default" : "outline"}
-                      size="sm"
-                      className="h-7 text-xs"
-                      onClick={() => setFilterCategory(cat as any)}
+                {/* Primary toggle: Coins / Payments */}
+                <div className="flex bg-muted/40 rounded-xl p-1 gap-1">
+                  {(['coins', 'payments'] as const).map((mode) => (
+                    <button
+                      key={mode}
+                      onClick={() => setHistoryMode(mode)}
+                      className={cn(
+                        "flex-1 flex items-center justify-center gap-1.5 h-8 rounded-lg text-xs font-semibold transition-all",
+                        historyMode === mode
+                          ? "bg-background shadow-sm text-foreground"
+                          : "text-muted-foreground hover:text-foreground"
+                      )}
                     >
-                      {cat === 'earn' && <TrendingUp className="h-3 w-3 mr-1" />}
-                      {cat === 'spend' && <TrendingDown className="h-3 w-3 mr-1" />}
-                      {cat === 'purchase' && <CreditCard className="h-3 w-3 mr-1" />}
-                      {cat === 'reward' && <Gift className="h-3 w-3 mr-1" />}
-                      {t(`boostShop.history.filters.${cat}`)}
-                    </Button>
+                      {mode === 'coins' ? <><span>🪙</span> Монеты</> : <><CreditCard className="h-3 w-3" /> Платежи</>}
+                    </button>
                   ))}
                 </div>
+
+                {/* Secondary filters — only for coins */}
+                {historyMode === 'coins' && (
+                  <div className="flex items-center gap-1 flex-wrap">
+                    {(['all', 'earn', 'spend', 'purchase', 'reward'] as const).map((cat) => (
+                      <Button
+                        key={cat}
+                        variant={filterCategory === cat ? "default" : "outline"}
+                        size="sm"
+                        className="h-7 text-xs"
+                        onClick={() => setFilterCategory(cat)}
+                      >
+                        {cat === 'earn' && <TrendingUp className="h-3 w-3 mr-1" />}
+                        {cat === 'spend' && <TrendingDown className="h-3 w-3 mr-1" />}
+                        {cat === 'purchase' && <CreditCard className="h-3 w-3 mr-1" />}
+                        {cat === 'reward' && <Gift className="h-3 w-3 mr-1" />}
+                        {t(`boostShop.history.filters.${cat}`)}
+                      </Button>
+                    ))}
+                  </div>
+                )}
               </div>
 
               <div className="flex-1 overflow-y-auto p-3 md:p-4">
@@ -1961,7 +1989,8 @@ export function BoostShopModal({
                       <div key={i} className="h-16 bg-muted/20 rounded-xl animate-pulse" />
                     ))}
                   </div>
-                ) : (
+                ) : historyMode === 'coins' ? (
+                  /* ── Coins view ── */
                   <div className="space-y-2 pb-4">
                     {transactions
                       .filter((tx) => filterCategory === "all" ? true : tx.category === filterCategory)
@@ -1987,6 +2016,66 @@ export function BoostShopModal({
                           </span>
                         </div>
                       ))}
+                    {transactions.filter((tx) => filterCategory === "all" ? true : tx.category === filterCategory).length === 0 && (
+                      <div className="py-12 text-center text-muted-foreground text-sm">Операций нет</div>
+                    )}
+                  </div>
+                ) : (
+                  /* ── Payments view ── */
+                  <div className="space-y-2 pb-4">
+                    {payments.length === 0 && (
+                      <div className="py-12 text-center text-muted-foreground text-sm">Платежей нет</div>
+                    )}
+                    {payments.map((p: any) => {
+                      const catalogKey = (p.metadata?.catalog_key as string) || '';
+                      const isTrial = catalogKey.includes('trial');
+                      const isDuelPass = p.item_type === 'duel_pass';
+                      const isCoins = p.item_type === 'coins_pack';
+                      const price = p.price ?? 0;
+                      const currency = (p.currency || 'EUR').toUpperCase();
+                      const symbol = currency === 'EUR' ? '€' : currency === 'USD' ? '$' : currency;
+
+                      const label = isTrial
+                        ? '3-дневный триал'
+                        : isDuelPass
+                        ? 'Duel Pass'
+                        : isCoins
+                        ? `${p.metadata?.coins ?? ''} монет`
+                        : (() => {
+                            const subType = catalogKey.replace('premium_', '') || p.metadata?.subscription_type || 'monthly';
+                            const labels: Record<string, string> = { monthly: '1 месяц', quarterly: '3 месяца', biannual: '6 месяцев', yearly: '1 год', lifetime: 'Навсегда' };
+                            return `Premium · ${labels[subType] ?? subType}`;
+                          })();
+
+                      const statusColor = p.status === 'cancelled' ? 'text-slate-500' : p.status === 'completed' ? 'text-green-500' : 'text-amber-500';
+                      const statusLabel = p.status === 'cancelled' ? 'Отменён' : p.status === 'completed' ? 'Оплачен' : 'Ожидает';
+
+                      const date = p.completed_at || p.created_at;
+
+                      return (
+                        <div
+                          key={p.id}
+                          className="flex items-center justify-between p-3 rounded-xl border border-border/50 bg-card"
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="p-2 rounded-lg bg-blue-500/10 text-blue-400">
+                              <CreditCard className="h-4 w-4" />
+                            </div>
+                            <div>
+                              <p className="text-sm font-medium">{label}</p>
+                              <div className="flex items-center gap-1.5 mt-0.5">
+                                <span className={cn("text-[10px] font-medium", statusColor)}>{statusLabel}</span>
+                                <span className="text-[10px] text-muted-foreground">·</span>
+                                <span className="text-[10px] text-muted-foreground">{formatTransactionDate(date)}</span>
+                              </div>
+                            </div>
+                          </div>
+                          <span className="font-bold text-sm text-foreground">
+                            {price === 0 ? <span className="text-green-500 text-xs font-semibold">Бесплатно</span> : `${symbol}${price.toFixed(2)}`}
+                          </span>
+                        </div>
+                      );
+                    })}
                   </div>
                 )}
               </div>
