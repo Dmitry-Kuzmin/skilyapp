@@ -1033,6 +1033,7 @@ export const ru = {
         biannual: "6 месяцев",
         yearly: "год",
         forever: "навсегда",
+        trial: "3-дневный триал",
       },
       duelPassPurchase: "Покупка Duel Pass",
       duelPassReward: "Награда Duel Pass{{level}}{{premium}}",

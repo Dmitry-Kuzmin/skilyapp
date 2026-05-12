@@ -932,8 +932,10 @@ export function BoostShopModal({
           amount = coinsAmount;
         } else if (purchase.item_type === "premium") {
           const price = purchase.price || purchase.metadata?.price || 0;
-          const subscriptionType =
-            purchase.metadata?.subscription_type || "monthly";
+          const catalogKey = (purchase.metadata?.catalog_key as string) || '';
+          const subscriptionType = catalogKey.includes('trial')
+            ? 'trial'
+            : purchase.metadata?.subscription_type || "monthly";
           description = getPremiumPurchaseDescription(subscriptionType, price);
 
           allTransactions.push({

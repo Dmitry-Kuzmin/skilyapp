@@ -1017,6 +1017,7 @@ export const es = {
         biannual: "6 meses",
         yearly: "año",
         forever: "para siempre",
+        trial: "prueba de 3 días",
       },
       duelPassPurchase: "Compra de Duel Pass",
       duelPassReward: "Recompensa de Duel Pass{{level}}{{premium}}",

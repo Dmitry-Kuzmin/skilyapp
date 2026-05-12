@@ -184,12 +184,27 @@ serve(async (req) => {
             console.log(`[paddle-webhook] Premium granted: userId=${userId}, days=${days}`);
           }
 
-          // Mark purchase as completed
-          await supabase.from("purchases")
+          // Mark purchase as completed — match by subscription_id (specific) or
+          // fall back to the single pending premium purchase for this user.
+          const { error: markErr } = await supabase.from("purchases")
             .update({ status: "completed", completed_at: new Date().toISOString() })
-            .eq("user_id", userId)
-            .eq("item_type", "premium")
-            .eq("status", "pending");
+            .eq("paddle_subscription_id", sub.id);
+          if (markErr || !sub.id) {
+            // Fallback: mark only the LATEST pending premium purchase
+            const { data: latestPending } = await supabase.from("purchases")
+              .select("id")
+              .eq("user_id", userId)
+              .eq("item_type", "premium")
+              .eq("status", "pending")
+              .order("created_at", { ascending: false })
+              .limit(1)
+              .maybeSingle();
+            if (latestPending?.id) {
+              await supabase.from("purchases")
+                .update({ status: "completed", completed_at: new Date().toISOString() })
+                .eq("id", latestPending.id);
+            }
+          }
         }
 
         return new Response(JSON.stringify({ success: true }), { headers: corsHeaders });
