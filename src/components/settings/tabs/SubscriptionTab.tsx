@@ -1,6 +1,6 @@
 import React, { useState, useContext } from 'react';
 import {
-  Crown, Clock, AlertCircle,
+  Crown, Clock, AlertCircle, Ban,
   ExternalLink, MessageCircle,
   ArrowLeft, RefreshCw, CheckCircle2, Infinity as InfinityIcon,
 } from 'lucide-react';
@@ -33,7 +33,7 @@ const PLAN_TITLES: Record<string, string> = {
 
 export const SubscriptionTab: React.FC = () => {
   const { closeSettings } = useSettingsStore();
-  const { isPremium, isLifetime, isTrial, activeUntil, subscriptionType, daysRemaining, loading } = usePremium();
+  const { isPremium, isLifetime, isTrial, isCancelled, activeUntil, subscriptionType, daysRemaining, loading } = usePremium();
   const { refresh: dashboardRefresh } = useDashboardData();
   const userContext = useContext(UserContext);
   const profileId = userContext?.profileId ?? null;
@@ -126,17 +126,21 @@ export const SubscriptionTab: React.FC = () => {
     ? 'Premium навсегда'
     : isTrial
     ? 'Пробный период'
+    : isCancelled
+    ? (PLAN_TITLES[subscriptionType ?? ''] ?? 'Premium')
     : (PLAN_TITLES[subscriptionType ?? ''] ?? 'Premium');
 
-  const PlanIcon = isLifetime ? InfinityIcon : isTrial ? Clock : isPremium ? Crown : AlertCircle;
+  const PlanIcon = isLifetime ? InfinityIcon : isTrial ? Clock : isCancelled ? Ban : isPremium ? Crown : AlertCircle;
 
   const accent = isLifetime
-    ? { icon: 'text-amber-400', ring: 'ring-amber-500/20', bg: 'bg-amber-500/5', badge: 'bg-amber-500/10 text-amber-300 border-amber-500/20' }
+    ? { icon: 'text-amber-400', ring: 'ring-amber-500/20', bg: 'bg-amber-500/5',  badge: 'bg-amber-500/10 text-amber-300 border-amber-500/20' }
     : isTrial
-    ? { icon: 'text-amber-400',  ring: 'ring-amber-500/20',  bg: 'bg-amber-500/5',  badge: 'bg-amber-500/10  text-amber-300  border-amber-500/20'  }
+    ? { icon: 'text-amber-400', ring: 'ring-amber-500/20', bg: 'bg-amber-500/5',  badge: 'bg-amber-500/10 text-amber-300 border-amber-500/20' }
+    : isCancelled
+    ? { icon: 'text-slate-400', ring: 'ring-slate-700/40', bg: 'bg-slate-800/30', badge: 'bg-slate-700/40 text-slate-400 border-slate-600/30' }
     : isPremium
-    ? { icon: 'text-amber-400', ring: 'ring-amber-500/20', bg: 'bg-amber-500/5', badge: 'bg-amber-500/10 text-amber-300 border-amber-500/20' }
-    : { icon: 'text-zinc-500', ring: 'ring-zinc-800',    bg: 'bg-zinc-900/40', badge: 'bg-zinc-800/40  text-zinc-400  border-zinc-700/30'  };
+    ? { icon: 'text-amber-400', ring: 'ring-amber-500/20', bg: 'bg-amber-500/5',  badge: 'bg-amber-500/10 text-amber-300 border-amber-500/20' }
+    : { icon: 'text-zinc-500',  ring: 'ring-zinc-800',    bg: 'bg-zinc-900/40',  badge: 'bg-zinc-800/40  text-zinc-400  border-zinc-700/30'  };
 
   const notificationHint = cancelNotifications
     ? cancelNotifications.telegram && cancelNotifications.email
@@ -161,12 +165,14 @@ export const SubscriptionTab: React.FC = () => {
             <div className="flex items-center gap-2">
               <span className="font-semibold text-slate-100 text-sm leading-tight">{planTitle}</span>
               <Badge className={cn('text-[11px] px-2 py-0 h-5 font-medium border', accent.badge)}>
-                {isLifetime ? 'Навсегда' : isTrial ? `${computedDaysRemaining} дн.` : isPremium ? 'Активна' : 'Базовый'}
+                {isLifetime ? 'Навсегда' : isTrial ? `${computedDaysRemaining} дн.` : isCancelled ? 'Отменена' : isPremium ? 'Активна' : 'Базовый'}
               </Badge>
             </div>
             <p className="text-[12px] text-slate-500 mt-0.5 leading-tight">
               {isLifetime
                 ? 'Вечный доступ ко всем функциям'
+                : isCancelled && formattedDate
+                ? `Доступ сохраняется до ${formattedDate}`
                 : formattedDate
                 ? `${isTrial ? 'Триал до' : 'Активна до'} ${formattedDate}`
                 : 'Ограниченный доступ'}
@@ -203,7 +209,8 @@ export const SubscriptionTab: React.FC = () => {
         <div className="space-y-1.5">
           <div className="border-t border-slate-700/40" />
 
-          {(!isPremium || isTrial) && !isLifetime && (
+          {/* Free / trial → call to action */}
+          {(!isPremium || isTrial) && !isLifetime && !isCancelled && (
             <button
               onClick={handleUpgrade}
               className="w-full flex items-center justify-between px-5 py-4 rounded-2xl bg-white hover:bg-zinc-100 transition-all active:scale-[0.98] shadow-sm border-none group"
@@ -218,7 +225,27 @@ export const SubscriptionTab: React.FC = () => {
             </button>
           )}
 
-          {isPremium && !isTrial && !isLifetime && (
+          {/* Cancelled → reactivate */}
+          {isCancelled && (
+            <>
+              <button
+                onClick={handleUpgrade}
+                className="w-full flex items-center justify-between px-5 py-4 rounded-2xl bg-white hover:bg-zinc-100 transition-all active:scale-[0.98] shadow-sm border-none group"
+              >
+                <div className="flex items-center gap-3">
+                  <Crown className="w-4 h-4 text-black" />
+                  <span className="text-[15px] font-bold text-black tracking-tight">Возобновить Premium</span>
+                </div>
+                <span className="text-sm text-black/30 group-hover:text-black/50 transition-colors">→</span>
+              </button>
+              <p className="px-4 text-[11px] text-slate-600 leading-relaxed">
+                Подписка отменена. Автоматическое продление отключено.
+              </p>
+            </>
+          )}
+
+          {/* Active paid → change plan */}
+          {isPremium && !isTrial && !isLifetime && !isCancelled && (
             <button
               onClick={handleUpgrade}
               className="w-full flex items-center justify-between px-4 py-2.5 rounded-xl hover:bg-slate-800/50 transition-colors"
@@ -234,7 +261,8 @@ export const SubscriptionTab: React.FC = () => {
             </p>
           )}
 
-          {(isPremium || isTrial) && !isLifetime && (
+          {/* Cancel button — only for active non-cancelled subscriptions */}
+          {(isPremium || isTrial) && !isLifetime && !isCancelled && (
             <button
               onClick={() => { triggerHaptic('warning'); setCancelStep('confirm'); }}
               className="w-full text-left px-4 py-2 rounded-xl hover:bg-red-950/20 transition-colors group"
