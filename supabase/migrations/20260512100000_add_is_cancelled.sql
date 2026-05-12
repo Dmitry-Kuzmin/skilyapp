@@ -27,6 +27,7 @@ DECLARE
   v_check_date DATE;
   v_decay_date TIMESTAMP WITH TIME ZONE;
   v_is_cancelled BOOLEAN;
+  v_is_cancelled_trial BOOLEAN;
   v_result JSON;
 BEGIN
   -- 1. Daily login bonus + inactivity decay
@@ -177,16 +178,17 @@ BEGIN
 
   -- is_cancelled: the most recent premium Paddle purchase is cancelled
   -- (access still active until subscription_expires_at, but no further billing)
-  SELECT COALESCE(
-    (SELECT status = 'cancelled'
-     FROM public.purchases
-     WHERE user_id = p_user_id
-       AND item_type = 'premium'
-       AND paddle_subscription_id IS NOT NULL
-     ORDER BY created_at DESC
-     LIMIT 1),
-    false
-  ) INTO v_is_cancelled;
+  -- is_cancelled_trial: that cancelled purchase was a trial (catalog_key contains 'trial')
+  SELECT
+    COALESCE(status = 'cancelled', false),
+    COALESCE(status = 'cancelled' AND metadata->>'catalog_key' LIKE '%trial%', false)
+  INTO v_is_cancelled, v_is_cancelled_trial
+  FROM public.purchases
+  WHERE user_id = p_user_id
+    AND item_type = 'premium'
+    AND paddle_subscription_id IS NOT NULL
+  ORDER BY created_at DESC
+  LIMIT 1;
 
   SELECT id, partner_code, name, status, true as is_partner
   INTO v_partner FROM public.partners WHERE user_id = p_user_id LIMIT 1;
@@ -244,7 +246,8 @@ BEGIN
       'subscription_expires_at', v_premium.subscription_expires_at,
       'subscription_end_date', COALESCE(v_premium.trial_until, v_premium.subscription_expires_at),
       'has_used_trial',        v_premium.has_used_trial,
-      'is_cancelled',          v_is_cancelled
+      'is_cancelled',          v_is_cancelled,
+      'is_cancelled_trial',    v_is_cancelled_trial
     ),
     'partner', to_jsonb(v_partner),
     'active_season', CASE WHEN v_active_season.id IS NOT NULL THEN json_build_object(

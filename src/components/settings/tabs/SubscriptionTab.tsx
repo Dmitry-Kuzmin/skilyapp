@@ -33,7 +33,7 @@ const PLAN_TITLES: Record<string, string> = {
 
 export const SubscriptionTab: React.FC = () => {
   const { closeSettings } = useSettingsStore();
-  const { isPremium, isLifetime, isTrial, isCancelled, activeUntil, subscriptionType, daysRemaining, loading } = usePremium();
+  const { isPremium, isLifetime, isTrial, isCancelled, isCancelledTrial, activeUntil, subscriptionType, daysRemaining, loading } = usePremium();
   const { refresh: dashboardRefresh } = useDashboardData();
   const userContext = useContext(UserContext);
   const profileId = userContext?.profileId ?? null;
@@ -165,7 +165,7 @@ export const SubscriptionTab: React.FC = () => {
             <div className="flex items-center gap-2">
               <span className="font-semibold text-slate-100 text-sm leading-tight">{planTitle}</span>
               <Badge className={cn('text-[11px] px-2 py-0 h-5 font-medium border', accent.badge)}>
-                {isLifetime ? 'Навсегда' : isTrial ? `${computedDaysRemaining} дн.` : isCancelled ? 'Отменена' : isPremium ? 'Активна' : 'Базовый'}
+                {isLifetime ? 'Навсегда' : isTrial ? `${computedDaysRemaining} дн.` : isCancelled ? (isCancelledTrial ? 'Триал отменён' : 'Отменена') : isPremium ? 'Активна' : 'Базовый'}
               </Badge>
             </div>
             <p className="text-[12px] text-slate-500 mt-0.5 leading-tight">
@@ -239,7 +239,9 @@ export const SubscriptionTab: React.FC = () => {
                 <span className="text-sm text-black/30 group-hover:text-black/50 transition-colors">→</span>
               </button>
               <p className="px-4 text-[11px] text-slate-600 leading-relaxed">
-                Подписка отменена. Автоматическое продление отключено.
+                {isCancelledTrial
+                  ? 'Пробный период отменён. Автоматического списания не будет.'
+                  : 'Подписка отменена. Автоматическое продление отключено.'}
               </p>
             </>
           )}
