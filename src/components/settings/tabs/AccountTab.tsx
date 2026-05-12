@@ -248,19 +248,20 @@ export const AccountTab: React.FC = () => {
                 accept="image/*"
                 disabled={isUploading}
             />
-            {/* Профиль */}
-            <div>
-                <SectionTitle title="Профиль" />
-                <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50">
-                    <div className="flex items-start gap-4">
-                        {/* Аватар */}
-                        <div className="relative shrink-0">
-                            <UserAvatar
-                                profileId={profileData?.id}
-                                size="xl"
-                                showPremiumGlow={false}
-                                className={isUploading ? "opacity-50" : ""}
-                            />
+            {/* Профиль в стиле Hero */}
+            <div className="relative overflow-hidden rounded-2xl border border-slate-200/50 dark:border-white/5 bg-white dark:bg-white/[0.02] p-6 shadow-sm">
+                {/* Декоративный фон */}
+                <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/5 blur-[50px] rounded-full pointer-events-none" />
+                
+                <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 relative z-10">
+                    {/* Аватар с полной поддержкой скинов */}
+                    <div className="relative shrink-0">
+                        <UserAvatar
+                            profileId={profileData?.id}
+                            size="2xl"
+                            showPremiumGlow={true}
+                            className={cn("shadow-xl", isUploading && "opacity-50")}
+                        />
 
                             {isUploading && (
                                 <div className="absolute inset-0 flex items-center justify-center">
@@ -268,20 +269,20 @@ export const AccountTab: React.FC = () => {
                                 </div>
                             )}
 
-                            <button
-                                onClick={handleAvatarClick}
-                                disabled={isUploading}
-                                className={cn(
-                                    "absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-indigo-500 border-2 border-white dark:border-slate-800 flex items-center justify-center hover:bg-indigo-400 transition-all hover:scale-110 shadow-sm",
-                                    isUploading && "opacity-50 cursor-not-allowed"
-                                )}
-                            >
-                                <Camera className="w-3.5 h-3.5 text-white" />
-                            </button>
-                        </div>
+                        <button
+                            onClick={handleAvatarClick}
+                            disabled={isUploading}
+                            className={cn(
+                                "absolute bottom-1 right-1 w-8 h-8 rounded-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/10 flex items-center justify-center hover:bg-slate-50 dark:hover:bg-slate-800 transition-all hover:scale-110 shadow-lg z-20",
+                                isUploading && "opacity-50 cursor-not-allowed"
+                            )}
+                        >
+                            <Camera className="w-4 h-4 text-slate-600 dark:text-slate-300" />
+                        </button>
+                    </div>
 
-                        {/* Инфо */}
-                        <div className="flex-1 min-w-0">
+                    {/* Инфо */}
+                    <div className="flex-1 min-w-0 text-center sm:text-left pt-1">
                             {isEditingName ? (
                                 <div className="space-y-2">
                                     <Input
@@ -322,8 +323,8 @@ export const AccountTab: React.FC = () => {
                                 </div>
                             ) : (
                                 <>
-                                    <div className="flex items-center gap-2 group">
-                                        <h3 className="font-semibold text-slate-900 dark:text-white truncate">
+                                    <div className="flex items-center justify-center sm:justify-start gap-2 group mb-1">
+                                        <h3 className="text-xl font-bold text-slate-900 dark:text-white truncate tracking-tight">
                                             {resolvedFirstName} {lastName}
                                         </h3>
                                         <button
@@ -331,16 +332,17 @@ export const AccountTab: React.FC = () => {
                                                 triggerHaptic('light');
                                                 setIsEditingName(true);
                                             }}
-                                            className="p-1 rounded opacity-0 group-hover:opacity-100 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all"
+                                            className="p-1.5 rounded-lg opacity-0 group-hover:opacity-100 hover:bg-slate-100 dark:hover:bg-white/5 transition-all"
                                         >
                                             <Pencil className="w-3.5 h-3.5 text-slate-400" />
                                         </button>
                                     </div>
-                                    <p className="text-sm text-slate-500 dark:text-slate-400">
-                                        @{username}
-                                    </p>
-                                    <div className="mt-1 flex items-center gap-2">
-                                        <span className="px-2 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-500/10 text-[10px] font-bold text-indigo-500 uppercase tracking-wider">
+                                    <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
+                                        <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+                                            @{username}
+                                        </p>
+                                        <div className="w-1 h-1 rounded-full bg-slate-300 dark:bg-slate-700 hidden sm:block" />
+                                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-indigo-500/10 text-[11px] font-bold text-indigo-500 uppercase tracking-wider border border-indigo-500/20">
                                             Уровень {userLevel}
                                         </span>
                                     </div>
@@ -349,7 +351,6 @@ export const AccountTab: React.FC = () => {
                         </div>
                     </div>
                 </div>
-            </div>
 
             <Separator className="bg-slate-200 dark:bg-slate-700" />
 
