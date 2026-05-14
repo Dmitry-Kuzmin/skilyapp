@@ -45,6 +45,8 @@ const AppRuntime = lazy(() => import("@/components/app/AppRuntime").then(m => ({
 
 // OLD LANDING: скрыт, заменён Astro лендингом (landing/). Файл сохранён.
 // import Landing from "./pages/Landing";
+// TEMP: для сравнения с Astro лендингом
+const LandingSpain = lazy(() => import("./components/landing/LandingSpain").then(m => ({ default: m.LandingSpain })));
 // AuthCallback - страница для обработки OAuth callback
 // Должна быть доступна без AppProviders, так как обрабатывает сессию сама
 import { AuthCallback } from "./pages/AuthCallback";
@@ -568,6 +570,14 @@ const App = () => {
               <Route path="/" element={
                 <Suspense fallback={null}>
                   <LandingRedirect />
+                </Suspense>
+              } />
+              {/* TEMP: старый React лендинг для сравнения */}
+              <Route path="/old-landing" element={
+                <Suspense fallback={null}>
+                  <AppProviders>
+                    <LandingSpain onRequestAccess={() => window.location.href = '/login'} />
+                  </AppProviders>
                 </Suspense>
               } />
               {/* Path-based language landings for SEO — each indexed as separate canonical */}

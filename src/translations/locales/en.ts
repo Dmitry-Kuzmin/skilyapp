@@ -1147,6 +1147,7 @@ export const en = {
     notConnected: "Not connected",
     appearance: "Appearance",
     proBadge: "PRO",
+    logout: "Logout",
     toasts: {
       settingsSaved: "Settings saved",
       settingsFailed: "Couldn't save settings",
@@ -2448,4 +2449,17 @@ export const en = {
       "examReadiness.desc": "DGT passing probability and statistics interpretation",
     },
   },
+  guestPaywall: {
+    badge: "Skily AI · Diagnosis",
+    title: "You've answered<br/>3 questions!",
+    coinTitle: "+100 free coins",
+    coinSub: "Use them in duels and XP boosters",
+    cta: "Sign up free · +100 coins",
+    skip: "Continue without signing up",
+    perks: {
+      plan: "AI plan targeting your weak spots",
+      duels: "Real-time 1vs1 PvP duels",
+      explanations: "AI explanations for every question"
+    }
+  }
 };

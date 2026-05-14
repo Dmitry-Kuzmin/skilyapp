@@ -20,6 +20,7 @@ import type { Paddle } from "@paddle/paddle-js";
 
 import { TrialCTA } from "@/components/monetization/TrialCTA";
 import { SocialTrustBadge } from "@/components/shared/SocialTrustBadge";
+import { useModalStore } from "@/store/modalStore";
 import { useModalStack } from "@/hooks/useModalStack";
 import { PaymentSelectorModal } from "@/components/shop/PaymentSelectorModal";
 import { PaddleCheckoutShell } from "@/components/monetization/PaddleCheckoutShell";
@@ -90,6 +91,7 @@ const BenefitItem = ({ icon: Icon, text, color, delay }: { icon: any, text: stri
 export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
   const { profileId, platform } = useUserContext();
   const { isPremium, hasUsedTrial } = usePremium();
+  const openModal = useModalStore(s => s.openModal);
   const [checkoutTransactionId, setCheckoutTransactionId] = useState<string | null>(null);
   const [showExitTrial, setShowExitTrial] = useState(false);
   const [hasSeenExitTrial, setHasSeenExitTrial] = useState(false);
@@ -528,7 +530,20 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
               </div>
 
               <div className="w-full max-w-sm mx-auto space-y-4">
-                <TrialCTA onTrialStarted={() => onOpenChange(false)} variant="inline" />
+                {profileId ? (
+                  <TrialCTA onTrialStarted={() => onOpenChange(false)} variant="inline" />
+                ) : (
+                  <Button
+                    className="w-full h-11 text-sm font-bold rounded-xl bg-amber-500 hover:bg-amber-400 text-white shadow-lg"
+                    onClick={() => {
+                      onOpenChange(false);
+                      openModal('AUTH', { initialStep: 'email' });
+                    }}
+                  >
+                    <Sparkles className="w-4 h-4 mr-2" />
+                    Зарегистрироваться бесплатно →
+                  </Button>
+                )}
                 <button
                   onClick={() => {
                     localStorage.setItem('trial_offer_dismissed_at', String(Date.now()));

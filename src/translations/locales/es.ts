@@ -2453,4 +2453,17 @@ export const es = {
       "examReadiness.desc": "Probabilidad de aprobar el DGT e interpretación de estadísticas",
     },
   },
+  guestPaywall: {
+    badge: "Skily AI · Diagnóstico",
+    title: "¡Ya llevas<br/>3 preguntas!",
+    coinTitle: "+100 monedas gratis",
+    coinSub: "Úsalas en duelos y boosters de XP",
+    cta: "Registrarme gratis · +100 monedas",
+    skip: "Continuar sin registrarme",
+    perks: {
+      plan: "Plan IA con tus puntos débiles",
+      duels: "Duelos PvP 1vs1 en tiempo real",
+      explanations: "Explicaciones de IA en cada pregunta"
+    }
+  }
 } as const;
