@@ -1060,7 +1060,7 @@ const TestSession = () => {
     const currentTotal = questionsState.length > 0 ? questionsState.length : questions.length;
 
     // Show guest paywall after 3rd answered question (demo mode)
-    if (isGuest && !guestPaywallShownRef.current && answers.length === 2) {
+    if (isGuest && !guestPaywallShownRef.current && answers.length === 3) {
       guestPaywallShownRef.current = true;
       engineNextQuestion();
       setShowTranslation(false);
@@ -1492,87 +1492,136 @@ const TestSession = () => {
         )}
 
         {/* Guest paywall popup — shows after 3rd answered question */}
-        {showGuestPaywall && (
-          <div
-            className="fixed inset-0 z-[200] flex items-end sm:items-center justify-center p-4"
-            style={{ background: "rgba(0,0,0,0.85)", backdropFilter: "blur(12px)" }}
-          >
-            <motion.div
-              initial={{ y: 60, opacity: 0, scale: 0.95 }}
-              animate={{ y: 0, opacity: 1, scale: 1 }}
-              transition={{ type: "spring", stiffness: 300, damping: 28 }}
-              className="relative w-full max-w-md bg-[#0f172a] border border-white/10 rounded-[2rem] overflow-hidden shadow-2xl"
+        {showGuestPaywall && (() => {
+          const pw = {
+            es: {
+              badge: 'Skily AI · Diagnóstico',
+              title: '¡Ya llevas 3 preguntas!',
+              coinTitle: '+100 monedas gratis',
+              coinSub: 'Úsalas en duelos y boosters de XP',
+              perks: [
+                { icon: '🧠', text: 'Plan IA con tus puntos débiles' },
+                { icon: '⚔️', text: 'Duelos PvP 1vs1 en tiempo real' },
+                { icon: '🚀', text: 'Explicaciones de IA en cada pregunta' },
+              ],
+              cta: 'Registrarme gratis · +100 monedas',
+              skip: 'Continuar sin registrarme',
+            },
+            ru: {
+              badge: 'Skily AI · Диагностика',
+              title: 'Ты ответил на 3 вопроса!',
+              coinTitle: '+100 монет бесплатно',
+              coinSub: 'Используй в дуэлях и бустерах XP',
+              perks: [
+                { icon: '🧠', text: 'ИИ-план по твоим слабым местам' },
+                { icon: '⚔️', text: 'PvP дуэли 1vs1 в реальном времени' },
+                { icon: '🚀', text: 'Объяснения ИИ к каждому вопросу' },
+              ],
+              cta: 'Зарегистрироваться · +100 монет',
+              skip: 'Продолжить без регистрации',
+            },
+            en: {
+              badge: 'Skily AI · Diagnosis',
+              title: "You've answered 3 questions!",
+              coinTitle: '+100 free coins',
+              coinSub: 'Use them in duels and XP boosters',
+              perks: [
+                { icon: '🧠', text: 'AI plan targeting your weak spots' },
+                { icon: '⚔️', text: 'Real-time 1vs1 PvP duels' },
+                { icon: '🚀', text: 'AI explanations for every question' },
+              ],
+              cta: 'Sign up free · +100 coins',
+              skip: 'Continue without signing up',
+            },
+          }[effectiveLanguage as 'es' | 'ru' | 'en'] ?? {
+            badge: 'Skily AI · Diagnóstico',
+            title: '¡Ya llevas 3 preguntas!',
+            coinTitle: '+100 monedas gratis',
+            coinSub: 'Úsalas en duelos y boosters de XP',
+            perks: [
+              { icon: '🧠', text: 'Plan IA con tus puntos débiles' },
+              { icon: '⚔️', text: 'Duelos PvP 1vs1 en tiempo real' },
+              { icon: '🚀', text: 'Explicaciones de IA en cada pregunta' },
+            ],
+            cta: 'Registrarme gratis · +100 monedas',
+            skip: 'Continuar sin registrarme',
+          };
+          return (
+            <div
+              className="fixed inset-0 z-[200] flex items-end sm:items-center justify-center p-4"
+              style={{ background: "rgba(0,0,0,0.82)", backdropFilter: "blur(14px)" }}
             >
-              <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 via-transparent to-emerald-500/5 pointer-events-none" />
-              <button
-                onClick={() => setShowGuestPaywall(false)}
-                className="absolute top-4 right-4 z-10 w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center transition-colors"
+              <motion.div
+                initial={{ y: 48, opacity: 0, scale: 0.97 }}
+                animate={{ y: 0, opacity: 1, scale: 1 }}
+                transition={{ type: "spring", stiffness: 320, damping: 30 }}
+                className="relative w-full max-w-sm bg-[#0d1526] border border-white/10 rounded-[1.75rem] overflow-hidden shadow-2xl"
               >
-                <X className="w-4 h-4 text-slate-400" />
-              </button>
-
-              <div className="relative p-6 sm:p-8">
-                <div className="flex items-center gap-3 mb-5">
-                  <div className="w-12 h-12 rounded-2xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center shrink-0">
-                    <span className="text-2xl">🎯</span>
-                  </div>
-                  <div>
-                    <p className="text-xs font-black uppercase tracking-[0.18em] text-indigo-400 mb-0.5">
-                      Skily AI · Diagnóstico
-                    </p>
-                    <h2 className="text-xl font-black text-white leading-tight">
-                      ¡Vas muy bien! Ya llevas 3 preguntas
-                    </h2>
-                  </div>
-                </div>
-
-                {/* Coin highlight */}
-                <div className="mb-5 p-4 rounded-2xl bg-gradient-to-r from-amber-500/15 to-orange-500/10 border border-amber-500/20 flex items-center gap-3">
-                  <span className="text-3xl">🪙</span>
-                  <div>
-                    <p className="font-black text-white text-base">+100 monedas gratis</p>
-                    <p className="text-xs text-amber-300/70 mt-0.5">
-                      Regístrate ahora y úsalas en duelos y boosters de XP
-                    </p>
-                  </div>
-                </div>
-
-                {/* Perks */}
-                <ul className="space-y-2.5 mb-6">
-                  {[
-                    { icon: "🧠", text: "Plan IA personalizado con tus puntos débiles" },
-                    { icon: "⚔️", text: "Duelos PvP 1vs1 en tiempo real" },
-                    { icon: "📊", text: "Historial de errores + Challenge Bank automático" },
-                    { icon: "🚀", text: "Explicaciones de IA en todas las preguntas" },
-                  ].map((item) => (
-                    <li key={item.text} className="flex items-center gap-3 text-sm text-slate-300">
-                      <span>{item.icon}</span>
-                      {item.text}
-                    </li>
-                  ))}
-                </ul>
-
-                <Button
-                  className="w-full h-13 text-base font-black bg-white text-slate-900 hover:bg-indigo-50 rounded-2xl"
-                  onClick={() => {
-                    setShowGuestPaywall(false);
-                    localStorage.setItem("skily_demo_coins_pending", "100");
-                    localStorage.setItem("skily_demo_completed", "completed");
-                    openModal("AUTH", { initialStep: "email" });
-                  }}
-                >
-                  Registrarme gratis y reclamar 100 monedas
-                </Button>
+                <div className="absolute inset-0 bg-gradient-to-b from-blue-600/10 via-transparent to-violet-600/8 pointer-events-none" />
                 <button
                   onClick={() => setShowGuestPaywall(false)}
-                  className="mt-3 w-full h-10 text-sm text-slate-500 hover:text-slate-300 transition-colors font-medium"
+                  className="absolute top-3.5 right-3.5 z-10 w-7 h-7 rounded-full bg-white/6 hover:bg-white/12 flex items-center justify-center transition-colors"
                 >
-                  Continuar sin registrarme →
+                  <X className="w-3.5 h-3.5 text-slate-400" />
                 </button>
-              </div>
-            </motion.div>
-          </div>
-        )}
+
+                <div className="relative p-5 sm:p-6">
+                  {/* Header */}
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-10 h-10 rounded-xl bg-blue-500/20 border border-blue-500/25 flex items-center justify-center shrink-0">
+                      <span className="text-xl">🎯</span>
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-black uppercase tracking-[0.2em] text-blue-400 mb-0.5">
+                        {pw.badge}
+                      </p>
+                      <h2 className="text-lg font-black text-white leading-tight">
+                        {pw.title}
+                      </h2>
+                    </div>
+                  </div>
+
+                  {/* Coin highlight */}
+                  <div className="mb-4 px-3.5 py-3 rounded-xl bg-gradient-to-r from-amber-500/12 to-orange-500/8 border border-amber-500/20 flex items-center gap-2.5">
+                    <span className="text-2xl">🪙</span>
+                    <div>
+                      <p className="font-black text-white text-sm">{pw.coinTitle}</p>
+                      <p className="text-[11px] text-amber-300/65 mt-0.5">{pw.coinSub}</p>
+                    </div>
+                  </div>
+
+                  {/* Perks */}
+                  <ul className="space-y-2 mb-5">
+                    {pw.perks.map((item) => (
+                      <li key={item.text} className="flex items-center gap-2.5 text-[13px] text-slate-300">
+                        <span className="text-base leading-none">{item.icon}</span>
+                        {item.text}
+                      </li>
+                    ))}
+                  </ul>
+
+                  <Button
+                    className="w-full h-11 text-sm font-black bg-blue-600 hover:bg-blue-500 text-white rounded-xl shadow-lg shadow-blue-900/30"
+                    onClick={() => {
+                      setShowGuestPaywall(false);
+                      localStorage.setItem("skily_demo_coins_pending", "100");
+                      localStorage.setItem("skily_demo_completed", "completed");
+                      openModal("AUTH", { initialStep: "email" });
+                    }}
+                  >
+                    {pw.cta}
+                  </Button>
+                  <button
+                    onClick={() => setShowGuestPaywall(false)}
+                    className="mt-2.5 w-full h-9 text-xs text-slate-500 hover:text-slate-300 transition-colors font-medium"
+                  >
+                    {pw.skip} →
+                  </button>
+                </div>
+              </motion.div>
+            </div>
+          );
+        })()}
 
         {/* Question Map Bottom Sheet */}
         <TestSessionModals
