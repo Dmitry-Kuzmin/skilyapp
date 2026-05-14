@@ -186,7 +186,7 @@ const faqSchema = {
           <h1 class="font-black tracking-tighter leading-[1.05] mb-8 reveal-on-scroll">
             <span class="text-[clamp(1.5rem,2.8vw,2.5rem)] text-slate-300 block pb-3 whitespace-nowrap">Tu teórico a la primera</span>
             <span class="block text-[clamp(3rem,9vw,6rem)]" style="position:relative;padding-bottom:0.08em;margin-bottom:-0.08em">
-              <span id="hero-word-glow" aria-hidden="true" style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:150%;height:320%;background:radial-gradient(ellipse 80% 55% at 50% 50%,rgba(56,189,248,0.38) 0%,transparent 65%);filter:blur(72px);pointer-events:none;transition:background 0.5s ease;"></span>
+              <span id="hero-word-glow" aria-hidden="true" style="position:absolute;inset:-120% -55%;background:radial-gradient(ellipse 70% 50% at 50% 50%,rgba(56,189,248,0.42) 0%,transparent 62%);filter:blur(80px);pointer-events:none;transition:background 0.5s ease;"></span>
               <span style="display:block;overflow:hidden">
                 <span id="hero-word" class="hero-rotating-word block" style="background:linear-gradient(to right,#3b82f6,#38bdf8,#67e8f9);-webkit-background-clip:text;background-clip:text;color:transparent;white-space:nowrap;position:relative;z-index:1;">Sin libros aburridos</span>
               </span>
@@ -340,7 +340,7 @@ const faqSchema = {
                 el.textContent = word.text;
                 el.style.backgroundImage = word.grad;
                 var glow = document.getElementById('hero-word-glow');
-                if(glow) glow.style.background = 'radial-gradient(ellipse 80% 55% at 50% 50%,rgba('+word.gc+',0.38) 0%,transparent 65%)';
+                if(glow) glow.style.background = 'radial-gradient(ellipse 70% 50% at 50% 50%,rgba('+word.gc+',0.42) 0%,transparent 62%)';
                 el.classList.remove('hero-word-out');
                 el.classList.add('hero-word-in');
                 setTimeout(function(){ el.classList.remove('hero-word-in'); }, 700);
