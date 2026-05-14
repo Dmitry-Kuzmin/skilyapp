@@ -18,6 +18,11 @@ import {
   Bell,
   Moon,
   Turtle,
+  Shield,
+  CreditCard,
+  AlertTriangle,
+  Check,
+  Gift,
   type LucideIcon,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -47,6 +52,11 @@ const iconMap: Record<string, LucideIcon> = {
   'bell': Bell,
   'moon': Moon,
   'turtle': Turtle,
+  'shield': Shield,
+  'credit-card': CreditCard,
+  'alert-triangle': AlertTriangle,
+  'check': Check,
+  'gift': Gift,
 };
 
 export function NotificationIcon({ iconName, className, size = 20 }: NotificationIconProps) {
@@ -65,4 +75,3 @@ export function NotificationIcon({ iconName, className, size = 20 }: Notificatio
 
   return <IconComponent className={className} size={size} />;
 }
-

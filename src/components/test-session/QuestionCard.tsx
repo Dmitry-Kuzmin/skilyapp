@@ -6,7 +6,8 @@ import { AnswerOptionsList } from "./AnswerOptionsList";
 import { QuestionImage } from "@/components/test/QuestionImage";
 import { QuestionText } from "@/components/test/QuestionText";
 import { SubmitButton } from "@/components/test/SubmitButton";
-import { X, Sparkles, AlertTriangle, Languages, ChevronRight, Share2, Lightbulb, Clock, BookOpen, Crown, Trophy, Target, TrendingUp, Info, Keyboard, CornerDownLeft, Flag } from "lucide-react";
+import { X, Sparkles, AlertTriangle, Languages, ChevronRight, Share2, Clock, BookOpen, Crown, Trophy, Target, TrendingUp, Info, Keyboard, CornerDownLeft, Flag } from "lucide-react";
+import { VoiceAIButton } from "@/components/ai/VoiceAIButton";
 import { getImageUrl } from "@/utils/imageUtils";
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -167,103 +168,25 @@ export const QuestionCard = ({
 
                             {/* Navigation */}
                             <div className="flex gap-3 items-center mt-6">
-                                {(isPracticeLikeMode || mode === 'by-topic') && (
-                                    <div className={cn(
-                                        "relative group",
-                                        (!isRussia && !isTelegramMiniApp() && isPracticeLikeMode && mode !== 'blitz' && mode !== 'exam' && mode !== 'exam-russia') && "xl:hidden"
-                                    )}>
-                                        <Popover.Root open={showExplanation} onOpenChange={setShowExplanation}>
-                                            <Popover.Trigger asChild>
-                                                <button
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        handleShowExplanation();
-                                                    }}
-                                                    className={cn(
-                                                        "group relative h-12 w-auto px-3 sm:px-4 rounded-xl bg-zinc-900/40 dark:bg-black/40 backdrop-blur-md border border-white/10 dark:border-white/5 flex items-center justify-center gap-2 transition-all hover:bg-white/5 active:scale-95 shrink-0 overflow-hidden shadow-lg",
-                                                        showHintPulse && !selectedOption && "ring-2 ring-yellow-500/50 shadow-[0_0_15px_rgba(234,179,8,0.2)]"
-                                                    )}
-                                                    title={testLanguage === 'ru' ? "Подсказка" : testLanguage === 'en' ? "Hint" : "Pista"}
-                                                >
-                                                    <div className="absolute inset-0 bg-gradient-to-tr from-yellow-500/10 via-orange-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                                                    <div className={cn("relative transition-transform duration-700", showHintPulse && !selectedOption && "animate-bounce")}>
-                                                        <Lightbulb className="w-5 h-5 text-yellow-400 fill-yellow-400/20" />
-                                                    </div>
-                                                    <span className="font-bold text-yellow-100/90 text-sm hidden sm:inline-block relative z-10 tracking-wide">
-                                                        {testLanguage === 'ru' ? "Подсказка" : (testLanguage === 'en' ? "Hint" : "Pista")}
-                                                    </span>
-                                                </button>
-                                            </Popover.Trigger>
-
-                                            <Popover.Content
-                                                side="top"
-                                                align="start"
-                                                sideOffset={16}
-                                                onOpenAutoFocus={(e) => e.preventDefault()}
-                                                className="z-50 w-64 p-0 outline-none select-none"
-                                            >
-                                                <AnimatePresence>
-                                                    {showExplanation && (
-                                                        <motion.div
-                                                            key={explanationKey}
-                                                            initial={{ opacity: 0, scale: 0.9, y: 10, filter: "blur(10px)" }}
-                                                            animate={{ opacity: 1, scale: 1, y: 0, filter: "blur(0px)" }}
-                                                            exit={{
-                                                                opacity: 0,
-                                                                scale: 0,
-                                                                x: -110,
-                                                                y: 40,
-                                                                filter: "blur(20px)",
-                                                                transition: { duration: 0.4, ease: "circIn" }
-                                                            }}
-                                                            drag="y"
-                                                            dragConstraints={{ top: 0, bottom: 100 }}
-                                                            dragElastic={0.1}
-                                                            onDragEnd={(_, info) => { if (info.offset.y > 40) setShowExplanation(false); }}
-                                                            onClick={handleOpenAIChat}
-                                                            className="relative p-[1.5px] bg-gradient-to-tr from-purple-500/40 via-blue-500/40 to-emerald-500/40 rounded-2xl drop-shadow-[0_0_15px_rgba(168,85,247,0.3)] overflow-visible cursor-grab active:cursor-grabbing"
-                                                        >
-                                                            <div className="relative p-4 bg-zinc-950 dark:bg-black border border-white/5 backdrop-blur-3xl rounded-[15px] overflow-hidden">
-                                                                <div className="text-[10px] text-purple-400 mb-2 flex items-center justify-between font-bold uppercase tracking-wider">
-                                                                    <div className="flex items-center gap-1.5 font-black">
-                                                                        <motion.div
-                                                                            animate={{
-                                                                                rotate: [0, 15, -15, 0],
-                                                                                scale: [1, 1.2, 1]
-                                                                            }}
-                                                                            transition={{ duration: 2, repeat: Infinity }}
-                                                                        >
-                                                                            <Sparkles className="w-3.5 h-3.5" />
-                                                                        </motion.div>
-                                                                        {testLanguage === 'ru' ? "AI Объяснение" : (testLanguage === 'en' ? "AI Explanation" : "Explicación AI")}
-                                                                    </div>
-                                                                    <button
-                                                                        onClick={(e) => { e.stopPropagation(); setShowExplanation(false); }}
-                                                                        className="p-1 hover:bg-white/10 rounded-full transition-colors"
-                                                                    >
-                                                                        <X className="w-3.5 h-3.5 text-zinc-500" />
-                                                                    </button>
-                                                                </div>
-                                                                <p className="text-xs text-zinc-200 line-clamp-4 leading-relaxed font-medium">
-                                                                    {explanationText}
-                                                                </p>
-
-                                                                <motion.div
-                                                                    key={explanationKey}
-                                                                    initial={{ scaleX: 1 }}
-                                                                    animate={{ scaleX: 0 }}
-                                                                    transition={{ duration: 3, ease: "linear" }}
-                                                                    className="absolute bottom-0 left-0 right-0 h-[3px] bg-gradient-to-r from-purple-500 via-blue-500 to-transparent origin-left opacity-80"
-                                                                />
-                                                            </div>
-                                                            <Popover.Arrow className="fill-zinc-950 stroke-purple-500/30 stroke-1" width={20} height={10} />
-                                                        </motion.div>
-                                                    )}
-                                                </AnimatePresence>
-                                            </Popover.Content>
-                                        </Popover.Root>
-                                    </div>
-                                )}
+                                <VoiceAIButton
+                                    className="xl:hidden"
+                                    context={{
+                                        question: displayQuestion,
+                                        correctAnswer: sortedOptions.find(o => o.is_correct)?.[testLanguage === 'ru' ? 'text_ru' : (testLanguage === 'en' ? 'text_en' : 'text_es')] || '',
+                                        userAnswer: selectedOption ? sortedOptions.find(o => o.id === selectedOption)?.[testLanguage === 'ru' ? 'text_ru' : (testLanguage === 'en' ? 'text_en' : 'text_es')] : undefined,
+                                        isCorrect: sortedOptions.find(o => o.id === selectedOption)?.is_correct || false,
+                                        explanation: currentQuestion.explanation_es,
+                                        explanationRu: currentQuestion.explanation_ru,
+                                        explanationEs: currentQuestion.explanation_es,
+                                        explanationEn: currentQuestion.explanation_en,
+                                        topic: currentQuestion.topics?.title_es,
+                                        imageUrl: currentQuestion.image_url,
+                                        country: isRussia ? 'russia' : 'spain'
+                                    }}
+                                    testLanguage={testLanguage}
+                                    onTap={handleShowExplanation}
+                                    showHintPulse={showHintPulse && !selectedOption}
+                                />
 
                                 {onReportProblem && (
                                     <button
@@ -365,103 +288,25 @@ export const QuestionCard = ({
                             {/* Sticky Navigation - Sticky until XL where layout is wide enough */}
                             <div className="sticky bottom-0 left-0 right-0 z-50 pt-6 pb-4 bg-gradient-to-t from-white via-white/80 dark:from-slate-900/60 dark:via-slate-900/20 to-transparent xl:relative xl:bg-none xl:bg-transparent xl:from-transparent xl:via-transparent xl:to-transparent xl:dark:from-transparent xl:pt-0 xl:mt-8 xl:z-10 xl:backdrop-blur-0">
                                 <div className="flex gap-3 items-center">
-                                    {(isPracticeLikeMode || mode === 'by-topic') && (
-                                        <div className={cn(
-                                            "relative group",
-                                            (!isRussia && !isTelegramMiniApp() && isPracticeLikeMode && mode !== 'blitz' && mode !== 'exam' && mode !== 'exam-russia') && "xl:hidden"
-                                        )}>
-                                            <Popover.Root open={showExplanation} onOpenChange={setShowExplanation}>
-                                                <Popover.Trigger asChild>
-                                                    <button
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            handleShowExplanation();
-                                                        }}
-                                                        className={cn(
-                                                            "group relative h-12 w-auto px-3 sm:px-4 rounded-xl bg-zinc-900/40 dark:bg-black/40 backdrop-blur-md border border-white/10 dark:border-white/5 flex items-center justify-center gap-2 transition-all hover:bg-white/5 active:scale-95 shrink-0 overflow-hidden shadow-lg",
-                                                            showHintPulse && !selectedOption && "ring-2 ring-yellow-500/50 shadow-[0_0_15px_rgba(234,179,8,0.2)]"
-                                                        )}
-                                                        title={testLanguage === 'ru' ? "Подсказка" : testLanguage === 'en' ? "Hint" : "Pista"}
-                                                    >
-                                                        <div className="absolute inset-0 bg-gradient-to-tr from-yellow-500/10 via-orange-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                                                        <div className={cn("relative transition-transform duration-700", showHintPulse && !selectedOption && "animate-bounce")}>
-                                                            <Lightbulb className="w-5 h-5 text-yellow-400 fill-yellow-400/20" />
-                                                        </div>
-                                                        <span className="font-bold text-yellow-100/90 text-sm hidden sm:inline-block relative z-10 tracking-wide">
-                                                            {testLanguage === 'ru' ? "Подсказка" : (testLanguage === 'en' ? "Hint" : "Pista")}
-                                                        </span>
-                                                    </button>
-                                                </Popover.Trigger>
-
-                                                <Popover.Content
-                                                    side="top"
-                                                    align="start"
-                                                    sideOffset={16}
-                                                    onOpenAutoFocus={(e) => e.preventDefault()}
-                                                    className="z-50 w-64 p-0 outline-none select-none"
-                                                >
-                                                    <AnimatePresence>
-                                                        {showExplanation && (
-                                                            <motion.div
-                                                                key={explanationKey}
-                                                                initial={{ opacity: 0, scale: 0.9, y: 10, filter: "blur(10px)" }}
-                                                                animate={{ opacity: 1, scale: 1, y: 0, filter: "blur(0px)" }}
-                                                                exit={{
-                                                                    opacity: 0,
-                                                                    scale: 0,
-                                                                    x: -110,
-                                                                    y: 40,
-                                                                    filter: "blur(20px)",
-                                                                    transition: { duration: 0.4, ease: "circIn" }
-                                                                }}
-                                                                drag="y"
-                                                                dragConstraints={{ top: 0, bottom: 100 }}
-                                                                dragElastic={0.1}
-                                                                onDragEnd={(_, info) => { if (info.offset.y > 40) setShowExplanation(false); }}
-                                                                onClick={handleOpenAIChat}
-                                                                className="relative p-[1.5px] bg-gradient-to-tr from-purple-500/40 via-blue-500/40 to-emerald-500/40 rounded-2xl drop-shadow-[0_0_15px_rgba(168,85,247,0.3)] overflow-visible cursor-grab active:cursor-grabbing"
-                                                            >
-                                                                <div className="relative p-4 bg-zinc-950 dark:bg-black border border-white/5 backdrop-blur-3xl rounded-[15px] overflow-hidden">
-                                                                    <div className="text-[10px] text-purple-400 mb-2 flex items-center justify-between font-bold uppercase tracking-wider">
-                                                                        <div className="flex items-center gap-1.5 font-black">
-                                                                            <motion.div
-                                                                                animate={{
-                                                                                    rotate: [0, 15, -15, 0],
-                                                                                    scale: [1, 1.2, 1]
-                                                                                }}
-                                                                                transition={{ duration: 2, repeat: Infinity }}
-                                                                            >
-                                                                                <Sparkles className="w-3.5 h-3.5" />
-                                                                            </motion.div>
-                                                                            {testLanguage === 'ru' ? "AI Объяснение" : (testLanguage === 'en' ? "AI Explanation" : "Explicación AI")}
-                                                                        </div>
-                                                                        <button
-                                                                            onClick={(e) => { e.stopPropagation(); setShowExplanation(false); }}
-                                                                            className="p-1 hover:bg-white/10 rounded-full transition-colors"
-                                                                        >
-                                                                            <X className="w-3.5 h-3.5 text-zinc-500" />
-                                                                        </button>
-                                                                    </div>
-                                                                    <p className="text-xs text-zinc-200 line-clamp-4 leading-relaxed font-medium">
-                                                                        {explanationText}
-                                                                    </p>
-
-                                                                    <motion.div
-                                                                        key={explanationKey}
-                                                                        initial={{ scaleX: 1 }}
-                                                                        animate={{ scaleX: 0 }}
-                                                                        transition={{ duration: 3, ease: "linear" }}
-                                                                        className="absolute bottom-0 left-0 right-0 h-[3px] bg-gradient-to-r from-purple-500 via-blue-500 to-transparent origin-left opacity-80"
-                                                                    />
-                                                                </div>
-                                                                <Popover.Arrow className="fill-zinc-950 stroke-purple-500/30 stroke-1" width={20} height={10} />
-                                                            </motion.div>
-                                                        )}
-                                                    </AnimatePresence>
-                                                </Popover.Content>
-                                            </Popover.Root>
-                                        </div>
-                                    )}
+                                <VoiceAIButton
+                                    className="xl:hidden"
+                                    context={{
+                                        question: displayQuestion,
+                                        correctAnswer: sortedOptions.find(o => o.is_correct)?.[testLanguage === 'ru' ? 'text_ru' : (testLanguage === 'en' ? 'text_en' : 'text_es')] || '',
+                                        userAnswer: selectedOption ? sortedOptions.find(o => o.id === selectedOption)?.[testLanguage === 'ru' ? 'text_ru' : (testLanguage === 'en' ? 'text_en' : 'text_es')] : undefined,
+                                        isCorrect: sortedOptions.find(o => o.id === selectedOption)?.is_correct || false,
+                                        explanation: currentQuestion.explanation_es,
+                                        explanationRu: currentQuestion.explanation_ru,
+                                        explanationEs: currentQuestion.explanation_es,
+                                        explanationEn: currentQuestion.explanation_en,
+                                        topic: currentQuestion.topics?.title_es,
+                                        imageUrl: currentQuestion.image_url,
+                                        country: isRussia ? 'russia' : 'spain'
+                                    }}
+                                    testLanguage={testLanguage}
+                                    onTap={handleShowExplanation}
+                                    showHintPulse={showHintPulse && !selectedOption}
+                                />
 
                                     {onReportProblem && (
                                         <button
@@ -558,103 +403,25 @@ export const QuestionCard = ({
                         }}
                     />
                     <div className="flex gap-3 items-center mt-6">
-                        {(isPracticeLikeMode || mode === 'by-topic') && (
-                            <div className={cn(
-                                "relative group",
-                                (!isRussia && !isTelegramMiniApp() && isPracticeLikeMode && mode !== 'blitz' && mode !== 'exam' && mode !== 'exam-russia') && "xl:hidden"
-                            )}>
-                                <Popover.Root open={showExplanation} onOpenChange={setShowExplanation}>
-                                    <Popover.Trigger asChild>
-                                        <button
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                handleShowExplanation();
-                                            }}
-                                            className={cn(
-                                                "group relative h-12 w-auto px-3 sm:px-4 rounded-xl bg-zinc-900/40 dark:bg-black/40 backdrop-blur-md border border-white/10 dark:border-white/5 flex items-center justify-center gap-2 transition-all hover:bg-white/5 active:scale-95 shrink-0 overflow-hidden shadow-lg",
-                                                showHintPulse && !selectedOption && "ring-2 ring-yellow-500/50 shadow-[0_0_15px_rgba(234,179,8,0.2)]"
-                                            )}
-                                            title={testLanguage === 'ru' ? "Подсказка" : testLanguage === 'en' ? "Hint" : "Pista"}
-                                        >
-                                            <div className="absolute inset-0 bg-gradient-to-tr from-yellow-500/10 via-orange-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                                            <div className={cn("relative transition-transform duration-700", showHintPulse && !selectedOption && "animate-bounce")}>
-                                                <Lightbulb className="w-5 h-5 text-yellow-400 fill-yellow-400/20" />
-                                            </div>
-                                            <span className="font-bold text-yellow-100/90 text-sm hidden sm:inline-block relative z-10 tracking-wide">
-                                                {testLanguage === 'ru' ? "Подсказка" : (testLanguage === 'en' ? "Hint" : "Pista")}
-                                            </span>
-                                        </button>
-                                    </Popover.Trigger>
-
-                                    <Popover.Content
-                                        side="top"
-                                        align="start"
-                                        sideOffset={16}
-                                        onOpenAutoFocus={(e) => e.preventDefault()}
-                                        className="z-50 w-64 p-0 outline-none select-none"
-                                    >
-                                        <AnimatePresence>
-                                            {showExplanation && (
-                                                <motion.div
-                                                    key={explanationKey}
-                                                    initial={{ opacity: 0, scale: 0.9, y: 10, filter: "blur(10px)" }}
-                                                    animate={{ opacity: 1, scale: 1, y: 0, filter: "blur(0px)" }}
-                                                    exit={{
-                                                        opacity: 0,
-                                                        scale: 0,
-                                                        x: -110,
-                                                        y: 40,
-                                                        filter: "blur(20px)",
-                                                        transition: { duration: 0.4, ease: "circIn" }
-                                                    }}
-                                                    drag="y"
-                                                    dragConstraints={{ top: 0, bottom: 100 }}
-                                                    dragElastic={0.1}
-                                                    onDragEnd={(_, info) => { if (info.offset.y > 40) setShowExplanation(false); }}
-                                                    onClick={handleOpenAIChat}
-                                                    className="relative p-[1.5px] bg-gradient-to-tr from-purple-500/40 via-blue-500/40 to-emerald-500/40 rounded-2xl drop-shadow-[0_0_15px_rgba(168,85,247,0.3)] overflow-visible cursor-grab active:cursor-grabbing"
-                                                >
-                                                    <div className="relative p-4 bg-zinc-950 dark:bg-black border border-white/5 backdrop-blur-3xl rounded-[15px] overflow-hidden">
-                                                        <div className="text-[10px] text-purple-400 mb-2 flex items-center justify-between font-bold uppercase tracking-wider">
-                                                            <div className="flex items-center gap-1.5 font-black">
-                                                                <motion.div
-                                                                    animate={{
-                                                                        rotate: [0, 15, -15, 0],
-                                                                        scale: [1, 1.2, 1]
-                                                                    }}
-                                                                    transition={{ duration: 2, repeat: Infinity }}
-                                                                >
-                                                                    <Sparkles className="w-3.5 h-3.5" />
-                                                                </motion.div>
-                                                                {testLanguage === 'ru' ? "AI Объяснение" : (testLanguage === 'en' ? "AI Explanation" : "Explicación AI")}
-                                                            </div>
-                                                            <button
-                                                                onClick={(e) => { e.stopPropagation(); setShowExplanation(false); }}
-                                                                className="p-1 hover:bg-white/10 rounded-full transition-colors"
-                                                            >
-                                                                <X className="w-3.5 h-3.5 text-zinc-500" />
-                                                            </button>
-                                                        </div>
-                                                        <p className="text-xs text-zinc-200 line-clamp-4 leading-relaxed font-medium">
-                                                            {explanationText}
-                                                        </p>
-
-                                                        <motion.div
-                                                            key={explanationKey}
-                                                            initial={{ scaleX: 1 }}
-                                                            animate={{ scaleX: 0 }}
-                                                            transition={{ duration: 3, ease: "linear" }}
-                                                            className="absolute bottom-0 left-0 right-0 h-[3px] bg-gradient-to-r from-purple-500 via-blue-500 to-transparent origin-left opacity-80"
-                                                        />
-                                                    </div>
-                                                    <Popover.Arrow className="fill-zinc-950 stroke-purple-500/30 stroke-1" width={20} height={10} />
-                                                </motion.div>
-                                            )}
-                                        </AnimatePresence>
-                                    </Popover.Content>
-                                </Popover.Root>
-                            </div>
-                        )}
+                        <VoiceAIButton
+                            className="xl:hidden"
+                            context={{
+                                question: displayQuestion,
+                                correctAnswer: sortedOptions.find(o => o.is_correct)?.[testLanguage === 'ru' ? 'text_ru' : (testLanguage === 'en' ? 'text_en' : 'text_es')] || '',
+                                userAnswer: selectedOption ? sortedOptions.find(o => o.id === selectedOption)?.[testLanguage === 'ru' ? 'text_ru' : (testLanguage === 'en' ? 'text_en' : 'text_es')] : undefined,
+                                isCorrect: sortedOptions.find(o => o.id === selectedOption)?.is_correct || false,
+                                explanation: currentQuestion.explanation_es,
+                                explanationRu: currentQuestion.explanation_ru,
+                                explanationEs: currentQuestion.explanation_es,
+                                explanationEn: currentQuestion.explanation_en,
+                                topic: currentQuestion.topics?.title_es,
+                                imageUrl: currentQuestion.image_url,
+                                country: isRussia ? 'russia' : 'spain'
+                            }}
+                            testLanguage={testLanguage}
+                            onTap={handleShowExplanation}
+                            showHintPulse={showHintPulse && !selectedOption}
+                        />
 
                         {onReportProblem && (
                             <button

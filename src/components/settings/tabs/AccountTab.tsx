@@ -237,7 +237,6 @@ export const AccountTab: React.FC = () => {
     // Avatar Upload State
     const { isUploading, fileInputRef, handleAvatarClick, handleAvatarUpload } = useAvatarUpload();
 
-
     return (
         <div className="space-y-6">
             <input
@@ -253,36 +252,34 @@ export const AccountTab: React.FC = () => {
                 {/* Декоративный фон */}
                 <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/5 blur-[50px] rounded-full pointer-events-none" />
                 
-                <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 relative z-10">
-                    {/* Аватар с полной поддержкой скинов */}
-                    <div className="relative shrink-0">
+                <div className="flex flex-row items-center gap-6 relative z-10">
+                    {/* Аватар с оверлеем только по ховеру (Чистый стиль) */}
+                    <div 
+                        className="relative shrink-0 group cursor-pointer"
+                        onClick={handleAvatarClick}
+                    >
                         <UserAvatar
                             profileId={profileData?.id}
-                            size="2xl"
+                            size="xl"
                             showPremiumGlow={true}
-                            className={cn("shadow-xl", isUploading && "opacity-50")}
+                            className={cn("shadow-2xl transition-all duration-300 group-hover:brightness-75", isUploading && "opacity-50")}
                         />
-
-                            {isUploading && (
-                                <div className="absolute inset-0 flex items-center justify-center">
-                                    <div className="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
-                                </div>
+                        
+                        {/* Оверлей камеры при наведении */}
+                        <div className={cn(
+                            "absolute inset-0 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 z-20",
+                            isUploading && "opacity-100"
+                        )}>
+                            {!isUploading ? (
+                                <Camera className="w-8 h-8 text-white drop-shadow-lg scale-90 group-hover:scale-100 transition-transform duration-300" />
+                            ) : (
+                                <div className="w-8 h-8 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                             )}
-
-                        <button
-                            onClick={handleAvatarClick}
-                            disabled={isUploading}
-                            className={cn(
-                                "absolute bottom-1 right-1 w-8 h-8 rounded-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/10 flex items-center justify-center hover:bg-slate-50 dark:hover:bg-slate-800 transition-all hover:scale-110 shadow-lg z-20",
-                                isUploading && "opacity-50 cursor-not-allowed"
-                            )}
-                        >
-                            <Camera className="w-4 h-4 text-slate-600 dark:text-slate-300" />
-                        </button>
+                        </div>
                     </div>
 
                     {/* Инфо */}
-                    <div className="flex-1 min-w-0 text-center sm:text-left pt-1">
+                    <div className="flex-1 min-w-0 text-left pt-1">
                             {isEditingName ? (
                                 <div className="space-y-2">
                                     <Input
@@ -323,7 +320,7 @@ export const AccountTab: React.FC = () => {
                                 </div>
                             ) : (
                                 <>
-                                    <div className="flex items-center justify-center sm:justify-start gap-2 group mb-1">
+                                    <div className="flex items-center justify-start gap-2 group mb-1">
                                         <h3 className="text-xl font-bold text-slate-900 dark:text-white truncate tracking-tight">
                                             {resolvedFirstName} {lastName}
                                         </h3>
@@ -337,7 +334,7 @@ export const AccountTab: React.FC = () => {
                                             <Pencil className="w-3.5 h-3.5 text-slate-400" />
                                         </button>
                                     </div>
-                                    <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
+                                    <div className="flex flex-wrap items-center justify-start gap-2">
                                         <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
                                             @{username}
                                         </p>
@@ -497,7 +494,7 @@ export const AccountTab: React.FC = () => {
 
             <Separator className="bg-slate-200 dark:bg-slate-700" />
 
-            {/* Выход и Сброс */}
+            {/* Выход */}
             <div className="space-y-2">
                 <Button
                     variant="ghost"
@@ -506,27 +503,6 @@ export const AccountTab: React.FC = () => {
                 >
                     <LogOut className="w-4 h-4 mr-3" />
                     Выйти из аккаунта
-                </Button>
-
-                <Button
-                    variant="ghost"
-                    onClick={() => {
-                        if (confirm('Это полностью сбросит кэш и настройки приложения. Помогает при ошибках входа. Продолжить?')) {
-                            localStorage.clear();
-                            sessionStorage.clear();
-                            // Clear cookies
-                            document.cookie.split(";").forEach((c) => {
-                                document.cookie = c
-                                    .replace(/^ +/, "")
-                                    .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
-                            });
-                            window.location.href = '/';
-                        }
-                    }}
-                    className="w-full justify-start text-muted-foreground/60 hover:text-orange-500 hover:bg-orange-50 dark:hover:bg-orange-500/5 text-[11px] h-10"
-                >
-                    <Zap className="w-3.5 h-3.5 mr-3" />
-                    Nuclear Reset (Сброс всего кэша)
                 </Button>
             </div>
         </div>

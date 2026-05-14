@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect, useCallback, ReactNode, lazy, Suspense, m
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Bell, Check, CheckCheck, Swords, Clock, Zap, ChevronDown, ChevronUp } from 'lucide-react';
+import { Bell, CheckCheck, ChevronDown, ChevronUp } from 'lucide-react';
 import { useNotifications } from '@/hooks/useNotifications';
 import { useUserContext } from '@/contexts/UserContext';
 // ОПТИМИЗАЦИЯ: Импортируем только нужные функции из date-fns
@@ -11,15 +11,14 @@ import { formatDistanceToNow, format, isToday, isYesterday, isThisWeek, isThisMo
 import { ru } from 'date-fns/locale/ru';
 import { es } from 'date-fns/locale/es';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { motion } from "@/components/optimized/Motion";
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { getTelegramWebApp } from '@/lib/telegram';
 import { NotificationIcon } from './NotificationIcon';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import type { DuelNotification } from '@/hooks/useNotifications';
+import { SegmentedControl } from '@/components/ui/SegmentedControl';
 // ОПТИМИЗАЦИЯ: ReminderConnectModal lazy-loaded (экономия 37.1 KB в initial bundle)
 const ReminderConnectModal = lazy(() => import('@/components/notifications/ReminderConnectModal').then(m => ({ default: m.ReminderConnectModal })));
 
@@ -33,7 +32,7 @@ interface NotificationsPanelProps {
   trigger?: ReactNode;
 }
 
-type NotificationFilter = 'all' | 'duels' | 'reminders' | 'system';
+type NotificationView = 'unread' | 'all';
 
 // ОПТИМИЗАЦИЯ: Мемоизированный компонент элемента уведомления
 // Предотвращает лишние ре-рендеры при обновлении списка
@@ -44,7 +43,8 @@ const NotificationItem = memo(({
   onClick,
   getCachedTime,
   shouldTruncate,
-  navigate,
+  navigateTo,
+  route,
   t,
 }: {
   notification: DuelNotification;
@@ -53,7 +53,8 @@ const NotificationItem = memo(({
   onClick: (notification: DuelNotification) => void;
   getCachedTime: (createdAt: string) => string;
   shouldTruncate: (message: string) => boolean;
-  navigate: (path: string) => void;
+  navigateTo: (path: string) => void;
+  route: string | null;
   t: (key: string, params?: Record<string, string | number>) => string;
 }) => {
   return (
@@ -141,14 +142,14 @@ const NotificationItem = memo(({
             <p className="text-xs text-muted-foreground">
               {getCachedTime(notification.created_at)}
             </p>
-            {notification.duel_id && (
+            {route && (
               <Button
                 variant="ghost"
                 size="sm"
                 className="h-6 text-xs px-2"
                 onClick={(e) => {
                   e.stopPropagation();
-                  navigate(`/games/duel?duelId=${notification.duel_id}`);
+                  navigateTo(route);
                 }}
               >
                 {t('notifications.goTo')}
@@ -170,7 +171,7 @@ export const NotificationsPanel = ({ notificationsApi, open, onOpenChange, rende
   const ownApi = useNotifications();
   const api = notificationsApi ?? ownApi;
   const { notifications, unreadCount, markAsRead, markAllAsRead } = api;
-  const [filter, setFilter] = useState<NotificationFilter>('all');
+  const [view, setView] = useState<NotificationView>('unread');
   const [expandedNotifications, setExpandedNotifications] = useState<Set<string>>(new Set());
   const [reminderModalOpen, setReminderModalOpen] = useState(false);
   const navigate = useNavigate();
@@ -235,34 +236,20 @@ export const NotificationsPanel = ({ notificationsApi, open, onOpenChange, rende
   const filteredNotifications = useMemo(() => {
     // First, filter out progress notifications (always hide them)
     const notificationsWithoutProgress = notifications.filter(n => !PROGRESS_NOTIFICATION_TYPES.includes(n.type));
-
-    if (filter === 'all') {
-      return notificationsWithoutProgress;
-    }
-
-    const typeMap: Record<string, NotificationFilter> = {
-      'finish': 'duels',
-      'timeout': 'duels',
-    };
-
-    const result = notificationsWithoutProgress.filter(n => {
-      const category = typeMap[n.type] || 'system';
-      return category === filter;
-    });
-
-    return result;
-  }, [notifications, filter]);
+    if (view === 'unread') return notificationsWithoutProgress.filter(n => !n.is_read);
+    return notificationsWithoutProgress;
+  }, [notifications, view]);
 
   // Debug: логируем только в dev режиме при необходимости
   useEffect(() => {
     if (process.env.NODE_ENV === 'development' && window.localStorage?.getItem('debugNotifications') === '1') {
       console.log('[NotificationsPanel] 🔍 filteredNotifications changed:', {
         count: filteredNotifications.length,
-        filter,
+        view,
         totalNotifications: notifications.length,
       });
     }
-  }, [filteredNotifications, filter, notifications.length]);
+  }, [filteredNotifications, view, notifications.length]);
 
   // ОПТИМИЗАЦИЯ: Кеш для formatDistanceToNow (избегаем повторных вычислений)
   const timeCache = useRef<Map<string, string>>(new Map());
@@ -433,31 +420,24 @@ export const NotificationsPanel = ({ notificationsApi, open, onOpenChange, rende
       // Пересчитываем размеры всех элементов при изменении данных
       rowVirtualizer.measure();
     }
-  }, [flatList.length, filter, rowVirtualizer, containerHeight]);
+  }, [flatList.length, view, rowVirtualizer, containerHeight]);
 
   const handleNotificationClick = useCallback((notification: DuelNotification) => {
     if (!notification.is_read) {
       markAsRead(notification.id);
     }
 
-    // Navigate to duel if duel_id exists
     if (notification.duel_id) {
       navigate(`/games/duel?duelId=${notification.duel_id}`);
+      return;
+    }
+
+    const deeplink = (notification.metadata as any)?.cta_deeplink || (notification.metadata as any)?.deeplink || (notification.metadata as any)?.route;
+    if (typeof deeplink === 'string' && deeplink.trim()) {
+      const normalized = deeplink.startsWith('/') ? deeplink : `/${deeplink.replace(/^\//, '')}`;
+      navigate(normalized);
     }
   }, [navigate, markAsRead]);
-
-  const getFilterIcon = (filterType: NotificationFilter) => {
-    switch (filterType) {
-      case 'duels':
-        return <Swords className="h-4 w-4" />;
-      case 'reminders':
-        return <Clock className="h-4 w-4" />;
-      case 'system':
-        return <Zap className="h-4 w-4" />;
-      default:
-        return <Bell className="h-4 w-4" />;
-    }
-  };
 
   const sheetProps = typeof open === "boolean" && onOpenChange
     ? { open, onOpenChange }
@@ -501,30 +481,20 @@ export const NotificationsPanel = ({ notificationsApi, open, onOpenChange, rende
             )}
           </div>
 
-          {/* Filters */}
-          <Tabs value={filter} onValueChange={(v) => setFilter(v as NotificationFilter)} className="w-full">
-            <TabsList className="grid w-full grid-cols-4 h-9">
-              <TabsTrigger value="all" className="text-xs px-2">
-                {t('notifications.all')}
-              </TabsTrigger>
-              <TabsTrigger value="duels" className="text-xs px-2">
-                <Swords className="h-3 w-3 mr-1" />
-                {t('notifications.duels')}
-              </TabsTrigger>
-              <TabsTrigger value="reminders" className="text-xs px-2">
-                <Clock className="h-3 w-3 mr-1" />
-                {t('notifications.reminders')}
-              </TabsTrigger>
-              <TabsTrigger value="system" className="text-xs px-2">
-                <Zap className="h-3 w-3 mr-1" />
-                {t('notifications.system')}
-              </TabsTrigger>
-            </TabsList>
-          </Tabs>
+          {/* New / All */}
+          <SegmentedControl
+            value={view}
+            onChange={(v) => setView(v as NotificationView)}
+            options={[
+              { id: 'unread', label: t('notifications.unread') },
+              { id: 'all', label: t('notifications.all') },
+            ]}
+            className="w-full"
+          />
         </SheetHeader>
 
         {/* ОПТИМИЗАЦИЯ: Убрали ScrollArea, используем обычный div с overflow-y-auto для виртуализации */}
-        <div className="flex-1 flex flex-col min-h-0" key={`notifications-${filter}-${filteredNotifications.length}`}>
+        <div className="flex-1 flex flex-col min-h-0" key={`notifications-${view}-${filteredNotifications.length}`}>
           {filteredNotifications.length === 0 ? (
             <motion.div
               key="empty"
@@ -533,23 +503,11 @@ export const NotificationsPanel = ({ notificationsApi, open, onOpenChange, rende
               className="p-12 text-center space-y-3"
             >
               <div className="w-16 h-16 mx-auto rounded-full bg-muted flex items-center justify-center">
-                {getFilterIcon(filter)}
+                <Bell className="h-5 w-5" />
               </div>
               <p className="text-muted-foreground">
-                {filter === 'all'
-                  ? t('notifications.emptyAll')
-                  : t('notifications.emptyCategory', { category: t(`notifications.${filter}`) })}
+                {view === 'unread' ? t('notifications.emptyUnread') : t('notifications.emptyAll')}
               </p>
-              {filter === 'reminders' && (
-                <Button
-                  onClick={() => setReminderModalOpen(true)}
-                  className="mt-4"
-                  size="sm"
-                >
-                  <Clock className="w-4 h-4 mr-2" />
-                  {t('notifications.configureReminders')}
-                </Button>
-              )}
             </motion.div>
           ) : flatList.length > 10 ? (
             // ОПТИМИЗАЦИЯ: Виртуализация для больших списков (> 10 элементов)
@@ -615,6 +573,15 @@ export const NotificationsPanel = ({ notificationsApi, open, onOpenChange, rende
                         }}
                         className="px-4 pb-2"
                       >
+                        {(() => {
+                          const n = item.data;
+                          const deeplink = (n.metadata as any)?.cta_deeplink || (n.metadata as any)?.deeplink || (n.metadata as any)?.route;
+                          const route = n.duel_id
+                            ? `/games/duel?duelId=${n.duel_id}`
+                            : typeof deeplink === 'string' && deeplink.trim()
+                              ? (deeplink.startsWith('/') ? deeplink : `/${deeplink.replace(/^\//, '')}`)
+                              : null;
+                          return (
                         <NotificationItem
                           notification={item.data}
                           isExpanded={expandedNotifications.has(item.data.id)}
@@ -622,9 +589,12 @@ export const NotificationsPanel = ({ notificationsApi, open, onOpenChange, rende
                           onClick={handleNotificationClick}
                           getCachedTime={getCachedTime}
                           shouldTruncate={shouldTruncate}
-                          navigate={navigate}
+                          navigateTo={navigate}
+                          route={route}
                           t={t}
                         />
+                          );
+                        })()}
                       </div>
                     );
                   })
@@ -652,17 +622,28 @@ export const NotificationsPanel = ({ notificationsApi, open, onOpenChange, rende
                   </div>
                   <div className="space-y-2">
                     {groupNotifications.map((notification) => (
-                      <NotificationItem
-                        key={notification.id}
-                        notification={notification}
-                        isExpanded={expandedNotifications.has(notification.id)}
-                        onToggleExpand={toggleNotificationExpansion}
-                        onClick={handleNotificationClick}
-                        getCachedTime={getCachedTime}
-                        shouldTruncate={shouldTruncate}
-                        navigate={navigate}
-                        t={t}
-                      />
+                      (() => {
+                        const deeplink = (notification.metadata as any)?.cta_deeplink || (notification.metadata as any)?.deeplink || (notification.metadata as any)?.route;
+                        const route = notification.duel_id
+                          ? `/games/duel?duelId=${notification.duel_id}`
+                          : typeof deeplink === 'string' && deeplink.trim()
+                            ? (deeplink.startsWith('/') ? deeplink : `/${deeplink.replace(/^\//, '')}`)
+                            : null;
+                        return (
+                          <NotificationItem
+                            key={notification.id}
+                            notification={notification}
+                            isExpanded={expandedNotifications.has(notification.id)}
+                            onToggleExpand={toggleNotificationExpansion}
+                            onClick={handleNotificationClick}
+                            getCachedTime={getCachedTime}
+                            shouldTruncate={shouldTruncate}
+                            navigateTo={navigate}
+                            route={route}
+                            t={t}
+                          />
+                        );
+                      })()
                     ))}
                   </div>
                 </div>

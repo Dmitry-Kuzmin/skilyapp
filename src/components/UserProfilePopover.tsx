@@ -36,7 +36,6 @@ import {
   Crown,
   Languages,
   Zap,
-  Pencil,
   Sparkles,
   Newspaper,
   ScrollText,
@@ -58,6 +57,7 @@ import { useNotifications } from "@/hooks/useNotifications";
 import { useCosmeticsPreview } from "@/contexts/CosmeticsPreviewContext";
 import { SegmentedControl } from "@/components/ui/SegmentedControl";
 import { TelemetryOverlay } from './telemetry/TelemetryOverlay';
+import { motion } from "@/components/optimized/Motion";
 
 const supabaseClient = supabase as any;
 
@@ -183,19 +183,9 @@ export const UserProfilePopover = memo(function UserProfilePopover({ notificatio
     {
       key: 'settings',
       icon: Settings,
-      label: t('nav.settings'),
+      label: t('settings'),
       action: () => {
-        // Открываем Unified Settings
         useSettingsStore.getState().openSettings('general');
-      },
-    },
-    {
-      key: 'about',
-      icon: Info,
-      label: t('unifiedSettings.about'),
-      action: () => {
-        // Открываем Unified Settings на вкладке About
-        useSettingsStore.getState().openSettings('about');
       },
     },
     {
@@ -206,9 +196,9 @@ export const UserProfilePopover = memo(function UserProfilePopover({ notificatio
         import('@/store/modalStore').then(m => m.useModalStore.getState().openModal('REFERRAL'));
       },
       badge: (
-        <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 text-[10px] font-black animate-pulse ml-0.5">
+        <div className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 text-[9px] font-black ml-0.5">
           +100
-          <Coins className="w-3 h-3 text-yellow-500" />
+          <Coins className="w-2.5 h-2.5 text-yellow-500" />
         </div>
       )
     },
@@ -243,14 +233,8 @@ export const UserProfilePopover = memo(function UserProfilePopover({ notificatio
                 size={compact ? "sm" : "md"}
                 previewSkin={previewSkin}
                 forcePremium={isPremium}
+                unreadCount={unreadCount}
               />
-            )}
-            {!showSkeleton && hasUnreadNotifications && (
-              <div className="absolute -top-1 -right-1 z-30 pointer-events-none">
-                <span className="inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-red-500 text-white text-[10px] font-black border-2 border-background shadow-sm">
-                  {unreadCount > 9 ? '9+' : unreadCount}
-                </span>
-              </div>
             )}
 
           </button>
@@ -278,6 +262,8 @@ export const UserProfilePopover = memo(function UserProfilePopover({ notificatio
                     previewSkin={previewSkin}
                     showPremiumGlow={true}
                     forcePremium={isPremium}
+                    unreadCount={unreadCount}
+                    showNotificationBadge={false}
                   />
                 </div>
                 <div className="flex-1 min-w-0 text-left">
@@ -294,7 +280,6 @@ export const UserProfilePopover = memo(function UserProfilePopover({ notificatio
                         {t('profileMenu.proBadge')}
                       </span>
                     )}
-                    <Pencil className="h-3 w-3 text-muted-foreground shrink-0" />
                   </div>
                   {/* Скрываем технический email для Telegram-пользователей */}
                   {supabaseUser?.email && !supabaseUser.email.startsWith('tg_') && !supabaseUser.email.includes('@telegram.skily.app') ? (
@@ -316,43 +301,44 @@ export const UserProfilePopover = memo(function UserProfilePopover({ notificatio
               </button>
             </div>
 
-            {/* XP Progress */}
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-semibold">{t('profileMenu.xpLabel')}</span>
-                <span className="text-sm text-muted-foreground">{xp.toLocaleString()} / {nextLevelXp.toLocaleString()}</span>
+            {/* XP Progress - Compact version */}
+            <div className="p-2.5 rounded-xl bg-secondary/10 border border-border/5">
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60">{t('profileMenu.xpLabel')}</span>
+                <span className="text-[10px] font-black tabular-nums">{xp.toLocaleString()} <span className="text-muted-foreground/40 font-medium">/ {nextLevelXp.toLocaleString()}</span></span>
               </div>
-              <Progress value={xpProgress} className="h-1.5" />
-              <p className="text-xs text-muted-foreground flex items-center gap-1">
-                <Zap className="h-3 w-3 text-primary" />
-                {t('profileMenu.xpDescription')}
-              </p>
+              <div className="relative h-1.5 w-full overflow-hidden rounded-full bg-black/10 dark:bg-white/5">
+                <motion.div
+                  className="absolute inset-y-0 left-0 bg-gradient-to-r from-amber-400 to-orange-500 rounded-full"
+                  initial={{ width: 0 }}
+                  animate={{ width: `${xpProgress}%` }}
+                  transition={{ duration: 1, ease: "easeOut" }}
+                />
+              </div>
             </div>
 
-            {/* Action Buttons */}
-            <div className="grid grid-cols-2 gap-2 mt-1">
-              <Button
-                variant="outline"
-                className="h-8 text-[11px] font-medium border-border/30 bg-background/40 hover:bg-accent/40 transition-colors"
+            {/* Action Buttons - Compact Row */}
+            <div className="flex gap-2">
+              <button
+                className="flex-1 flex items-center gap-2 px-3 py-2 rounded-xl border border-border/40 bg-background/50 hover:bg-secondary/40 transition-all duration-200"
                 onClick={() => {
                   setOpen(false);
                   setTelemetryOpen(true);
                 }}
               >
-                <BarChart3 className="h-3.5 w-3.5 mr-1.5 text-muted-foreground" />
-                {t('test.statistics')}
-              </Button>
-              <Button
-                variant="outline"
-                className="h-8 text-[11px] font-medium border-border/30 bg-background/40 hover:bg-accent/40 transition-colors"
+                <BarChart3 className="h-3.5 w-3.5 text-slate-500" />
+                <span className="text-[11px] font-bold text-foreground/80">{t('test.statistics')}</span>
+              </button>
+              <button
+                className="flex-1 flex items-center gap-2 px-3 py-2 rounded-xl border border-border/40 bg-background/50 hover:bg-secondary/40 transition-all duration-200"
                 onClick={() => {
                   setOpen(false);
                   navigate('/inventory');
                 }}
               >
-                <Sparkles className="h-3.5 w-3.5 mr-1.5 text-muted-foreground" />
-                {t('profileMenu.inventory')}
-              </Button>
+                <Sparkles className="h-3.5 w-3.5 text-indigo-500" />
+                <span className="text-[11px] font-bold text-foreground/80">{t('profileMenu.inventory')}</span>
+              </button>
             </div>
 
             <Separator />
@@ -369,7 +355,7 @@ export const UserProfilePopover = memo(function UserProfilePopover({ notificatio
               >
                 <div className="flex items-center gap-2">
                   <Bell className="h-4 w-4 text-muted-foreground" />
-                  <span>{t('nav.notifications')}</span>
+                  <span>{t('profileMenu.notifications')}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   {hasUnreadNotifications && (
@@ -403,7 +389,6 @@ export const UserProfilePopover = memo(function UserProfilePopover({ notificatio
 
             {/* Unified Control Bar (Language & Theme) */}
             <div className="bg-secondary/30 p-1.5 rounded-[20px] flex items-center justify-between mt-2">
-              {/* Language Switcher */}
               <div className="flex items-center">
                 {[
                   { code: 'ru', label: 'RU' },
@@ -416,7 +401,7 @@ export const UserProfilePopover = memo(function UserProfilePopover({ notificatio
                     className={cn(
                       "h-9 px-3.5 rounded-2xl text-[11px] font-bold transition-all duration-200",
                       language === lang.code
-                        ? "bg-background shadow-sm text-primary" // Активный язык синим
+                        ? "bg-background shadow-sm text-foreground font-black" // Активный язык без синего
                         : "text-muted-foreground hover:text-foreground hover:bg-background/50"
                     )}
                   >
@@ -446,13 +431,27 @@ export const UserProfilePopover = memo(function UserProfilePopover({ notificatio
                   className={cn(
                     "w-9 h-9 rounded-2xl flex items-center justify-center transition-all duration-200",
                     theme === 'dark'
-                      ? "text-blue-400 bg-background shadow-sm"
+                      ? "text-indigo-400 bg-background shadow-sm"
                       : "text-muted-foreground hover:text-foreground"
                   )}
                 >
                   <Moon className="w-5 h-5" />
                 </button>
               </div>
+            </div>
+
+            {/* Logout Button - Full width style matching other items */}
+            <div className="mt-2">
+              <button
+                onClick={handleLogout}
+                className="w-full flex items-center justify-between p-2 rounded-lg hover:bg-red-500/5 transition-colors group"
+              >
+                <div className="flex items-center gap-2">
+                  <LogOut className="h-4 w-4 text-red-500/70 group-hover:text-red-500 transition-colors" />
+                  <span className="text-[13px] font-medium text-red-500/80 group-hover:text-red-500">{t('profileMenu.logout')}</span>
+                </div>
+                <ChevronRight className="h-3.5 w-3.5 text-red-500/20 group-hover:text-red-500/40 transition-colors" />
+              </button>
             </div>
 
             {/* Юридическая информация (Компактный блок) */}

@@ -313,7 +313,7 @@ function TestCard({
         }}>
           {/* Внутренний div: clip rounded corners изображения */}
           <div style={{ borderRadius: 33, overflow: "hidden", backgroundColor: C.card }}>
-            <img src={q.image_url} alt="" style={{ width:"100%", height:"auto",
+            <Img src={q.image_url} style={{ width:"100%", height:"auto",
               display:"block" }} />
           </div>
         </div>
@@ -611,7 +611,7 @@ function ExplanationScene({ q, t }: { q: VideoQuestion; t: DynamicTiming }) {
   return (
     <div style={{ position:"absolute", inset:0, display:"flex", flexDirection:"column",
       alignItems:"center", justifyContent:"center", padding:"60px 60px", opacity: op }}>
-      <TestCard q={q} t={t} showOptions={true} revealFrame={999} showExplanation={true} />
+      <TestCard q={q} t={t} showOptions={true} revealFrame={999} showExplanation={false} />
     </div>
   );
 }
@@ -771,159 +771,113 @@ function getTopicLabel(q: VideoQuestion): string {
 }
 
 // ─── ThumbnailScene — frame 0 only ───────────────────────────────────────────
+// Layout: тёмный фон → картинка-карточка → hook → вопрос → бренд
 function ThumbnailScene({ q }: { q: VideoQuestion }) {
-  const isRu     = q.language === "ru";
-  const diffBg   = { easy: "#1a3a22", medium: "#3a2a0d", hard: "#3a0d0d" };
-  const diffClr  = { easy: C.emerald, medium: "#F0883E", hard: C.red };
-  const diffTxt  = { ru: { easy:"ЛЁГКИЙ", medium:"СРЕДНИЙ", hard:"СЛОЖНЫЙ" },
-                      es: { easy:"FÁCIL",  medium:"MEDIO",   hard:"DIFÍCIL"  } };
-  const topicLabel = getTopicLabel(q);
+  // Текст вопроса — на языке зрителя, max 2 строки (~80 символов)
+  const rawQ   = cleanText(q.language === "ru" && q.question_ru ? q.question_ru : q.question);
+  const qShort = rawQ.length > 82 ? rawQ.slice(0, 79) + "…" : rawQ;
+  const qFontSize = qShort.length > 60 ? 54 : qShort.length > 40 ? 62 : 70;
 
   return (
-    <div style={{ position:"absolute", inset:0, overflow:"hidden", fontFamily:"system-ui,sans-serif" }}>
+    <div style={{
+      position:"absolute", inset:0, overflow:"hidden",
+      fontFamily:"system-ui,sans-serif",
+      background:"linear-gradient(160deg, #080d18 0%, #0d1a30 60%, #060b14 100%)",
+    }}>
 
-      {/* ── Фон: картинка на весь экран ── */}
-      {q.image_url ? (
-        <Img src={q.image_url} style={{
-          position:"absolute", inset:0,
-          width:"100%", height:"100%", objectFit:"cover", objectPosition:"center top",
-        }} />
-      ) : (
-        <div style={{
-          position:"absolute", inset:0,
-          background:"linear-gradient(160deg, #0a1628 0%, #0d2a4d 50%, #091020 100%)",
-        }} />
-      )}
-
-      {/* ── Градиент: сверху лёгкое затемнение, снизу тёмный занавес ── */}
+      {/* ── Тонкий цветной акцент сверху ── */}
       <div style={{
-        position:"absolute", inset:0,
-        background:"linear-gradient(to bottom, rgba(0,0,0,0.30) 0%, rgba(0,0,0,0.10) 25%, rgba(0,0,0,0.55) 55%, rgba(8,12,20,0.97) 100%)",
+        position:"absolute", top:0, left:0, right:0, height:4,
+        background:"linear-gradient(90deg, #2F81F7 0%, #7C3AED 100%)",
       }} />
 
-      {/* ── Верх: флаг + сложность ── */}
-      <div style={{
-        position:"absolute", top:70, left:60, right:60,
-        display:"flex", alignItems:"center", justifyContent:"space-between",
-      }}>
-        {/* Флаг-бейдж */}
+      {/* ── Картинка как карточка (чётко видна) ── */}
+      {q.image_url && (
         <div style={{
-          display:"flex", alignItems:"center", gap:12,
-          background:"rgba(0,0,0,0.55)",
-          backdropFilter:"blur(12px)", WebkitBackdropFilter:"blur(12px)",
-          border:"1px solid rgba(255,255,255,0.18)",
-          borderRadius:100, padding:"10px 28px",
-          boxShadow:"0 4px 20px rgba(0,0,0,0.5)",
-        }}>
-          <span style={{ fontSize:32 }}>🇪🇸</span>
-          <span style={{ fontSize:24, fontWeight:800, color:"#fff", letterSpacing:2 }}>
-            {isRu ? "ПДД ИСПАНИИ" : "EXAMEN DGT"}
-          </span>
-        </div>
-
-        {/* Сложность */}
-        <div style={{
-          padding:"10px 26px", borderRadius:100,
-          background: diffBg[q.difficulty],
-          border:`2px solid ${diffClr[q.difficulty]}`,
-          color: diffClr[q.difficulty],
-          fontSize:22, fontWeight:900, letterSpacing:3,
-          boxShadow:`0 0 20px ${diffClr[q.difficulty]}55`,
-        }}>
-          {diffTxt[q.language][q.difficulty]}
-        </div>
-      </div>
-
-      {/* ── Центр: большой "?" с неоновым свечением ── */}
-      <div style={{
-        position:"absolute", top:"28%", left:0, right:0,
-        display:"flex", justifyContent:"center",
-        pointerEvents:"none",
-      }}>
-        <div style={{
-          fontSize:260, fontWeight:900, lineHeight:1, color:"#fff",
-          textShadow:[
-            `0 0 60px ${C.primary}`,
-            `0 0 120px ${C.primary}80`,
-            "0 8px 40px rgba(0,0,0,0.9)",
+          position:"absolute",
+          top:56, left:52, right:52,
+          height:490,
+          borderRadius:28,
+          overflow:"hidden",
+          boxShadow:[
+            "0 0 0 2px rgba(47,129,247,0.5)",
+            "0 8px 40px rgba(47,129,247,0.30)",
+            "0 24px 60px rgba(0,0,0,0.7)",
           ].join(", "),
-          opacity:0.12,  // едва заметно — создаёт глубину, не перекрывает картинку
-        }}>?</div>
-      </div>
+        }}>
+          <Img src={q.image_url} style={{
+            width:"100%", height:"100%",
+            objectFit:"cover", objectPosition:"center center",
+          }} />
+          {/* Лёгкое затемнение снизу карточки для плавного перехода */}
+          <div style={{
+            position:"absolute", bottom:0, left:0, right:0, height:100,
+            background:"linear-gradient(to bottom, transparent, rgba(6,11,20,0.6))",
+          }} />
+        </div>
+      )}
 
-      {/* ── Низ: основной контент ── */}
+      {/* ── Если нет картинки — декоративный "?" ── */}
+      {!q.image_url && (
+        <div style={{
+          position:"absolute", top:80, left:0, right:0,
+          display:"flex", justifyContent:"center",
+        }}>
+          <div style={{
+            fontSize:320, fontWeight:900, lineHeight:1, color:C.primary,
+            opacity:0.07, textShadow:`0 0 80px ${C.primary}`,
+          }}>?</div>
+        </div>
+      )}
+
+      {/* ── Нижний блок: hook + вопрос + бренд ── */}
       <div style={{
-        position:"absolute", bottom:0, left:0, right:0,
-        padding:"0 60px 72px",
-        display:"flex", flexDirection:"column", gap:28,
+        position:"absolute",
+        bottom:0, left:0, right:0,
+        padding:"32px 56px 130px",   // 130px снизу — не обрезается кнопками Instagram/TikTok
+        display:"flex", flexDirection:"column", gap:20,
       }}>
 
-        {/* Hook title */}
+        {/* Hook — маленький, акцентный */}
         <div style={{
-          fontSize: q.hook_title.length > 20 ? 76 : 88,
-          fontWeight:900, color:"#fff",
-          lineHeight:1.1, letterSpacing:-1,
-          textShadow:[
-            "0 2px 4px rgba(0,0,0,1)",
-            "0 8px 32px rgba(0,0,0,0.9)",
-          ].join(", "),
+          fontSize:28, fontWeight:700,
+          color:C.primary,
+          letterSpacing:0.5,
+          textShadow:`0 0 20px ${C.primary}88`,
         }}>
           {q.hook_title}
         </div>
 
-        {/* Тема вопроса — большой акцентный текст */}
+        {/* Вопрос — крупно, белый, 2 строки */}
         <div style={{
-          display:"flex", alignItems:"center", gap:20,
+          fontSize: qFontSize,
+          fontWeight:900,
+          color:"#fff",
+          lineHeight:1.25,
+          textShadow:"0 2px 12px rgba(0,0,0,0.9)",
         }}>
-          {/* Цветная полоска-акцент слева */}
-          <div style={{
-            width:8, borderRadius:4, alignSelf:"stretch", minHeight:80,
-            background:`linear-gradient(to bottom, ${C.primary}, #7C3AED)`,
-            flexShrink:0,
-          }} />
-          <div style={{
-            fontSize: topicLabel.length > 12 ? 72 : 88,
-            fontWeight:900, color:"#fff",
-            lineHeight:1, letterSpacing:2,
-            textTransform:"uppercase",
-            textShadow:[
-              `0 0 40px ${C.primary}99`,
-              "0 4px 24px rgba(0,0,0,0.95)",
-            ].join(", "),
-          }}>
-            {topicLabel}
-          </div>
+          {qShort}
         </div>
 
-        {/* Skily лого строкой */}
+        {/* Разделитель */}
         <div style={{
-          display:"flex", alignItems:"center", justifyContent:"space-between",
-        }}>
+          width:56, height:3, borderRadius:2,
+          background:`linear-gradient(90deg, ${C.primary}, #7C3AED)`,
+        }} />
+
+        {/* Skily + номер */}
+        <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between" }}>
           <div style={{
             fontSize:24, fontWeight:800, color:C.primary,
-            letterSpacing:2, textShadow:`0 0 16px ${C.primary}80`,
+            letterSpacing:2, opacity:0.9,
           }}>
             skilyapp.com
           </div>
-          <div style={{
-            fontSize:22, color:"rgba(255,255,255,0.35)", letterSpacing:1,
-          }}>
+          <div style={{ fontSize:20, color:"rgba(255,255,255,0.30)", letterSpacing:1 }}>
             #{String(q.series_number).padStart(3,"0")}
           </div>
         </div>
       </div>
-
-      {/* ── Боковые неоновые полосы — цепляют взгляд ── */}
-      <div style={{
-        position:"absolute", top:"30%", bottom:"30%", left:0, width:5,
-        background:`linear-gradient(to bottom, transparent, ${C.primary}, transparent)`,
-        opacity:0.7,
-      }} />
-      <div style={{
-        position:"absolute", top:"30%", bottom:"30%", right:0, width:5,
-        background:`linear-gradient(to bottom, transparent, #7C3AED, transparent)`,
-        opacity:0.7,
-      }} />
     </div>
   );
 }
@@ -944,27 +898,86 @@ export const VideoTemplate: React.FC<VideoTemplateProps> = ({ question }) => {
     ? question.explanationRuAudioFile
     : question.explanationAudioFile;
 
+  // ── Тематический фон для объяснения ─────────────────────────────────────────
+  // Маппинг тем → видеофайлы в public/backgrounds/topics/
+  // Добавляй файлы в папку — они подхватятся автоматически
+  // Keys = первое слово title_es из таблицы topics (lowercase)
+  // плюс доп. варианты написания через нормализацию
+  const TOPIC_BG: Record<string, string> = {
+    // Таблица topics → title_es → первое слово
+    "señales":       "backgrounds/topics/signs.mp4",        // Señales
+    "maniobras":     "backgrounds/topics/intersection.mp4", // Maniobras
+    "alumbrado":     "backgrounds/topics/night.mp4",        // Alumbrado
+    "el":            "backgrounds/topics/driver.mp4",       // El uso del vehículo
+    "documentación": "backgrounds/topics/background_01.mp4",// Documentación
+    "los":           "backgrounds/topics/emergency.mp4",    // Los accidentes
+    "comportamiento":"backgrounds/topics/emergency.mp4",    // Comportamiento en caso de accidente
+    "mecánica":      "backgrounds/topics/background_02.mp4",// Mecánica y mantenimiento
+    "tipos":         "backgrounds/topics/highway.mp4",      // Tipos y técnicas de conducción
+    "definiciones":  "backgrounds/topics/highway.mp4",      // Definiciones y uso de las vías
+    // Дополнительные ключи для ручного поля topic
+    "alcohol":       "backgrounds/topics/alcohol.mp4",
+    "velocidad":     "backgrounds/topics/speed.mp4",
+    "autopistas":    "backgrounds/topics/highway.mp4",
+    "carretera":     "backgrounds/topics/highway.mp4",
+    "distancia":     "backgrounds/topics/highway.mp4",
+    "adelantamiento":"backgrounds/topics/highway.mp4",
+    "interseccion":  "backgrounds/topics/intersection.mp4",
+    "intersección":  "backgrounds/topics/intersection.mp4",
+    "rotonda":       "backgrounds/topics/intersection_02.mp4",
+    "peatones":      "backgrounds/topics/pedestrians.mp4",
+    "cinturon":      "backgrounds/topics/seatbelt.mp4",
+    "cinturón":      "backgrounds/topics/seatbelt.mp4",
+    "parking":       "backgrounds/topics/parking.mp4",
+    "emergencia":    "backgrounds/topics/emergency.mp4",
+    "ciclistas":     "backgrounds/topics/cyclist.mp4",
+    "motocicletas":  "backgrounds/topics/moto.mp4",
+    "conductor":     "backgrounds/topics/driver.mp4",
+  };
+
+  const topicKey = (question.topic || "").toLowerCase().trim();
+  const explanationBg = question.explanationBackgroundVideo
+    || TOPIC_BG[topicKey]
+    || question.backgroundVideo;
+
+  // Длительности всех используемых фоновых видео (frames @ 30fps)
+  const BG_DURATIONS: Record<string, number> = {
+    "backgrounds/bg1.mp4": 300,
+    "backgrounds/bg2.mp4": 622,
+    // Для топик-видео ставим 300 по умолчанию (10s loop) — запас
+  };
+  const getBgFrames = (src: string) => BG_DURATIONS[src] ?? 300;
+
   return (
     <AbsoluteFill>
-      {/* Слой 1: фоновое видео */}
-      {question.backgroundVideo && (() => {
-        const bgDurations: Record<string, number> = {
-          "backgrounds/bg1.mp4": 300,  // 10s @ 30fps
-          "backgrounds/bg2.mp4": 622,  // 20.7s @ 30fps
-        };
-        const bgFrames = bgDurations[question.backgroundVideo!] ?? 300;
-        return (
-          <AbsoluteFill>
-            <Loop durationInFrames={bgFrames}>
-              <OffthreadVideo
-                src={staticFile(question.backgroundVideo!)}
-                style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                volume={0}
-              />
-            </Loop>
-          </AbsoluteFill>
-        );
-      })()}
+      {/* Слой 1a: основное фоновое видео (вопрос + ответы) */}
+      {question.backgroundVideo && (
+        <AbsoluteFill>
+          <Loop durationInFrames={getBgFrames(question.backgroundVideo)}>
+            <OffthreadVideo
+              src={staticFile(question.backgroundVideo)}
+              style={{ width: "100%", height: "100%", objectFit: "cover" }}
+              volume={0}
+            />
+          </Loop>
+        </AbsoluteFill>
+      )}
+
+      {/* Слой 1b: тематический фон во время объяснения — плавно появляется */}
+      {explanationBg && explanationBg !== question.backgroundVideo && (
+        <AbsoluteFill style={{
+          opacity: sOp(t.explanationStart, t.ctaStart),
+        }}>
+          <Loop durationInFrames={getBgFrames(explanationBg)}>
+            <OffthreadVideo
+              src={staticFile(explanationBg)}
+              style={{ width: "100%", height: "100%", objectFit: "cover" }}
+              volume={0}
+            />
+          </Loop>
+        </AbsoluteFill>
+      )}
+
       {/* Слой 2: затемнение / основной фон */}
       <AbsoluteFill style={{
         backgroundColor: question.backgroundVideo ? "rgba(0,0,0,0.50)" : C.bg,
@@ -1011,10 +1024,10 @@ export const VideoTemplate: React.FC<VideoTemplateProps> = ({ question }) => {
           <Audio src={staticFile(question.hookAudioFile)} volume={1.0} />
         </Sequence>
       )}
-      {/* Question narration: plays during question + answers window */}
+      {/* Question narration: starts after hook audio ends (no overlap) */}
       {question.questionAudioFile && (
-        <Sequence from={t.questionStart * F}
-          durationInFrames={(t.suspenseStart - t.questionStart) * F}>
+        <Sequence from={t.questionAudioStart * F}
+          durationInFrames={(t.suspenseStart - t.questionAudioStart) * F}>
           <Audio src={staticFile(question.questionAudioFile)} volume={0.9} />
         </Sequence>
       )}
@@ -1041,16 +1054,8 @@ export const VideoTemplate: React.FC<VideoTemplateProps> = ({ question }) => {
       )}
 
       {/* ── Scenes with crossfade dissolve ── */}
-      {sOp(t.hookStart, t.countdownStart) > 0 && (
-        <div style={{ position:"absolute", inset:0, opacity: sOp(t.hookStart, t.countdownStart) }}>
-          <HookScene q={question} t={t} />
-        </div>
-      )}
-      {sOp(t.countdownStart, t.questionStart) > 0 && (
-        <div style={{ position:"absolute", inset:0, opacity: sOp(t.countdownStart, t.questionStart) }}>
-          <CountdownScene q={question} t={t} />
-        </div>
-      )}
+      {/* HookScene removed: video starts directly with question */}
+      {/* CountdownScene removed: no countdown, question from frame 0 */}
       {sOp(t.questionStart, t.answersStart) > 0 && (
         <div style={{ position:"absolute", inset:0, opacity: sOp(t.questionStart, t.answersStart) }}>
           <QuestionScene q={question} t={t} />
@@ -1092,12 +1097,7 @@ export const VideoTemplate: React.FC<VideoTemplateProps> = ({ question }) => {
       <div style={{ position:"absolute", bottom:0, left:0, right:0, height:5,
         background: C.gradient }} />
 
-      {/* Thumbnail cover — frame 0 only (33ms). Instagram/TikTok/YouTube used this as preview. */}
-      {frame === 0 && (
-        <div style={{ position:"absolute", inset:0 }}>
-          <ThumbnailScene q={question} />
-        </div>
-      )}
+      {/* ThumbnailScene removed: video starts directly with question */}
       </AbsoluteFill>{/* конец Слоя 3 */}
     </AbsoluteFill>
   );

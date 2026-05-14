@@ -32,6 +32,8 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useModal } from '@/hooks/useModal';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
+import { useLanguage } from '@/contexts/LanguageContext';
+
 
 interface RewardData {
   type: string;
@@ -72,17 +74,20 @@ function isValidReward(r: RewardData | null | undefined): r is RewardData {
   return !!r.icon || !!(r as any).id;
 }
 
-function rewardLabel(r: RewardData): string {
+function rewardLabel(r: RewardData, t: any): string {
   if (r.name) return r.name;
-  if (r.type === 'coins')  return `${r.amount ?? 0} монет`;
+  if (r.type === 'coins')  return t('celebration.coins', { count: r.amount ?? 0 });
   if (r.type === 'boost')  return r.description || 'Boost';
   return r.type.replace('_', ' ');
 }
 
+
 export const LevelUpCelebrationModal: React.FC = () => {
+  const { t } = useLanguage();
   const pending = useLevelUpStore((s) => s.pending);
   const dismiss = useLevelUpStore((s) => s.dismiss);
   const { profileId } = useUserContext();
+
   const { isPremium } = usePremium();
   const queryClient = useQueryClient();
   const { openModal: openBoostShop } = useModal('BOOST_SHOP');
@@ -187,16 +192,17 @@ export const LevelUpCelebrationModal: React.FC = () => {
       setTimeout(() => dismiss(), 1500);
     } catch (err: any) {
       console.error('[LevelUpModal] claim error', err);
-      const msg = err?.message || 'Не удалось забрать награду';
+      const msg = err?.message || t('celebration.failedToClaim');
       // Уже забрано — это не ошибка, считаем успешным
       if (msg.includes('already') || msg.includes('claimed')) {
         setClaimed(true);
         setTimeout(() => dismiss(), 1500);
       } else {
-        toast.error('Ошибка получения награды', { description: msg });
+        toast.error(t('celebration.claimError'), { description: msg });
         setClaiming(false);
       }
     }
+
   };
 
   const handleSkip = () => {
@@ -273,10 +279,11 @@ export const LevelUpCelebrationModal: React.FC = () => {
           <button
             onClick={handleSkip}
             className="absolute top-4 right-4 sm:top-6 sm:right-6 w-10 h-10 rounded-full bg-white/10 hover:bg-white/15 backdrop-blur-md border border-white/15 flex items-center justify-center text-white/70 hover:text-white transition-all active:scale-95 z-50"
-            aria-label="Закрыть"
+            aria-label={t('celebration.close')}
           >
             <X size={20} />
           </button>
+
 
           {/* ── MAIN CARD ──────────────────────────────────────────────── */}
           <motion.div
@@ -351,8 +358,9 @@ export const LevelUpCelebrationModal: React.FC = () => {
                   className="text-center mb-1"
                 >
                   <p className="text-[11px] uppercase tracking-[0.3em] font-black text-amber-300/80 mb-2">
-                    Новый уровень
+                    {t('celebration.newLevel')}
                   </p>
+
                 </motion.div>
 
                 {/* ── НОМЕР УРОВНЯ ────────────────────────────────────── */}
@@ -394,19 +402,21 @@ export const LevelUpCelebrationModal: React.FC = () => {
                           <Lock className="w-6 h-6 text-amber-400" />
                         </div>
                         <div>
-                          <p className="text-amber-300 font-black text-sm uppercase tracking-wider">Упущенная выгода</p>
-                          <p className="text-white/60 text-xs mt-0.5">Эта награда доступна только с Elite Pass</p>
+                          <p className="text-amber-300 font-black text-sm uppercase tracking-wider">{t('celebration.missedOpportunity')}</p>
+                          <p className="text-white/60 text-xs mt-0.5">{t('celebration.premiumOnlyDesc')}</p>
                         </div>
                       </div>
                       <RewardCard reward={lockedPremiumReward!} locked />
                     </div>
+
                   ) : primaryReward ? (
                     <RewardCard reward={primaryReward} primary />
                   ) : (
                     <div className="h-24 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-white/40 text-sm">
-                      Награда уже получена ранее
+                      {t('celebration.alreadyClaimed')}
                     </div>
                   )}
+
 
                   {/* Премиум-награда (если юзер не премиум, но есть и свободная) */}
                   {lockedPremiumReward && !isMissedOpportunity && (
@@ -436,15 +446,17 @@ export const LevelUpCelebrationModal: React.FC = () => {
                         className="absolute inset-0 w-1/3 bg-gradient-to-r from-transparent via-white/40 to-transparent pointer-events-none"
                       />
                       <span className="relative z-10 flex items-center justify-center gap-2">
-                        <Crown className="w-5 h-5" /> Получить Elite Pass
+                        <Crown className="w-5 h-5" /> {t('celebration.getElitePass')}
                       </span>
                     </button>
+
                     <button
                       onClick={handleSkip}
                       className="w-full h-10 text-sm text-white/40 hover:text-white/70 font-semibold transition-colors"
                     >
-                      Закрыть
+                      {t('celebration.close')}
                     </button>
+
                   </>
                 ) : (
                   <>
@@ -469,22 +481,24 @@ export const LevelUpCelebrationModal: React.FC = () => {
                       )}
                       <span className="relative z-10 flex items-center justify-center gap-2">
                         {claiming ? (
-                          <><Loader2 className="w-5 h-5 animate-spin" /> Получаем...</>
+                          <><Loader2 className="w-5 h-5 animate-spin" /> {t('celebration.claiming')}</>
                         ) : claimed ? (
-                          <><CheckCircle2 className="w-5 h-5" /> Получено!</>
+                          <><CheckCircle2 className="w-5 h-5" /> {t('celebration.claimed')}</>
                         ) : (
-                          <><Gift className="w-5 h-5" /> Забрать награду</>
+                          <><Gift className="w-5 h-5" /> {t('celebration.claimReward')}</>
                         )}
                       </span>
                     </button>
+
 
                     {!claimed && (
                       <button
                         onClick={handleSkip}
                         className="w-full h-10 text-sm text-white/40 hover:text-white/70 font-semibold transition-colors"
                       >
-                        Позже
+                        {t('celebration.later')}
                       </button>
+
                     )}
                   </>
                 )}
@@ -504,7 +518,9 @@ export const LevelUpCelebrationModal: React.FC = () => {
 const RewardCard: React.FC<{ reward: RewardData; primary?: boolean; locked?: boolean }> = ({
   reward, primary, locked,
 }) => {
+  const { t } = useLanguage();
   const Icon = rewardIcon(reward.type);
+
   const rarity = (reward.rarity || 'common') as keyof typeof RARITY_STYLES;
   const style = RARITY_STYLES[rarity] || RARITY_STYLES.common;
 
@@ -542,8 +558,9 @@ const RewardCard: React.FC<{ reward: RewardData; primary?: boolean; locked?: boo
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
             <p className={cn("font-black text-lg leading-tight truncate", style.text)}>
-              {rewardLabel(reward)}
+              {rewardLabel(reward, t)}
             </p>
+
             {reward.amount && reward.type === 'coins' && (
               <span className="text-amber-300 font-black text-lg shrink-0">+{reward.amount}</span>
             )}
@@ -551,17 +568,18 @@ const RewardCard: React.FC<{ reward: RewardData; primary?: boolean; locked?: boo
           <div className="flex items-center gap-2">
             {locked ? (
               <span className="text-[10px] uppercase tracking-wider font-bold text-white/40 px-2 py-0.5 rounded-md bg-white/5 border border-white/10">
-                Premium only
+                {t('celebration.premiumOnly')}
               </span>
             ) : (
               <span className={cn(
                 "text-[10px] uppercase tracking-wider font-bold px-2 py-0.5 rounded-md border",
                 style.text, style.border,
               )}>
-                {rarity}
+                {t(`celebration.${rarity}`)}
               </span>
             )}
           </div>
+
         </div>
       </div>
     </motion.div>

@@ -14,6 +14,21 @@ interface Message {
   content: string;
 }
 
+const LEGACY_PAYMENT_PATTERNS = [
+  /\[WIDGET:\s*TON:/i,
+  /\[WIDGET:\s*STARS:\s*PAY\]/i,
+  /\bTON\b/i,
+  /\bTelegram Stars\b/i,
+  /\bTonkeeper\b/i,
+  /\bWallet\b/i,
+  /\bкошел(?:ек|ёк)\b/i,
+  /\bpay_stars\b/i,
+];
+
+function isLegacyPaymentNoise(content: string): boolean {
+  return LEGACY_PAYMENT_PATTERNS.some((pattern) => pattern.test(content));
+}
+
 interface ChatRequest {
   messages: Message[];
   country?: 'spain' | 'russia';
@@ -46,21 +61,27 @@ interface UsageData {
 }
 
 // System prompt — uses shared module (change in _shared/ai-prompts.ts → applies to bot too)
-const getSystemPrompt = (country: string = 'spain', showComparison: boolean = true, language: string = 'es'): string => {
+const getSystemPrompt = (
+  country: string = 'spain',
+  showComparison: boolean = true,
+  language: string = 'es',
+  premiumContext?: { isPremium: boolean; hasUsedTrial: boolean },
+): string => {
   return getSharedSystemPrompt({
     country,
     language: language as 'ru' | 'en' | 'es',
     showComparison,
     context: 'app',
+    premiumContext,
   });
 };
 
-async function tryGroq(messages: Message[], country: string = 'spain', mode: string = 'chat', showComparison: boolean = true, modelName: string = 'llama-3.1-8b-instant', language: string = 'es'): Promise<Response | null> {
+async function tryGroq(messages: Message[], country: string = 'spain', mode: string = 'chat', showComparison: boolean = true, modelName: string = 'llama-3.1-8b-instant', language: string = 'es', premiumContext?: { isPremium: boolean; hasUsedTrial: boolean }): Promise<Response | null> {
   const apiKey = Deno.env.get('GROQ_API_KEY');
   if (!apiKey) return null;
 
   try {
-    const systemMessage = [{ role: 'system' as const, content: getSystemPrompt(country, showComparison, language) }];
+    const systemMessage = [{ role: 'system' as const, content: getSystemPrompt(country, showComparison, language, premiumContext) }];
 
     const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
@@ -86,12 +107,12 @@ async function tryGroq(messages: Message[], country: string = 'spain', mode: str
   }
 }
 
-async function tryGemini(messages: Message[], country: string = 'spain', mode: string = 'chat', showComparison: boolean = true, language: string = 'es', supabaseClient?: any, userId?: string | null, weakTopicsContext?: string | null, imageUrl?: string | null): Promise<Response | null> {
+async function tryGemini(messages: Message[], country: string = 'spain', mode: string = 'chat', showComparison: boolean = true, language: string = 'es', supabaseClient?: any, userId?: string | null, weakTopicsContext?: string | null, imageUrl?: string | null, premiumContext?: { isPremium: boolean; hasUsedTrial: boolean }): Promise<Response | null> {
   const apiKey = Deno.env.get('GEMINI_API_KEY');
   if (!apiKey) return null;
 
   try {
-    const basePrompt = getSystemPrompt(country, showComparison, language);
+    const basePrompt = getSystemPrompt(country, showComparison, language, premiumContext);
     // Merge client-sent system messages into system_instruction so Gemini sees question context
     const clientSystemContent = messages
       .filter(m => m.role === 'system')
@@ -110,6 +131,13 @@ async function tryGemini(messages: Message[], country: string = 'spain', mode: s
         role: m.role === 'user' ? 'user' : 'model',
         parts: [{ text: m.content }]
       }));
+
+    currentContents = currentContents.filter((entry) => {
+      const text = entry.parts?.map((part: any) => part.text ?? '').join('\n') ?? '';
+      if (!text.trim()) return false;
+      const isLegacyPaymentAssistantMessage = entry.role === 'model' && isLegacyPaymentNoise(text);
+      return !isLegacyPaymentAssistantMessage;
+    });
 
     // Guard: Gemini requires the first turn to be 'user'.
     // Срезаем leading model-сообщения (pre-loaded explanation из store на клиенте).
@@ -299,6 +327,7 @@ Deno.serve(async (req) => {
     let userId: string | null = null;
 
     let isPremiumUser = false;
+    let hasUsedTrial = false;
     let weakTopicsContext: string | null = null;
 
     if (authHeader) {
@@ -323,6 +352,7 @@ Deno.serve(async (req) => {
         
         const premiumUntilDate = profile?.premium_until ? new Date(profile.premium_until) : null;
         const trialUntilDate = profile?.trial_until ? new Date(profile.trial_until) : null;
+        hasUsedTrial = !!profile?.trial_until || profile?.subscription_status === 'trial';
 
         isPremiumUser = profile?.is_premium || 
                         hasPremiumForever || 
@@ -380,10 +410,12 @@ Deno.serve(async (req) => {
       }
     }
 
-    const gemini = await tryGemini(messages, country, mode, showComparison, language, supabaseClient, userId, weakTopicsContext, imageUrl);
+    const premiumContext = { isPremium: isPremiumUser, hasUsedTrial };
+
+    const gemini = await tryGemini(messages, country, mode, showComparison, language, supabaseClient, userId, weakTopicsContext, imageUrl, premiumContext);
     if (gemini) return gemini;
 
-    const groq = await tryGroq(messages, country, mode, showComparison, 'llama-3.1-8b-instant', language);
+    const groq = await tryGroq(messages, country, mode, showComparison, 'llama-3.1-8b-instant', language, premiumContext);
     if (groq) return groq;
 
     return new Response(JSON.stringify({ error: 'AI unavailable' }), { status: 503, headers: corsHeaders });

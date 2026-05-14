@@ -26,6 +26,8 @@ import {
 import { UserAvatar } from '@/components/UserAvatar';
 import { UserContext } from '@/contexts/UserContext';
 import { RankIcon, getRankFromLevel } from '@/components/ranking/RankBadge';
+import { useLanguage } from '@/contexts/LanguageContext';
+
 
 const DuelPassLeaderboardView = lazy(() =>
   import('@/components/leaderboard/DuelPassLeaderboardModal').then(m => ({
@@ -265,9 +267,10 @@ function SlideResult({ data }: { data: CelebrationData }) {
                 ? 'text-green-400 border-green-500/30 bg-green-500/5 shadow-[0_0_20px_rgba(34,197,94,0.1)]' 
                 : 'text-red-400 border-red-500/30 bg-red-500/5 shadow-[0_0_20px_rgba(239,68,68,0.1)]',
             )}>
-              {isPassed ? 'Тест сдан' : 'Попробуй снова'}
+              {isPassed ? t('celebration.testPassed') : t('celebration.tryAgain')}
             </span>
           </motion.div>
+
 
           <motion.div
             initial={{ opacity: 0 }}
@@ -282,8 +285,9 @@ function SlideResult({ data }: { data: CelebrationData }) {
               <span className="text-2xl font-bold text-white/30">/{data.totalQuestions}</span>
             </div>
             <p className="text-sm font-bold text-white/50 tracking-wider uppercase mt-1">
-              правильных ответов
+              {t('celebration.correctAnswers')}
             </p>
+
           </motion.div>
         </div>
       </motion.div>
@@ -296,13 +300,14 @@ function SlideResult({ data }: { data: CelebrationData }) {
         className="flex gap-4"
       >
         <div className="px-6 py-3 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md flex flex-col items-center gap-0.5">
-          <span className="text-[10px] font-black uppercase tracking-widest text-white/30">Точность</span>
+          <span className="text-[10px] font-black uppercase tracking-widest text-white/30">{t('celebration.accuracy')}</span>
           <span className="text-xl font-black text-white">{data.score}%</span>
         </div>
         <div className="px-6 py-3 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md flex flex-col items-center gap-0.5">
-          <span className="text-[10px] font-black uppercase tracking-widest text-white/30">Время</span>
+          <span className="text-[10px] font-black uppercase tracking-widest text-white/30">{t('celebration.time')}</span>
           <span className="text-xl font-black text-white">{fmtTime(data.timeSeconds)}</span>
         </div>
+
       </motion.div>
     </div>
   );
@@ -350,15 +355,17 @@ function LeaderboardClimb({
   onOpenLeaderboard: () => void;
 }) {
   const { prev_rank, new_rank, overtaken } = rankChange;
+  const { t } = useLanguage();
   const climbed = new_rank < prev_rank;
   const overtakenCount = climbed ? prev_rank - new_rank : 0;
 
   const youRow: ClimbRow = {
     key: 'you',
     isYou: true,
-    name: 'Ты',
+    name: t('celebration.you'),
     sp: currentSP,
     rank: prev_rank,
+
     level: 0,
     userId,
   };
@@ -369,9 +376,10 @@ function LeaderboardClimb({
     .map((u) => ({
       key: `o-${u.user_id}`,
       isYou: false,
-      name: u.first_name || u.username || 'Игрок',
+      name: u.first_name || u.username || t('celebration.player'),
       sp: u.sp,
       rank: 0,
+
       level: u.level ?? 0,
       userId: u.user_id,
       photoUrl: u.photo_url,
@@ -424,8 +432,9 @@ function LeaderboardClimb({
     >
       {/* Header */}
       <div className="flex items-center justify-between px-1 text-[10px] uppercase tracking-widest font-black text-white/40">
-        <span>Сезонный рейтинг</span>
+        <span>{t('celebration.seasonRanking')}</span>
         <motion.span
+
           key={animating ? 'after' : 'before'}
           initial={{ opacity: 0, y: -4 }}
           animate={{ opacity: 1, y: 0 }}
@@ -519,8 +528,12 @@ function LeaderboardClimb({
           transition={{ delay: 0.35 }}
           className="text-center text-emerald-400 text-xs font-black tracking-wide"
         >
-          🚀 Ты обогнал {overtakenCount} {overtakenCount === 1 ? 'игрока' : 'игроков'}!
+          {t('celebration.overtookPlayers', { 
+            count: overtakenCount, 
+            plural: t(overtakenCount === 1 ? 'celebration.overtookPlural_one' : 'celebration.overtookPlural_other')
+          })}
         </motion.div>
+
       )}
 
       {/* CTA */}
@@ -528,14 +541,17 @@ function LeaderboardClimb({
         onClick={onOpenLeaderboard}
         className="text-white/50 text-xs font-semibold text-center hover:text-white/80 transition-colors"
       >
-        Полный рейтинг →
+        {t('celebration.fullRanking')}
       </button>
+
     </motion.div>
   );
 }
 
 function SlideSP({ data, onOpenLeaderboard, currentUserId, prefetchedRank, userRealSP }: { data: CelebrationData; onOpenLeaderboard: () => void; currentUserId?: string; prefetchedRank: RankChange | null; userRealSP: number | null }) {
+  const { t } = useLanguage();
   const sp = useCountUp(data.spAwarded, 400);
+
   const nextLevelSP = (data.currentLevel + 1) * 100;
   const prevSP = data.currentSP - data.spAwarded;
   const fillBefore = Math.min(prevSP % 100, 100);
@@ -584,17 +600,19 @@ function SlideSP({ data, onOpenLeaderboard, currentUserId, prefetchedRank, userR
                 transition={{ delay: 0.9 }}
                 className="text-[10px] font-bold px-3 py-1 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30 mt-2"
               >
-                +{data.spAwarded - data.correctCount * 2} бонус 🎯
+                +{data.spAwarded - data.correctCount * 2} {t('celebration.bonus')}
               </motion.span>
+
             )}
           </motion.div>
 
           {/* Level progress */}
           <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.45 }} className="w-full flex flex-col gap-2 bg-white/5 p-4 rounded-2xl border border-white/5">
             <div className="flex justify-between text-[10px] text-white/50 font-black uppercase tracking-wider">
-              <span>Уровень {data.currentLevel}</span>
+              <span>{t('celebration.level')} {data.currentLevel}</span>
               <span className="tabular-nums">{data.currentSP} / {nextLevelSP}</span>
             </div>
+
             <div className="h-3 rounded-full bg-black/40 overflow-hidden relative border border-white/5">
               <motion.div
                 className="absolute left-0 top-0 h-full rounded-full bg-gradient-to-r from-indigo-500 to-violet-500"
@@ -611,9 +629,10 @@ function SlideSP({ data, onOpenLeaderboard, currentUserId, prefetchedRank, userR
           <div className="w-20 h-20 rounded-full bg-indigo-500/15 ring-3 ring-indigo-500/30 flex items-center justify-center mt-2">
             <Trophy className="w-10 h-10 text-indigo-400/60" />
           </div>
-          <span className="text-xs font-black uppercase tracking-[0.2em] text-indigo-400 mt-1">Сезонный лидерборд</span>
-          <p className="text-white/40 text-xs max-w-[220px]">Твоя текущая позиция в сезоне</p>
+          <span className="text-xs font-black uppercase tracking-[0.2em] text-indigo-400 mt-1">{t('celebration.seasonLeaderboard')}</span>
+          <p className="text-white/40 text-xs max-w-[220px]">{t('celebration.currentPosition')}</p>
         </motion.div>
+
       )}
 
       {/* Climb mini-leaderboard (server-powered or client fallback) */}
@@ -633,8 +652,9 @@ function SlideSP({ data, onOpenLeaderboard, currentUserId, prefetchedRank, userR
             transition={{ delay: 0.5 }}
             className="text-white/30 text-xs"
           >
-            Загружаем позицию…
+            {t('celebration.loadingPosition')}
           </motion.div>
+
         )
       )}
     </div>
@@ -644,7 +664,9 @@ function SlideSP({ data, onOpenLeaderboard, currentUserId, prefetchedRank, userR
 type PersonalBestData = { best: number; attempts: number } | null;
 
 function SlidePersonalBest({ data, personalBest }: { data: CelebrationData; personalBest: PersonalBestData }) {
+  const { t } = useLanguage();
   const { correctCount, totalQuestions } = data;
+
   const isFirst   = !personalBest || personalBest.attempts <= 1;
   const isRecord  = !isFirst && correctCount >= personalBest!.best;
   const prevBest  = personalBest?.best ?? correctCount;
@@ -688,8 +710,9 @@ function SlidePersonalBest({ data, personalBest }: { data: CelebrationData; pers
             "text-[10px] font-black uppercase tracking-[0.35em]",
             isRecord || isFirst ? "text-emerald-400" : "text-white/40"
           )}>
-            {isFirst ? 'Первый результат' : isRecord ? 'Новый рекорд' : 'Личный рекорд'}
+            {isFirst ? t('celebration.firstResult') : isRecord ? t('celebration.newRecord') : t('celebration.personalBest')}
           </span>
+
 
           {/* Score display */}
           {isRecord && !isFirst ? (
@@ -712,29 +735,35 @@ function SlidePersonalBest({ data, personalBest }: { data: CelebrationData; pers
         {/* Bottom context */}
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6 }} className="w-full">
           {isFirst && (
-            <p className="text-white/40 text-sm">Рекорд установлен — теперь есть что побить 🔥</p>
+            <p className="text-white/40 text-sm">{t('celebration.recordSet')}</p>
           )}
+
           {isRecord && !isFirst && (
             <div className="flex items-center justify-center gap-2 px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/20">
-              <span className="text-emerald-400 font-black text-sm">+{correctCount - prevBest} к рекорду 🎉</span>
+              <span className="text-emerald-400 font-black text-sm">+{correctCount - prevBest}{t('celebration.toRecord')}</span>
             </div>
           )}
+
           {!isFirst && !isRecord && (
             <div className="w-full bg-white/5 rounded-2xl border border-white/5 p-4 flex flex-col gap-3">
               <div className="flex justify-between text-sm font-bold">
-                <span className="text-white/40">Сегодня</span>
+                <span className="text-white/40">{t('celebration.today')}</span>
                 <span className="text-white/80">{correctCount}/{totalQuestions}</span>
               </div>
               <div className="flex justify-between text-sm font-bold">
-                <span className="text-emerald-400">Рекорд</span>
+                <span className="text-emerald-400">{t('celebration.record')}</span>
                 <span className="text-emerald-300">{prevBest}/{totalQuestions}</span>
               </div>
               <div className="h-px bg-white/5" />
               <p className="text-[11px] text-white/30 font-bold uppercase tracking-wider">
-                Ещё {gap} {gap === 1 ? 'ответ' : gap < 5 ? 'ответа' : 'ответов'} до рекорда
+                {t('celebration.moreToRecord', {
+                  count: gap,
+                  plural: t(gap === 1 ? 'celebration.moreToRecordPlural_one' : gap < 5 ? 'celebration.moreToRecordPlural_few' : 'celebration.moreToRecordPlural_other')
+                })}
               </p>
             </div>
           )}
+
         </motion.div>
       </motion.div>
     </div>
@@ -742,7 +771,9 @@ function SlidePersonalBest({ data, personalBest }: { data: CelebrationData; pers
 }
 
 function SlideXP({ data }: { data: CelebrationData }) {
+  const { t } = useLanguage();
   const xp = useCountUp(data.xpAwarded, 400);
+
   return (
     <div className="flex flex-col items-center justify-center h-full gap-8 px-8 text-center">
       <motion.div
@@ -768,21 +799,24 @@ function SlideXP({ data }: { data: CelebrationData }) {
         </motion.div>
 
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="flex flex-col items-center gap-1">
-          <span className="text-[10px] font-black uppercase tracking-[0.4em] text-amber-400">Опыт заработан</span>
+          <span className="text-[10px] font-black uppercase tracking-[0.4em] text-amber-400">{t('celebration.xpEarned')}</span>
           <div className="flex items-baseline gap-1 mt-1">
             <span className="text-2xl font-bold text-white/40">+</span>
             <span className="text-8xl font-black text-white tabular-nums leading-none">{xp}</span>
             <span className="text-3xl font-bold text-amber-400 ml-1">XP</span>
           </div>
-          <p className="text-white/40 text-xs font-bold uppercase tracking-widest mt-4">Ты продвигаешься к мастерству 🎓</p>
+          <p className="text-white/40 text-xs font-bold uppercase tracking-widest mt-4">{t('celebration.movingToMastery')}</p>
         </motion.div>
+
       </motion.div>
     </div>
   );
 }
 
 function SlideTopics({ topics, onPractice }: { topics: string[]; onPractice: () => void }) {
+  const { t } = useLanguage();
   const shown = topics.slice(0, 4);
+
   return (
     <div className="flex flex-col items-center justify-center h-full gap-7 px-8 text-center">
       <motion.div
@@ -801,9 +835,10 @@ function SlideTopics({ topics, onPractice }: { topics: string[]; onPractice: () 
         </motion.div>
 
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="flex flex-col items-center gap-1">
-          <span className="text-[10px] font-black uppercase tracking-[0.4em] text-orange-400">Поработай над</span>
-          <p className="text-white/40 text-xs font-bold tracking-widest uppercase">Эти темы стоит повторить</p>
+          <span className="text-[10px] font-black uppercase tracking-[0.4em] text-orange-400">{t('celebration.workOn')}</span>
+          <p className="text-white/40 text-xs font-bold tracking-widest uppercase">{t('celebration.topicsToReview')}</p>
         </motion.div>
+
 
         <motion.ul initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.45 }} className="w-full flex flex-col gap-3">
           {shown.map((topic, i) => (
@@ -827,13 +862,16 @@ function SlideTopics({ topics, onPractice }: { topics: string[]; onPractice: () 
 }
 
 function SlideExamReadiness({ before, after }: { before: number; after: number }) {
+  const { t } = useLanguage();
   const delta = after - before;
+
   const afterCount = useCountUp(after, 500, 1000);
 
   const label =
-    after >= 90 ? 'Ты готов к экзамену! 🏆' :
-    after >= 70 ? 'Отличный прогресс! Продолжай так' :
-    'Каждый тест повышает готовность';
+    after >= 90 ? t('celebration.readyForExam') :
+    after >= 70 ? t('celebration.excellentProgress') :
+    t('celebration.everyTestIncreases');
+
 
   return (
     <div className="flex flex-col items-center justify-center h-full gap-6 px-8 text-center">
@@ -855,7 +893,8 @@ function SlideExamReadiness({ before, after }: { before: number; after: number }
         </motion.div>
 
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }} className="flex flex-col items-center gap-2">
-          <span className="text-[10px] font-black uppercase tracking-[0.35em] text-cyan-400">Готовность к экзамену</span>
+          <span className="text-[10px] font-black uppercase tracking-[0.35em] text-cyan-400">{t('celebration.examReadiness')}</span>
+
 
           <div className="flex items-center gap-3 mt-1">
             <span className="text-3xl font-black text-white/30 tabular-nums">{before}%</span>
@@ -869,9 +908,10 @@ function SlideExamReadiness({ before, after }: { before: number; after: number }
             transition={{ delay: 0.9 }}
             className="flex items-center gap-1 px-4 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/30 mt-1"
           >
-            <span className="text-cyan-400 font-black text-sm">+{delta}% к готовности ↑</span>
+            <span className="text-cyan-400 font-black text-sm">+{delta}%{t('celebration.toReadiness')}</span>
           </motion.div>
         </motion.div>
+
 
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }} className="w-full flex flex-col gap-2">
           <div className="h-3 rounded-full bg-black/40 overflow-hidden border border-white/5">
@@ -897,7 +937,9 @@ function SlideExamReadiness({ before, after }: { before: number; after: number }
 }
 
 function SlideCTA({ data, onRetry, onDetails, todayTestCount }: { data: CelebrationData; onRetry: () => void; onDetails: () => void; todayTestCount: number }) {
+  const { t } = useLanguage();
   return (
+
     <div className="flex flex-col items-center justify-center h-full gap-8 px-8 text-center">
       <motion.div
         initial={{ opacity: 0, scale: 0.9, y: 20 }}
@@ -916,13 +958,14 @@ function SlideCTA({ data, onRetry, onDetails, todayTestCount }: { data: Celebrat
 
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }} className="flex flex-col gap-3 items-center">
           <h2 className="text-4xl font-black text-white tracking-tight">
-            {data.isPassed ? 'Отличная работа!' : 'Не сдавайся!'}
+            {data.isPassed ? t('celebration.greatJob') : t('celebration.dontGiveUp')}
           </h2>
           <p className="text-white/40 text-sm font-medium leading-relaxed max-w-[260px] mx-auto uppercase tracking-widest">
             {data.isPassed
-              ? 'Ты отлично справился с этим тестом. Продолжай в том же духе!'
-              : 'Каждая попытка делает тебя сильнее. Повтори темы и попробуй снова!'}
+              ? t('celebration.passedDesc')
+              : t('celebration.failedDesc')}
           </p>
+
           {todayTestCount >= 2 && (
             <motion.div
               initial={{ opacity: 0, scale: 0.85 }}
@@ -931,9 +974,10 @@ function SlideCTA({ data, onRetry, onDetails, todayTestCount }: { data: Celebrat
               className="flex items-center gap-2 px-4 py-2 rounded-full bg-orange-500/10 border border-orange-500/20 mt-1"
             >
               <span className="text-orange-400 font-black text-sm">
-                🔥 Это твой {todayTestCount}-й тест сегодня!
+                {t('celebration.todayTestCount', { count: todayTestCount })}
               </span>
             </motion.div>
+
           )}
         </motion.div>
 
@@ -947,15 +991,17 @@ function SlideCTA({ data, onRetry, onDetails, todayTestCount }: { data: Celebrat
             ) : (
               <RefreshCw className="w-5 h-5 text-indigo-600 group-hover:rotate-180 transition-transform duration-500" />
             )}
-            <span>{data.isPassed ? 'Следующий тест' : 'Попробовать снова'}</span>
+            <span>{data.isPassed ? t('celebration.nextTest') : t('celebration.tryAgain')}</span>
           </button>
+
           <button
             onClick={onDetails}
             className="w-full py-4 rounded-[1.5rem] border border-white/10 text-white/50 font-bold text-sm hover:bg-white/5 transition-all flex items-center justify-center gap-2"
           >
             <Clock className="w-4 h-4" />
-            <span>Детали теста</span>
+            <span>{t('celebration.testDetails')}</span>
           </button>
+
         </motion.div>
       </motion.div>
     </div>
@@ -975,8 +1021,10 @@ const SLIDE_SOUNDS: Record<SlideId, () => void> = {
 };
 
 export function TestResultsCelebrationFlow({ data, onFinish, onRetry }: Props) {
+  const { t } = useLanguage();
   const userCtx = useContext(UserContext);
   const currentUserId = userCtx?.profileId ?? undefined;
+
 
   // State must be declared before slides array (which depends on examReadinessData)
   const [current, setCurrent] = useState(0);
@@ -1158,8 +1206,9 @@ export function TestResultsCelebrationFlow({ data, onFinish, onRetry }: Props) {
             onClick={(e) => { e.stopPropagation(); handleDone(); }}
             className="text-white/30 text-sm font-medium hover:text-white/60 transition-colors"
           >
-            Пропустить
+            {t('celebration.skip')}
           </button>
+
         )}
       </div>
 
@@ -1212,7 +1261,8 @@ export function TestResultsCelebrationFlow({ data, onFinish, onRetry }: Props) {
             className="w-full py-5 rounded-[2rem] bg-white text-zinc-950 font-black text-lg tracking-wide active:scale-[0.96] transition-all duration-300 shadow-[0_20px_50px_-12px_rgba(255,255,255,0.4)] flex items-center justify-center gap-3 group overflow-hidden relative"
           >
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-zinc-200/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
-            <span className="relative z-10">Дальше</span>
+            <span className="relative z-10">{t('celebration.next')}</span>
+
             <motion.span 
               className="relative z-10"
               animate={{ x: [0, 5, 0] }}
@@ -1234,18 +1284,19 @@ export function TestResultsCelebrationFlow({ data, onFinish, onRetry }: Props) {
             className="flex items-center justify-between px-4 pb-2"
             style={{ paddingTop: SAFE_TOP }}
           >
-            <span className="text-white font-black text-base">Лидерборд сезона</span>
+            <span className="text-white font-black text-base">{t('celebration.seasonLeaderboardTitle')}</span>
             <button
               onClick={() => setLeaderboardOpen(false)}
               className="px-3 py-1.5 rounded-xl bg-white/10 text-white/80 text-sm font-semibold active:scale-95"
             >
-              ✕ Закрыть
+              ✕ {t('celebration.close')}
             </button>
           </div>
           <div className="flex-1 overflow-y-auto">
             <Suspense fallback={
-              <div className="flex items-center justify-center h-40 text-white/40 text-sm">Загрузка…</div>
+              <div className="flex items-center justify-center h-40 text-white/40 text-sm">{t('celebration.loading')}</div>
             }>
+
               <DuelPassLeaderboardView
                 onBack={() => setLeaderboardOpen(false)}
                 onOpenHallOfFame={() => {}}

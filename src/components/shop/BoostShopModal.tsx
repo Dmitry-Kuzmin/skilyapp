@@ -212,8 +212,6 @@ export function BoostShopModal({
   const showStarsPayment = isTWA;
   const showCryptomusPayment = isPaymentMethodAvailable('cryptomus', currentPlatform);
   const showPaddlePayment = isPaymentMethodAvailable('paddle', currentPlatform);
-  const showTonPayment = false; // TON_DISABLED: isPaymentMethodAvailable('ton', currentPlatform);
-  const tonAddress: string | null = null; // TON_DISABLED: useTonAddress();
 
   const handleBuyClick = useCallback((pack: any) => {
     setSelectedPack(pack);
@@ -1193,11 +1191,6 @@ export function BoostShopModal({
       setIsPaymentSelectorOpen(false);
     }
   }, [selectedPack, handleCoinPurchase]);
-
-  // TON_DISABLED: TON payment handler removed. To restore, uncomment imports and this block.
-  const handleTonPurchase = useCallback(async () => {
-    // TON_DISABLED: implementation removed
-  }, [selectedPack]);
 
   // ОПТИМИЗАЦИЯ: useCallback для предотвращения лишних ререндеров дочерних компонентов
   const handlePurchase = useCallback(
@@ -2295,12 +2288,10 @@ export function BoostShopModal({
           loadData();
           setIsPaymentSelectorOpen(false);
         }}
-        onTonClick={handleTonPurchase}
         onCryptoClick={handleCryptomusPurchase}
         onCardClick={handleCardPurchase}
         availability={{
           stars: showStarsPayment,
-          ton: false, // TON_DISABLED: isPaymentMethodAvailable('ton', currentPlatform),
           crypto: isPaymentMethodAvailable('cryptomus', currentPlatform),
           card: isPaymentMethodAvailable('paddle', currentPlatform)
         }}

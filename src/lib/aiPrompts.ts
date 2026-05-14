@@ -30,6 +30,11 @@ export interface AIQuestionContext {
     imageUrl?: string | null;
 }
 
+export interface AIPremiumContext {
+    isPremium: boolean;
+    hasUsedTrial: boolean;
+}
+
 import { getRussiaChatPrompt, getRussiaDebriefPrompt } from './prompts/russia';
 import { getSpainChatPrompt, getSpainDebriefPrompt } from './prompts/spain';
 
@@ -125,7 +130,8 @@ export function generateAIChatPrompt(
     questionContext?: AIQuestionContext,
     country: string = 'russia',
     studentStats?: AIStudentStats,
-    language?: string
+    language?: string,
+    premiumContext?: AIPremiumContext
 ): string {
     const targetLang = getAIInstructionLanguage(language); // Язык ответа (напр. 'Russian')
 
@@ -136,10 +142,10 @@ export function generateAIChatPrompt(
         : "Тон: Профессиональный, краткий, 'военный'. Сразу к сути.";
 
     if (country === 'spain') {
-        return getSpainChatPrompt(questionContext, studentStats, isBeginner, toneInstruction, targetLang);
+        return getSpainChatPrompt(questionContext, studentStats, isBeginner, toneInstruction, targetLang, premiumContext);
     }
 
-    return getRussiaChatPrompt(questionContext, studentStats, isBeginner, toneInstruction, targetLang);
+    return getRussiaChatPrompt(questionContext, studentStats, isBeginner, toneInstruction, targetLang, premiumContext);
 }
 
 /**

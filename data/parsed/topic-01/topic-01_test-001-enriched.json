@@ -1354,43 +1354,43 @@
     "question_number": 28,
     "category": "B",
     "question": {
-      "es": "¿Circula correctamente el vehículo amarillo?",
-      "en": "Is the yellow vehicle driving correctly?",
-      "ru": "Правильно ли движется желтый легковой автомобиль?"
+      "es": "¿Circula correctamente el vehículo?",
+      "en": "Is the vehicle driving correctly?",
+      "ru": "Правильно ли движется легковой автомобиль?"
     },
     "answers": [
       {
-        "id": "a",
+        "id": "opt_0",
         "text": {
-          "es": "Sí, porque circula a más de 70 km/h.",
-          "en": "Yes, because it is driving at more than 70 km/h.",
-          "ru": "Да, так как он движется со скоростью более 70 км/ч."
-        },
-        "is_correct": false
-      },
-      {
-        "id": "b",
-        "text": {
-          "es": "Si, porque puede circular por el carril que más convenga a su destino.",
-          "en": "Yes, because it can drive in the lane that best suits its destination.",
-          "ru": "Да, так как он может двигаться по полосе, наиболее удобной для его маршрута."
-        },
-        "is_correct": false
-      },
-      {
-        "id": "c",
-        "text": {
+          "ru": "Нет, потому что правая полоса свободна.",
           "es": "No, porque está libre el carril de la derecha.",
-          "en": "No, because the right lane is free.",
-          "ru": "Нет, потому что правая полоса свободна."
+          "en": "No, because the right lane is free."
         },
         "is_correct": true
+      },
+      {
+        "id": "opt_1",
+        "text": {
+          "ru": "Да, так как он движется со скоростью более 70 км/ч.",
+          "es": "Sí, porque circula a más de 70 km/h.",
+          "en": "Yes, because it is driving at more than 70 km/h."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "opt_2",
+        "text": {
+          "ru": "Да, так как он может двигаться по полосе, наиболее удобной для его маршрута.",
+          "es": "Si, porque puede circular por el carril que más convenga a su destino.",
+          "en": "Yes, because it can drive in the lane that best suits its destination."
+        },
+        "is_correct": false
       }
     ],
     "explanation": {
       "es": "En vías fuera de poblado con más de un carril para el mismo sentido, la norma general obliga a circular por el carril situado más a la derecha. Los carriles restantes (central e izquierdo) se utilizarán solo cuando las circunstancias del tráfico o de la vía lo aconsejen (por ejemplo, para un adelantamiento), y a condición de no entorpecer la marcha de otro vehículo que nos siga. Aunque la señal indique una velocidad mínima obligatoria de 70 km/h para los carriles central e izquierdo, esto no exime de la obligación de volver al carril derecho en cuanto sea posible si este se encuentra libre.",
       "en": "On roads outside built-up areas with more than one lane in the same direction, the general rule requires driving in the lane furthest to the right. The remaining lanes (center and left) should only be used when traffic or road conditions advise it (for example, for overtaking), and provided that you do not hinder another vehicle following you. Although the sign indicates a mandatory minimum speed of 70 km/h for the center and left lanes, this does not exempt you from the obligation to return to the right lane as soon as possible if it is free.",
-      "ru": "🎓 На дорогах вне населенных пунктов (fuera de poblado) действует жесткое правило: **всегда держись правой полосы** (Carril derecho).\n\nЗнак с синим фоном и цифрой «70» над центральной и левой полосами означает лишь одно: если вы *вынуждены* выехать на эти полосы (например, для обгона), ваша скорость должна быть не менее 70 км/ч. Однако этот знак **не дает права** ехать по ним постоянно, если правая полоса пуста.\n\nВ данной ситуации правая полоса свободна, поэтому водитель обязан перестроиться вправо, независимо от своей скорости.\n\n2️⃣ **💡 **\nЗапомни принцип «Дом и Гости»:\n• Правая полоса — это твой **Дом** (живи там).\n• Левые полосы — это **Гости** (зашел обогнать — и сразу домой).\n\nФраза «полоса, удобная для маршрута» (вариант B) работает **только в городе**. На трассе — только правая!"
+      "ru": "🎓 На дорогах вне населенных пунктов (fuera de poblado) действует жесткое правило: **всегда держись правой полосы** (Carril derecho).\n\nЗнак с синим фоном и цифрой «70» над центральной и левой полосами означает лишь одно: если вы *вынуждены* выехать на эти полосы (например, для обгона), ваша скорость должна быть не менее 70 км/ч. Однако этот знак **не дает права** ехать по ним постоянно, если правая полоса пуста.\n\nВ данной ситуации правая полоса свободна, поэтому водитель обязан перестроиться вправо, независимо от своей скорости.\n\n2️⃣ **💡 **\nЗапомни принцип «Дом и Гости»:\n• Правая полоса — это твой **Дом** (живи там).\n• Левые полосы — это **Гости** (зашел обогнать — и сразу домой).\n\nФраза «полоса, удобная для маршрута» работает **только в городе**. На трассе — только правая!"
     },
     "image_url": "https://teorica.practicavial.com/question/5d9281b1-b067-445e-b115-3854fe1693e5-1651514703-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/5d9281b1-b067-445e-b115-3854fe1693e5-s-1.jpg",

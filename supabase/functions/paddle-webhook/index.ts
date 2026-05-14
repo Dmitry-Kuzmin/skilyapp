@@ -6,6 +6,10 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
+const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+const NOTIFICATION_SENDER_URL = `${SUPABASE_URL}/functions/v1/notification-sender`;
+
 interface PaddleTransaction {
   id: string;
   custom_data?: Record<string, any>;
@@ -25,6 +29,36 @@ interface Purchase {
   item_type: string;
   item_id: string;
   metadata?: Record<string, any>;
+}
+
+async function sendInAppMonetizationNotification(params: {
+  userId: string;
+  templateType: string;
+  title: string;
+  message: string;
+  deeplink?: string;
+}) {
+  try {
+    await fetch(NOTIFICATION_SENDER_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
+      },
+      body: JSON.stringify({
+        user_id: params.userId,
+        template_type: params.templateType,
+        title: params.title,
+        message: params.message,
+        icon: "credit-card",
+        cta_text: "Открыть",
+        cta_deeplink: params.deeplink || "dashboard",
+        force: true,
+      }),
+    });
+  } catch (e) {
+    console.warn("[paddle-webhook] Notification send failed (non-blocking):", e);
+  }
 }
 
 async function verifyPaddleSignature(payload: string, signatureHeader: string, signatureKey: string): Promise<boolean> {
@@ -130,11 +164,52 @@ serve(async (req) => {
           }).catch(() => { });
         }
 
+        // In-app + push/telegram notification (non-blocking)
+        if (itemType === "premium") {
+          const isTrial = purchaseCatalogKey.includes("trial");
+          await sendInAppMonetizationNotification({
+            userId,
+            templateType: isTrial ? "trial_started" : "purchase_completed",
+            title: isTrial ? "Пробный период активирован" : "Оплата прошла успешно",
+            message: isTrial
+              ? "Premium активирован на 3 дня. Удачи в подготовке!"
+              : "Premium активирован. Спасибо за поддержку!",
+            deeplink: "dashboard",
+          });
+        } else if (itemType === "coins_pack") {
+          const coins = purchase.metadata?.coins || 0;
+          await sendInAppMonetizationNotification({
+            userId,
+            templateType: "purchase_completed",
+            title: "Покупка успешна",
+            message: `Начислено монет: ${coins}`,
+            deeplink: "dashboard",
+          });
+        }
+
         return new Response(JSON.stringify({ success: true }), { headers: corsHeaders });
       }
 
       case "transaction.payment_failed": {
-        await supabase.from("purchases").update({ status: "failed", metadata: { paddle_webhook_data: event.data } }).eq("paddle_transaction_id", event.data.id);
+        const txId = event.data.id;
+        await supabase.from("purchases").update({ status: "failed", metadata: { paddle_webhook_data: event.data } }).eq("paddle_transaction_id", txId);
+
+        // Best-effort: try to notify user
+        const { data: failedPurchase } = await supabase
+          .from("purchases")
+          .select("user_id, item_type")
+          .eq("paddle_transaction_id", txId)
+          .maybeSingle() as { data: { user_id: string; item_type: string } | null };
+
+        if (failedPurchase?.user_id) {
+          await sendInAppMonetizationNotification({
+            userId: failedPurchase.user_id,
+            templateType: "payment_failed",
+            title: "Платёж не прошёл",
+            message: "Попробуй другой способ оплаты или повтори попытку позже.",
+            deeplink: "pricing",
+          });
+        }
         return new Response(JSON.stringify({ success: true }), { headers: corsHeaders });
       }
 
@@ -215,6 +290,25 @@ serve(async (req) => {
           paddle_subscription_id: event.data.id,
           metadata: { paddle_subscription_data: event.data },
         }).eq("paddle_subscription_id", event.data.id);
+
+        // Best-effort: notify (in-app)
+        const { data: subPurchase } = await supabase
+          .from("purchases")
+          .select("user_id")
+          .eq("paddle_subscription_id", event.data.id)
+          .order("created_at", { ascending: false })
+          .limit(1)
+          .maybeSingle() as { data: { user_id: string } | null };
+
+        if (subPurchase?.user_id) {
+          await sendInAppMonetizationNotification({
+            userId: subPurchase.user_id,
+            templateType: "subscription_cancelled",
+            title: "Подписка отменена",
+            message: "Доступ сохранится до конца оплаченного периода.",
+            deeplink: "dashboard",
+          });
+        }
         return new Response(JSON.stringify({ success: true }), { headers: corsHeaders });
       }
 

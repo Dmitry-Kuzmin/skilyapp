@@ -113,3 +113,45 @@ export async function hasServiceWorkers(): Promise<boolean> {
   }
 }
 
+/**
+ * Глобальный "Супер-сброс": Очищает абсолютно всё
+ */
+export async function perfectReset(): Promise<void> {
+  console.log('[ClearSW] 🚀 Запуск полного сброса данных (Perfect Reset)...');
+  
+  try {
+    // 1. Очищаем хранилища
+    localStorage.clear();
+    sessionStorage.clear();
+    console.log('[ClearSW] LocalStorage & SessionStorage очищены');
+
+    // 2. Очищаем Cookies
+    document.cookie.split(";").forEach((c) => {
+        document.cookie = c
+            .replace(/^ +/, "")
+            .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+    });
+    console.log('[ClearSW] Cookies очищены');
+
+    // 3. Очищаем IndexedDB
+    const databases = await indexedDB.databases();
+    for (const db of databases) {
+        if (db.name) {
+            indexedDB.deleteDatabase(db.name);
+        }
+    }
+    console.log('[ClearSW] IndexedDB очищены');
+
+    // 4. Очищаем Service Worker и CacheStorage
+    await unregisterServiceWorkers();
+    await clearAllCaches();
+    
+    console.log('[ClearSW] ✅ Полный сброс завершен успешно');
+    
+    // Перезагрузка без подтверждения (мы уже спросим в UI)
+    window.location.href = '/';
+  } catch (error) {
+    console.error('[ClearSW] Ошибка при полном сбросе:', error);
+    throw error;
+  }
+}

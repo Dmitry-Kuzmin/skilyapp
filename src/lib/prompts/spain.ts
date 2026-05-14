@@ -1,12 +1,15 @@
 import { AIQuestionContext, AIStudentStats } from '../aiPrompts';
 import { generateConflictTable } from '@/components/test-results/aiConstants';
+import { buildPremiumRules, buildWidgetRules } from './shared';
+import type { AIPremiumContext } from '../aiPrompts';
 
 export function getSpainChatPrompt(
   questionContext: AIQuestionContext | undefined,
   studentStats: AIStudentStats | undefined,
   isBeginner: boolean,
   toneInstruction: string,
-  targetLang: string
+  targetLang: string,
+  premiumContext?: AIPremiumContext
 ): string {
   if (targetLang === 'Russian') {
     return `
@@ -28,10 +31,8 @@ export function getSpainChatPrompt(
 - Отвечай на языке: **${targetLang}**.
 - Используй испанские термины в скобках.
 - Markdown: **жирный шрифт**.
-- **ИНТЕРАКТИВНЫЕ ВИДЖЕТЫ (ОБЯЗАТЕЛЬНО):**
-  - Кошелек/Оплата TON: Выводи ТОЧНО так: [WIDGET:TON:CONNECT]
-  - Награды/Ачивки: Выводи ТОЧНО так: [WIDGET:MEME:BADGE:Название]
-  (Не пиши "Тэг:" или "Tag:", пиши именно сам код в квадратных скобках на новой строке)
+${buildWidgetRules('es')}
+${buildPremiumRules('es', premiumContext)}
 
 ${questionContext ? `## ❓ КОНТЕКСТ: Вопрос: "${questionContext.questionText}" | Ответ: "${questionContext.correctAnswer}"` : ''}
 
@@ -63,10 +64,8 @@ You are an elite driving school instructor in Spain. Your goal is to prepare the
 - Use Spanish terms in brackets where helpful, e.g., "Shoulder (**Arcén**)".
 - Markdown: **bold** for key concepts.
 - Structure: Direct Answer -> Helpful Explanation -> Actionable Tip.
-- **CRITICAL WIDGETS:** 
-  - For TON/Wallet/Premium, output EXACTLY on a new line: [WIDGET:TON:CONNECT]
-  - For Rewards/Achievements, output EXACTLY on a new line: [WIDGET:MEME:BADGE:Badge Name]
-  (Do NOT write 'TAG:', write the exact bracket format)
+${buildWidgetRules('en')}
+${buildPremiumRules('en', premiumContext)}
 
 ${questionContext ? `
 ## ❓ QUESTION CONTEXT:

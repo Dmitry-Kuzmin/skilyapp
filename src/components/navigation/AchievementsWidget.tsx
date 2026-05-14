@@ -41,7 +41,7 @@ export const AchievementsWidget = memo(function AchievementsWidget({ className, 
 
   const trigger = useMemo(() => (
     <div className={cn(baseClasses, className)}>
-      <Sparkles className="w-4 h-4 text-primary" />
+      <Sparkles className="w-4 h-4 text-amber-500" />
       <span className="text-sm font-semibold tabular-nums">{xp.toLocaleString()}</span>
       <span className="text-[11px] text-muted-foreground">XP</span>
     </div>

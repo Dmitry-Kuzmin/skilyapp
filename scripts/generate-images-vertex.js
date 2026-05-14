@@ -77,6 +77,7 @@ OUTPUT FORMAT: Structured breakdown.
 4. SIGNS: VISUAL DESCRIPTION ONLY. 
    - BAD: "P-18 present"
    - GOOD: "Yellow triangular warning sign with construction worker symbol".
+   - **PERSPECTIVE**: State if the car icon on the sign is facing FORWARD (front view) or SIDE (profile).
    - NO TEXT CODES in description.
 5. MARKINGS:
    - Center: Continuous or Dashed? White or Yellow?
@@ -87,13 +88,14 @@ OUTPUT FORMAT: Structured breakdown.
 7. ENVIRONMENT: Lighting, Weather, Surrounding (Urban/Rural).
 8. SCENARIO: Objective description of situation (Overtaking, Junction, Parking).
 9. TRAJECTORIES: Describe arrow paths (Color, Start/End).
+10. SUBJECT_TYPE: Write exactly "SUBJECT_TYPE: SIGN" if it's an isolated traffic sign on white/plain background. Write "SUBJECT_TYPE: PERSON" if it's a traffic controller/person on white background. Write "SUBJECT_TYPE: SCENE" if it's a real-world road scene with multiple elements.
 
 ACCURACY IS PARAMOUNT. FLAG LOGICAL ERRORS.`;
 
-const STYLE_MASTER_PROMPT = `STYLE: Unreleased Unreal Engine 5 rendering. Spanish DGT Driving Test Digital Twin.
+const STYLE_MASTER_PROMPT = `STYLE: High-End Photorealistic Automotive Cinema. Ultra-realistic 8k, Unreal Engine 5.4 render style, physically based rendering (PBR), cinematic raytraced lighting, global illumination, subsurface scattering on skin/plastic.
+CAMERA: Cinematic, Dynamic, Professional. Deep depth of field, sharp focus on primary subject, soft natural bokeh in background.
 
 ## VISUAL SPECS:
-- PROJECTION: Isometric Top-Down (45°).
 - RENDER: Photorealistic, 8K textures, Ray-traced lighting (Daylight).
 - COMPOSITION: Full-frame, edge-to-edge terrain (NO black voids).
 
@@ -110,12 +112,7 @@ const STYLE_MASTER_PROMPT = `STYLE: Unreleased Unreal Engine 5 rendering. Spanis
 - **FAIL CONDITION**: If the image contains text like "R-500", "P-18", "Obras", or a text plate, the generation is a FAILURE.
 
 ## NEGATIVE PROMPT (AVOID THESE AT ALL COSTS):
-- **TEXT LABELS**: "R-500", "P-18", "Obras", "R-407a", "End", "Speed", "Limit", "Zona".
-- **FLOATING UI**: White boxes with text, HUD elements, code identifiers.
-- **SIGN CAPTIONS**: Rectangular plates (White/Yellow) attached to sign poles.
-- **AMERICAN MARKINGS**: Double yellow lines (use White).
-- **HALLUCINATED SIGNS**: Do not add random signs not requested.
-- **Watermarks, Captions, Subtitles**.
+River, water, stream, bridge over water, lake, sea waves, text labels, "R-500", "P-18", "Obras", "R-407a", "End", "Speed", "Limit", "Zona", floating UI, sign captions, white boxes with text, HUD elements, code identifiers, American yellow center lines, watermarks, captions, subtitles, cartoon, 2D, flat style, low poly, toy cars, miniature scale.
 
 ## INFRASTRUCTURE:
 1. AUTOPISTA: DUAL carriageway. MUST have PHYSICAL MEDIAN (concrete/grass).
@@ -124,7 +121,7 @@ const STYLE_MASTER_PROMPT = `STYLE: Unreleased Unreal Engine 5 rendering. Spanis
 
 ## VEHICLES:
 - MODELS: Modern 2024+ European & Electric (Tesla Model 3/Y, Cupra Formentor, Polestar, Audi Q4, Renault Megane E-Tech, Seat Leon).
-- DETAIL: Realistic lights, glass, tires.
+- DETAIL: Realistic lights, glass, tires, Clear coat reflections.
 - PLACEMENT: Strictly centered in lanes (unless overtaking/parking).
 
 ## OVERLAYS:
@@ -136,15 +133,13 @@ const STYLE_MASTER_PROMPT = `STYLE: Unreleased Unreal Engine 5 rendering. Spanis
 - SIGNS vs LANES: 3-lane sign requires 3 actual lanes.
 - BARRIERS: High speed = Barrier required.
 
-## SPANISH ATMOSPHERE & MODERN INFRASTRUCTURE (MANDATORY: INCLUDE AT LEAST 1 MODERN ELEMENT IF FITTING):
+## SPANISH ATMOSPHERE & MODERN INFRASTRUCTURE:
 - **MODERN DGT & EU INFRASTRUCTURE (2025+)**:
    - **V-16 Warning Beacon**: **STRICTLY CONDITIONAL**: Draw ONLY if car is BROKEN DOWN, STOPPED on shoulder, or in ACCIDENT. Small orange magnetic light on roof. **NEVER** on moving traffic.
-   - **Dragon Teeth & Broken Lines**: White triangles or zig-zag lines on lane edges ("Dientes de Dragón") to induce slowing down.
-   - **Green Lines (Markings)**: Inner paint lines parallel to shoulder to visually narrow the road (Speed reduction).
-   - **ZBE & Shared Zones**: "Zona Bajas Emisiones" signs or Blue "S-43" Shared Space signs (Pedestrian+Bike+Scooter).
-   - **Smart Roads**: Digital Matrix Signs on gantries showing variable limits or "Cyclist Detected" warnings.
-   - **EV Hubs**: Ultra-modern "Ionity/Tesla" style charging stations with green ambient lighting (Background).
-   - **Blue/Green Lanes**: "Carril Bici" or "Ciclocalle" markings with red/terracotta paint.
+   - **Dragon Teeth & Broken Lines**: White triangles or zig-zag lines on lane edges ("Dientes de Dragón").
+   - **Green Lines (Markings)**: Inner paint lines parallel to shoulder.
+   - **ZBE & Shared Zones**: "Zona Bajas Emisiones" signs or Blue "S-43" Shared Space signs.
+   - **EV Hubs**: Ultra-modern "Ionity/Tesla" style charging stations (Background).
 
 - **STREET LIFE (Inject Life - Subtly)**:
    - "Bar" terraces with metal tables.
@@ -152,13 +147,11 @@ const STYLE_MASTER_PROMPT = `STYLE: Unreleased Unreal Engine 5 rendering. Spanis
    - "Tabacos" (Yellow flag).
    - "Kiosco" (Newsstand).
    - **Robots (Unique to Urban)**: "Goggo" 6-wheeled rovers on sidewalk.
-   - **Drones (Rare)**: High-altitude delivery drone (subtle).
-   - **Traffic**: Modern electric buses (Irizar), VMP Scooters (in bike lanes only).
 
 {{DYNAMIC_ATMOSPHERE_PLACEHOLDER}}
 
 **IMPORTANT: BE SUBTLE. DO NOT CROWD THE ROAD, BUT MAKE THE HORIZON ALIVE. TRAFFIC LOGIC IS SACRED, BACKGROUND IS ART.**
-**IMPORTANT: BE SUBTLE. DO NOT CROWD THE SCENE. LET THE AI CHOOSE THE BEST VIBE.**
+**IMPORTANT: NO RIVERS. NO WATER STREAMS.**
 
 GENERATE EXACT SCENE FROM DESCRIPTION.`;
 
@@ -178,6 +171,72 @@ function loadCheckpoint() {
 
 function saveCheckpoint(checkpoint) {
     fsSync.writeFileSync(CONFIG.checkpointFile, JSON.stringify({ ...checkpoint, processed: Array.from(checkpoint.processed) }, null, 2));
+}
+
+function detectSubjectType(visionAnalysis) {
+    if (typeof visionAnalysis !== 'string') return 'SCENE';
+    const upper = visionAnalysis.toUpperCase();
+    if (upper.includes('SUBJECT_TYPE: SIGN')) return 'SIGN';
+    if (upper.includes('SUBJECT_TYPE: PERSON')) return 'PERSON';
+    return 'SCENE';
+}
+
+function buildStrictCopyPrompt(subjectType = 'SCENE') {
+    if (subjectType === 'SIGN') {
+        const SIGN_BACKDROPS = [
+            "Asturian mountain valley: jagged limestone peaks, vivid emerald-green meadows, dramatic sky, wet reflective road",
+            "Cantabrian coastline: rugged cliffs, deep navy ocean with white foam, moody silver sky",
+            "Basque green hills: rolling bright-green farmland, traditional stone houses, winding country road",
+            "Galician forest: dense ancient eucalyptus trees, morning sun-rays, intense green ferns",
+            "Pyrenean alpine pass: high mountain road, rocky peaks, crystal-clear blue sky",
+            "Basque clifftops: intense neon-green grass over deep cliffs, beautiful coastal landscape"
+        ];
+        const backdrop = SIGN_BACKDROPS[Math.floor(Math.random() * SIGN_BACKDROPS.length)];
+
+        return `ROLE: Photorealistic DGT Sign Renderer.
+TASK: Render the traffic sign from the reference as a photorealistic standalone object.
+
+## SIGN FIDELITY:
+1. **EXACT SIGN**: Shape, color, and symbol must be IDENTICAL to the reference. 
+2. **POLE**: Mount it on a standard weathered metal pole by the side of a road.
+3. **NO EXTRA VEHICLES**: The sign is the focus.
+
+## BACKGROUND (NORTHERN SPAIN):
+${backdrop}
+
+## QUALITY:
+8K cinematic photography. Real materials (reflective enamel sign, galvanized steel pole). Sharp focus on the sign, soft bokeh on the background. 3D depth, NOT flat.
+
+## NEGATIVE PROMPT:
+River, water, 2D, flat, cartoon, text labels, cars, people.`;
+    }
+
+    if (subjectType === 'PERSON') {
+        return `ROLE: Photorealistic DGT Scenario Builder.
+TASK: Render a real human traffic controller in professional high-visibility uniform on a real road.
+
+## FIDELITY:
+1. **GESTURE LOCK**: Match the pose and gesture from the reference EXACTLY.
+2. **UNIFORM**: Professional Spanish DGT Traffic Agent uniform (yellow/orange high-vis).
+3. **STRICTLY NO SIGNS**: Do NOT draw this person inside a traffic sign or on a board. They are a REAL person on a REAL road.
+
+## QUALITY:
+Photorealistic 8K, cinematic lighting, realistic skin textures. Natural depth of field.
+
+## NEGATIVE PROMPT:
+River, sign frame, circular border, triangular border, cartoon, 2D, flat.`;
+    }
+
+    return `ROLE: Photorealistic DGT Scene Rebuilder.
+TASK: Faithfully rebuild the reference scenario as a cinematic photorealistic image.
+
+## FIDELITY:
+1. **COMPOSITION**: Match camera angle and layout EXACTLY.
+2. **ENVIRONMENT**: Lush Northern Spanish scenery (NO RIVERS).
+3. **QUALITY**: 8K Photorealism, Unreal Engine 5.4 style, raytraced reflections.
+
+## NEGATIVE PROMPT:
+River, water, plastic look, toy cars, cartoon, 2D, flat.`;
 }
 
 // RANDOMIZATION ASSETS (Dynamic Diversity)
@@ -320,8 +379,13 @@ async function generateImageVertex(prompt, attempt = 1) {
 // PREPARE PROMPT LOGIC
 // ==========================================
 function preparePrompt(question, visionAnalysis) {
-    // ... copy logic from original
-    let prompt;
+    const subjectType = detectSubjectType(visionAnalysis);
+
+    // Check for "Strict Copy" flag in custom logic (usually passed via question object)
+    if (question.strictCopy) {
+        return buildStrictCopyPrompt(subjectType);
+    }
+
     if (question.custom_prompt) {
         console.log(`   🎨 Используем кастомный промт пользователя`);
         return question.custom_prompt;
@@ -342,14 +406,14 @@ function preparePrompt(question, visionAnalysis) {
     if (question.explanation) {
         explanationText = typeof question.explanation === 'string' ? question.explanation : (question.explanation.en || question.explanation.es || "");
     }
-    explanationText = explanationText.replace(/\*\*/g, '').replace(/\*/g, '');
+    explanationText = explanationText.replace(/\*\*/g, '').replace(/\*\*/g, '');
 
     const isUnregulated = textToScan.includes('sin señalizar') || (textToScan.includes('prioridad') && textToScan.includes('derecha')) || textToScan.includes('unregulated') || isPriorityRightContext;
     const isCarrilAdicional = textToScan.includes('carril adicional') || textToScan.includes('additional lane') || explanationText.toLowerCase().includes('carril adicional');
     const isBrokenTrafficLight = textToScan.includes('semáforo apagado') || textToScan.includes('no funciona') || textToScan.includes('intermitente') || questionText.toLowerCase().includes('amarillo intermitente');
 
     const dynamicAtmosphere = getRandomAtmosphere();
-    prompt = `${STYLE_MASTER_PROMPT.replace('{{DYNAMIC_ATMOSPHERE_PLACEHOLDER}}', dynamicAtmosphere)}
+    let prompt = `${STYLE_MASTER_PROMPT.replace('{{DYNAMIC_ATMOSPHERE_PLACEHOLDER}}', dynamicAtmosphere)}
 
 ## SCENE TO GENERATE:
 Based on original DGT test image analysis:
@@ -373,6 +437,7 @@ ${isBrokenTrafficLight ? `## 🚦 SPECIAL RULES: BROKEN TRAFFIC LIGHT\nLights OF
 - Road markings: WHITE ONLY
 - NO text labels
 - Trajectory arrows must show SAFE paths
+- NO RIVERS, NO WATER.
 
 GENERATE EXACT SCENE.`;
 

@@ -115,13 +115,13 @@ OUTPUT FORMAT: Structured breakdown.
 7. ENVIRONMENT: Lighting, Weather, Surrounding (Urban/Rural).
 8. SCENARIO: Objective description of situation (Overtaking, Junction, Parking).
 9. TRAJECTORIES: Describe arrow paths (Color, Start/End).
-10. IS_SIGN_ONLY: Write exactly "IS_SIGN_ONLY: TRUE" (all caps) if the image is strictly an isolated traffic sign graphic on a white/plain/transparent background with NO road, NO vehicles, NO real-world context. Write "IS_SIGN_ONLY: FALSE" otherwise.
+10. SUBJECT_TYPE: Write exactly "SUBJECT_TYPE: SIGN" if it's an isolated traffic sign on white/plain background. Write "SUBJECT_TYPE: PERSON" if it's a traffic controller/person on white background. Write "SUBJECT_TYPE: SCENE" if it's a real-world road scene with multiple elements.
 
 ACCURACY IS PARAMOUNT. FLAG LOGICAL ERRORS.`;
 
 const STYLE_MASTER_PROMPT = `
-STYLE: High-End Photorealistic Automotive Simulation. 8k resolution, Unbiased Rendering (Octane/Redshift style), Global Illumination.
-CAMERA: Cinematic, Dynamic, Professional. (Use Low-Angle for heroic urban shots, High-Angle/Drone for clear rural overviews, Over-Shoulder for interior). Avoid flat, boring angles.
+STYLE: High-End Photorealistic Automotive Cinema. Ultra-realistic 8k, Unreal Engine 5.4 render style, physically based rendering (PBR), cinematic raytraced lighting, global illumination, subsurface scattering on skin/plastic.
+CAMERA: Cinematic, Dynamic, Professional. (Use Low-Angle for heroic urban shots, High-Angle/Drone for clear rural overviews, Over-Shoulder for interior). Deep depth of field, sharp focus on primary subject, soft natural bokeh in background.
 LOCATION: {{DYNAMIC_LOCATION_PLACEHOLDER}}
 
 ### 🛑 VISUAL CONSTITUTION & CRITICAL DGT RULES
@@ -160,7 +160,7 @@ LOCATION: {{DYNAMIC_LOCATION_PLACEHOLDER}}
 {{DYNAMIC_BRANDING_PLACEHOLDER}}
 
 ## NEGATIVE PROMPT:
-Cluttered scene, cartoon, low poly, ugly text, huge sci-fi buildings, flying cars, watermarks, signature, blurry, distorted, accident, crash, dead body, injury, blood, collision, smashed car, dented car, broken glass, violence, tragedy, gore, road warning triangle, red triangle on road, text labels, R-407a, P-18, Obras, sign code, white plate below sign, yellow plate below sign, sign caption, text on pole, American yellow center lines, floating cars, toy car, plastic car, simplified geometry, miniature car, doll car, action figure, scaled-down vehicles, playroom aesthetics.
+River, water stream, bridge over water, lake, sea waves near road, cluttered scene, cartoon, 2D, flat style, low poly, ugly text, huge sci-fi buildings, flying cars, watermarks, signature, blurry, distorted, accident, crash, dead body, injury, blood, collision, smashed car, dented car, broken glass, violence, tragedy, gore, road warning triangle, red triangle on road, text labels, R-407a, P-18, Obras, sign code, white plate below sign, yellow plate below sign, sign caption, text on pole, American yellow center lines, floating cars, toy car, plastic car, simplified geometry, miniature car, doll car, action figure, scaled-down vehicles, playroom aesthetics.
 
 ## INFRASTRUCTURE & LOGIC (DGT STANDARDS):
 1. **MARKINGS**: WHITE lines only (No yellow US lines).
@@ -169,73 +169,80 @@ Cluttered scene, cartoon, low poly, ugly text, huge sci-fi buildings, flying car
 
 GENERATE EXACT SCENE FROM DESCRIPTION.`;
 
-function detectSignOnly(visionAnalysis) {
-    if (typeof visionAnalysis !== 'string') return false;
+function detectSubjectType(visionAnalysis) {
+    if (typeof visionAnalysis !== 'string') return 'SCENE';
     const upper = visionAnalysis.toUpperCase();
-    // Match "IS_SIGN_ONLY: TRUE", "IS_SIGN_ONLY:TRUE", "IS_SIGN_ONLY: YES", etc.
-    return /IS_SIGN_ONLY\s*:\s*(TRUE|YES|1)\b/.test(upper);
+    if (upper.includes('SUBJECT_TYPE: SIGN')) return 'SIGN';
+    if (upper.includes('SUBJECT_TYPE: PERSON')) return 'PERSON';
+    return 'SCENE';
 }
 
 // ==========================================
 // STRICT COPY PROMPT (точное копирование + живой фон Испании)
 // ==========================================
-function buildStrictCopyPrompt(isSignOnly = false) {
-    if (isSignOnly) {
-        // Pick a random Northern Spain backdrop for variety
+function buildStrictCopyPrompt(subjectType = 'SCENE', visionAnalysis = '') {
+    if (subjectType === 'SIGN') {
+        // Pick a random Northern Spain backdrop for variety (NO RIVERS)
         const SIGN_BACKDROPS = [
-            "Asturian mountain valley: jagged limestone peaks (Picos de Europa), vivid neon-green meadows, dramatic storm-clearing sky with golden rays breaking through dark clouds, wet reflective asphalt road stretching into the distance",
-            "Cantabrian coastline: rugged Atlantic cliffs, deep blue-grey ocean, white sea foam on rocks below, moody overcast sky with bright silver light, coastal road visible in the background",
-            "Basque green hills: rolling emerald farmland dotted with traditional stone farmhouses (Baserri), soft diffuse overcast light, lush hedgerows, winding country road behind the sign",
-            "Galician forest road: dense magical eucalyptus forest, thick morning fog with golden god-rays filtering through the canopy, mossy stone walls, mysterious and lush green atmosphere",
-            "Pyrenean alpine pass: high mountain road, snow patches on rocky peaks, crystal-clear cold blue sky, crisp clean air, dramatic scale — sign in sharp focus against the epic backdrop",
-            "Basque coast cliffs: ocean far below, intense green clifftop grass, stormy dramatic sky, lighthouse visible in the far distance",
-            "Cantabrian green valley: river gorge below, ancient stone bridge in background, soft morning mist, warm dappled light through trees"
+            "Asturian mountain valley: jagged limestone peaks (Picos de Europa), vivid emerald-green meadows, dramatic storm-clearing sky with golden rays, wet reflective asphalt road",
+            "Cantabrian coastline: rugged Atlantic cliffs, deep navy ocean with white foam, moody silver sky, coastal road in background",
+            "Basque green hills: rolling bright-green farmland, traditional stone houses, lush flowering hedgerows, winding country road",
+            "Galician forest: dense ancient eucalyptus trees, morning sun-rays through leaves, mossy stone walls, intense green ferns",
+            "Pyrenean alpine pass: high mountain road, rocky peaks, crystal-clear blue sky, crisp natural light, majestic scale",
+            "Basque clifftops: intense neon-green grass over deep cliffs, stormy sky, beautiful coastal landscape in far distance",
+            "Cantabrian meadow: lush rolling hills covered in yellow flowers and green grass, distant mountains, soft morning sunlight"
         ];
         const backdrop = SIGN_BACKDROPS[Math.floor(Math.random() * SIGN_BACKDROPS.length)];
 
         return `ROLE: Photorealistic DGT Sign Renderer.
-TASK: You are given a REFERENCE IMAGE showing a DGT road sign. Render it as a photorealistic standalone sign on a pole, exactly as shown. The sign is the hero — the background is a stunning Northern Spanish landscape.
+TASK: Render the traffic sign from the reference as a photorealistic standalone object.
 
-## SIGN FIDELITY (ABSOLUTE):
-1. **EXACT SIGN**: Reproduce the sign's shape, color, symbol, and proportions precisely — no changes, no additions to the sign itself.
-2. **NO VEHICLES**: Do NOT add any cars, motorcycles, trucks, or any vehicle whatsoever.
-3. **NO EXTRA OBJECTS**: No robots, no Skily branding elements, no people.
-4. **POLE**: Place the sign on a standard metal pole by the roadside.
+## SIGN FIDELITY:
+1. **EXACT SIGN**: Shape, color, and symbol must be IDENTICAL to the reference. 
+2. **POLE**: Mount it on a standard weathered metal pole by the side of a road.
+3. **NO EXTRA VEHICLES**: The sign is the focus.
 
-## BACKGROUND — NORTHERN SPAIN (MAKE IT BEAUTIFUL):
+## BACKGROUND (NORTHERN SPAIN):
 ${backdrop}
 
-The background should feel cinematic and immersive — shallow depth of field, sign in sharp focus, landscape beautifully blurred behind it.
-
 ## QUALITY:
-Cinematic photorealistic 8K. Real metal pole with bolts and texture. Real painted enamel sign surface with subtle reflections. Natural dramatic lighting from the environment.
+8K cinematic photography. Real materials (reflective enamel sign, galvanized steel pole). Sharp focus on the sign, soft bokeh on the beautiful background landscape. 3D depth, NOT flat.
 
 ## NEGATIVE PROMPT:
-Cars, vehicles, trucks, motorcycles, robots, Skily car, people, complex traffic scenes, busy intersections, invented sign elements, watermarks, text labels, cartoon style, flat grey sky, boring flat fields.`;
+River, water, 2D, flat, cartoon, text labels, cars, people, robots.`;
+    }
+
+    if (subjectType === 'PERSON') {
+        return `ROLE: Photorealistic DGT Scenario Builder.
+TASK: The reference shows a person (Traffic Controller/Regulator). Render them as a real human in a professional high-visibility uniform on a real road.
+
+## FIDELITY:
+1. **GESTURE LOCK**: The person must be in the EXACT same pose and gesture as in the reference.
+2. **UNIFORM**: Professional Spanish DGT Traffic Agent uniform (yellow/orange high-vis).
+3. **ENVIRONMENT**: Place them on a realistic road with lush green Northern Spanish landscape in the background.
+4. **STRICTLY NO SIGNS**: Do NOT draw this person inside a traffic sign or on a sign board. They are a REAL person on a REAL road.
+
+## QUALITY:
+Photorealistic 8K, cinematic lighting, realistic skin textures, high-quality fabric folds. Natural depth of field.
+
+## NEGATIVE PROMPT:
+River, sign frame, circular border, triangular border, cartoon, 2D, flat, toy-like, robots, futuristic cars.`;
     }
 
     return `ROLE: Photorealistic DGT Scene Rebuilder — Skily Edition.
-TASK: You are given a REFERENCE IMAGE of a DGT driving test scenario. Faithfully rebuild it as a cinematic photorealistic image with Skily branding and a Northern Spanish natural environment. DO NOT invent new road elements.
+TASK: Faithfully rebuild the reference scenario as a cinematic photorealistic image.
 
-## ROAD FIDELITY (ABSOLUTE — DO NOT CHANGE):
-1. **COMPOSITION LOCK**: Identical camera angle, framing, and perspective.
-2. **LAYOUT LOCK**: Every road object (vehicles, signs, markings, barriers) stays in the EXACT same position and lane.
-3. **SIGN ACCURACY**: Reproduce ONLY the signs visible in the reference — symbol, shape, color. ZERO invented signs. NO catalog code text on signs.
-4. **MARKINGS**: Replicate all road markings exactly — dashed, solid, crosswalk, arrows — WHITE ONLY (Spanish DGT standard).
-5. **INFRASTRUCTURE**: Same road type, lane count, shoulders, and barriers.
-6. **SITUATION**: The traffic scenario (who is where, what is happening) must match the reference exactly.
+## FIDELITY (ABSOLUTE):
+1. **COMPOSITION & LAYOUT**: Camera angle, vehicle positions, road markings must match the reference EXACTLY.
+2. **SIGN ACCURACY**: Replicate visible signs precisely. NO invented signs.
 
-## UPGRADE — APPLY THESE IMPROVEMENTS:
-7. **VEHICLES → SKILY**: Replace any vehicles with the Skily hero car — White/Blue hatchback with Electric Cyan accents and metallic automotive paint. Real reflections, real proportions. NOT plastic, NOT toy-like. If the scene requires a truck/bus, keep its type but give it a clean modern look — NO Skily livery on trucks.
-8. **ENVIRONMENT → NORTHERN SPAIN**: Transform the background into a natural Northern Spanish landscape — lush green hills, Asturian/Cantabrian/Basque scenery, dramatic but clean sky. Cinematic natural lighting (soft golden hour or crisp daylight).
-9. **QUALITY → PHOTOREALISTIC**: Cinematic 8K photography quality. Real asphalt texture (grain, slight wear). Real sky with volumetric light. No flat lighting, no cartoon style.
-
-## SKILY BRAND SAFETY:
-- Skily vehicles must NEVER be involved in accidents or illegal maneuvers.
-- Skily vehicles must always be parked legally or driving safely.
+## STYLE & ENVIRONMENT:
+3. **VEHICLES**: Skily hero car (White/Blue electric hatchback) for the main car. Other vehicles are modern and realistic.
+4. **ENVIRONMENT**: Lush Northern Spanish scenery — green hills, beautiful landscapes, cinematic sky. (STRICTLY NO RIVERS).
+5. **QUALITY**: 8K Photorealism, Unreal Engine 5.4 style, raytraced reflections, volumetric light. Natural 3D depth, NO flat lighting.
 
 ## NEGATIVE PROMPT:
-Plastic cars, toy cars, simplified geometry, low poly, cartoon style, miniature scale, tilt-shift, doll-like proportions, invented signs, yellow road lines (USA style), added text labels, watermarks, generic grey flat sky, boring flat fields, changed road layout, missing signs from original, extra vehicles not in reference.`;
+River, water, stream, plastic look, toy cars, cartoon, 2D, flat, low poly, invented signs, yellow road lines, extra text.`;
 }
 
 
@@ -333,16 +340,27 @@ const SPAIN_REGIONS = [
 // SKILY_VARIANTS replaced by skily-universe.js (pickSkilyElement)
 
 
-function getSkilyBranding(text, isSafetyCritical = false, isSignOnly = false) {
-    // 0. SIGN ONLY OVERRIDE:
-    if (isSignOnly) {
+function getSkilyBranding(text, isSafetyCritical = false, subjectType = 'SCENE') {
+    // 0. SUBJECT OVERRIDES:
+    if (subjectType === 'SIGN') {
         return {
-            location: "Neutral, slightly blurred urban backdrop or clean studio gradient. Minimalist setting.",
+            location: "Northern Spain: Lush green mountain roadside or beautiful meadow (NO RIVERS).",
             branding: `## BRANDING DISARMED (PURE SIGN FOCUS):
 **NEUTRALITY RULE**: The original image is just a sign graphic.
-1. DO NOT draw complex landscapes (no mountains, coastlines, or busy traffic).
+1. DO NOT draw complex urban traffic.
 2. DO NOT add vehicles, branding, or robots.
-3. Focus 100% on making the sign itself photorealistic and perfectly legible against a simple, uncluttered background.`
+3. Focus 100% on making the sign itself photorealistic and perfectly legible against a beautiful Northern Spanish landscape.`
+        };
+    }
+
+    if (subjectType === 'PERSON') {
+        return {
+            location: "Northern Spain: Professional asphalt road with intense green landscape and cinematic sky (NO RIVERS).",
+            branding: `## HUMAN FOCUS:
+1. Render a real human traffic agent in official DGT uniform.
+2. Position them correctly on a realistic road.
+3. NO robot elements, NO branding on the person.
+4. The background is a stunning Spanish landscape.`
         };
     }
 
@@ -478,9 +496,9 @@ async function generateImage(question, visionAnalysis, attempt = 1, useBackup = 
             console.warn(`   ⚠️  image_url не найден в данных вопроса`);
         }
         // Pure copy — no creative additions, no invented locations or elements
-        const isSignOnly = detectSignOnly(visionAnalysis);
-        if (isSignOnly) console.log(`   🚦 STRICT COPY: sign-only detected — skipping vehicle branding`);
-        prompt = buildStrictCopyPrompt(isSignOnly);
+        const subjectType = detectSubjectType(visionAnalysis);
+        if (subjectType !== 'SCENE') console.log(`   🚦 STRICT COPY: ${subjectType} detected — adjusting prompt`);
+        prompt = buildStrictCopyPrompt(subjectType, visionAnalysis);
     } else if (question.custom_prompt) {
         console.log(`   🎨 Используем кастомный промт пользователя`);
         prompt = question.custom_prompt;
@@ -607,11 +625,11 @@ async function generateImage(question, visionAnalysis, attempt = 1, useBackup = 
         const hasPoliceInOriginal = typeof visionAnalysis === 'string' &&
             (visionAnalysis.toLowerCase().includes('police') || visionAnalysis.toLowerCase().includes('officer'));
 
-        const isSignOnly = detectSignOnly(visionAnalysis);
+        const subjectType = detectSubjectType(visionAnalysis);
 
         // INJECT SKILY BRANDING (SUBTLE MODE)
-        // Pass isEmergencyV16 to disable branding in accidents, and isSignOnly for isolated signs
-        const branding = getSkilyBranding(textToScan, isEmergencyV16, isSignOnly);
+        // Pass isEmergencyV16 to disable branding in accidents, and subjectType for isolated elements
+        const branding = getSkilyBranding(textToScan, isEmergencyV16, subjectType);
         prompt = `${STYLE_MASTER_PROMPT.replace('{{DYNAMIC_LOCATION_PLACEHOLDER}}', branding.location).replace('{{DYNAMIC_BRANDING_PLACEHOLDER}}', branding.branding)}
 
 ## SCENE TO GENERATE:
@@ -656,12 +674,14 @@ ${isMovingTraffic ? `
 1. **AUTHORITY SCENE**: Incorporate Spanish Traffic Police (Guardia Civil) in professional uniforms. 
 2. **POSITION**: They should be standing near a patrol vehicle or by the roadside, interacting with the scene.
 3. **PATROL VEHICLE**: A distinctive white and green Spanish Guardia Civil patrol car with blue flashing lights (Siren) is highly recommended to illustrate the context.
-` : (detectSignOnly(visionAnalysis) ? `
-1. **PURE SIGN CONTEXT**: The original is an isolated sign. Place it realistically on a pole on the right-hand SIDEWALK of a professional city street.
+` : (subjectType === 'SIGN' ? `
+1. **PURE SIGN CONTEXT**: The original is an isolated sign. Place it realistically on a pole on the right-hand SIDEWALK of a professional city street with lush greenery.
 2. **NO OBSTRUCTIONS**: Ensure the sign is perfectly visible and readable, not blocked by any elements.
+` : (subjectType === 'PERSON' ? `
+1. **PERSON FOCUS**: The original is an isolated regulator icon. Render them as a real human traffic controller in DGT uniform standing on a realistic road with a beautiful green landscape.
 ` : `
 1. **SCENE STABILITY**: Recreate the elements exactly as described in analysis. If no vehicles are mentioned, focus on characters or infrastructure.
-`)))}
+`))))}
 
 - Professional 3D automotive style
 - Premium educational quality

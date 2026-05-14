@@ -77,8 +77,8 @@ serve(async (req) => {
       console.error('[AuthEventHandler] Error fetching profile:', profileError);
     }
 
-    if (!profile || !profile.telegram_id) {
-      return new Response(JSON.stringify({ success: true, skipped: true, reason: 'no_telegram_profile' }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    if (!profile) {
+      return new Response(JSON.stringify({ success: true, skipped: true, reason: 'no_profile' }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
 
     const dispatcherPayload: DispatcherPayload = {

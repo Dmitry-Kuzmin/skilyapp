@@ -1,6 +1,6 @@
 /**
  * auto-publish.js
- * Playwright automation: uploads rendered MP4 videos to TikTok, YouTube, Instagram.
+ * Playwright automation: uploads rendered MP4 videos to TikTok, YouTube, Instagram, Facebook.
  * Uses a dedicated Chrome profile (chrome-profile/) — login once, works forever.
  *
  * Usage:
@@ -8,6 +8,8 @@
  *   node scripts/auto-publish.js --es renders/video-es.mp4 --skip-instagram
  *
  * Caption data is read from renders/publish-data.json (written by morning-pipeline.js)
+ * Facebook auth: run `node scripts/setup-login.js fb` once to save session.
+ * Facebook pages: add FB_PAGE_NAME_ES and FB_PAGE_NAME_RU to .env (page URL slugs).
  */
 
 const { chromium } = require("playwright-core");
@@ -18,6 +20,7 @@ const CHROME_PATH = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrom
 // Auth state files saved by setup-login.js (storageState = cookies + localStorage)
 const AUTH_ES = path.join(__dirname, "../auth-state-es.json");
 const AUTH_RU = path.join(__dirname, "../auth-state-ru.json");
+const AUTH_FB = path.join(__dirname, "../auth-state-fb.json"); // Facebook — один аккаунт для обеих страниц
 const RENDERS_DIR = path.join(__dirname, "../renders");
 const PUBLISH_DATA_FILE = path.join(RENDERS_DIR, "publish-data.json");
 const LOG_FILE = path.join(__dirname, "../auto-publish.log");
@@ -38,9 +41,20 @@ const hasFlag = (name) => args.includes(name);
 
 const esVideo = getArg("--es");
 const ruVideo = getArg("--ru");
-const skipTikTok = hasFlag("--skip-tiktok");
-const skipYouTube = hasFlag("--skip-youtube");
+const skipTikTok    = hasFlag("--skip-tiktok");
+const skipYouTube   = hasFlag("--skip-youtube");
 const skipInstagram = hasFlag("--skip-instagram");
+const skipFacebook  = hasFlag("--skip-facebook");
+const skipPinterest = hasFlag("--skip-pinterest");
+
+// ── Load .env ─────────────────────────────────────────────────────────────────
+const ROOT_DIR = path.join(__dirname, "..");
+try {
+  fs.readFileSync(path.join(ROOT_DIR, ".env"), "utf-8").split("\n").forEach(line => {
+    const m = line.match(/^([A-Z_][A-Z0-9_]*)=(.+)$/);
+    if (m && !process.env[m[1]]) process.env[m[1]] = m[2].trim();
+  });
+} catch {}
 
 // ── Load caption data ─────────────────────────────────────────────────────────
 let publishData = { es: {}, ru: {} };
@@ -65,6 +79,34 @@ function getCaption(lang, platform) {
   const explanation = cleanMarkdown(d.explanation || "");
   const num = String(d.seriesNumber || "").padStart(3, "0");
 
+  if (platform === "pinterest") {
+    // Pinterest: title (≤100 chars) + description (≤500 chars) + link
+    const pinTags = lang === "ru"
+      ? `#ПДДИспании #DGT #РусскиевИспании #Skily #ВодительскиеПрава`
+      : `#DGT #ExamenDGT #CarnetDeConducir #Skily #AutoescuelaEspaña`;
+    const pinCta = lang === "ru"
+      ? `📌 Сохрани — пригодится перед экзаменом!\n👉 Тренируйся бесплатно: skilyapp.com`
+      : `📌 ¡Guárdalo para el examen!\n👉 Practica gratis: skilyapp.com`;
+    return {
+      title:       hookTitle.slice(0, 100),
+      description: `${hookTitle}\n\n${pinCta}\n\n${pinTags}`.slice(0, 500),
+    };
+  }
+
+  if (platform === "facebook") {
+    // Facebook Reels: same caption style as TikTok, shorter hashtags
+    const fbTags = lang === "ru"
+      ? `#ПДДИспании #DGT #РусскиевИспании #Skily`
+      : `#DGT #ExamenDGT #CarnetDeConducir #Skily`;
+    const commentCta = lang === "ru"
+      ? `✍️ Напиши: 1 — знал, 0 — не знал 👇\n💾 Сохрани — пригодится перед экзаменом`
+      : `✍️ Escribe: 1 — lo sabías, 0 — fallaste 👇\n💾 Guárdalo — te ayudará en el examen`;
+    return {
+      title:       hookTitle,
+      description: `${hookTitle}\n\n${commentCta}\n\n${fbTags}`,
+    };
+  }
+
   if (platform === "youtube") {
     const title = d.youtubeTitle || hookTitle;
     const desc = d.youtubeDescription || (
@@ -79,9 +121,14 @@ function getCaption(lang, platform) {
     ? `#ПДДИспании #ИспанскиеПрава #DGT #РусскиевИспании #ЖизньвИспании #Skily #ЭкзаменDGT #ВодительскиеПрава`
     : `#DGT #ExamenDGT #CarnetDeConducir #Autoescuela #PreguntaDGT #Conducir #Skily #ExamenConducir`;
 
+  // CTA: комментарий + сохранение — ключевые сигналы для алгоритма
+  const commentCta = lang === "ru"
+    ? `✍️ Напиши: 1 — знал, 0 — не знал 👇\n💾 Сохрани — пригодится перед экзаменом`
+    : `✍️ Escribe: 1 — lo sabías, 0 — fallaste 👇\n💾 Guárdalo — te ayudará en el examen`;
+
   const caption = lang === "ru"
-    ? `${hookTitle}\n\n📚 Объяснение: ${explanation}\n\n${tags}`
-    : `${hookTitle}\n\n📚 Explicación: ${explanation}\n\n${tags}`;
+    ? `${hookTitle}\n\n${commentCta}\n\n${tags}`
+    : `${hookTitle}\n\n${commentCta}\n\n${tags}`;
 
   return { title: hookTitle, description: caption, caption };
 }
@@ -339,17 +386,21 @@ async function uploadYouTube(context, videoPath, lang) {
 
     const { title, description } = getCaption(lang, "youtube");
 
-    // Fill title (first textbox) — clear existing text then type
+    // Fill title — clipboard paste (быстро, не зависит от длины)
     const titleEl = page.locator("#textbox").first();
     await titleEl.click();
-    await page.keyboard.press("Meta+A");  // Select all (macOS)
-    await titleEl.type(title, { delay: 15 });
+    await page.keyboard.press("Meta+A");
+    await page.evaluate((t) => navigator.clipboard.writeText(t), title);
+    await page.keyboard.press("Meta+V");
     plog("  ✓ Title filled");
 
-    // Fill description (second textbox)
+    // Fill description — clipboard paste (type() таймаутит на длинных текстах с эмодзи)
     const descEl = page.locator("#textbox").nth(1);
+    await descEl.waitFor({ state: "visible", timeout: 10000 });
     await descEl.click();
-    await descEl.type(description, { delay: 5 });
+    await page.keyboard.press("Meta+A");
+    await page.evaluate((t) => navigator.clipboard.writeText(t), description);
+    await page.keyboard.press("Meta+V");
     plog("  ✓ Description filled");
 
     // Answer "Not made for kids" — required before Next
@@ -385,51 +436,169 @@ async function uploadYouTube(context, videoPath, lang) {
     await page.screenshot({ path: "/tmp/youtube-visibility.png" });
     plog("  📍 Visibility page URL:", page.url());
 
-    // Try multiple selectors for the Public radio
-    const publicLocator = page.locator([
-      "tp-yt-paper-radio-button[name='PUBLIC']",
-      "ytcp-text-dropdown-trigger",
-      "div[test-id='PUBLIC']",
-      "label:has-text('Public')",
-      "label:has-text('Публичный')",
-      "#privacy-radios tp-yt-paper-radio-button:first-child",
-    ].join(", ")).first();
+    // ── Выбор "Открытый доступ" ─────────────────────────────────────────────
+    // Polymer web components (tp-yt-paper-radio-button) игнорируют Playwright .click()
+    // из-за Shadow DOM. Решение: getBoundingClientRect() → page.mouse.click() по координатам.
+    {
+      // Ждём появления радио-кнопок
+      await page.waitForSelector("tp-yt-paper-radio-button", { timeout: 10000 });
+      await delay(500);
 
-    try {
-      await publicLocator.waitFor({ timeout: 8000 });
-      await publicLocator.click();
-      plog("  ✓ Set to Public");
-    } catch {
-      plog("  ⚠️  Public radio not found, trying to publish as-is...");
+      // Получаем координаты кнопки PUBLIC через evaluate
+      const radioCoords = await page.evaluate(() => {
+        // Вариант 1: по атрибуту name="PUBLIC"
+        let radio = document.querySelector("tp-yt-paper-radio-button[name='PUBLIC']");
+        // Вариант 2: последняя кнопка в группе (Public всегда последняя из трёх)
+        if (!radio) {
+          const all = [...document.querySelectorAll("tp-yt-paper-radio-button")];
+          radio = all[all.length - 1] || null;
+        }
+        if (!radio) return null;
+        const r = radio.getBoundingClientRect();
+        // Кликаем по кружку (левая часть элемента)
+        return { x: r.left + 14, y: r.top + r.height / 2, name: radio.getAttribute("name") };
+      });
+
+      if (radioCoords) {
+        await page.mouse.click(radioCoords.x, radioCoords.y);
+        await delay(600);
+        plog(`  ✓ Clicked Public radio via mouse at (${radioCoords.x.toFixed(0)}, ${radioCoords.y.toFixed(0)}) name="${radioCoords.name}"`);
+      } else {
+        plog("  ⚠️  tp-yt-paper-radio-button not found in DOM");
+      }
+
+      // Проверяем что выбор зафиксировался — смотрим на selected в radio-group
+      const selectedVal = await page.evaluate(() => {
+        const group = document.querySelector("tp-yt-paper-radio-group");
+        return group?.selected || group?.getAttribute("selected") || "";
+      });
+      plog(`  📍 Radio group selected: "${selectedVal}"`);
+      await page.screenshot({ path: "/tmp/youtube-after-public-click.png" });
+
+      if (selectedVal !== "PUBLIC") {
+        // Запасной вариант: имитируем прямой клик через JS dispatch
+        plog("  ⚠️  Still not PUBLIC — trying JS dispatchEvent...");
+        await page.evaluate(() => {
+          const radio = document.querySelector("tp-yt-paper-radio-button[name='PUBLIC']")
+            || [...document.querySelectorAll("tp-yt-paper-radio-button")].at(-1);
+          if (radio) {
+            ["mousedown", "mouseup", "click"].forEach(t =>
+              radio.dispatchEvent(new MouseEvent(t, { bubbles: true, cancelable: true }))
+            );
+          }
+        });
+        await delay(500);
+        const selectedVal2 = await page.evaluate(() => {
+          const group = document.querySelector("tp-yt-paper-radio-group");
+          return group?.selected || group?.getAttribute("selected") || "";
+        });
+        plog(`  📍 After dispatch: "${selectedVal2}"`);
+        if (selectedVal2 !== "PUBLIC") {
+          await page.screenshot({ path: `/tmp/youtube-no-public-${lang}.png` });
+          throw new Error(`YouTube: не удалось выбрать Открытый доступ (selected="${selectedVal2}"). Скрин: /tmp/youtube-no-public-${lang}.png`);
+        }
+      }
     }
 
-    // Publish / Save
-    await delay(1000);
-
-    // Прокручиваем вниз — попап "Советы перед публикацией" может перекрывать кнопку
+    // Прокручиваем вниз — блок "Советы перед публикацией" может перекрывать кнопку
     await page.evaluate(() => {
       const dialog = document.querySelector("ytcp-uploads-dialog, tp-yt-paper-dialog");
       if (dialog) dialog.scrollTop = dialog.scrollHeight;
-      window.scrollTo(0, document.body.scrollHeight);
     }).catch(() => {});
     await delay(500);
 
-    const publishBtn = page.locator([
-      "ytcp-button#done-button",
-      "button:has-text('Publish')",
-      "button:has-text('Save')",
-      "button:has-text('Опубликовать')",
-      "button:has-text('Сохранить')",
-    ].join(", ")).first();
+    const publishBtn = page.locator("ytcp-button#done-button").first();
     await publishBtn.waitFor({ timeout: 10000 });
 
-    // Принудительный клик — обходит любые перекрывающие элементы
+    // Guard: кнопка должна быть "Опубликовать", а не "Сохранить"
+    const btnText = await publishBtn.innerText().catch(() => "");
+    plog(`  📍 Publish button text: "${btnText.trim()}"`);
+    if (btnText.includes("Сохранить") || btnText.toLowerCase().includes("save")) {
+      await page.screenshot({ path: `/tmp/youtube-save-not-publish-${lang}.png` });
+      throw new Error(`YouTube: кнопка "${btnText.trim()}" — Public не выбран! Скрин: /tmp/youtube-save-not-publish-${lang}.png`);
+    }
+
     await publishBtn.click({ force: true });
     plog("  ✓ Publish clicked");
 
-    // Wait for publish confirmation
-    await page.waitForSelector("ytcp-video-share-dialog, yt-icon-button.close-button", { timeout: 30000 }).catch(() => {});
-    plog(`  ✅ YouTube [${lang.toUpperCase()}] published!`);
+    // Polling-цикл: YouTube может показать попап "Проверка видео ещё продолжается"
+    // в любой момент (обычно через 1-5 сек после клика).
+    // Нажимаем "Опубликовать" в попапе, затем ждём финального подтверждения.
+    let published = false;
+    const deadline = Date.now() + 90000; // 90 секунд максимум
+
+    while (Date.now() < deadline && !published) {
+      await delay(1200);
+
+      // 1. Проверяем попап "Проверка видео ещё продолжается"
+      const warningVisible = await page.getByText("Проверка видео ещё продолжается")
+        .or(page.getByText("Video checks still in progress"))
+        .isVisible().catch(() => false);
+
+      if (warningVisible) {
+        plog("  ⚠️  Диалог 'Проверка видео' — нажимаем Опубликовать в нём...");
+        // Ищем кнопку "Опубликовать" СТРОГО ВНУТРИ диалога (не на основной странице)
+        const dialogBtnCoords = await page.evaluate(() => {
+          // Находим сам диалог по тексту заголовка
+          let dialog = null;
+          for (const el of document.querySelectorAll(
+            "tp-yt-paper-dialog, ytcp-dialog, [role='dialog'], .ytcp-modal"
+          )) {
+            if ((el.textContent || "").includes("Проверка видео") ||
+                (el.textContent || "").includes("Video checks")) {
+              dialog = el;
+              break;
+            }
+          }
+          if (!dialog) return null;
+
+          // Внутри диалога ищем кнопку с нужным текстом
+          for (const btn of dialog.querySelectorAll("ytcp-button, button, [role='button']")) {
+            const text = (btn.innerText || btn.textContent || "").trim();
+            if (text !== "Опубликовать" && text !== "Publish") continue;
+            const r = btn.getBoundingClientRect();
+            if (r.width > 0 && r.height > 0) {
+              return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
+            }
+          }
+          return null;
+        });
+        if (dialogBtnCoords) {
+          await page.mouse.click(dialogBtnCoords.x, dialogBtnCoords.y);
+          plog(`  ✓ Диалог подтверждён (клик по координатам ${dialogBtnCoords.x.toFixed(0)}, ${dialogBtnCoords.y.toFixed(0)})`);
+        } else {
+          plog("  ⚠️  Кнопка Опубликовать в диалоге не найдена");
+        }
+        // Видео будет опубликовано после завершения проверки (может занять несколько минут)
+        // Не ждём share-dialog — просто доверяем клику
+        await delay(3000);
+        published = true;
+        plog(`  ✅ YouTube [${lang.toUpperCase()}] — публикация подтверждена, видео появится после проверки`);
+        break;
+      }
+
+      // 2. Проверяем финальный share-диалог
+      const shareVisible = await page.locator("ytcp-video-share-dialog")
+        .isVisible().catch(() => false);
+      if (shareVisible) {
+        plog(`  ✅ YouTube [${lang.toUpperCase()}] published! (share dialog)`);
+        published = true;
+        break;
+      }
+
+      // 3. Проверяем редирект URL (после успешной публикации)
+      const currentUrl = page.url();
+      if (currentUrl.includes("/videos/") || currentUrl.includes("/short")) {
+        plog(`  ✅ YouTube [${lang.toUpperCase()}] published! (URL: ${currentUrl.slice(-60)})`);
+        published = true;
+        break;
+      }
+    }
+
+    if (!published) {
+      await page.screenshot({ path: `/tmp/youtube-no-confirm-${lang}.png` });
+      plog(`  ⚠️  YouTube [${lang.toUpperCase()}] — не подтверждено за 90 сек. Скрин: /tmp/youtube-no-confirm-${lang}.png`);
+    }
     notify("Skily Video Maker", `✅ YouTube ${lang.toUpperCase()} опубликован`);
   } catch(e) {
     const screenshotPath = `/tmp/youtube-error-${lang}-${Date.now()}.png`;
@@ -832,7 +1001,512 @@ async function launchContext(authFile) {
   return context;
 }
 
-// ── Main ──────────────────────────────────────────────────────────────────────
+// ── Facebook Reels upload (Playwright) ───────────────────────────────────────
+// Аналогично Instagram: браузер с сохранёнными cookies, загрузка через веб.
+// Логин один раз: node scripts/setup-login.js fb → сохраняет auth-state-fb.json.
+// .env: FB_PAGE_NAME_RU=SkilyRussia  FB_PAGE_NAME_ES=SkilyEspana (slug из URL страницы)
+async function uploadFacebook(videoPath, lang) {
+  const pageName = lang === "ru"
+    ? (process.env.FB_PAGE_NAME_RU || "")
+    : (process.env.FB_PAGE_NAME_ES || "");
+
+  if (!pageName) {
+    plog(`  ⚠️  Facebook (${lang.toUpperCase()}): FB_PAGE_NAME_${lang.toUpperCase()} не задан в .env — пропускаем`);
+    plog(`     Добавь: FB_PAGE_NAME_${lang.toUpperCase()}=имя_страницы (из facebook.com/<имя>)`);
+    return;
+  }
+  if (!fs.existsSync(AUTH_FB)) {
+    plog(`  ⚠️  Facebook: auth-state-fb.json не найден — запусти: node scripts/setup-login.js fb`);
+    return;
+  }
+
+  plog(`\n📘 Facebook [${lang.toUpperCase()}] → ${path.basename(videoPath)}`);
+
+  const browser = await chromium.launch({
+    executablePath: CHROME_PATH,
+    headless: false,
+    args: ["--no-sandbox"],
+  });
+  const context = await browser.newContext({
+    storageState: AUTH_FB,
+    viewport: { width: 1280, height: 900 },
+    userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+  });
+  const page = await context.newPage();
+
+  try {
+    // Открываем страницу (поддерживает slug и profile.php?id=...)
+    const pageUrl = pageName.startsWith("http")
+      ? pageName
+      : `https://www.facebook.com/${pageName}`;
+    await page.goto(pageUrl, {
+      waitUntil: "domcontentloaded", timeout: 30000,
+    });
+    await delay(3000);
+    plog(`  📍 URL: ${page.url()}`);
+
+    if (page.url().includes("/login") || page.url().includes("checkpoint")) {
+      throw new Error(`Facebook сессия истекла — запусти: node scripts/setup-login.js fb`);
+    }
+
+    // Ищем кнопку создания Reels на странице
+    let reelOpened = false;
+    for (const label of ["Reel", "Рилс", "Создать рилс", "Create Reel"]) {
+      try {
+        const btn = page.locator(`[aria-label*="${label}" i]`).first();
+        if (await btn.isVisible({ timeout: 2000 })) {
+          await btn.click();
+          reelOpened = true;
+          plog(`  ✓ Reels button clicked (${label})`);
+          break;
+        }
+      } catch {}
+    }
+
+    // Fallback: перейти напрямую на reels/create
+    if (!reelOpened) {
+      plog(`  ℹ️  Reel button not found on page — navigating to reels/create`);
+      await page.goto("https://www.facebook.com/reels/create/", {
+        waitUntil: "domcontentloaded", timeout: 20000,
+      });
+      await delay(2000);
+    }
+
+    // ── Шаг 1: ждём диалог "Создание видео Reels" ───────────────────────────
+    plog("  ⏳ Waiting for Reels dialog...");
+    await page.waitForSelector('text="Создание видео Reels"', { timeout: 15000 });
+    plog("  ✓ Reels dialog opened");
+
+    // ── Шаг 2: ждём "Ой!" и dismiss-им (появляется через ~3-5 сек) ──────────
+    try {
+      await page.waitForSelector('text="Ой!"', { timeout: 8000 });
+      plog("  ⚠️  Ой! popup detected — dismissing");
+      await page.locator('button:has-text("Закрыть")').click({ force: true });
+      await page.waitForSelector('text="Ой!"', { state: "hidden", timeout: 5000 });
+      plog("  ✓ Ой! dismissed");
+    } catch {
+      plog("  ✓ No Ой! popup");
+    }
+    await delay(800);
+
+    await page.screenshot({ path: `/tmp/facebook-create-${lang}.png` });
+    plog(`  📸 /tmp/facebook-create-${lang}.png`);
+
+    // ── Шаг 3: загружаем файл через кнопку "Загрузить" → filechooser ─────────
+    const sizeMB = Math.round(fs.statSync(videoPath).size / 1024 / 1024);
+    plog(`  Uploading ${sizeMB}MB...`);
+
+    let fileChooser;
+
+    // Попытка 1: кнопка "Загрузить" (нормальный клик, без force)
+    try {
+      [fileChooser] = await Promise.all([
+        page.waitForEvent("filechooser", { timeout: 10000 }),
+        page.locator('button:has-text("Загрузить"), button:has-text("Upload")').first().click(),
+      ]);
+      plog("  ✓ filechooser via Загрузить button");
+    } catch {}
+
+    // Попытка 2: клик по зоне "+  Добавить видео"
+    if (!fileChooser) {
+      try {
+        [fileChooser] = await Promise.all([
+          page.waitForEvent("filechooser", { timeout: 10000 }),
+          page.locator('text="Добавить видео"').first().click(),
+        ]);
+        plog("  ✓ filechooser via Добавить видео zone");
+      } catch {}
+    }
+
+    // Попытка 3: evaluate-click на скрытый input[type=file] внутри диалога
+    if (!fileChooser) {
+      try {
+        [fileChooser] = await Promise.all([
+          page.waitForEvent("filechooser", { timeout: 8000 }),
+          page.evaluate(() => {
+            const inp = document.querySelector('input[type="file"]');
+            if (inp) inp.click();
+          }),
+        ]);
+        plog("  ✓ filechooser via evaluate input.click()");
+      } catch {}
+    }
+
+    if (!fileChooser) {
+      await page.screenshot({ path: `/tmp/facebook-no-filechooser-${lang}.png` });
+      throw new Error(`Could not open file chooser — см. /tmp/facebook-no-filechooser-${lang}.png`);
+    }
+
+    await fileChooser.setFiles(videoPath);
+    plog("  ✓ File selected");
+
+    // ── Шаг 4: ждём "Далее" — видео загружено и готово (до 5 мин) ───────────
+    plog("  ⏳ Waiting for video upload (up to 5 min)...");
+    // Используем locator().waitFor() — waitForSelector не поддерживает text=
+    const daleeLocator = page.getByRole("button", { name: "Далее" })
+      .or(page.locator('[role="button"]:has-text("Далее")'))
+      .first();
+    await daleeLocator.waitFor({ state: "visible", timeout: 300000 });
+    plog("  ✓ Video ready — Далее appeared");
+    await delay(1000);
+
+    await page.screenshot({ path: `/tmp/facebook-editing-${lang}.png` });
+    plog(`  📸 /tmp/facebook-editing-${lang}.png`);
+
+    // ── Шаг 5: первый "Далее" (переходим к экрану редактирования) ────────────
+    await daleeLocator.click();
+    plog("  ✓ Далее #1 clicked");
+    await delay(2000);
+
+    await page.screenshot({ path: `/tmp/facebook-after-next-${lang}.png` });
+    plog(`  📸 /tmp/facebook-after-next-${lang}.png`);
+
+    // ── Шаг 6: заполняем описание (экран "Редактирование видео Reels") ────────
+    const { description } = getCaption(lang, "facebook");
+    // Facebook рендерит поле описания нестандартно — ищем через DOM-координаты
+    // (Playwright locator не находит из-за shadow DOM / особенностей React)
+    const fieldPos = await page.evaluate(() => {
+      // 1. Нативный textarea
+      for (const el of document.querySelectorAll("textarea")) {
+        const r = el.getBoundingClientRect();
+        if (r.width > 50 && r.height > 20 && r.top > 0) {
+          return { x: r.left + r.width / 2, y: r.top + r.height / 2, type: "textarea" };
+        }
+      }
+      // 2. role="textbox" (contenteditable с ARIA)
+      for (const el of document.querySelectorAll('[role="textbox"]')) {
+        const r = el.getBoundingClientRect();
+        if (r.width > 50 && r.height > 20 && r.top > 0) {
+          return { x: r.left + r.width / 2, y: r.top + r.height / 2, type: "textbox" };
+        }
+      }
+      // 3. Любой contenteditable
+      for (const el of document.querySelectorAll('[contenteditable="true"]')) {
+        const r = el.getBoundingClientRect();
+        if (r.width > 50 && r.height > 20 && r.top > 0) {
+          return { x: r.left + r.width / 2, y: r.top + r.height / 2, type: "contenteditable" };
+        }
+      }
+      return null;
+    });
+
+    if (fieldPos) {
+      plog(`  📍 Description field at (${Math.round(fieldPos.x)}, ${Math.round(fieldPos.y)}) [${fieldPos.type}]`);
+      await page.mouse.click(fieldPos.x, fieldPos.y);
+      await delay(300);
+      await page.evaluate((text) => navigator.clipboard.writeText(text), description);
+      await page.keyboard.press("Meta+V");
+      plog("  ✓ Description filled");
+    } else {
+      plog("  ⚠️  Description field not found — продолжаем без описания");
+      await page.screenshot({ path: `/tmp/facebook-no-desc-${lang}.png` });
+      plog(`  📸 /tmp/facebook-no-desc-${lang}.png`);
+    }
+    await delay(1000);
+
+    // ── Шаг 7: второй "Далее" (переходим к финальной публикации) ─────────────
+    const nextBtn2 = page.locator('button:has-text("Далее"), div[role="button"]:has-text("Далее")').first();
+    try {
+      await nextBtn2.waitFor({ state: "visible", timeout: 5000 });
+      await nextBtn2.click();
+      plog("  ✓ Далее #2 clicked");
+      await delay(3000);
+    } catch {
+      plog("  ℹ️  No second Далее (single-step flow)");
+    }
+
+    await page.screenshot({ path: `/tmp/facebook-before-publish-${lang}.png` });
+    plog(`  📸 /tmp/facebook-before-publish-${lang}.png`);
+
+    // ── Шаг 7: финальная кнопка публикации ──────────────────────────────────
+    // ВАЖНО: кнопка финальной публикации называется "Отправить" (не "Поделиться"!)
+    // "Поделиться в группах" — это настройка-строка, не кнопка публикации.
+    // Используем exact:true чтобы не попасть в строки-настройки.
+    const publishBtn = page.getByRole("button", { name: "Отправить", exact: true })
+      .or(page.getByRole("button", { name: "Поделиться", exact: true }))
+      .or(page.getByRole("button", { name: "Опубликовать", exact: true }))
+      .or(page.getByRole("button", { name: "Share", exact: true }))
+      .or(page.getByRole("button", { name: "Publish", exact: true }))
+      .first();
+
+    try {
+      await publishBtn.waitFor({ state: "visible", timeout: 15000 });
+      // Проверяем текст кнопки — не должно быть "в группах", "в истории" и т.д.
+      const btnText = await publishBtn.innerText().catch(() => "");
+      plog(`  📍 Publish button text: "${btnText.trim()}"`);
+      if (btnText.toLowerCase().includes("груп") || btnText.toLowerCase().includes("историю")) {
+        await page.screenshot({ path: `/tmp/facebook-wrong-btn-${lang}.png` });
+        throw new Error(`Нашли не ту кнопку: "${btnText.trim()}" — см. /tmp/facebook-wrong-btn-${lang}.png`);
+      }
+      await publishBtn.click();
+      plog("  ✓ Publish clicked");
+    } catch {
+      await page.screenshot({ path: `/tmp/facebook-no-publish-${lang}.png` });
+      plog(`  📸 /tmp/facebook-no-publish-${lang}.png`);
+      throw new Error(`Publish button not found — см. /tmp/facebook-no-publish-${lang}.png`);
+    }
+
+    // Ждём успешной публикации (исчезновение диалога или редирект)
+    await delay(3000);
+    await page.screenshot({ path: `/tmp/facebook-done-${lang}.png` });
+    plog(`  📸 /tmp/facebook-done-${lang}.png`);
+    plog(`  ✅ Facebook [${lang.toUpperCase()}] Reel опубликован!`);
+    notify("Skily Video Maker", `✅ Facebook ${lang.toUpperCase()} Reel опубликован`);
+
+  } catch(e) {
+    const screenshotPath = `/tmp/facebook-error-${lang}-${Date.now()}.png`;
+    try { await page.screenshot({ path: screenshotPath }); } catch {}
+    plog(`  ❌ Facebook [${lang.toUpperCase()}] error: ${e.message}`);
+    plog(`  📸 ${screenshotPath}`);
+    notify("Skily Video Maker", `❌ Facebook ${lang.toUpperCase()} ошибка: ${e.message.slice(0, 60)}`);
+    failures.push(`Facebook [${lang.toUpperCase()}]: ${e.message}`);
+  } finally {
+    await page.close();
+    await context.close();
+    await browser.close();
+  }
+}
+
+// ── Pinterest Video Pin (Playwright) ─────────────────────────────────────────
+// Аналогично другим платформам: браузер с сохранёнными cookies.
+// Логин: node scripts/setup-login.js pinterest → auth-state-pinterest.json
+// .env: PINTEREST_BOARD_NAME_RU / PINTEREST_BOARD_NAME_ES (название доски)
+//
+// TODO: переключить на API v5 когда Pinterest одобрит production access:
+//   node scripts/setup-pinterest.js → PINTEREST_ACCESS_TOKEN в .env
+async function uploadPinterest(videoPath, lang) {
+  const boardName = lang === "ru"
+    ? process.env.PINTEREST_BOARD_NAME_RU
+    : process.env.PINTEREST_BOARD_NAME_ES;
+  const authFile = path.join(__dirname, "../auth-state-pinterest.json");
+
+  if (!fs.existsSync(authFile)) {
+    plog(`  ⚠️  Pinterest: auth-state-pinterest.json не найден`);
+    plog(`     Запусти: node scripts/setup-login.js pinterest`);
+    return;
+  }
+  if (!boardName) {
+    plog(`  ⚠️  Pinterest: PINTEREST_BOARD_NAME_${lang.toUpperCase()} не задан в .env — пропускаем`);
+    return;
+  }
+
+  plog(`\n📌 Pinterest [${lang.toUpperCase()}] → ${path.basename(videoPath)}`);
+
+  const browser = await chromium.launch({
+    executablePath: CHROME_PATH,
+    headless: false,
+    args: ["--no-sandbox", "--disable-blink-features=AutomationControlled"],
+    ignoreDefaultArgs: ["--enable-automation"],
+  });
+  const context = await browser.newContext({
+    storageState: authFile,
+    viewport: { width: 1280, height: 900 },
+    userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+  });
+  const page = await context.newPage();
+
+  try {
+    await page.goto("https://www.pinterest.com/pin-creation-tool/", {
+      waitUntil: "domcontentloaded", timeout: 30000,
+    });
+    await delay(3000);
+    plog(`  📍 URL: ${page.url()}`);
+
+    if (page.url().includes("login")) {
+      throw new Error("Pinterest сессия истекла — запусти: node scripts/setup-login.js pinterest");
+    }
+
+    // ── Шаг 1: загружаем видео ───────────────────────────────────────────────
+    const fileInput = page.locator('input[type="file"]').first();
+    await fileInput.waitFor({ state: "attached", timeout: 15000 });
+    await fileInput.setInputFiles(videoPath);
+    plog("  ✓ File selected, uploading...");
+    await delay(4000);
+
+    await page.screenshot({ path: `/tmp/pinterest-after-upload-${lang}.png` });
+    plog(`  📸 /tmp/pinterest-after-upload-${lang}.png`);
+
+    // ── Шаг 2: заголовок ────────────────────────────────────────────────────
+    // Pinterest: поле "Название" имеет placeholder "Добавьте описание пина"
+    const { title, description } = getCaption(lang, "pinterest");
+    const titlePos = await page.evaluate(() => {
+      const els = [...document.querySelectorAll("textarea, input[type='text']")];
+      // Первый видимый textarea — это поле названия
+      for (const el of els) {
+        const r = el.getBoundingClientRect();
+        if (r.width > 200 && r.height > 20 && r.top > 0) {
+          return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
+        }
+      }
+      return null;
+    });
+    if (titlePos) {
+      await page.mouse.click(titlePos.x, titlePos.y);
+      await page.evaluate((t) => navigator.clipboard.writeText(t), title);
+      await page.keyboard.press("Meta+V");
+      plog("  ✓ Title filled");
+    } else { plog("  ⚠️  Title field not found"); }
+
+    // ── Шаг 3: описание ─────────────────────────────────────────────────────
+    // После заголовка — нажимаем Tab чтобы перейти на поле описания (надёжнее поиска в DOM)
+    await delay(300);
+    try {
+      await page.keyboard.press("Tab");
+      await delay(400);
+      // Проверяем что активный элемент — это textarea/input (а не кнопка или ссылка)
+      const focused = await page.evaluate(() => {
+        const el = document.activeElement;
+        return el ? { tag: el.tagName, placeholder: el.getAttribute("placeholder") || el.getAttribute("aria-placeholder") || "" } : null;
+      });
+      plog(`  📍 After Tab: focused ${focused?.tag} placeholder="${focused?.placeholder?.slice(0, 40)}"`);
+
+      if (focused && (focused.tag === "TEXTAREA" || focused.tag === "INPUT" || focused.tag === "DIV")) {
+        await page.evaluate((t) => navigator.clipboard.writeText(t), description);
+        await page.keyboard.press("Meta+V");
+        plog("  ✓ Description filled via Tab");
+      } else {
+        // Fallback: ищем поле описания по placeholder (первый видимый textarea после скролла)
+        await page.evaluate(() => window.scrollBy(0, 400));
+        await delay(1000);
+        const descPos = await page.evaluate(() => {
+          for (const el of document.querySelectorAll("textarea, [contenteditable='true']")) {
+            const r = el.getBoundingClientRect();
+            // Ищем любой видимый textarea/contenteditable с пустым или placeholder-содержимым
+            if (r.width > 200 && r.height > 20 && r.top > 50 && r.top < window.innerHeight - 50) {
+              const val = el.value || el.textContent || "";
+              if (val.trim() === "" || val.length < 10) { // пустое поле
+                return { x: r.left + r.width / 2, y: r.top + r.height / 2, tag: el.tagName };
+              }
+            }
+          }
+          return null;
+        });
+        if (descPos) {
+          await page.mouse.click(descPos.x, descPos.y);
+          await delay(300);
+          await page.evaluate((t) => navigator.clipboard.writeText(t), description);
+          await page.keyboard.press("Meta+V");
+          plog(`  ✓ Description filled via fallback (${descPos.tag})`);
+        } else {
+          plog("  ⚠️  Description field not found — пропускаем");
+        }
+      }
+    } catch(e) { plog("  ⚠️  Description error: " + e.message.slice(0, 80)); }
+
+    // ── Шаг 4: ссылка ────────────────────────────────────────────────────────
+    const linkEl = page.locator('input[placeholder*="ссылк" i], input[placeholder*="link" i], input[placeholder*="url" i]').first();
+    try {
+      if (await linkEl.isVisible({ timeout: 3000 })) {
+        await linkEl.fill("https://skilyapp.com");
+        plog("  ✓ Link filled");
+      }
+    } catch {}
+
+    // ── Шаг 5: выбор доски ───────────────────────────────────────────────────
+    try {
+      // Скроллим обратно наверх чтобы увидеть дропдаун доски
+      await page.evaluate(() => window.scrollBy(0, -200));
+      await delay(400);
+
+      const boardDropdown = page.locator('[data-test-id="board-dropdown-select-button"]').first();
+      await boardDropdown.waitFor({ state: "visible", timeout: 8000 });
+      await boardDropdown.click();
+      await delay(800);
+
+      // Вводим название в поиск
+      const searchInput = page.locator('input[placeholder*="Поиск" i], input[placeholder*="Search" i]').first();
+      await searchInput.waitFor({ state: "visible", timeout: 3000 });
+      await searchInput.fill(boardName.slice(0, 12)); // первые 12 символов
+      await delay(1500); // ждём пока появятся результаты
+
+      // Кликаем по элементу с текстом названия доски (getByText находит любой тег)
+      const boardText = boardName.slice(0, 20); // "Экзамен DGT — разбор" / "Examen DGT — Pregunt"
+      try {
+        const boardOption = page.getByText(boardText, { exact: false }).first();
+        await boardOption.waitFor({ state: "visible", timeout: 3000 });
+        await boardOption.click();
+        plog(`  ✓ Board clicked by text: "${boardText}"`);
+      } catch {
+        // Fallback: клик по координатам первого результата в дропдауне
+        const resultPos = await page.evaluate(() => {
+          // Ищем любой div/span с текстом внутри выпадающего списка
+          const all = [...document.querySelectorAll("div, span, li")];
+          for (const el of all) {
+            const r = el.getBoundingClientRect();
+            if (r.top > 500 && r.top < 800 && r.width > 100 && r.height > 20 && r.height < 100) {
+              const text = el.textContent?.trim();
+              if (text && text.length > 5 && text.length < 60) {
+                return { x: r.left + r.width / 2, y: r.top + r.height / 2, text: text.slice(0, 40) };
+              }
+            }
+          }
+          return null;
+        });
+        if (resultPos) {
+          await page.mouse.click(resultPos.x, resultPos.y);
+          plog(`  ✓ Board clicked by coords: "${resultPos.text}"`);
+        } else {
+          plog("  ⚠️  Board option not found");
+        }
+      }
+      await delay(500);
+    } catch(e) { plog(`  ⚠️  Board selection: ${e.message.slice(0, 80)}`); }
+
+    // ── Шаг 6: публикация — кнопка в правом верхнем углу ────────────────────
+    plog("  ⏳ Waiting for video to process...");
+    // Кнопка "Опубликовать" / "Publish" — Pinterest не использует <header>, ищем по роли/тексту
+    const publishBtn = page.getByRole("button", { name: "Опубликовать", exact: true })
+      .or(page.getByRole("button", { name: "Publish", exact: true }))
+      .or(page.locator('[data-test-id="board-dropdown-save-button"]'))
+      .or(page.locator('button:has-text("Опубликовать")'))
+      .or(page.locator('button:has-text("Publish")'))
+      .first();
+    await publishBtn.waitFor({ state: "visible", timeout: 120000 });
+
+    await page.screenshot({ path: `/tmp/pinterest-before-publish-${lang}.png` });
+    plog(`  📸 /tmp/pinterest-before-publish-${lang}.png`);
+
+    await publishBtn.click();
+    plog("  ✓ Publish clicked");
+
+    // Ждём завершения загрузки — Pinterest редиректит на страницу пина или показывает тост
+    // Таймаут 90с на случай медленной сети (видео 1+ мин весит ~20MB)
+    plog("  ⏳ Waiting for Pinterest to finish uploading...");
+    try {
+      await page.waitForFunction(() => {
+        // Успех: URL сменился со /pin-creation-tool/ на /pin/XXX или /
+        if (!location.pathname.includes("pin-creation-tool")) return true;
+        // Или: прогресс-бар исчез (больше нет текста "Публикация...")
+        const body = document.body.innerText || "";
+        if (body.includes("Пин создан") || body.includes("Pin created") ||
+            body.includes("Ваш пин опубликован") || body.includes("Your Pin has been published")) return true;
+        return false;
+      }, { timeout: 90000 });
+      plog("  ✓ Publish confirmed (page changed)");
+    } catch {
+      // Таймаут — делаем скрин чтобы понять состояние
+      plog("  ⚠️  Timeout waiting for confirmation — may still be uploading");
+    }
+
+    await page.screenshot({ path: `/tmp/pinterest-done-${lang}.png` });
+    plog(`  📸 /tmp/pinterest-done-${lang}.png`);
+    plog(`  ✅ Pinterest [${lang.toUpperCase()}] опубликован!`);
+    notify("Skily Video Maker", `✅ Pinterest ${lang.toUpperCase()} опубликован`);
+
+  } catch(e) {
+    const screenshotPath = `/tmp/pinterest-error-${lang}-${Date.now()}.png`;
+    try { await page.screenshot({ path: screenshotPath }); } catch {}
+    plog(`  ❌ Pinterest [${lang.toUpperCase()}] error: ${e.message}`);
+    plog(`  📸 ${screenshotPath}`);
+    notify("Skily Video Maker", `❌ Pinterest ${lang.toUpperCase()} ошибка: ${e.message.slice(0, 60)}`);
+    failures.push(`Pinterest [${lang.toUpperCase()}]: ${e.message}`);
+  } finally {
+    await page.close();
+    await context.close();
+    await browser.close();
+  }
+}
+
 (async () => {
   if (!esVideo && !ruVideo) {
     plog("Usage: node scripts/auto-publish.js --es path/to/video-es.mp4 [--ru path/to/video-ru.mp4]");
@@ -856,6 +1530,18 @@ async function launchContext(authFile) {
       if (!skipTikTok)    await uploadTikTok(ctxES,    path.resolve(esVideo), "es");
       if (!skipYouTube)   await uploadYouTube(ctxES,   path.resolve(esVideo), "es");
       if (!skipInstagram) await uploadInstagram(ctxES, path.resolve(esVideo), "es");
+      if (!skipFacebook) {
+        await uploadFacebook(path.resolve(esVideo), "es").catch(e => {
+          plog(`  ❌ Facebook ES failed: ${e.message}`);
+          failures.push(`Facebook ES: ${e.message.slice(0, 80)}`);
+        });
+      }
+      if (!skipPinterest) {
+        await uploadPinterest(path.resolve(esVideo), "es").catch(e => {
+          plog(`  ❌ Pinterest ES failed: ${e.message}`);
+          failures.push(`Pinterest ES: ${e.message.slice(0, 80)}`);
+        });
+      }
     } finally {
       await ctxES.close();
     }
@@ -870,6 +1556,18 @@ async function launchContext(authFile) {
       if (!skipTikTok)    await uploadTikTok(ctxRU,    path.resolve(ruVideo), "ru");
       if (!skipYouTube)   await uploadYouTube(ctxRU,   path.resolve(ruVideo), "ru");
       if (!skipInstagram) await uploadInstagram(ctxRU, path.resolve(ruVideo), "ru");
+      if (!skipFacebook) {
+        await uploadFacebook(path.resolve(ruVideo), "ru").catch(e => {
+          plog(`  ❌ Facebook RU failed: ${e.message}`);
+          failures.push(`Facebook RU: ${e.message.slice(0, 80)}`);
+        });
+      }
+      if (!skipPinterest) {
+        await uploadPinterest(path.resolve(ruVideo), "ru").catch(e => {
+          plog(`  ❌ Pinterest RU failed: ${e.message}`);
+          failures.push(`Pinterest RU: ${e.message.slice(0, 80)}`);
+        });
+      }
     } finally {
       await ctxRU.close();
     }

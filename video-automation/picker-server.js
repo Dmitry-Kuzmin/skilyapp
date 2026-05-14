@@ -273,7 +273,31 @@ function preprocessTTS(text, lang) {
 }
 
 
-async function synth(text, voiceId, filePath, label, lang = "es") {
+// ── Speed up audio via ffmpeg atempo ─────────────────────────────────────────
+// rate: 1.0 = normal, 1.15 = 15% faster, 1.25 = 25% faster (max recommended 1.5)
+async function speedUpAudio(filePath, rate) {
+  if (!rate || rate === 1.0) return;
+  const tmpPath = filePath + ".tmp.mp3";
+  await new Promise((resolve, reject) => {
+    const proc = spawn("/opt/homebrew/bin/ffmpeg", [
+      "-y", "-i", filePath,
+      "-filter:a", `atempo=${rate}`,
+      "-q:a", "3",  // VBR quality ~128kbps
+      tmpPath,
+    ], { stdio: "pipe" });
+    proc.on("close", (code) => {
+      if (code === 0 && fs.existsSync(tmpPath)) {
+        fs.renameSync(tmpPath, filePath);
+        resolve();
+      } else {
+        if (fs.existsSync(tmpPath)) fs.unlinkSync(tmpPath);
+        reject(new Error(`ffmpeg atempo failed (code ${code})`));
+      }
+    });
+  });
+}
+
+async function synth(text, voiceId, filePath, label, lang = "es", speedRate = 1.0) {
   if (!fs.existsSync(filePath)) {
     process.stdout.write(`  🎙 ${label}…`);
     const processed = preprocessTTS(text, lang);
@@ -281,7 +305,11 @@ async function synth(text, voiceId, filePath, label, lang = "es") {
     if (lang === "es") {
       // Spanish → Edge TTS only
       const audio = await edgeSynth(processed, EDGE_VOICE_ES, filePath).then(() => fs.readFileSync(filePath)).catch(() => null);
-      if (audio) { process.stdout.write(` ✓ Edge/${EDGE_VOICE_ES} (${(audio.length/1024).toFixed(0)}KB)\n`); return getAudioDurationSec(filePath); }
+      if (audio) {
+        if (speedRate > 1.0) await speedUpAudio(filePath, speedRate).catch(() => {});
+        process.stdout.write(` ✓ Edge/${EDGE_VOICE_ES} (${(fs.statSync(filePath).size/1024).toFixed(0)}KB${speedRate > 1.0 ? ` ×${speedRate}` : ""})\n`);
+        return getAudioDurationSec(filePath);
+      }
       process.stdout.write(` ✗ Edge failed\n`); return null;
     }
 
@@ -289,13 +317,18 @@ async function synth(text, voiceId, filePath, label, lang = "es") {
     const elAudio = await elevenLabsSynth(processed, voiceId);
     if (elAudio) {
       fs.writeFileSync(filePath, elAudio);
-      process.stdout.write(` ✓ ElevenLabs (${(elAudio.length/1024).toFixed(0)}KB)\n`);
+      if (speedRate > 1.0) await speedUpAudio(filePath, speedRate).catch(() => {});
+      process.stdout.write(` ✓ ElevenLabs (${(fs.statSync(filePath).size/1024).toFixed(0)}KB${speedRate > 1.0 ? ` ×${speedRate}` : ""})\n`);
       return getAudioDurationSec(filePath);
     }
     // ElevenLabs failed — use Edge TTS Russian voice
     process.stdout.write(` ↪ Edge fallback…`);
     const edgeAudio = await edgeSynth(processed, EDGE_VOICE_RU, filePath).then(() => fs.readFileSync(filePath)).catch(() => null);
-    if (edgeAudio) { process.stdout.write(` ✓ Edge/${EDGE_VOICE_RU} (${(edgeAudio.length/1024).toFixed(0)}KB)\n`); return getAudioDurationSec(filePath); }
+    if (edgeAudio) {
+      if (speedRate > 1.0) await speedUpAudio(filePath, speedRate).catch(() => {});
+      process.stdout.write(` ✓ Edge/${EDGE_VOICE_RU} (${(fs.statSync(filePath).size/1024).toFixed(0)}KB${speedRate > 1.0 ? ` ×${speedRate}` : ""})\n`);
+      return getAudioDurationSec(filePath);
+    }
     process.stdout.write(` ✗ both TTS failed\n`);
     return null;
   }
@@ -316,20 +349,32 @@ async function generateTTSForQuestion(question) {
     const hKey = pct < 30 ? "vhard" : pct < 50 ? "hard"
                : (question.difficulty === "hard" ? "medium" : "easy");
 
-    // Russian hook (for RU video — always generated)
+    // Hook текст — если Gemini сгенерировал hookAudioText используем его,
+    // иначе fallback на статичные шаблоны
     const ruHooksSuffix = {
       vhard: "Это не знает почти никто!",
       hard:  "Девяносто девять процентов водителей ошибаются.",
       medium:"Только опытные знают ответ.",
       easy:  "Проверь свои знания!",
     };
-    // Пауза между предложениями — три точки (многоточие) заставляют Edge TTS сделать выраженную паузу
-    const ruHookText = lang === "ru"
-      ? `Вопрос по ПДД России... ${ruHooksSuffix[hKey]}`
-      : `Вопрос по ПДД Испании... ${ruHooksSuffix[hKey]}`;
+    const esHooksStatic = {
+      vhard: "¡Pregunta DGT! ... Casi nadie sabe la respuesta.",
+      hard:  "¡Pregunta DGT! ... El noventa y nueve por ciento de conductores falla.",
+      medium:"¡Pregunta DGT! ... Solo los expertos lo saben.",
+      easy:  "¡Pregunta DGT! ... Pon a prueba tu conocimiento.",
+    };
+
+    // RU hook: используем hookAudioTextRu если есть (Gemini на русском),
+    // иначе hookAudioText (ES → не подходит для RU голоса), иначе статика
+    const ruHookText = question.hookAudioTextRu
+      || (lang === "ru" ? question.hookAudioText : null)  // для чисто RU-видео hookAudioText уже на RU
+      || (lang === "ru"
+          ? `Вопрос по ПДД России... ${ruHooksSuffix[hKey]}`
+          : `Вопрос по ПДД Испании... ${ruHooksSuffix[hKey]}`);
+
     const hPathRu = path.join(AUDIO_DIR, `${id}-ru-hook.mp3`);
     if (fs.existsSync(hPathRu)) fs.unlinkSync(hPathRu);
-    const hDurRu = await synth(ruHookText, voiceId, hPathRu, "hook intro [RU]", "ru");
+    const hDurRu = await synth(ruHookText, voiceId, hPathRu, "hook intro [RU]", "ru", 1.15);
     if (hDurRu !== null) {
       result.hookAudioFileRu        = `audio/${id}-ru-hook.mp3`;
       result.hookAudioDurationSecRu = hDurRu;
@@ -337,58 +382,52 @@ async function generateTTSForQuestion(question) {
 
     // Spanish hook (only for ES DGT videos)
     if (lang === "es") {
-      const esHooks = {
-        vhard: "¡Pregunta DGT! ... Casi nadie sabe la respuesta.",
-        hard:  "¡Pregunta DGT! ... El noventa y nueve por ciento de conductores falla.",
-        medium:"¡Pregunta DGT! ... Solo los expertos lo saben.",
-        easy:  "¡Pregunta DGT! ... Pon a prueba tu conocimiento.",
-      };
+      const esHookText = question.hookAudioText || esHooksStatic[hKey];
       const hPathEs = path.join(AUDIO_DIR, `${id}-es-hook.mp3`);
       if (fs.existsSync(hPathEs)) fs.unlinkSync(hPathEs);
-      const hDurEs = await synth(esHooks[hKey], null, hPathEs, "hook intro [ES]", "es");
+      const hDurEs = await synth(esHookText, null, hPathEs, "hook intro [ES]", "es", 1.15);
       if (hDurEs !== null) {
         result.hookAudioFileEs        = `audio/${id}-es-hook.mp3`;
         result.hookAudioDurationSecEs = hDurEs;
       }
     }
 
-    // Legacy single-field (for pure RU PDD or backward compat)
     result.hookAudioFile        = result.hookAudioFileRu;
     result.hookAudioDurationSec = result.hookAudioDurationSecRu;
   }
 
-  // Question
+  // Question — чуть быстрее, но разборчиво
   const qPath = path.join(AUDIO_DIR, `${id}-${lang}-question.mp3`);
-  const qDur  = await synth(question.question, voiceId, qPath, "question", lang);
+  const qDur  = await synth(question.question, voiceId, qPath, "question", lang, 1.10);
   if (qDur !== null) {
     result.questionAudioFile        = `audio/${id}-${lang}-question.mp3`;
     result.questionAudioDurationSec = qDur;
   }
 
-  // Answer options
+  // Answer options — чуть быстрее
   const answerFiles = [], answerDurs = [];
   for (let i = 0; i < (question.answer_options || []).length; i++) {
     const text  = prefixes[i] + question.answer_options[i].text;
     const aPath = path.join(AUDIO_DIR, `${id}-${lang}-answer-${i}.mp3`);
-    const dur   = await synth(text, voiceId, aPath, `answer ${i+1}`, lang);
+    const dur   = await synth(text, voiceId, aPath, `answer ${i+1}`, lang, 1.10);
     answerFiles.push(`audio/${id}-${lang}-answer-${i}.mp3`);
     answerDurs.push(dur ?? 2.5);
   }
   result.answerAudioFiles        = answerFiles;
   result.answerAudioDurationsSec = answerDurs;
 
-  // Explanation (same language)
+  // Explanation — максимальное ускорение (самый длинный сегмент)
   const ePath = path.join(AUDIO_DIR, `${id}-${lang}-explanation.mp3`);
-  const eDur  = await synth(question.explanation, voiceId, ePath, "explanation", lang);
+  const eDur  = await synth(question.explanation, voiceId, ePath, "explanation", lang, 1.25);
   if (eDur !== null) {
     result.explanationAudioFile        = `audio/${id}-${lang}-explanation.mp3`;
     result.explanationAudioDurationSec = eDur;
   }
 
-  // Russian explanation (for RU variant video)
+  // Russian explanation
   if (question.explanationRu) {
     const erPath = path.join(AUDIO_DIR, `${id}-ru-explanation.mp3`);
-    const erDur  = await synth(question.explanationRu, VOICE_RU, erPath, "explanation [RU]", "ru");
+    const erDur  = await synth(question.explanationRu, VOICE_RU, erPath, "explanation [RU]", "ru", 1.25);
     if (erDur !== null) {
       result.explanationRuAudioFile        = `audio/${id}-ru-explanation.mp3`;
       result.explanationRuAudioDurationSec = erDur;
@@ -402,7 +441,7 @@ async function generateTTSForQuestion(question) {
   if (outroTextRu) {
     const outroPathRu = path.join(AUDIO_DIR, `${id}-ru-outro.mp3`);
     if (fs.existsSync(outroPathRu)) fs.unlinkSync(outroPathRu);
-    const outroDurRu = await synth(outroTextRu, VOICE_RU, outroPathRu, "outro [RU]", "ru");
+    const outroDurRu = await synth(outroTextRu, VOICE_RU, outroPathRu, "outro [RU]", "ru", 1.15);
     if (outroDurRu !== null) {
       result.outroAudioFileRu        = `audio/${id}-ru-outro.mp3`;
       result.outroAudioDurationSecRu = outroDurRu;
@@ -412,7 +451,7 @@ async function generateTTSForQuestion(question) {
   if (outroTextEs && lang === "es") {
     const outroPathEs = path.join(AUDIO_DIR, `${id}-es-outro.mp3`);
     if (fs.existsSync(outroPathEs)) fs.unlinkSync(outroPathEs);
-    const outroDurEs = await synth(outroTextEs, null, outroPathEs, "outro [ES]", "es");
+    const outroDurEs = await synth(outroTextEs, null, outroPathEs, "outro [ES]", "es", 1.15);
     if (outroDurEs !== null) {
       result.outroAudioFileEs        = `audio/${id}-es-outro.mp3`;
       result.outroAudioDurationSecEs = outroDurEs;
@@ -457,6 +496,147 @@ async function geminiGenerate(prompt) {
     req.write(body);
     req.end();
   });
+}
+
+// ── Viral explanation generator ───────────────────────────────────────────────
+// Переписывает сухое объяснение из БД в вирусный TTS-скрипт (20-30 секунд).
+// Вызывается автоматически в /api/render и вручную из кнопки "Adapt for TTS".
+async function generateViralExplanation(dryText, lang, question = "", percent_correct = 50) {
+  const isRu = lang === "ru";
+
+  const prompt = isRu ? `
+Ты сценарист вирусного контента для TikTok и Instagram Reels. Специализация — правила дорожного движения Испании (экзамен DGT) для русскоязычной аудитории.
+
+ЗАДАЧА: Переписать сухое объяснение из базы данных в захватывающий голосовой скрипт (20-30 секунд).
+
+КОНТЕКСТ:
+- Вопрос: ${question || "(не указан)"}
+- Только ${percent_correct}% водителей ответили правильно
+- Текст будет прочитан вслух AI-голосом (ElevenLabs)
+- Зрители могут переключить видео в любой момент — удержи их
+
+ФОРМУЛА ВИРУСНОГО СКРИПТА (строго следуй):
+1. УДАР (1-2 предложения) — начни с последствий: штраф €X, потеря баллов, снятие с экзамена, реальная опасность. Говори как будто это уже произошло с кем-то.
+2. ПРИЧИНА (1-2 предложения) — объясни ПОЧЕМУ существует это правило. Не цитируй закон — объясни по-человечески.
+3. КРЮЧОК (1 предложение) — запоминающийся факт, парадокс или неожиданная деталь которую захочется рассказать другу.
+
+ЗАПРЕЩЕНО:
+- "Согласно правилам...", "ПДД гласит...", "В соответствии с..."
+- Длинные сложноподчинённые предложения
+- Пассивный залог ("является", "осуществляется")
+- Эмодзи (TTS произнесёт их как текст)
+- Скобки и пояснения в скобках
+
+ОБЯЗАТЕЛЬНО:
+- Говори на "ты" — лично, как друг
+- Числа словами: не "600€" а "шестьсот евро"
+- Аббревиатуры расшифровать: ДГТ → "экзамен ДГТ", ПДД → "правила дорожного движения"
+- Короткие ударные предложения. Ритм. Паузы через запятые.
+- Макс 65 слов
+
+СУХОЙ ТЕКСТ ИЗ БД:
+${dryText}
+
+Выведи ТОЛЬКО готовый скрипт. Без кавычек, без пояснений.
+`.trim() : `
+Eres guionista de contenido viral para TikTok e Instagram Reels. Especialización: normas de tráfico de España (examen DGT).
+
+TAREA: Reescribir una explicación aburrida de base de datos en un script de voz cautivador (20-30 segundos).
+
+CONTEXTO:
+- Pregunta: ${question || "(no especificada)"}
+- Solo el ${percent_correct}% respondió correctamente
+- El texto será leído en voz alta por una IA (ElevenLabs)
+- Los espectadores pueden cambiar de video en cualquier momento — mantenlos enganchados
+
+FÓRMULA DEL SCRIPT VIRAL (sigue estrictamente):
+1. IMPACTO (1-2 frases) — empieza con consecuencias: multa de X euros, pérdida de puntos, suspender el examen, peligro real. Habla como si ya le hubiera pasado a alguien.
+2. RAZÓN (1-2 frases) — explica POR QUÉ existe esta norma. No cites la ley — explícalo como un amigo.
+3. GANCHO (1 frase) — dato memorable, paradoja o detalle sorprendente que quieras contarle a alguien.
+
+PROHIBIDO:
+- "Según el artículo...", "El reglamento establece...", "De acuerdo con..."
+- Frases largas y complejas
+- Voz pasiva
+- Emojis (el TTS los leerá como texto)
+- Paréntesis y aclaraciones entre paréntesis
+
+OBLIGATORIO:
+- Habla de "tú" — personal, como un amigo
+- Números en palabras: no "600€" sino "seiscientos euros"
+- Abreviaciones expandidas: DGT → "examen de la DGT"
+- Frases cortas e impactantes. Ritmo. Pausas con comas.
+- Máx 65 palabras
+
+TEXTO ABURRIDO DE LA BD:
+${dryText}
+
+Escribe SOLO el script final. Sin comillas, sin explicaciones.
+`.trim();
+
+  const result = await geminiGenerate(prompt);
+  // Убираем случайные кавычки/маркдаун если модель всё же добавила
+  return result.replace(/^["'`]+|["'`]+$/g, "").trim();
+}
+
+// ── Gemini: генерация вирусного хука под конкретный вопрос ───────────────────
+// Возвращает { title, audio } — title на экран (коротко), audio — голосовой (1-2 предложения)
+async function generateViralHook(question, lang, percentCorrect = 50) {
+  const isRu = lang === "ru";
+  const wrongPct = 100 - percentCorrect;
+
+  const prompt = isRu ? `
+Ты копирайтер для TikTok и Instagram Reels (правила дорожного движения Испании, русскоязычная аудитория).
+
+ЗАДАЧА: Придумать цепляющий крюк (hook) для видео-вопроса по ПДД.
+
+ДАННЫЕ О ВОПРОСЕ:
+- Вопрос: ${question}
+- ${wrongPct}% людей отвечают НЕПРАВИЛЬНО
+
+НУЖНО ВЫВЕСТИ JSON с двумя полями:
+1. "title" — текст на экране: короткий, провокационный, макс 6 слов. Используй реальную статистику. Примеры стиля: "99% водителей ошибаются здесь", "Это знают единицы", "За это лишают прав", "Даже инструкторы путаются".
+2. "audio" — голосовой текст: 1-2 ударных предложения, произносится за 4-6 секунд. Провокация + интрига. Говори на "ты". Без эмодзи. Числа словами. Примеры: "Восемьдесят семь процентов водителей облажались на этом вопросе. Ты в числе тех, кто знает правильный ответ?", "Это правило нарушают каждый день, даже не подозревая. Проверь себя."
+
+ЗАПРЕЩЕНО в audio: "Согласно...", пассивный залог, длинные предложения.
+
+Выведи ТОЛЬКО валидный JSON, без markdown, без пояснений:
+{"title":"...","audio":"..."}
+`.trim() : `
+Eres copywriter para TikTok e Instagram Reels (normas DGT de España).
+
+TAREA: Crear un gancho (hook) provocador para un video-pregunta de tráfico.
+
+DATOS DE LA PREGUNTA:
+- Pregunta: ${question}
+- El ${wrongPct}% de personas responde MAL
+
+NECESITAS DEVOLVER JSON con dos campos:
+1. "title" — texto en pantalla: corto, provocador, máx 6 palabras. Usa estadísticas reales. Estilo: "El 99% falla aquí", "Esto casi nadie lo sabe", "Por esto te quitan puntos", "Ni los instructores saben esto".
+2. "audio" — texto de voz: 1-2 frases impactantes, se pronuncia en 4-6 segundos. Provocación + intriga. Tutéalo. Sin emojis. Números escritos. Ejemplos: "El ochenta y siete por ciento suspende aquí. ¿Tú eres del trece por ciento que lo sabe?", "Esta norma la rompen todos los días sin saberlo. Comprueba si tú también."
+
+PROHIBIDO en audio: "Según el artículo...", voz pasiva, frases largas.
+
+Devuelve SOLO JSON válido, sin markdown, sin explicaciones:
+{"title":"...","audio":"..."}
+`.trim();
+
+  try {
+    const raw = await geminiGenerate(prompt);
+    // Extract JSON from response (may have extra text)
+    const match = raw.match(/\{[^{}]*"title"[^{}]*"audio"[^{}]*\}/) ||
+                  raw.match(/\{[\s\S]*?\}/);
+    if (!match) throw new Error("No JSON in response");
+    const parsed = JSON.parse(match[0]);
+    if (!parsed.title || !parsed.audio) throw new Error("Missing fields");
+    return parsed;
+  } catch(e) {
+    // Fallback to static
+    const wrongPctRounded = Math.round(wrongPct / 10) * 10;
+    return isRu
+      ? { title: `${wrongPctRounded}% водителей ошибаются`, audio: `Вопрос по правилам дорожного движения Испании. ${wrongPctRounded} процентов водителей ответили неправильно.` }
+      : { title: `El ${wrongPctRounded}% falla aquí`, audio: `Pregunta DGT. El ${wrongPctRounded} por ciento de conductores responde mal.` };
+  }
 }
 
 // ── Supabase REST helper ──────────────────────────────────────────────────────
@@ -526,6 +706,18 @@ async function fetchQuestions({ lang = "es", search = "", limit = 30, offset = 0
 
   if (!Array.isArray(rows)) return { questions: [], total: 0 };
 
+  // Fetch topics to resolve topic_id → topic slug for background video selection
+  let topicMap = {};
+  try {
+    const topics = await supabaseRequest("topics", "?select=id,title_es");
+    if (Array.isArray(topics)) {
+      // Map id → normalized slug (lowercase first word of title_es)
+      for (const t of topics) {
+        topicMap[t.id] = (t.title_es || "").toLowerCase().split(/[\s,\/]/)[0];
+      }
+    }
+  } catch(e) { /* non-critical */ }
+
   // Fetch answer options for each question
   const ids = rows.map(r => r.id);
   if (ids.length === 0) return [];
@@ -565,6 +757,7 @@ async function fetchQuestions({ lang = "es", search = "", limit = 30, offset = 0
     percent_correct: r.percent_correct || 50,
     country,
     language: lang,
+    topic: topicMap[r.topic_id] || null,
     answer_options: (answerMap[r.id] || []),
   }));
   return { questions, total };
@@ -1628,26 +1821,243 @@ const server = http.createServer(async (req, res) => {
         })();
 
         const lang = question.language || question.country || "es";
-        const hookTemplates = {
-          ru: { vhard:"Это не знает НИКТО 🤯", hard:"99% водителей ошибаются ❌", medium:"Только опытные знают ответ 🚗", easy:"Проверь себя за 5 секунд ⚡" },
-          es: { vhard:"¡NADIE sabe la respuesta! 🤯", hard:"El 99% de conductores falla ❌", medium:"Solo los expertos lo saben 🚗", easy:"¿Sabes la respuesta? ⚡" },
+
+        // Пул хуков — 8 вариантов на уровень, ротируются по номеру серии
+        const hookPools = {
+          ru: {
+            vhard: [
+              "Это не знает НИКТО 🤯",
+              "Ответить правильно почти нереально",
+              "Даже инструкторы путаются здесь",
+              "Это правило скрыто в мелком шрифте",
+              "За незнание этого лишают прав",
+              "Этот вопрос завалил бы любого",
+              "Проверь себя — большинство ошибается",
+              "Ты знаешь то, чего не знают 99%?",
+            ],
+            hard: [
+              "99% водителей ошибаются ❌",
+              "Большинство ответят неверно",
+              "Ты умнее большинства водителей?",
+              "Это правило игнорируют все",
+              "Здесь ошибаются даже опытные",
+              "Реально сложный вопрос ПДД",
+              "За это штрафуют каждый день",
+              "Ошибёшься — потеряешь баллы",
+            ],
+            medium: [
+              "Только опытные знают ответ 🚗",
+              "40% не знают это!",
+              "Половина водителей ошибётся",
+              "Инспектор задаст этот вопрос",
+              "Это проверяют на экзамене!",
+              "Ты в числе тех, кто знает?",
+              "Большинство думают — знают...",
+              "Этот вопрос делит водителей",
+            ],
+            easy: [
+              "Проверь себя! ⚡",
+              "Ты точно знаешь? 🤔",
+              "А ты бы не ошибся? 👀",
+              "5 секунд — и ответ!",
+              "Быстро: знаешь правило?",
+              "Без шпаргалки ответишь?",
+              "Попробуй не ошибиться!",
+              "Знаешь испанские ПДД?",
+            ],
+          },
+          es: {
+            vhard: [
+              "¡NADIE sabe la respuesta! 🤯",
+              "Casi imposible responder bien",
+              "Hasta los instructores fallan",
+              "La norma que nadie conoce",
+              "Por esto te quitan el carnet",
+              "Esta pregunta hundiría a cualquiera",
+              "¿Eres de los pocos que lo saben?",
+              "El secreto mejor guardado del DGT",
+            ],
+            hard: [
+              "El 99% de conductores falla ❌",
+              "La mayoría responderá mal",
+              "¿Eres mejor que el 99%?",
+              "Esta norma la ignoran todos",
+              "Aquí fallan conductores expertos",
+              "Pregunta difícil de verdad",
+              "Por esto multan cada día",
+              "¿Perderías puntos aquí?",
+            ],
+            medium: [
+              "Solo los expertos lo saben 🚗",
+              "¡Falla el 40% en DGT!",
+              "La mitad de conductores falla",
+              "¡El inspector preguntará esto!",
+              "¡Esto entra en el examen!",
+              "¿Estás entre los mejores?",
+              "¿Crees que lo sabes?",
+              "Esta pregunta divide a los conductores",
+            ],
+            easy: [
+              "¿Sabes la respuesta? ⚡",
+              "¿Aprobarías el DGT? 🤔",
+              "¡5 segundos para responder!",
+              "¿Lo sabrías contestar?",
+              "¡Demuestra que lo sabes!",
+              "¿Lo tienes claro?",
+              "¡Sin trampa ni cartón!",
+              "¿Conoces las normas DGT?",
+            ],
+          },
         };
+
         const pct = question.percent_correct || 50;
         const hookKey = pct < 30 ? "vhard" : pct < 50 ? "hard" : question.difficulty === "hard" ? "medium" : "easy";
+        const seriesNum = seriesState[lang] || 1;
 
-        // Spanish hook templates for the RU variant (hook stays in RU, question in ES)
-        const hookTemplatesRU = {
-          vhard: "Это не знает НИКТО 🤯", hard: "99% водителей ошибаются ❌",
-          medium: "Только опытные знают ответ 🚗", easy: "Проверь себя! ⚡",
+        const pickHook = (pool) => {
+          const arr = pool[hookKey] || pool.easy;
+          return arr[seriesNum % arr.length];
         };
+
+        // ── CTA (outro) пул — ротируется по номеру серии ─────────────────────
+        const outroPools = {
+          ru: [
+            "Угадал? Пиши ✅ или ❌ в комментарии!",
+            "Подпишись — каждый день новый вопрос ПДД Испании 🇪🇸",
+            "Отметь того, кто едет в Испанию! 👇",
+            "Сохрани видео — пригодится перед экзаменом 📌",
+            "Готовишься к испанским правам? 2000+ вопросов на Skily 🚀",
+            "Сдашь DGT с первого раза? Проверь себя на Skily! 🏆",
+            "Угадал? Напиши сколько попыток потребовалось 👇",
+            "Покажи другу — пусть тоже попробует!",
+          ],
+          es: [
+            "¿Acertaste? ¡Comenta ✅ o ❌!",
+            "Suscríbete — nueva pregunta DGT cada día 🇪🇸",
+            "¡Etiqueta al que no sabe las normas! 👇",
+            "¡Guarda este video para repasar antes del examen! 📌",
+            "¿Preparando el DGT? +2000 preguntas en Skily 🚀",
+            "¿Aprobarás el DGT a la primera? ¡Demuéstralo en Skily! 🏆",
+            "¿Lo sabías? ¡Dinos en los comentarios! 👇",
+            "¡Comparte con alguien que prepare el DGT!",
+          ],
+        };
+
+        const pickOutro = (pool) => {
+          const arr = pool || outroPools.es;
+          return arr[seriesNum % arr.length];
+        };
+
+        // ── Server-side topic → backgroundVideo resolution ────────────────────
+        // Mirrors VideoTemplate.tsx TOPIC_BG so background video is always set
+        const SERVER_TOPIC_BG = {
+          "señales":       "backgrounds/topics/signs.mp4",
+          "maniobras":     "backgrounds/topics/intersection.mp4",
+          "alumbrado":     "backgrounds/topics/night.mp4",
+          "el":            "backgrounds/topics/driver.mp4",
+          "documentación": "backgrounds/topics/background_01.mp4",
+          "los":           "backgrounds/topics/emergency.mp4",
+          "comportamiento":"backgrounds/topics/emergency.mp4",
+          "mecánica":      "backgrounds/topics/background_02.mp4",
+          "tipos":         "backgrounds/topics/highway.mp4",
+          "definiciones":  "backgrounds/topics/highway.mp4",
+          "alcohol":       "backgrounds/topics/alcohol.mp4",
+          "velocidad":     "backgrounds/topics/speed.mp4",
+          "autopistas":    "backgrounds/topics/highway.mp4",
+          "carretera":     "backgrounds/topics/highway.mp4",
+          "distancia":     "backgrounds/topics/highway.mp4",
+          "adelantamiento":"backgrounds/topics/highway.mp4",
+          "interseccion":  "backgrounds/topics/intersection.mp4",
+          "intersección":  "backgrounds/topics/intersection.mp4",
+          "rotonda":       "backgrounds/topics/intersection_02.mp4",
+          "peatones":      "backgrounds/topics/pedestrians.mp4",
+          "cinturon":      "backgrounds/topics/seatbelt.mp4",
+          "cinturón":      "backgrounds/topics/seatbelt.mp4",
+          "parking":       "backgrounds/topics/parking.mp4",
+          "emergencia":    "backgrounds/topics/emergency.mp4",
+          "ciclistas":     "backgrounds/topics/cyclist.mp4",
+          "motocicletas":  "backgrounds/topics/moto.mp4",
+          "conductor":     "backgrounds/topics/driver.mp4",
+        };
+
+        // Resolve topic → backgroundVideo if not explicitly set
+        const topicKey = (question.topic || "").toLowerCase().trim();
+        const resolvedBg = question.backgroundVideo || SERVER_TOPIC_BG[topicKey] || "backgrounds/bg2.mp4";
 
         const videoQuestion = {
           ...question,
-          hook_title: hookTemplates[lang]?.[hookKey] || "Проверь себя",
-          series_number: seriesState[lang] || 1,
+          hook_title: pickHook(hookPools[lang] || hookPools.es), // временный, заменится Gemini ниже
+          series_number: seriesNum,
           // Pass Russian explanation if it exists in DB row
           explanationRu: question.explanationRu || question.explanation_ru || undefined,
+          // Auto-pick CTA outro (overridable from UI if set manually)
+          outro_text_ru: question.outro_text_ru || pickOutro(outroPools.ru),
+          outro_text_es: question.outro_text_es || pickOutro(outroPools.es),
+          outro_text:    question.outro_text    || pickOutro(outroPools[lang] || outroPools.es),
+          // Always set backgroundVideo so Q&A phase has a background
+          backgroundVideo: resolvedBg,
         };
+
+        // ── Viral hook via Gemini (уникальный под каждый вопрос) ─────────────
+        // Генерируем ES хук всегда; RU хук — только для DGT (lang=es), т.к. нужен overlay
+        if (GEMINI_API_KEY && videoQuestion.question) {
+          try {
+            console.log(`[Gemini] Generating viral hook (${lang})…`);
+            const hookData = await generateViralHook(
+              videoQuestion.question, lang, videoQuestion.percent_correct || 50
+            );
+            videoQuestion.hook_title    = hookData.title;
+            videoQuestion.hookAudioText = hookData.audio; // ES аудио-хук
+            console.log(`[Gemini] Hook title (${lang}): "${hookData.title}"`);
+
+            // Для DGT: дополнительно генерируем RU хук для RU overlay-видео
+            if (lang === "es" && (videoQuestion.question_ru || videoQuestion.explanationRu)) {
+              const ruQuestion = videoQuestion.question_ru || videoQuestion.question;
+              const hookDataRu = await generateViralHook(
+                ruQuestion, "ru", videoQuestion.percent_correct || 50
+              );
+              videoQuestion.hook_title_ru    = hookDataRu.title;
+              videoQuestion.hookAudioTextRu  = hookDataRu.audio; // RU аудио-хук
+              console.log(`[Gemini] Hook title (ru): "${hookDataRu.title}"`);
+            }
+          } catch(e) {
+            console.log(`[Gemini] Hook generation failed, using static: ${e.message}`);
+          }
+        }
+
+        // ── Viral explanation rewrite via Gemini ──────────────────────────────
+        // Заменяем сухой текст из БД на вирусный скрипт перед генерацией TTS
+        if (GEMINI_API_KEY && videoQuestion.explanation) {
+          try {
+            console.log(`[Gemini] Rewriting explanation as viral script (${lang})…`);
+            const viralEs = await generateViralExplanation(
+              videoQuestion.explanation, "es",
+              videoQuestion.question, videoQuestion.percent_correct
+            );
+            videoQuestion.explanation = viralEs;
+            console.log(`[Gemini] ES explanation: "${viralEs.slice(0, 80)}…"`);
+
+            // Для RU-видео — отдельно переписываем русское объяснение
+            const ruSource = videoQuestion.explanationRu || videoQuestion.explanation_ru || videoQuestion.explanation;
+            if (ruSource) {
+              const viralRu = await generateViralExplanation(
+                ruSource, "ru",
+                videoQuestion.question_ru || videoQuestion.question, videoQuestion.percent_correct
+              );
+              videoQuestion.explanationRu = viralRu;
+              console.log(`[Gemini] RU explanation: "${viralRu.slice(0, 80)}…"`);
+            }
+
+            // Удаляем кэшированные аудиофайлы объяснений — TTS перегенерирует из нового текста
+            const id = videoQuestion.id;
+            const expEsPath = path.join(AUDIO_DIR, `${id}-es-explanation.mp3`);
+            const expRuPath = path.join(AUDIO_DIR, `${id}-ru-explanation.mp3`);
+            if (fs.existsSync(expEsPath)) { fs.unlinkSync(expEsPath); console.log(`[Gemini] Cleared cached ES explanation audio`); }
+            if (fs.existsSync(expRuPath)) { fs.unlinkSync(expRuPath); console.log(`[Gemini] Cleared cached RU explanation audio`); }
+          } catch(e) {
+            console.log(`[Gemini] Viral rewrite failed, using original: ${e.message}`);
+          }
+        }
 
         // Generate ALL TTS (question, all answers, explanation, RU explanation)
         console.log(`\n[TTS] Generating audio for #${videoQuestion.series_number} (${lang})…`);
@@ -1704,16 +2114,16 @@ const server = http.createServer(async (req, res) => {
           primaryResult = await runRender(videoQuestionES, outputPrimary, "VideoTemplate");
 
           if (videoQuestion.explanationRu && videoQuestion.explanationRuAudioFile) {
-            // RU overlay uses RU hook and RU outro
+            // RU overlay uses RU hook (Gemini) and RU outro
             const ruQuestion = {
               ...videoQuestion,
               language: "ru",
-              hook_title: hookTemplatesRU[hookKey] || hookTemplatesRU.easy,
+              // Gemini RU hook title — если нет, fallback на статику
+              hook_title: videoQuestion.hook_title_ru || hookTemplatesRU[hookKey] || hookTemplatesRU.easy,
               hookAudioFile:        videoQuestion.hookAudioFileRu || videoQuestion.hookAudioFile,
               hookAudioDurationSec: videoQuestion.hookAudioDurationSecRu || videoQuestion.hookAudioDurationSec,
               outroAudioFile:       videoQuestion.outroAudioFileRu || null,
               outroAudioDurationSec:videoQuestion.outroAudioDurationSecRu || null,
-              // Use a different background than ES to prevent TikTok duplicate detection
               backgroundVideo: videoQuestion.backgroundVideoRU || videoQuestion.backgroundVideo,
             };
             outputRU = path.join(RENDERS_DIR, `question-${question.id}-ru.mp4`);
@@ -1731,6 +2141,8 @@ const server = http.createServer(async (req, res) => {
           res.end(JSON.stringify({
             output: outputPrimary,
             outputRU: outputRU || null,
+            hookTitle: videoQuestion.hook_title || null,
+            hookTitleRu: videoQuestion.hook_title_ru || videoQuestion.hook_title || null,
             logs: primaryResult.logs,
           }));
         } else {
@@ -1752,28 +2164,8 @@ const server = http.createServer(async (req, res) => {
     req.on("data", d => body += d);
     req.on("end", async () => {
       try {
-        const { text, lang } = JSON.parse(body);
-        const langName = lang === "ru" ? "Russian" : "Spanish";
-        const prompt = `You are a TTS (text-to-speech) preparation specialist for ${langName} driving test educational content.
-
-Your task: adapt the following text for natural voice narration. The text will be read aloud by an AI voice model (ElevenLabs).
-
-Rules:
-1. Write out ALL numbers as words (e.g. "120 km/h" → "сто двадцать километров в час" for RU, "ciento veinte kilómetros por hora" for ES)
-2. Expand ALL abbreviations (km, m, kg, DGT, ПДД, т.е., etc.)
-3. Remove markdown formatting (**bold**, *italic*)
-4. Remove emoji and special symbols
-5. Keep the same language (${langName}) — do NOT translate
-6. Make sentences flow naturally when spoken — split long sentences if needed
-7. Preserve the meaning 100% — only improve readability for voice
-8. Remove parenthetical technical references that sound unnatural when spoken
-9. Add natural pauses with commas or periods where a speaker would pause
-10. Output ONLY the adapted text, nothing else — no explanations, no quotes
-
-Original text:
-${text}`;
-
-        const adapted = await geminiGenerate(prompt);
+        const { text, lang, question, percent_correct } = JSON.parse(body);
+        const adapted = await generateViralExplanation(text, lang, question || "", percent_correct);
         res.writeHead(200, { "Content-Type": "application/json" });
         res.end(JSON.stringify({ adapted }));
       } catch(e) {

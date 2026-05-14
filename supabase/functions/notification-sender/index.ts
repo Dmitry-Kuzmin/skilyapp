@@ -175,14 +175,6 @@ serve(async (req) => {
       );
     }
 
-    if (!profile.telegram_id) {
-      console.warn('[Notification Sender] User has no telegram_id:', profile.id);
-      return new Response(
-        JSON.stringify({ error: 'No telegram_id', skipped: true }),
-        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
     const { data: settings } = await supabase
       .from('user_notification_settings')
       .select('*')
@@ -190,26 +182,6 @@ serve(async (req) => {
       .maybeSingle() as { data: UserNotificationSettings | null };
 
     const now = new Date();
-
-    if (!body.force && settings && settings.enabled === false) {
-      console.log('[Notification Sender] Notifications disabled for user:', profile.id);
-      return new Response(
-        JSON.stringify({ skipped: true, reason: 'notifications_disabled' }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    if (
-      !body.force &&
-      settings?.quiet_mode_until &&
-      new Date(settings.quiet_mode_until).getTime() > now.getTime()
-    ) {
-      console.log('[Notification Sender] Quiet mode active until', settings.quiet_mode_until);
-      return new Response(
-        JSON.stringify({ skipped: true, reason: 'quiet_mode' }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
 
     let template: NotificationTemplate | null = null;
     if (body.template_id) {
@@ -230,52 +202,6 @@ serve(async (req) => {
         .limit(1)
         .maybeSingle();
       template = data as NotificationTemplate | null;
-    }
-
-    if (!body.force && settings?.quiet_hours_start && settings?.quiet_hours_end) {
-      const isQuietHours = checkQuietHours(
-        settings.quiet_hours_start,
-        settings.quiet_hours_end,
-        settings.timezone || 'Europe/Madrid'
-      );
-
-      if (isQuietHours) {
-        console.log('[Notification Sender] Quiet hours active for user:', profile.id);
-        return new Response(
-          JSON.stringify({ skipped: true, reason: 'quiet_hours' }),
-          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      }
-    }
-
-    if (
-      !body.force &&
-      settings?.only_important &&
-      template?.category &&
-      !IMPORTANT_CATEGORIES.has(template.category)
-    ) {
-      console.log('[Notification Sender] Only important mode skips category:', template.category);
-      return new Response(
-        JSON.stringify({ skipped: true, reason: 'only_important' }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    if (!body.force && template && template.cooldown_hours > 0) {
-      const cooldownExpired = await checkCooldown(
-        profile.id,
-        template.type,
-        template.cooldown_hours,
-        supabase
-      );
-
-      if (!cooldownExpired) {
-        console.log('[Notification Sender] Cooldown active for template:', template.type);
-        return new Response(
-          JSON.stringify({ skipped: true, reason: 'cooldown_active' }),
-          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      }
     }
 
     // Определяем язык пользователя для локализации
@@ -307,6 +233,27 @@ serve(async (req) => {
       }
     }
 
+    // Иконка для внешних каналов (Telegram/PWA) — всегда emoji, чтобы не сломать форматирование
+    const isEmojiLike = (value: string) => /[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/u.test(value);
+    const mapLucideToEmoji = (value: string) => {
+      const v = value.toLowerCase();
+      const map: Record<string, string> = {
+        'credit-card': '💳',
+        'shield': '🛡️',
+        'alert-triangle': '⚠️',
+        'trophy': '🏆',
+        'flame': '🔥',
+        'target': '🎯',
+        'bell': '🔔',
+        'clock': '⏰',
+        'check': '✅',
+        'gift': '🎁',
+        'zap': '⚡',
+      };
+      return map[v] || '📢';
+    };
+    const channelIcon = isEmojiLike(icon) ? icon : mapLucideToEmoji(icon);
+
     let wasAiEnhanced = false;
     if (template?.ai_enhance && body.variables) {
       try {
@@ -321,6 +268,134 @@ serve(async (req) => {
       }
     }
 
+    // =====================================================
+    // 0. In-app notification (дуэльные уведомления пишутся отдельно в duel-manager)
+    // =====================================================
+    const templateTypeForStore = (body.template_type || template?.type || 'custom') as string;
+    const templateCategory = (template?.category || 'custom') as string;
+    const shouldSkipInApp =
+      templateCategory === 'duel' ||
+      templateTypeForStore.startsWith('duel_') ||
+      ['timeout', 'help_requested', 'duel_win', 'duel_lose'].includes(templateTypeForStore);
+
+    const normalizeInAppTitle = (rawTitle: string, rawIcon: string) => {
+      let out = rawTitle || 'Уведомление';
+      // Убираем лидирующие emoji (в in-app иконка отдельным полем)
+      out = out.replace(/^[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]+\s*/u, '');
+      // Убираем повтор иконки в начале (если title начинается с той же emoji)
+      if (rawIcon && out.startsWith(rawIcon)) {
+        out = out.slice(rawIcon.length).trim();
+      }
+      return out;
+    };
+
+    const normalizeInAppIcon = (rawIcon: string) => {
+      // Если прислали lucide-name — используем как есть
+      if (rawIcon && !rawIcon.match(/[\u{1F300}-\u{1FAFF}]/u)) return rawIcon;
+      // Иначе маппим по типу/категории
+      const tt = templateTypeForStore;
+      if (tt.includes('streak')) return 'flame';
+      if (tt.includes('license') || tt.includes('urgent') || tt.includes('warning')) return 'alert-triangle';
+      if (tt.includes('quest')) return 'target';
+      if (tt.includes('season') || tt.includes('level_close')) return 'trophy';
+      if (tt.includes('purchase') || tt.includes('payment') || templateCategory === 'monetization' || templateCategory === 'premium') return 'credit-card';
+      if (tt.includes('email_changed') || tt.includes('password_changed') || tt.includes('suspicious_login') || templateCategory === 'system') return 'shield';
+      if (tt.includes('invite') || tt.includes('referral')) return 'gift';
+      return 'bell';
+    };
+
+    let inAppInserted = false;
+    if (!shouldSkipInApp) {
+      try {
+        const inAppTitle = normalizeInAppTitle(title, channelIcon);
+        const inAppIcon = normalizeInAppIcon(icon);
+
+        await supabase
+          .from('duel_notifications')
+          .insert({
+            user_id: profile.id,
+            duel_id: null,
+            type: templateTypeForStore,
+            title: inAppTitle,
+          message: message || '',
+            icon: inAppIcon,
+            metadata: {
+              ...(body.variables || {}),
+              cta_text: ctaText ?? null,
+              cta_deeplink: ctaDeeplink ?? null,
+              template_type: templateTypeForStore,
+              category: templateCategory,
+            },
+            is_read: false,
+          });
+        inAppInserted = true;
+      } catch (e) {
+        console.warn('[Notification Sender] In-app insert failed (non-blocking):', e);
+      }
+    }
+
+    // =====================================================
+    // 1. External channels gates (Telegram / PWA Push)
+    // =====================================================
+    let externalAllowed = true;
+    let externalSkipReason: string | null = null;
+
+    if (!body.force && settings && settings.enabled === false) {
+      externalAllowed = false;
+      externalSkipReason = 'notifications_disabled';
+    }
+
+    if (
+      externalAllowed &&
+      !body.force &&
+      settings?.quiet_mode_until &&
+      new Date(settings.quiet_mode_until).getTime() > now.getTime()
+    ) {
+      externalAllowed = false;
+      externalSkipReason = 'quiet_mode';
+    }
+
+    if (
+      externalAllowed &&
+      !body.force &&
+      settings?.quiet_hours_start &&
+      settings?.quiet_hours_end
+    ) {
+      const isQuietHours = checkQuietHours(
+        settings.quiet_hours_start,
+        settings.quiet_hours_end,
+        settings.timezone || 'Europe/Madrid'
+      );
+      if (isQuietHours) {
+        externalAllowed = false;
+        externalSkipReason = 'quiet_hours';
+      }
+    }
+
+    if (
+      externalAllowed &&
+      !body.force &&
+      settings?.only_important &&
+      templateCategory &&
+      !IMPORTANT_CATEGORIES.has(templateCategory)
+    ) {
+      externalAllowed = false;
+      externalSkipReason = 'only_important';
+    }
+
+    if (externalAllowed && !body.force && template && template.cooldown_hours > 0) {
+      const cooldownExpired = await checkCooldown(
+        profile.id,
+        template.type,
+        template.cooldown_hours,
+        supabase
+      );
+      if (!cooldownExpired) {
+        externalAllowed = false;
+        externalSkipReason = 'cooldown_active';
+      }
+    }
+
     // 0. Смена аватара бота под тип уведомления
     const targetAvatar = getAvatarForNotification(template?.category || 'custom', template?.type || body.template_type);
     await setBotAvatar(targetAvatar).catch(err => {
@@ -328,32 +403,36 @@ serve(async (req) => {
     });
 
     // 1. Отправка в Telegram
-    const telegramResult = await sendTelegramNotification(
-      profile.telegram_id,
-      title,
-      message,
-      icon,
-      ctaText,
-      ctaDeeplink,
-      body.image_url,
-      template?.category || 'custom',
-      template?.type || body.template_type
-    );
+    const telegramResult = externalAllowed && profile.telegram_id
+      ? await sendTelegramNotification(
+          profile.telegram_id,
+          title,
+          message,
+          channelIcon,
+          ctaText,
+          ctaDeeplink,
+          body.image_url,
+          template?.category || 'custom',
+          template?.type || body.template_type
+        )
+      : { success: false, error: externalAllowed ? 'no_telegram_id' : externalSkipReason || 'skipped' };
 
     // 2. Отправка PWA Push (параллельно)
-    const pwaPushResult = await sendPWAPushNotification(
-      profile.id,
-      title,
-      message,
-      icon,
-      ctaText,
-      ctaDeeplink
-    ).catch(err => {
-      console.error('[Notification Sender] PWA Push failed:', err);
-      return { success: false, error: String(err) };
-    });
+    const pwaPushResult = externalAllowed
+      ? await sendPWAPushNotification(
+          profile.id,
+          title,
+          message,
+          channelIcon,
+          ctaText,
+          ctaDeeplink
+        ).catch(err => {
+          console.error('[Notification Sender] PWA Push failed:', err);
+          return { success: false, error: String(err) };
+        })
+      : { success: false, error: externalSkipReason || 'skipped' };
 
-    if (!telegramResult.success && !pwaPushResult.success) {
+    if (!telegramResult.success && !pwaPushResult.success && !inAppInserted) {
       return new Response(
         JSON.stringify({
           error: 'Failed to send notification via any channel',
@@ -370,8 +449,8 @@ serve(async (req) => {
     await supabase.from('notification_logs').insert({
       user_id: profile.id,
       template_id: template?.id || null,
-      telegram_message_id: telegramResult.message_id,
-      telegram_chat_id: profile.telegram_id,
+      telegram_message_id: telegramResult.message_id || null,
+      telegram_chat_id: profile.telegram_id || null,
       title,
       message,
       category: template?.category || 'custom',
@@ -393,6 +472,9 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({
         success: true,
+        in_app: inAppInserted,
+        skipped_external: !externalAllowed,
+        skip_reason: externalAllowed ? undefined : externalSkipReason,
         telegram_sent: telegramResult.success,
         pwa_sent: pwaPushResult?.success,
         message_id: telegramResult.message_id,

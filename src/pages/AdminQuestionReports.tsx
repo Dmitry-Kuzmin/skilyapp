@@ -177,9 +177,51 @@ const AdminQuestionReports = () => {
 
       if (error) throw error;
 
-      // Notification logic (simplified for brevity)
-      // In a real scenario, keep the notification logic as it was
-      // ...
+      // Notify reporter (in-app)
+      try {
+        const responseText = adminResponse.trim();
+        const statusText = statusLabels[newStatus]?.ru || newStatus;
+
+        // Отправляем уведомление только если админ действительно написал ответ
+        if (responseText) {
+          const title =
+            newStatus === "resolved"
+              ? "✅ Отчёт рассмотрен"
+              : newStatus === "dismissed"
+                ? "ℹ️ Отчёт закрыт"
+                : "✉️ Ответ по отчёту";
+
+          const message = `Статус: ${statusText}\n\nОтвет:\n${responseText}`;
+
+          const icon =
+            newStatus === "resolved"
+              ? "check"
+              : newStatus === "dismissed"
+                ? "alert-triangle"
+                : "message-square";
+
+          await supabase
+            .from("duel_notifications")
+            .insert({
+              user_id: selectedReport.user_id,
+              duel_id: null,
+              type: "question_report_reply",
+              title,
+              message,
+              icon,
+              metadata: {
+                report_id: selectedReport.id,
+                question_id: selectedReport.question_id,
+                status: newStatus,
+                admin_response: responseText,
+              },
+              is_read: false,
+            });
+        }
+      } catch (notifyErr) {
+        // Не ломаем основной флоу, если уведомление не создалось
+        console.warn("[AdminQuestionReports] Failed to create notification:", notifyErr);
+      }
 
       toast.success("Отчёт обновлён");
       setIsDialogOpen(false);
@@ -465,5 +507,4 @@ const AdminQuestionReports = () => {
 };
 
 export default AdminQuestionReports;
-
 

@@ -108,29 +108,29 @@
     },
     "answers": [
       {
-        "id": "a",
+        "id": "opt_0",
         "text": {
-          "es": "No, porque no se deben sacar los brazos fuera del turismo.",
-          "en": "No, because arms must not be stuck out of the passenger car.",
-          "ru": "Нет, так как нельзя высовывать руки из легкового автомобиля."
-        },
-        "is_correct": false
-      },
-      {
-        "id": "b",
-        "text": {
+          "ru": "Да, если сигнал виден другим участникам движения.",
           "es": "Sí, cuando la señal sea perceptible para los demás usuarios.",
-          "en": "Yes, when the signal is visible to other road users.",
-          "ru": "Да, если сигнал виден другим участникам движения."
+          "en": "Yes, when the signal is visible to other road users."
         },
         "is_correct": true
       },
       {
-        "id": "c",
+        "id": "opt_1",
         "text": {
+          "ru": "Нет, так как нельзя высовывать руки из легкового автомобиля.",
+          "es": "No, porque no se deben sacar los brazos fuera del turismo.",
+          "en": "No, because arms must not be stuck out of the passenger car."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "opt_2",
+        "text": {
+          "ru": "Нет, необходимо также предупреждать поворотниками.",
           "es": "No, debe advertirlo también con los intermitentes.",
-          "en": "No, you must also warn with the indicators.",
-          "ru": "Нет, необходимо также предупреждать поворотниками."
+          "en": "No, you must also warn with the indicators."
         },
         "is_correct": false
       }
@@ -138,7 +138,7 @@
     "explanation": {
       "es": "Los conductores están obligados a advertir al resto de los usuarios de la vía acerca de las maniobras que vayan a efectuar. Como norma general, se utilizará la señalización luminosa del vehículo. No obstante, está permitido el uso del brazo como alternativa válida, siempre que la señal sea perceptible y visible para los demás usuarios. En caso de contradicción entre la señal luminosa y la del brazo, prevalece la del brazo.",
       "en": "Drivers are obliged to warn other road users of the maneuvers they intend to perform. As a general rule, the vehicle's light signals should be used. However, the use of the arm is permitted as a valid alternative, provided that the signal is perceptible and visible to other users. In the event of a contradiction between the light signal and the arm signal, the arm signal prevails.",
-      "ru": "🎓 \nВодители обязаны предупреждать остальных участников движения о любых маневрах (поворот, разворот, остановка и т.д.). Обычно для этого используются световые сигналы (поворотники или стоп-сигналы). Однако ПДД Испании официально разрешают использовать руку для подачи сигналов. Это допустимо не только при поломке световых приборов, но и как альтернатива, если жест будет хорошо виден. Главное условие — твой сигнал должен быть четким и понятным другим водителям.\n\n💡 Запоминалка\nЛампочка может перегореть, а рука всегда при себе. Если видишь противоречие между мигающим поворотником и жестом руки — верь руке!"
+      "ru": "🎓 Водители обязаны предупреждать остальных участников движения о любых маневрах (поворот, разворот, остановка и т.д.). Обычно для этого используются световые сигналы (поворотники или стоп-сигналы). Однако ПДД Испании официально разрешают использовать руку для подачи сигналов. Это допустимо не только при поломке световых приборов, но и как альтернатива, если жест будет хорошо виден. Главное условие — твой сигнал должен быть четким и понятным другим водителям.\n\n💡 Запоминалка\nЛампочка может перегореть, а рука всегда при себе. Если видишь противоречие между мигающим поворотником и жестом руки — верь руке!"
     },
     "image_url": "https://teorica.practicavial.com/question/8c80a077-0d3b-4fe7-a91b-39980489b8a8-1657808225-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/8c80a077-0d3b-4fe7-a91b-39980489b8a8-s-1.jpg",
@@ -255,29 +255,29 @@
     },
     "answers": [
       {
-        "id": "a",
+        "id": "opt_0",
         "text": {
+          "ru": "Нет, потому что это запрещено.",
           "es": "No, porque está prohibido.",
-          "en": "No, because it is prohibited.",
-          "ru": "Нет, потому что это запрещено."
+          "en": "No, because it is prohibited."
         },
         "is_correct": true
       },
       {
-        "id": "b",
+        "id": "opt_1",
         "text": {
+          "ru": "Да, за исключением случаев, когда есть запрещающий знак.",
           "es": "Sí, excepto cuando hay una señal que lo prohíbe.",
-          "en": "Yes, except when there is a sign prohibiting it.",
-          "ru": "Да, за исключением случаев, когда есть запрещающий знак."
+          "en": "Yes, except when there is a sign prohibiting it."
         },
         "is_correct": false
       },
       {
-        "id": "c",
+        "id": "opt_2",
         "text": {
+          "ru": "Да, но только в случае неисправности фар моего автомобиля.",
           "es": "Sí, pero solamente en caso de avería de las luces de mi vehículo.",
-          "en": "Yes, but only in case of a breakdown of my vehicle's lights.",
-          "ru": "Да, но только в случае неисправности фар моего автомобиля."
+          "en": "Yes, but only in case of a breakdown of my vehicle's lights."
         },
         "is_correct": false
       }
@@ -285,7 +285,7 @@
     "explanation": {
       "es": "El Reglamento General de Circulación prohíbe el uso de señales acústicas (claxon) en vías urbanas para advertir la intención de adelantar. En poblado, el uso del claxon se limita exclusivamente a dos situaciones: para evitar un posible accidente o para advertir que se está realizando un servicio de urgencia. La advertencia de adelantamiento mediante señales acústicas solo está permitida en vías interurbanas (fuera de poblado).",
       "en": "The General Traffic Regulations prohibit the use of acoustic signals (horn) on urban roads to warn of the intention to overtake. In built-up areas, the use of the horn is limited exclusively to two situations: to avoid a possible accident or to warn that an emergency service is being performed. Warning of overtaking by means of acoustic signals is only permitted on interurban roads (outside built-up areas).",
-      "ru": "🎓 \nСогласно ПДД Испании, на **городских дорогах** (vía urbana) использование звукового сигнала строго ограничено. Водитель **легкового автомобиля** имеет право применить клаксон только в двух случаях:\n1. Для предотвращения ДТП.\n2. При выполнении экстренной поездки (режим аварийной службы).\n\nИспользовать сигнал, чтобы просто предупредить другого водителя о намерении совершить **обгон** или опережение, в населенном пункте **запрещено**. Это действие разрешено только на дорогах вне города. Вместо звука в городе для предупреждения об обгоне можно использовать кратковременное мигание дальним светом.\n\n💡 **Запоминалка**\nГород спит — клаксон молчит.\nХочешь обогнать в городе? Мигай фарами, но не гуди."
+      "ru": "🎓 Согласно ПДД Испании, на **городских дорогах** (vía urbana) использование звукового сигнала строго ограничено. Водитель **легкового автомобиля** имеет право применить клаксон только в двух случаях:\n1. Для предотвращения ДТП.\n2. При выполнении экстренной поездки (режим аварийной службы).\n\nИспользовать сигнал, чтобы просто предупредить другого водителя о намерении совершить **обгон** или опережение, в населенном пункте **запрещено**. Это действие разрешено только на дорогах вне города. Вместо звука в городе для предупреждения об обгоне можно использовать кратковременное мигание дальним светом.\n\n💡 **Запоминалка**\nГород спит — клаксон молчит.\nХочешь обогнать в городе? Мигай фарами, но не гуди."
     },
     "image_url": "https://teorica.practicavial.com/question/49cb0b40-c1f0-4c91-aed7-9815d114ebef-1657804346-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/49cb0b40-c1f0-4c91-aed7-9815d114ebef-s-1.jpg",

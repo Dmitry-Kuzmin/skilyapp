@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { motion } from "@/components/optimized/Motion";
 import { useProfileData, useUserSkins } from "@/hooks/useProfileData";
-import { Crown } from "lucide-react";
+import { Crown, Bell } from "lucide-react";
 
 interface UserAvatarProps {
     profileId: string | null;
@@ -14,6 +14,8 @@ interface UserAvatarProps {
     previewSkin?: any; // For shop/inventory
     showPremiumGlow?: boolean;
     forcePremium?: boolean;
+    unreadCount?: number;
+    showNotificationBadge?: boolean;
     onClick?: () => void;
 }
 
@@ -25,6 +27,8 @@ export function UserAvatar({
     previewSkin,
     showPremiumGlow = true,
     forcePremium,
+    unreadCount = 0,
+    showNotificationBadge = true,
     onClick
 }: UserAvatarProps) {
     const { profileData: profile, loading: isLoading } = useProfileData(profileId);
@@ -146,7 +150,7 @@ export function UserAvatar({
             {isProfilePremium && !activeSkin && showPremiumGlow && (
                 <motion.div
                     className={cn(
-                        "absolute z-30 flex items-center justify-center rounded-full bg-background/60 backdrop-blur-md shadow-sm",
+                        "absolute z-30 flex items-center justify-center rounded-full bg-background/60 backdrop-blur-md shadow-sm border border-white/10",
                         size === "xl" || size === "2xl" || size === "3xl" 
                             ? "w-6 h-6 bottom-[-2px] right-[-2px]" 
                             : "w-3.5 h-3.5 -bottom-1 -right-1"
@@ -156,6 +160,37 @@ export function UserAvatar({
                     transition={{ type: "spring", stiffness: 300, damping: 25 }}
                 >
                     <Crown className={cn("text-amber-500/90 fill-amber-500/90", size === "xl" || size === "2xl" || size === "3xl" ? "h-3 w-3" : "h-2 w-2")} />
+                </motion.div>
+            )}
+
+            {/* Notification Badge - Symmetrical to Premium Badge (Bell Icon) */}
+            {showNotificationBadge && unreadCount > 0 && (
+                <motion.div
+                    className={cn(
+                        "absolute z-30 flex items-center justify-center rounded-full bg-background/60 backdrop-blur-md shadow-sm border border-white/10",
+                        size === "xl" || size === "2xl" || size === "3xl" 
+                            ? "w-6 h-6 top-[-2px] right-[-2px]" 
+                            : "w-3.5 h-3.5 -top-1 -right-1"
+                    )}
+                    initial={{ scale: 0 }}
+                    animate={{ 
+                        scale: [1, 1.05, 1],
+                    }}
+                    transition={{ 
+                        scale: {
+                            duration: 2,
+                            repeat: Infinity,
+                            ease: "easeInOut"
+                        },
+                        type: "spring", 
+                        stiffness: 300, 
+                        damping: 25 
+                    }}
+                >
+                    <Bell className={cn(
+                        "text-red-500 fill-red-500 drop-shadow-[0_0_3px_rgba(239,68,68,0.8)]", 
+                        size === "xl" || size === "2xl" || size === "3xl" ? "h-3 w-3" : "h-2 w-2"
+                    )} />
                 </motion.div>
             )}
 

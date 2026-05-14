@@ -17,16 +17,21 @@ import { useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useModalStore } from '@/store/modalStore';
 
-export async function uploadChatImage(file: File, profileId: string): Promise<string | null> {
-  const ext = file.name.split('.').pop() ?? 'jpg';
+export async function uploadChatAttachment(file: File, profileId: string): Promise<string | null> {
+  const rawExt = file.name.split('.').pop()?.toLowerCase();
+  const ext = rawExt || (file.type.startsWith('image/') ? 'jpg' : 'bin');
   const path = `${profileId}/${crypto.randomUUID()}.${ext}`;
   const { error } = await supabase.storage.from('chat-images').upload(path, file, {
     cacheControl: '3600',
     upsert: false,
   });
-  if (error) { console.error('[chat-image] upload error', error); return null; }
+  if (error) { console.error('[chat-attachment] upload error', error); return null; }
   const { data } = supabase.storage.from('chat-images').getPublicUrl(path);
   return data.publicUrl;
+}
+
+export async function uploadChatImage(file: File, profileId: string): Promise<string | null> {
+  return uploadChatAttachment(file, profileId);
 }
 
 export interface AIRequestMessage {

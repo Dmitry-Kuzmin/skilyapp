@@ -10,20 +10,22 @@ interface SystemPromptOptions {
   country?: string;
   language?: SupportedLanguage;
   showComparison?: boolean;
-  /** 'bot' = Telegram bot context (Stars/TON/CTA buttons), 'app' = Mini App context (sign widgets, TON) */
+  /** 'bot' = Telegram bot context (Stars/CTA buttons), 'app' = Mini App context (sign widgets, Premium CTA) */
   context?: 'bot' | 'app';
+  premiumContext?: {
+    isPremium: boolean;
+    hasUsedTrial: boolean;
+  };
 }
 
 // ── Widget rules per context ──────────────────────────
-const getBotWidgetRules = (): string => `
+const getBotWidgetRules = (premiumContext?: SystemPromptOptions['premiumContext']): string => `
 ## UI WIDGET TAGS
 Output these tags on a **separate line**. NEVER translate them. NEVER replace them with a URL or text link.
 
 | When to use | Tag |
 |---|---|
-| User wants to pay quickly / buy coins / Premium (instant) | [WIDGET:STARS:PAY] |
-| User wants to connect TON wallet / pay with crypto | [WIDGET:TON:CONNECT] |
-| Quick TON payment for 1.5 TON (Premium) | [WIDGET:TON:PAY:1.5:Skily Premium] |
+| User wants a trial or to buy Premium | [WIDGET:CTA:TRIAL:3 дня Premium бесплатно] / [WIDGET:CTA:PREMIUM:Открыть магазин] |
 | Encourage user to start a test | [WIDGET:CTA:TEST:Начать тест] |
 | Encourage user to start a duel | [WIDGET:CTA:DUEL:Начать дуэль] |
 | Link to the app (general) | [WIDGET:CTA:APP:Открыть Skily] |
@@ -32,32 +34,32 @@ Output these tags on a **separate line**. NEVER translate them. NEVER replace th
 | Custom Premium CTA | [WIDGET:CTA:PREMIUM:Text] |
 
 ### CRITICAL RULES:
-- When the user asks to pay, buy, or get Premium → output BOTH [WIDGET:STARS:PAY] and [WIDGET:TON:CONNECT].
-- **NEW**: For crypto native users, you can suggest [WIDGET:TON:PAY:1.5:Skily Premium] for a direct payment request.
-- [WIDGET:STARS:PAY] sends a native Telegram Stars payment right in chat (no redirect!).
-- [WIDGET:TON:CONNECT] opens the wallet screen in the Mini App for TON crypto payment via TON Connect.
+- If the trial is still available, offer [WIDGET:CTA:TRIAL:3 дня Premium бесплатно] first.
+- If the trial has already been used or the user wants to buy Premium, use [WIDGET:CTA:PREMIUM:Открыть магазин].
+- When discussing payment, mention only card or crypto. Never mention wallet systems or internal providers.
+- Do not mention a coin unless it is explicitly shown in the shop.
 - **ALWAYS** suggest [WIDGET:CTA:TEST:Начать тест] when user asks about rules, explanations, or preparation.
 - After explaining something — add [WIDGET:CTA:TEST:Начать тест].
 - You may combine text + up to TWO widget tags per message. Put tags at the END.
 - Do NOT output a URL, always use tags.
 `;
 
-const getAppWidgetRules = (): string => `
+const getAppWidgetRules = (premiumContext?: SystemPromptOptions['premiumContext']): string => `
 ## UI WIDGET TAGS
 Output these tags on a separate line. NEVER translate them. NEVER replace them with a URL or text link.
 
 | Intent | Output tag |
 |---|---|
 | Show road sign | [WIDGET:SIGN:CODE] |
-| Connect TON Wallet / Manage Crypto | [WIDGET:TON:CONNECT] |
-| Direct TON Payment (1.5 TON for Premium) | [WIDGET:TON:PAY:1.5:Skily Premium] |
 | Give badge/achievement | [WIDGET:MEME:BADGE:Name] |
+| Offer trial | [WIDGET:CTA:TRIAL:3 дня Premium бесплатно] |
 | Premium CTA button | [WIDGET:CTA:PREMIUM:Text] |
 
 ### CRITICAL PAYMENT RULE:
-- When any payment/premium/TON question arises → You MUST output [WIDGET:TON:CONNECT] or [WIDGET:TON:PAY:1.5:Skily Premium].
-- We use **TON Connect** for seamless, fast, and secure crypto payments.
-- Support both Wallet in Telegram, Tonkeeper, and other TON wallets.
+- If the trial is still available, offer [WIDGET:CTA:TRIAL:3 дня Premium бесплатно] first.
+- If the trial has already been used or the user wants to buy Premium, use [WIDGET:CTA:PREMIUM:Открыть магазин].
+- When discussing payment, mention only card or crypto. Never mention wallet systems or internal providers.
+- Do not name a specific coin unless it is explicitly shown in the shop.
 - Do NOT output a link or URL instead of a widget.
 
 ### SIGN WIDGET RULES (Spain DGT):
@@ -174,7 +176,7 @@ export function getSystemPrompt(options: SystemPromptOptions = {}): string {
   // App follows the user's language setting
   const effectiveLanguage = context === 'bot' ? 'ru' : language;
   const languageName = effectiveLanguage === 'ru' ? 'Russian' : effectiveLanguage === 'en' ? 'English' : 'Spanish';
-  const widgetRules = context === 'bot' ? getBotWidgetRules() : getAppWidgetRules();
+  const widgetRules = context === 'bot' ? getBotWidgetRules(options.premiumContext) : getAppWidgetRules(options.premiumContext);
   const personality = getPremiumPersonality();
   const scopeRule = getScopeRule();
 

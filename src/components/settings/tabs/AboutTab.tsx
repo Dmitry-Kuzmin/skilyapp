@@ -9,6 +9,8 @@ import { Separator } from '@/components/ui/separator';
 import { triggerHaptic } from '@/lib/haptics';
 import { useSettingsStore } from '@/store/settingsStore';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { perfectReset, unregisterServiceWorkers } from '@/utils/clearServiceWorker';
+import { Zap, RefreshCcw } from 'lucide-react';
 
 const SectionTitle: React.FC<{ title: string }> = ({ title }) => (
     <h3 className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3">
@@ -55,7 +57,8 @@ export const AboutTab: React.FC = () => {
     const { t } = useLanguage();
 
     // Динамическая версия из глобальной переменной (обновляется при каждом деплое)
-    const appVersion = (window as unknown as Record<string, string>)['APP_VERSION'] ?? '—';
+    const rawVersion = (window as unknown as Record<string, string>)['APP_VERSION'];
+    const appVersion = !rawVersion || rawVersion === '—' ? '16.1' : rawVersion;
 
     const handleNavigate = (path: string) => {
         closeSettings();
@@ -181,12 +184,45 @@ export const AboutTab: React.FC = () => {
                             <ChevronRight className="w-4 h-4 text-slate-400" />
                         </div>
                     </SettingRow>
-
-                    {/* Текущая версия */}
-                    <SettingRow label={t('unifiedSettings.aboutKeys.version')} description={appVersion || '1.0.0-beta'}>
-                        <span className="text-xs text-slate-400">{t('unifiedSettings.aboutKeys.versionCurrent')}</span>
-                    </SettingRow>
                 </div>
+            </div>
+
+            <Separator className="bg-slate-200 dark:bg-slate-700" />
+
+            {/* Устранение проблем (Скрытый раздел) */}
+            <div>
+                <SectionTitle title="Устранение проблем" />
+                <div className="space-y-2">
+                    <button
+                        onClick={async () => {
+                            if (confirm('Это полностью сбросит кэш и настройки приложения. Помогает при любых технических ошибках. Продолжить?')) {
+                                triggerHaptic('heavy');
+                                await perfectReset();
+                            }
+                        }}
+                        className="w-full flex items-center justify-between p-4 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/5 hover:bg-orange-50 dark:hover:bg-orange-500/5 transition-all group"
+                    >
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-xl bg-orange-500/10 flex items-center justify-center">
+                                <Zap className="w-5 h-5 text-orange-500" />
+                            </div>
+                            <div className="text-left">
+                                <p className="text-sm font-semibold text-slate-900 dark:text-white group-hover:text-orange-500 transition-colors">Сбросить данные и кэш</p>
+                                <p className="text-[11px] text-slate-500">Помогает, если приложение «глючит» или не грузится</p>
+                            </div>
+                        </div>
+                    </button>
+                </div>
+            </div>
+
+            {/* Подвал с версией */}
+            <div className="pt-8 pb-4 flex flex-col items-center justify-center space-y-1 opacity-40 select-none pointer-events-none">
+                <p className="text-[10px] font-bold tracking-[0.2em] uppercase text-slate-500 dark:text-slate-400">
+                    Skily v{appVersion}
+                </p>
+                <p className="text-[9px] font-medium text-slate-400">
+                    Made with ❤️ for students
+                </p>
             </div>
         </div>
     );

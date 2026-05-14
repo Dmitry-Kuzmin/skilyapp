@@ -54,25 +54,28 @@ export interface VideoQuestion {
 
   // Background video (relative to public/, e.g. 'backgrounds/bg1.mp4')
   backgroundVideo?: string;
+  // Topic-specific background shown during explanation (overrides backgroundVideo)
+  explanationBackgroundVideo?: string;
 }
 
 // ── Dynamic timing (computed from audio durations) ───────────────────────────
 export interface DynamicTiming {
-  hookStart:        number;   // seconds
-  countdownStart:   number;
-  questionStart:    number;
-  answersStart:     number;
-  answerAppearAt:   number[]; // absolute seconds when each answer card appears
-  suspenseStart:    number;
-  revealStart:      number;
-  explanationStart: number;
-  ctaStart:         number;
-  totalSec:         number;
+  hookStart:          number;   // seconds
+  countdownStart:     number;
+  questionStart:      number;   // visual start (frame 0)
+  questionAudioStart: number;   // audio start (after hook finishes)
+  answersStart:       number;
+  answerAppearAt:     number[]; // absolute seconds when each answer card appears
+  suspenseStart:      number;
+  revealStart:        number;
+  explanationStart:   number;
+  ctaStart:           number;
+  totalSec:           number;
 }
 
 const HOOK_DUR        = 2;
 const COUNTDOWN_DUR   = 0;
-const SUSPENSE_DUR    = 6;
+const SUSPENSE_DUR    = 3;
 const REVEAL_DUR      = 3;
 const CTA_DUR_DEFAULT = 4;
 const ANSWER_GAP      = 0.35; // seconds between answers
@@ -85,10 +88,11 @@ export function buildDynamicTiming(q: VideoQuestion): DynamicTiming {
   const hookAudioDur   = q.hookAudioDurationSec ?? HOOK_DUR;
   const hookEnd        = Math.max(HOOK_DUR, hookAudioDur + 0.3); // ждём конца hook-озвучки + 0.3с зазор
 
-  const hookStart      = 0;
-  const countdownStart = hookEnd;
-  const questionStart  = hookEnd + COUNTDOWN_DUR;
-  const answersStart   = questionStart + questionDur;
+  const hookStart         = 0;
+  const countdownStart    = 0;
+  const questionStart     = 0;          // визуально вопрос с первого кадра
+  const questionAudioStart = hookEnd;   // аудио вопроса после хука (без наложения)
+  const answersStart      = questionAudioStart + questionDur;
 
   // Answers: each card appears when it's that answer's turn to be read
   const answerDurs = q.answerAudioDurationsSec ?? [];
@@ -119,7 +123,7 @@ export function buildDynamicTiming(q: VideoQuestion): DynamicTiming {
   const totalSec = ctaStart + ctaDur;
 
   return {
-    hookStart, countdownStart, questionStart, answersStart,
+    hookStart, countdownStart, questionStart, questionAudioStart, answersStart,
     answerAppearAt, suspenseStart, revealStart, explanationStart,
     ctaStart, totalSec,
   };

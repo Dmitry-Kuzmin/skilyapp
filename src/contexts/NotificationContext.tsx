@@ -30,8 +30,41 @@ interface NotificationContextType {
 
 const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
 
-const MUTED_NOTIFICATION_TYPES = new Set(['start', 'progress', 'boost', 'opponent_ahead', 'opponent_behind', 'reminder', 'answer']);
-const IMPORTANT_NOTIFICATION_TYPES = new Set(['finish', 'timeout']);
+// MUTED: не показываем toast/звуки (но оставляем в панели уведомлений)
+const MUTED_NOTIFICATION_TYPES = new Set([
+    'start',
+    'progress',
+    'boost',
+    'opponent_ahead',
+    'opponent_behind',
+    'reminder',
+    'answer',
+    // engagement / progress (cron)
+    'inactive_3d',
+    'inactive_7d',
+    'streak_reminder',
+    'almost_ready',
+    'license_warning_12h',
+    // duel pass reminders
+    'duel_pass_daily_quest',
+    'duel_pass_season_3d',
+    'duel_pass_season_1d',
+    'duel_pass_season_last_hours',
+    'duel_pass_level_close',
+    'license_urgent_duelpass',
+    // monetization (success is usually not urgent)
+    'purchase_completed',
+    'trial_started',
+    'subscription_cancelled',
+]);
+// IMPORTANT: показываем toast + важный звук
+const IMPORTANT_NOTIFICATION_TYPES = new Set([
+    'finish',
+    'timeout',
+    'payment_failed',
+    'suspicious_login',
+    'license_warning_1h',
+]);
 const TOAST_RATE_LIMIT_MS = 4000;
 const TELEGRAM_RATE_LIMIT_MS = 60000;
 

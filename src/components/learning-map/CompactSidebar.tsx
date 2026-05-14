@@ -33,22 +33,22 @@ export const CompactSidebar = ({
       )}
     >
       {/* Статистика */}
-      <Card className="p-6 bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
-        <h3 className="text-lg font-bold text-gray-900 mb-4">Прогресс</h3>
+      <Card className="p-6 bg-secondary/10 border-border/50 backdrop-blur-md">
+        <h3 className="text-lg font-bold text-foreground mb-4">Прогресс</h3>
         <div className="space-y-4">
           {/* Общий прогресс */}
           <div>
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium text-gray-700">
+              <span className="text-sm font-medium text-muted-foreground">
                 Завершено тем
               </span>
-              <span className="text-sm font-bold text-gray-900">
+              <span className="text-sm font-bold text-foreground">
                 {completedTopics}/{totalTopics}
               </span>
             </div>
-            <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+            <div className="h-2 bg-secondary/50 rounded-full overflow-hidden">
               <div
-                className="h-full bg-gradient-to-r from-blue-500 to-blue-600 rounded-full transition-all duration-500"
+                className="h-full bg-gradient-to-r from-amber-400 to-orange-500 rounded-full transition-all duration-1000 ease-out shadow-[0_0_8px_rgba(251,191,36,0.3)]"
                 style={{ width: `${completionPercent}%` }}
               />
             </div>
@@ -96,10 +96,10 @@ export const CompactSidebar = ({
       </Card>
 
       {/* Достижения */}
-      <Card className="p-6 border-gray-200">
+      <Card className="p-6 border-border/50 bg-secondary/5 backdrop-blur-sm">
         <div className="flex items-center gap-2 mb-4">
-          <TrendingUp className="w-5 h-5 text-blue-600" />
-          <h3 className="text-lg font-bold text-gray-900">Достижения</h3>
+          <TrendingUp className="w-5 h-5 text-amber-500" />
+          <h3 className="text-lg font-bold text-foreground">Достижения</h3>
         </div>
         <p className="text-sm text-gray-600">
           Продолжайте обучение, чтобы разблокировать новые достижения

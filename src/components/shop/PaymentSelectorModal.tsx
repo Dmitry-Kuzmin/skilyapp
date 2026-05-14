@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import { ResponsiveModal } from "@/components/ui/responsive-modal";
 import { Button } from "@/components/ui/button";
 import { StarsPaymentButton } from "@/components/monetization/StarsPaymentButton";
-import { CreditCard, Sparkles, Wallet, Bitcoin, ChevronRight, ArrowLeft, X, CheckCircle2, RefreshCw, Loader2 } from "lucide-react";
+import { CreditCard, Sparkles, Bitcoin, ChevronRight, ArrowLeft, X, CheckCircle2, RefreshCw, Loader2 } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { motion, AnimatePresence } from "@/components/optimized/Motion";
 import { useUserContext } from "@/contexts/UserContext";
@@ -27,12 +27,10 @@ interface PaymentSelectorModalProps {
     priceCoins?: number;
   } | null;
   onSuccess: () => void;
-  onTonClick: () => void;
   onCryptoClick: () => Promise<{ paymentUrl: string; orderId: string; amount: number; currency: string; itemName: string }>;
   onCardClick: () => void;
   availability: {
     stars: boolean;
-    ton: boolean;
     crypto: boolean;
     card: boolean;
   };
@@ -51,7 +49,6 @@ export function PaymentSelectorModal({
   onOpenChange,
   pack,
   onSuccess,
-  onTonClick,
   onCryptoClick,
   onCardClick,
   availability
@@ -73,7 +70,6 @@ export function PaymentSelectorModal({
 
   // Price states
   const [starsPrice, setStarsPrice] = useState<number | null>(null);
-  const [tonPrice, setTonPrice] = useState<number | null>(null);
 
   const [paymentStatus, setPaymentStatus] = useState<'pending' | 'checking' | 'completed' | 'failed'>('pending');
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -269,28 +265,13 @@ export function PaymentSelectorModal({
             </div>
           )}
 
-          {/* TON Wallet */}
-          {availability.ton && (
-            <PaymentItem
-              icon={Wallet}
-              title={t('boostShop.payment.tonTitle') || 'TON Wallet'}
-              subtitle={t('boostShop.payment.tonSubtitle') || "Через Tonkeeper или Wallet"}
-              color="blue"
-              onClick={onTonClick}
-              className="relative z-20"
-              rightElement={
-                <span className="text-xs font-bold text-blue-400">{(pack.priceValue / 5).toFixed(1)} TON</span>
-              }
-            />
-          )}
-
           {/* Cryptocurrency (Cryptomus) */}
           {availability.crypto && (
             <PaymentItem
               icon={Bitcoin}
               title={t('boostShop.payment.cryptoTitle') || 'Cryptocurrency'}
               subtitle={t('boostShop.payment.cryptoSubtitle') || "Быстро, без лимитов и санкций"}
-              badges={["USDT", "BTC", "ETH", "SOL", "TON", "TRX", "BSC"]}
+              badges={["USDT", "BTC", "ETH", "SOL", "TRX", "BSC"]}
               color="orange"
               onClick={handleCryptoClick}
               className="relative z-20"

@@ -2,12 +2,13 @@
 /**
  * setup-login.js
  * Launches REAL Chrome (zero automation flags) with remote debugging.
- * You log in normally — Instagram/TikTok/YouTube see a genuine browser.
+ * You log in normally — Instagram/TikTok/YouTube/Facebook see a genuine browser.
  * When you're done, Playwright quietly connects and saves the session.
  *
  * Usage:
- *   node scripts/setup-login.js es    ← setup Spanish accounts
- *   node scripts/setup-login.js ru    ← setup Expat accounts
+ *   node scripts/setup-login.js es    ← setup Spanish accounts (TikTok/YouTube/Instagram ES)
+ *   node scripts/setup-login.js ru    ← setup Expat accounts (TikTok/YouTube/Instagram RU)
+ *   node scripts/setup-login.js fb    ← setup Facebook (admin account for RU + ES pages)
  */
 
 const { chromium } = require("playwright-core");
@@ -16,15 +17,19 @@ const path = require("path");
 const fs = require("fs");
 
 const lang = process.argv[2] || "es";
-if (!["es", "ru"].includes(lang)) {
-  console.error("Usage: node scripts/setup-login.js es|ru");
+if (!["es", "ru", "fb", "pinterest"].includes(lang)) {
+  console.error("Usage: node scripts/setup-login.js es|ru|fb|pinterest");
   process.exit(1);
 }
 
 const ROOT        = path.join(__dirname, "..");
 const CHROME      = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
 const PROFILE_DIR = path.join(ROOT, `chrome-login-${lang}`);
-const AUTH_FILE   = path.join(ROOT, `auth-state-${lang}.json`);
+const AUTH_FILE   = lang === "fb"
+  ? path.join(ROOT, "auth-state-fb.json")
+  : lang === "pinterest"
+    ? path.join(ROOT, "auth-state-pinterest.json")
+    : path.join(ROOT, `auth-state-${lang}.json`);
 const SIGNAL_FILE = "/tmp/skily-save-session.txt";
 const DEBUG_PORT  = 9222;
 
@@ -63,15 +68,20 @@ function waitForCDP(port, timeout = 15000) {
   console.log(`\n🔑 Setup login [${lang.toUpperCase()}] — открываю обычный Chrome`);
   console.log(`   Instagram, TikTok и YouTube не увидят автоматизацию.\n`);
 
+  // Вкладки зависят от типа логина
+  const tabs = lang === "fb"
+    ? ["https://www.facebook.com/login"]
+    : lang === "pinterest"
+      ? ["https://www.pinterest.com/login/"]
+      : ["https://www.tiktok.com/login", "https://studio.youtube.com", "https://www.instagram.com"];
+
   // Launch REAL Chrome — no Playwright flags, just remote debugging
   const chromeProc = spawn(CHROME, [
     `--remote-debugging-port=${DEBUG_PORT}`,
     `--user-data-dir=${PROFILE_DIR}`,
     "--no-first-run",
     "--no-default-browser-check",
-    "https://www.tiktok.com/login",
-    "https://studio.youtube.com",
-    "https://www.instagram.com",
+    ...tabs,
   ], { detached: false, stdio: "ignore" });
 
   // Wait for CDP to be available
@@ -79,10 +89,20 @@ function waitForCDP(port, timeout = 15000) {
   await waitForCDP(DEBUG_PORT);
   console.log(" готов!\n");
 
-  console.log("📋 Браузер открыт с тремя вкладками:");
-  console.log("   Вкладка 1: TikTok     — войди в аккаунт");
-  console.log("   Вкладка 2: YouTube    — войди в Google аккаунт");
-  console.log("   Вкладка 3: Instagram  — войди в аккаунт");
+  if (lang === "fb") {
+    console.log("📋 Браузер открыт:");
+    console.log("   Вкладка 1: Facebook — войди в аккаунт администратора страниц");
+    console.log(`\n   После логина можно закрыть лишние вкладки и проверить доступ`);
+    console.log(`   к нужным страницам (RU и ES).\n`);
+  } else if (lang === "pinterest") {
+    console.log("📋 Браузер открыт:");
+    console.log("   Вкладка 1: Pinterest — войди в бизнес-аккаунт SkilyApp\n");
+  } else {
+    console.log("📋 Браузер открыт с тремя вкладками:");
+    console.log("   Вкладка 1: TikTok     — войди в аккаунт");
+    console.log("   Вкладка 2: YouTube    — войди в Google аккаунт");
+    console.log("   Вкладка 3: Instagram  — войди в аккаунт");
+  }
   console.log(`\n⚠️  НЕ закрывай браузер! Когда войдёшь — скажи Claude "готово"\n`);
   console.log(`   (или вручную: touch /tmp/skily-save-session.txt)\n`);
 

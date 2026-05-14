@@ -8,13 +8,11 @@ import { SkilyAICharacter } from "@/components/skily-ai/SkilyAICharacter";
 import { useAIRequest } from "@/hooks/useAIRequest";
 import { useTypewriter } from "@/hooks/useTypewriter";
 import { supabase } from "@/integrations/supabase/client";
-import ReactMarkdown from 'react-markdown';
 import { useLanguage } from "@/contexts/LanguageContext";
 import { toast } from 'sonner';
 import { triggerHapticFeedback } from "@/lib/telegram";
 import { useFeatureFlag } from "@/hooks/useFeatureFlag";
 import { AILimitReachedModal } from "@/components/ai/AILimitReachedModal";
-import { SignWidget } from "@/components/chat/SignWidget";
 import { useModalStore } from "@/store/modalStore";
 import { usePremium } from "@/hooks/usePremium";
 import { useQuery } from "@tanstack/react-query";
@@ -23,7 +21,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useDashboardData } from "@/hooks/useDashboardData";
 import { useDuelPassData } from "@/hooks/useDuelPassData";
 import { useTTSStore } from "@/store/useTTSStore";
-// TON_DISABLED: import { TonPaymentWidget } from "@/components/monetization/LazyTonPaymentWidget";
+import { AIMessageContent } from "@/components/ai/AIMessageContent";
 
 type Message = {
   role: "user" | "assistant";
@@ -802,50 +800,10 @@ ${imageUrl ? `\n⚠️ К вопросу есть иллюстрация — о�
                           "max-w-[90%] p-4 rounded-2xl rounded-tl-none text-xs xl:text-sm leading-relaxed transition-all",
                           "bg-white dark:bg-slate-800/90 backdrop-blur-md border border-indigo-100/30 dark:border-white/5 shadow-[0_8px_30px_rgba(0,0,0,0.04)] dark:shadow-black/20"
                         )}>
-                          {message.content.split(/(\[\s*(?:WIDGET|W|WTON)\s*:[^\]]+\])/gi).map((part, partIndex) => {
-                            const isWidget = /^\[\s*(?:WIDGET|W|WTON)\s*:/i.test(part);
-                            if (isWidget) {
-                              const match = part.match(/\[\s*(?:WIDGET|W)\s*:\s*(SIGN|CTA|TON|WTON)\s*:\s*([^\]]+?)(?:\s*:\s*([\s\S]+))?\]/i) || part.match(/\[\s*(WTON)\s*:\s*([^\]]+?)(?:\s*:\s*([\s\S]+))?\]/i);
-                              if (match) {
-                                const [_, type, param1, param2] = match;
-                                const upperType = type?.toUpperCase();
-                                const upperParam1 = param1?.trim().toUpperCase();
-
-                                if (upperType === 'SIGN') {
-                                  return <SignWidget key={partIndex} code={param1.trim()} description={param2} />;
-                                }
-
-                                // TON_DISABLED: TON widget removed
-
-                                if (upperType === 'CTA' && upperParam1 === 'PREMIUM') {
-                                  return (
-                                    <div key={partIndex} className="my-4 p-4 bg-gradient-to-br from-amber-500/10 via-orange-400/5 to-amber-500/10 border border-amber-500/30 dark:border-amber-500/20 rounded-xl flex flex-col sm:flex-row items-center justify-between gap-3 shadow-sm relative overflow-hidden">
-                                      <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/10 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none"></div>
-                                      <div className="relative z-10">
-                                        <h4 className="font-bold text-amber-600 dark:text-amber-400 flex items-center gap-1.5"><Sparkles className="w-4 h-4" />Skily PRO</h4>
-                                        <p className="text-xs text-muted-foreground mt-1 max-w-[200px]">{param2 || "Открой подробные разборы ошибок"}</p>
-                                      </div>
-                                      <Button size="sm" className="relative z-10 bg-gradient-to-r from-amber-500 to-orange-500 text-white shrink-0 shadow-lg shadow-orange-500/20 hover:scale-105 transition-all text-xs h-8 px-4 font-bold" onClick={() => openModal('PAYWALL', { trigger: 'ai_cta' })}>
-                                        Стать PRO
-                                      </Button>
-                                    </div>
-                                  );
-                                }
-                              }
-                              // Fallback if widget parsing fails
-                              return null;
-                            }
-
-                            // Render text parts 
-                            if (!part.trim()) return null;
-                            return (
-                              <div key={partIndex} className="prose prose-sm dark:prose-invert prose-p:my-1.5 xl:prose-p:my-2 break-words">
-                                <ReactMarkdown>
-                                  {part}
-                                </ReactMarkdown>
-                              </div>
-                            );
-                          })}
+                          <AIMessageContent
+                            content={message.content}
+                            onOpenPremium={() => openModal('PAYWALL', { trigger: 'ai_cta' })}
+                          />
                         </div>
                       ) : (
                         <div className="flex items-center gap-1.5 text-muted-foreground text-xs">

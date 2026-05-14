@@ -23,12 +23,11 @@ import {
     CockpitTab,
     NotificationsTab,
     SubscriptionTab,
-    DataTab,
     AboutTab,
 } from './tabs';
 
 // === TYPES ===
-type SettingsSection = 'account' | 'general' | 'cockpit' | 'notifications' | 'subscription' | 'data' | 'about';
+type SettingsSection = 'account' | 'general' | 'cockpit' | 'notifications' | 'subscription' | 'about';
 
 interface NavItem {
     id: SettingsSection;
@@ -46,7 +45,6 @@ const useNavItems = () => {
         { id: 'cockpit', label: t('unifiedSettings.cockpit'), icon: <Gauge className="w-4 h-4" />, description: t('unifiedSettings.cockpitDesc') },
         { id: 'notifications', label: t('unifiedSettings.notifications'), icon: <Bell className="w-4 h-4" />, description: t('unifiedSettings.notificationsDesc') },
         { id: 'subscription', label: t('unifiedSettings.subscription'), icon: <Sparkles className="w-4 h-4" />, description: t('unifiedSettings.subscriptionDesc') },
-        { id: 'data', label: t('unifiedSettings.data'), icon: <Database className="w-4 h-4" />, description: t('unifiedSettings.dataDesc') },
         { id: 'about', label: t('unifiedSettings.about'), icon: <Info className="w-4 h-4" />, description: t('unifiedSettings.aboutDesc') },
     ] as NavItem[];
 };
@@ -102,7 +100,6 @@ export const UnifiedSettingsDrawer: React.FC = () => {
             case 'cockpit': return <CockpitTab />;
             case 'notifications': return <NotificationsTab />;
             case 'subscription': return <SubscriptionTab />;
-            case 'data': return <DataTab />;
             case 'about': return <AboutTab />;
             default: return null;
         }

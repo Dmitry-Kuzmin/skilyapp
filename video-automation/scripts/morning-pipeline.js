@@ -231,11 +231,13 @@ async function renderViaApi(question) {
     const req = http.request({
       hostname: "localhost", port: 3334, path: "/api/render", method: "POST",
       headers: { "Content-Type": "application/json", "Content-Length": Buffer.byteLength(body) },
+      timeout: 30 * 60 * 1000, // 30 минут — рендер + Gemini + TTS
     }, res => {
       let buf = "";
       res.on("data", c => buf += c);
       res.on("end", () => { try { resolve(JSON.parse(buf)); } catch { resolve({ error: buf }); } });
     });
+    req.on("timeout", () => { req.destroy(new Error("Render API timeout (30min)")); });
     req.on("error", reject);
     req.write(body);
     req.end();
@@ -248,15 +250,6 @@ async function renderViaApi(question) {
 const BG_VIDEOS = ["backgrounds/bg1.mp4", "backgrounds/bg2.mp4"];
 
 function buildVideoQuestion(q, seriesNumber) {
-  const hookTemplates = {
-    easy:   { es: "¿Lo sabrías contestar?", ru: "Угадаешь ответ?" },
-    medium: { es: "¡Falla el 40% en DGT!", ru: "40% не знают это!" },
-    hard:   { es: "¡Solo 1 de 4 acierta!", ru: "Только 25% правы!" },
-  };
-  const pct = q.percent_correct || 50;
-  const level = pct < 40 ? "hard" : pct < 70 ? "medium" : "easy";
-  const hook = hookTemplates[level];
-
   // VideoTemplate.tsx uses q.language ("es"/"ru") — not q.country
   const language = q.country === "russia" ? "ru" : "es";
 
@@ -267,16 +260,15 @@ function buildVideoQuestion(q, seriesNumber) {
 
   return {
     ...q,
-    language,                         // ← critical: "es" or "ru"
+    language,
     series_number: seriesNumber,
-    hook_title: hook.es,
-    hook_title_ru: hook.ru,
+    // hook_title НЕ задаём — picker-server сгенерирует через Gemini
     explanation: q.explanation || "",
     explanationRu: q.explanation_ru || q.explanation || "",
     question_ru: q.question_ru || q.question,
     show_explanation: true,
     backgroundVideo: backgroundVideoES,
-    backgroundVideoRU,                // ← RU uses the opposite background
+    backgroundVideoRU,
   };
 }
 
@@ -388,20 +380,92 @@ function scheduleRUPublish(ruVideoPath) {
     }
 
     // 3. Save publish-data.json for auto-publish.js
+    // hook_title берём из ответа render API (там уже Gemini-версия)
+    const finalHookEs = result.hookTitle || videoQuestion.hook_title || "";
+    const finalHookRu = result.hookTitleRu || result.hookTitle || videoQuestion.hook_title || "";
+
+    // 3a. Генерируем YouTube-заголовки через Gemini (SEO-оптимизированные под поиск)
+    const geminiKey = process.env.GEMINI_API_KEY || "";
+    const geminiModel = "gemini-3.1-flash-lite-preview";
+    async function geminiYouTubeTitle(question, explanation, lang) {
+      if (!geminiKey) return null;
+      const isRu = lang === "ru";
+      const prompt = isRu
+        ? `Ты эксперт по YouTube SEO для канала о подготовке к экзамену по вождению в Испании (ПДД DGT).
+Напиши ОДИН заголовок для YouTube Shorts (до 70 символов).
+Требования:
+- Содержит конкретную тему вопроса (что именно проверяется)
+- Включает ключевые слова которые ищут: "DGT", "экзамен вождения", "ПДД Испании" или подобные
+- Создаёт интригу или вопрос (но не кликбейт)
+- НЕ пиши "40% не знают" — только конкретная тема
+- Только заголовок, без кавычек, без пояснений
+
+Вопрос: ${question}
+Объяснение: ${explanation?.slice(0, 200)}`
+        : `Eres experto en SEO de YouTube para un canal sobre el examen de conducir DGT.
+Escribe UN título para YouTube Shorts (máximo 70 caracteres).
+Requisitos:
+- Menciona el tema concreto de la pregunta
+- Incluye palabras clave buscadas: "DGT", "examen conducir", "carnet" o similares
+- Genera curiosidad o pregunta (sin clickbait)
+- NO escribas "el 40% no sabe" — solo el tema concreto
+- Solo el título, sin comillas, sin explicaciones
+
+Pregunta: ${question}
+Explicación: ${explanation?.slice(0, 200)}`;
+
+      const body = JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] });
+      return new Promise((resolve) => {
+        const req = https.request({
+          hostname: "generativelanguage.googleapis.com",
+          path: `/v1beta/models/${geminiModel}:generateContent?key=${geminiKey}`,
+          method: "POST",
+          headers: { "Content-Type": "application/json", "Content-Length": Buffer.byteLength(body) },
+        }, (res) => {
+          const chunks = [];
+          res.on("data", c => chunks.push(c));
+          res.on("end", () => {
+            try {
+              const json = JSON.parse(Buffer.concat(chunks).toString("utf-8"));
+              const text = json.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+              resolve(text ? text.slice(0, 70) : null);
+            } catch { resolve(null); }
+          });
+        });
+        req.on("error", () => resolve(null));
+        req.write(body);
+        req.end();
+      });
+    }
+
+    log("🤖 Generating YouTube titles via Gemini...");
+    const [ytTitleEs, ytTitleRu] = await Promise.all([
+      geminiYouTubeTitle(videoQuestion.question, videoQuestion.explanation, "es"),
+      geminiYouTubeTitle(
+        videoQuestion.question_ru || videoQuestion.question,
+        videoQuestion.explanationRu || videoQuestion.explanation,
+        "ru"
+      ),
+    ]);
+    if (ytTitleEs) log(`   📺 YouTube ES: "${ytTitleEs}"`);
+    if (ytTitleRu) log(`   📺 YouTube RU: "${ytTitleRu}"`);
+
     const pubData = {
       es: {
-        hookTitle: videoQuestion.hook_title,
-        question: videoQuestion.question,
-        explanation: videoQuestion.explanation,
+        hookTitle:        finalHookEs,
+        youtubeTitle:     ytTitleEs || finalHookEs,
+        question:         videoQuestion.question,
+        explanation:      videoQuestion.explanation,
         seriesNumber,
-        videoPath: finalES,
+        videoPath:        finalES,
       },
       ru: {
-        hookTitle: videoQuestion.hook_title_ru,
-        question: videoQuestion.question_ru,
-        explanation: videoQuestion.explanationRu,
+        hookTitle:        finalHookRu,
+        youtubeTitle:     ytTitleRu || finalHookRu,
+        question:         videoQuestion.question_ru || videoQuestion.question,
+        explanation:      videoQuestion.explanationRu || videoQuestion.explanation,
         seriesNumber,
-        videoPath: finalRU,
+        videoPath:        finalRU,
       },
       renderedAt: new Date().toISOString(),
     };

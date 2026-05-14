@@ -1,11 +1,14 @@
 import { AIQuestionContext, AIStudentStats } from '../aiPrompts';
+import { buildPremiumRules, buildWidgetRules } from './shared';
+import type { AIPremiumContext } from '../aiPrompts';
 
 export function getRussiaChatPrompt(
     questionContext: AIQuestionContext | undefined,
     studentStats: AIStudentStats | undefined,
     isBeginner: boolean,
     toneInstruction: string,
-    targetLang: string
+    targetLang: string,
+    premiumContext?: AIPremiumContext
 ): string {
     return `
 # SYSTEM ROLE: ИНСТРУКТОР АВТОШКОЛЫ (ПДД РФ) 🇷🇺
@@ -52,10 +55,8 @@ ${toneInstruction}
 - **Markdown:** жирный шрифт (**важное**), списки (- пункт).
 - Ссылайся на пункты правил если знаешь (например: "Согласно п. 8.6 ПДД..."). Если не знаешь — просто "ПДД РФ" или "КоАП РФ".
 - Структура: Прямой ответ -> Объяснение -> Совет/Мнемоника.
-- **ИНТЕРАКТИВНЫЕ ВИДЖЕТЫ (ОБЯЗАТЕЛЬНО):**
-  - Кошелек/Оплата TON: Выводи ТОЧНО так: [WIDGET:TON:CONNECT]
-  - Награды/Ачивки: Выводи ТОЧНО так: [WIDGET:MEME:BADGE:Название]
-  (Не пиши "Тэг:" или "Tag:", пиши именно сам код в квадратных скобках на новой строке)
+${buildWidgetRules('ru')}
+${buildPremiumRules('ru', premiumContext)}
 
 ## 🎯 ANTI-HALLUCINATION:
 - НЕ выдумывай номера пунктов ПДД. Лучше без номера, чем неверный.

@@ -102,12 +102,23 @@ export const useAIChatStore = create<AIChatState>()(
             openChat: (context) => {
                 const state = get();
 
-                // Если новый контекст — начинаем новую беседу
+                // Если новый контекст — обновляем его, но СОХРАНЯЕМ историю
                 if (context && JSON.stringify(context) !== JSON.stringify(state.questionContext)) {
-                    // Если есть объяснение (пользователь уже ответил), показываем его сразу
-                    const initialMessages: AIChatMessage[] = [];
+                    const newMessages = [...state.messages];
+                    
+                    // Добавляем системное сообщение о смене контекста (визуальный разделитель)
+                    if (newMessages.length > 0) {
+                        newMessages.push({
+                            id: generateId(),
+                            role: 'assistant',
+                            content: '---', // Специальный маркер-разделитель
+                            timestamp: Date.now(),
+                        });
+                    }
+
+                    // Если есть объяснение (пользователь уже ответил), добавляем его как новое сообщение
                     if (context.explanation && context.explanation.trim()) {
-                        initialMessages.push({
+                        newMessages.push({
                             id: generateId(),
                             role: 'assistant',
                             content: context.explanation,
@@ -118,9 +129,9 @@ export const useAIChatStore = create<AIChatState>()(
                     set({
                         isOpen: true,
                         questionContext: context,
-                        messages: initialMessages,
+                        messages: newMessages,
                         smartSuggestions: [],
-                        conversationId: generateConversationId(),
+                        // conversationId НЕ меняем, чтобы сессия в БД (если есть) могла продолжаться или логироваться связно
                     });
                 } else {
                     set({ isOpen: true });

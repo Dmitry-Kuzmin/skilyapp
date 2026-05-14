@@ -1,7 +1,7 @@
 // =====================================================
 // AI Handler for Telegram Bot (Gemini Integration)
 // Features: Streaming via sendMessageDraft (Bot API 9.3+),
-//           Styled buttons (Bot API 9.4+), Stars payments
+//           Styled buttons (Bot API 9.4+), premium/trial CTAs
 // =====================================================
 
 import { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
@@ -17,6 +17,21 @@ const MINI_APP_BASE = "https://t.me/skilyapp_bot/skilyapp";
 const MINI_APP_URL = "https://skilyapp.com";
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") || "";
 const SUPABASE_SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
+
+const LEGACY_PAYMENT_PATTERNS = [
+  /\[WIDGET:\s*TON:/i,
+  /\[WIDGET:\s*STARS:\s*PAY\]/i,
+  /\bTON\b/i,
+  /\bTelegram Stars\b/i,
+  /\bTonkeeper\b/i,
+  /\bWallet\b/i,
+  /\bкошел(?:ек|ёк)\b/i,
+  /\bpay_stars\b/i,
+];
+
+function isLegacyPaymentNoise(content: string): boolean {
+  return LEGACY_PAYMENT_PATTERNS.some((pattern) => pattern.test(content));
+}
 
 // Unique draft_id counter (per-request, non-zero)
 let draftCounter = 1;
@@ -98,22 +113,13 @@ function parseWidgetButtons(text: string): { cleanText: string; buttons: any[][]
     ]);
   }
 
-  // [WIDGET:TON:CONNECT] — deep-link to wallet screen
-  const tonConnectMatch = cleaned.match(/\[WIDGET:\s*TON:\s*CONNECT\]/i);
-  if (tonConnectMatch) {
-    cleaned = cleaned.replace(tonConnectMatch[0], '').trim();
+  // [WIDGET:CTA:TRIAL:label] — open the paywall with the trial CTA
+  const trialCta = cleaned.match(/\[WIDGET:\s*CTA:\s*TRIAL:(.*?)\]/i);
+  if (trialCta) {
+    const label = trialCta[1];
+    cleaned = cleaned.replace(trialCta[0], '').trim();
     buttons.push([
-      { text: "💎 Стать PRO / TON", web_app: { url: `${MINI_APP_URL}/dashboard?modal=boost-shop&initialTab=premium` } },
-    ]);
-  }
-
-  // [WIDGET:TON:PAY:amount:comment] — direct payment request
-  const tonPay = cleaned.match(/\[WIDGET:\s*TON:\s*PAY:(.*?):(.*?)\]/i);
-  if (tonPay) {
-    const amount = tonPay[1]; 
-    cleaned = cleaned.replace(tonPay[0], '').trim();
-    buttons.push([
-      { text: `💎 Оплатить ${amount} TON`, web_app: { url: `${MINI_APP_URL}/dashboard?modal=ton-pay&amount=${amount}` } },
+      { text: `🎁 ${label}`, web_app: { url: `${MINI_APP_URL}/dashboard?modal=paywall` } },
     ]);
   }
 
@@ -163,7 +169,7 @@ function parseWidgetButtons(text: string): { cleanText: string; buttons: any[][]
     const label = premiumCta[1];
     cleaned = cleaned.replace(premiumCta[0], '').trim();
     buttons.push([
-      { text: `💎 ${label}`, url: `${MINI_APP_BASE}?startapp=premium` },
+      { text: `💎 ${label}`, web_app: { url: `${MINI_APP_URL}/dashboard?modal=boost-shop&initialTab=premium` } },
     ]);
   }
 
@@ -255,20 +261,20 @@ async function callGeminiStreaming(
   chatId: number,
   userId?: string,
   imageData?: { data: string; mimeType: string } | null,
-  hasWallet?: boolean,
+  premiumContext?: { isPremium: boolean; hasUsedTrial: boolean },
 ): Promise<{ text: string; model: string } | null> {
   if (!GEMINI_API_KEY) {
     console.error('[Gemini] No API Key found');
     return null;
   }
 
-  const walletStatus = hasWallet ? "Wallet is ALREADY connected." : "Wallet is NOT connected yet - user must connect first.";
-  const systemPrompt = getSystemPrompt({ country, language, context: 'bot' }) + 
-    `\n\nUSER STATE: ${walletStatus}\n` +
-    `PAYMENT INFO:\n` +
-    `- Use [WIDGET:STARS:PAY] if user wants to pay with Telegram Stars (easiest for mobile).\n` +
-    `- Use [WIDGET:TON:CONNECT] (if not connected) or [WIDGET:TON:PAY:amount:description] (if connected) for TON native payments.\n` +
-    `- Mention that regular bank cards (Stripe/Paddle) are accepted inside our Mini App - use [WIDGET:CTA:PREMIUM:Открыть магазин] to direct them there.\n\n` +
+  const systemPrompt = getSystemPrompt({ country, language, context: 'bot', premiumContext }) +
+    `\n\nPAYMENT INFO:\n` +
+    `- If the trial is still available, suggest the 3-day trial first and use [WIDGET:CTA:TRIAL:3 дня Premium бесплатно].\n` +
+    `- If the trial has already been used or the user wants to buy Premium, use [WIDGET:CTA:PREMIUM:Открыть магазин].\n` +
+    `- When discussing payment, mention only card or crypto.\n` +
+    `- Do not mention wallet systems or internal providers.\n` +
+    `- Do not name a specific coin unless it is explicitly shown in the shop.\n\n` +
     "IMPORTANT: Use ONLY Telegram-supported HTML tags: <b>bold</b>, <i>italic</i>, <u>underline</u>, <code>code</code>. \n" +
     "DO NOT use <ul>, <li>, <div> or <p> tags - they are NOT supported and will break the message. \n" +
     "For lists, use bullet point characters like '•' or emojis. Ensure the response is premium and visually spaced well with new lines.";
@@ -305,10 +311,16 @@ async function callGeminiStreaming(
       if (history && history.length > 0) {
         conversationId = history[0].conversation_id;
         // Разворачиваем историю в правильном порядке
-        const formattedHistory = history.reverse().map((h: any) => ({
-          role: h.role === 'assistant' ? 'model' : 'user',
-          parts: [{ text: h.content }]
-        }));
+        const formattedHistory = history
+          .reverse()
+          .map((h: any) => ({
+            role: h.role === 'assistant' ? 'model' : 'user',
+            parts: [{ text: h.content }]
+          }))
+          .filter((entry: any) => {
+            const text = entry.parts?.map((part: any) => part.text ?? '').join('\n') ?? '';
+            return !entry.role || entry.role === 'user' || !isLegacyPaymentNoise(text);
+          });
         currentContents.push(...formattedHistory);
       }
     } catch (err) {
@@ -545,12 +557,20 @@ export async function handleAIChat(message: TelegramMessage, supabase: SupabaseC
 
     const { data: profile } = await supabase
       .from('profiles')
-      .select('id, settings, ton_wallet_address, user_id')
+      .select('id, settings, trial_until, premium_until, premium_forever_purchased_at, subscription_status, user_id')
       .eq('telegram_id', telegramId)
       .maybeSingle();
 
     const country = profile?.settings?.country || 'spain';
-    const hasWallet = !!profile?.ton_wallet_address;
+    const now = new Date();
+    const hasUsedTrial = !!profile?.trial_until || profile?.subscription_status === 'trial';
+    const isPremium = Boolean(
+      profile?.subscription_status === 'pro' ||
+      profile?.subscription_status === 'lifetime' ||
+      (profile?.premium_until && new Date(profile.premium_until) > now) ||
+      profile?.premium_forever_purchased_at
+    );
+    const premiumContext = { isPremium, hasUsedTrial };
     
     // Передаем профиль для получения истории внутри callGeminiStreaming
     const resultObj = await callGeminiStreaming(
@@ -561,7 +581,7 @@ export async function handleAIChat(message: TelegramMessage, supabase: SupabaseC
       chatId, 
       profile?.user_id, // Используем auth.users ID если есть
       imageData,
-      hasWallet
+      premiumContext
     );
 
     if (!resultObj) {
