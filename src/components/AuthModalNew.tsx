@@ -327,6 +327,10 @@ export function AuthModalNew({ open, onClose, initialStep = 'email', variant = '
       setShowSuccessAnimation(true);
       toast.success(t('auth.success.loggedIn'));
 
+      if (isNewUserForOtp) {
+        localStorage.setItem('skily_show_trial', '1');
+      }
+
       setTimeout(() => {
         onClose();
         navigate('/dashboard', { replace: true });

@@ -143,9 +143,256 @@ const jsonLdArray = Array.isArray(jsonLd) ? jsonLd : jsonLd ? [jsonLd] : [];
         cookiesVersion: "skilyapp-en"
       };
     </script>
+
+    <!-- Start Engine Button Styles -->
+    <style is:global>
+      /* Scale wrapper: 75% mobile, 90% md+ */
+      .engine-scale-wrapper {
+        transform: scale(0.75);
+        transform-origin: center;
+        margin: -24px 0;
+      }
+      @media (min-width: 768px) {
+        .engine-scale-wrapper { transform: scale(0.9); margin: -10px 0; }
+      }
+
+      /* Outer button element — 192×192, relative container for all layers */
+      .engine-btn-outer {
+        position: relative;
+        width: 192px;
+        height: 192px;
+        border-radius: 50%;
+        cursor: pointer;
+        background: transparent;
+        border: none;
+        padding: 0;
+        -webkit-tap-highlight-color: transparent;
+        user-select: none;
+        transition: transform 0.2s ease;
+        display: block;
+      }
+      .engine-btn-outer:hover { transform: scale(1.05); }
+      .engine-btn-outer:active { transform: scale(0.95); }
+      .engine-btn-outer.engine-shaking { animation: engine-shake 0.6s cubic-bezier(0.36,0.07,0.19,0.97) infinite; }
+
+      /* Indigo glow — inside button, 50% bleed on all sides */
+      .engine-glow {
+        position: absolute;
+        inset: -50%;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(99,102,241,0.4) 0%, rgba(99,102,241,0) 70%);
+        opacity: 0;
+        transition: opacity 0.5s;
+        pointer-events: none;
+      }
+      .engine-btn-outer:hover .engine-glow { opacity: 0.6; }
+      .engine-btn-outer.engine-igniting .engine-glow { opacity: 1; }
+
+      /* Metal ring — absolute inset-0, thick padding (p-3 = 12px) */
+      .engine-ring-layer {
+        position: absolute;
+        inset: 0;
+        border-radius: 50%;
+        background: conic-gradient(#d1d5db 0%, #f3f4f6 25%, #9ca3af 50%, #f3f4f6 75%, #d1d5db 100%);
+        box-shadow: 0 20px 50px rgba(0,0,0,0.8), inset 0 2px 5px rgba(255,255,255,0.5);
+        padding: 12px;
+        z-index: 10;
+      }
+
+      /* Dark circle layer — bg #111 with recessed shadow */
+      .engine-dark-circle {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        background: #111;
+        box-shadow: inset 0 5px 15px rgba(0,0,0,0.9);
+        padding: 6px;
+      }
+
+      /* Gradient inner circle — the main button face */
+      .engine-inner-circle {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        background: linear-gradient(to bottom, #2a2a2a, #050505);
+        border-top: 1px solid rgba(255,255,255,0.1);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+      }
+      .engine-btn-outer.engine-igniting .engine-inner-circle { border-color: rgba(99,102,241,0.5); }
+
+      /* Radial white overlay — subtle center highlight */
+      .engine-radial-overlay {
+        position: absolute;
+        inset: 0;
+        border-radius: 50%;
+        background: radial-gradient(circle at center, rgba(255,255,255,0.2) 0%, transparent 100%);
+        opacity: 0.2;
+        pointer-events: none;
+      }
+
+      /* Loading bar — at top, 8px tall */
+      .engine-bar-track {
+        width: 64px;
+        height: 8px;
+        border-radius: 999px;
+        background: rgba(0,0,0,0.8);
+        margin-bottom: 16px;
+        overflow: hidden;
+        border: 1px solid rgba(255,255,255,0.05);
+        box-shadow: inset 0 1px 3px rgba(0,0,0,1);
+        position: relative;
+        z-index: 1;
+        flex-shrink: 0;
+      }
+      .engine-bar-fill {
+        height: 100%;
+        border-radius: 999px;
+        width: 0%;
+        background: linear-gradient(to right, #4f46e5, #a855f7);
+        box-shadow: 0 0 10px rgba(99,102,241,0.8);
+        transition: width 1.5s ease-out;
+      }
+
+      /* Icon + labels group */
+      .engine-content-group {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        position: relative;
+        z-index: 10;
+      }
+      .engine-power-icon {
+        width: 32px;
+        height: 32px;
+        margin-bottom: 8px;
+        color: #94a3b8;
+        filter: drop-shadow(0 2px 4px rgba(0,0,0,1));
+        transition: color 0.3s;
+      }
+      .engine-btn-outer:hover .engine-power-icon,
+      .engine-btn-outer.engine-igniting .engine-power-icon { color: white; }
+
+      .engine-lbl-engine {
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.25em;
+        text-transform: uppercase;
+        color: #64748b;
+        line-height: 1;
+        font-family: inherit;
+        transition: color 0.3s;
+      }
+      .engine-btn-outer:hover .engine-lbl-engine,
+      .engine-btn-outer.engine-igniting .engine-lbl-engine { color: #818cf8; }
+
+      .engine-lbl-ss {
+        font-size: 10px;
+        color: #374151;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        margin-top: 4px;
+        font-family: inherit;
+      }
+
+      /* Ambient bottom glow inside circle */
+      .engine-ambient-light {
+        position: absolute;
+        bottom: 12px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 80px;
+        height: 32px;
+        background: rgba(255,255,255,0.05);
+        filter: blur(8px);
+        border-radius: 50% 50% 0 0;
+        opacity: 0.5;
+        pointer-events: none;
+      }
+
+      /* PRESS START separator */
+      .engine-press-row {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        opacity: 0.6;
+        margin-top: 4px;
+      }
+      .engine-sep-line {
+        height: 1px;
+        width: 48px;
+        background: linear-gradient(to right, transparent, #64748b);
+      }
+      .engine-sep-line-right { background: linear-gradient(to left, transparent, #64748b); }
+      .engine-sep-text {
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.2em;
+        color: #64748b;
+        white-space: nowrap;
+        font-family: inherit;
+      }
+
+      /* Fallback link */
+      .engine-demo-link {
+        font-size: 12px;
+        color: #64748b;
+        text-decoration: none;
+        transition: color 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        font-family: inherit;
+        margin-top: 4px;
+      }
+      .engine-demo-link:hover { color: #cbd5e1; }
+
+      @keyframes engine-shake {
+        0%, 100% { transform: translate3d(0, 0, 0); }
+        25% { transform: translate3d(-1.5%, -1.5%, 0); }
+        50% { transform: translate3d(1.5%, 1.5%, 0); }
+        75% { transform: translate3d(-1%, 1%, 0); }
+      }
+    </style>
   </head>
 
   <body class="bg-surface text-white font-sans antialiased">
     <slot />
+    <script is:inline>
+      function handleStartEngine(btn) {
+        if (btn.dataset.igniting) return;
+        btn.dataset.igniting = 'true';
+        var id = btn.id.replace('engine-btn-', '');
+        var loginUrl = btn.dataset.url;
+        var bar = document.getElementById('engine-bar-' + id);
+        btn.classList.add('engine-shaking', 'engine-igniting');
+        if (bar) requestAnimationFrame(function() { bar.style.width = '100%'; });
+        setTimeout(function() { window.location.href = loginUrl; }, 1500);
+      }
+    </script>
+    <script is:inline>
+      (function() {
+        var loaded = false;
+        function loadCrisp() {
+          if (loaded) return;
+          loaded = true;
+          window.$crisp = [];
+          window.CRISP_WEBSITE_ID = "f75e4c12-7db0-4f2f-90fb-711aacc45df3";
+          var s = document.createElement('script');
+          s.src = 'https://client.crisp.chat/l.js';
+          s.async = true;
+          document.head.appendChild(s);
+        }
+        setTimeout(loadCrisp, 15000);
+        window.addEventListener('pointerdown', loadCrisp, { once: true, passive: true });
+        window.addEventListener('keydown', loadCrisp, { once: true });
+        window.addEventListener('scroll', loadCrisp, { once: true, passive: true });
+      })();
+    </script>
   </body>
 </html>

@@ -35,7 +35,7 @@ const DashboardContent = memo(function DashboardContent() {
 
   useDemoCoinsReward(profileId);
 
-  const { isPremium, isTrial, daysRemaining } = usePremium();
+  const { isPremium, isTrial, daysRemaining, hasUsedTrial } = usePremium();
   const { balance } = useCoins();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -109,6 +109,15 @@ const DashboardContent = memo(function DashboardContent() {
       setTrialExpiryOpen(true);
     }
   }, [isTrial, daysRemaining, showWelcome]);
+
+  useEffect(() => {
+    if (isPremium || hasUsedTrial) return;
+    const flag = localStorage.getItem('skily_show_trial');
+    if (!flag) return;
+    localStorage.removeItem('skily_show_trial');
+    const timer = setTimeout(() => setPaywallOpen(true), 1200);
+    return () => clearTimeout(timer);
+  }, [isPremium, hasUsedTrial]);
 
 
   const handleClaimBonus = async () => {
