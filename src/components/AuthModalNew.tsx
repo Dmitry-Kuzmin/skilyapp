@@ -629,7 +629,7 @@ export function AuthModalNew({ open, onClose, initialStep = 'email', variant = '
 
   if (variant === 'page') {
     return (
-      <div className="min-h-[100dvh] bg-background flex flex-col items-center justify-center p-4">
+      <div className="h-[100dvh] overflow-hidden bg-background flex flex-col items-center justify-center p-4">
         <div className="w-full max-w-md bg-card dark:bg-[#111113] rounded-[3rem] overflow-hidden shadow-[0_0_0_1px_rgba(0,0,0,0.05),0_20px_50px_rgba(0,0,0,0.1)] dark:shadow-[0_0_0_1px_rgba(255,255,255,0.05),0_20px_50px_rgba(0,0,0,0.7)] border border-border dark:border-white/5 relative">
           {/* Back button for Page Variant */}
           <AnimatePresence>
