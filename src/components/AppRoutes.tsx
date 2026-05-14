@@ -4,7 +4,7 @@
  */
 
 import { lazy, Suspense, type ReactNode } from "react";
-import { Routes, Route, Navigate, useParams } from "react-router-dom";
+import { Routes, Route, Navigate, useParams, useSearchParams } from "react-router-dom";
 import { PageLoader } from "@/components/PageLoader";
 import { PageSkeleton } from "@/components/PageSkeleton";
 import { TelegramNavigation } from "@/components/TelegramNavigation";
@@ -134,6 +134,15 @@ const PaymentCancel = lazy(() => import("../pages/PaymentCancel"));
 // Purchase обрабатывается в App.tsx (без AppProviders)
 const InviteLanding = lazy(() => import("../pages/InviteLanding"));
 // УДАЛЕНО: LearnCountrySelector и LearnCountryHome - больше не используются, Dashboard автоматически перестраивается
+
+function DemoRedirect() {
+  const [searchParams] = useSearchParams();
+  const lang = searchParams.get('lang');
+  const to = lang
+    ? `/test/practice?count=10&demo=1&lang=${lang}`
+    : '/test/practice?count=10&demo=1';
+  return <Navigate to={to} replace />;
+}
 
 export function AppRoutes() {
   // КРИТИЧНО: AppRoutes рендерится внутри AppProviders, поэтому UserContext доступен
@@ -515,7 +524,7 @@ export function AppRoutes() {
           <InviteLanding />
         </Suspense>
       } />
-      <Route path="/demo" element={<Navigate to="/test/practice?count=10&demo=1" replace />} />
+      <Route path="/demo" element={<DemoRedirect />} />
       {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
       <Route path="*" element={
         <Suspense fallback={<PageSkeleton />}>

@@ -53,7 +53,7 @@ import { QuestionCard } from "@/components/test-session/QuestionCard";
 import { MidTestAITeaser } from "@/components/test-session/MidTestAITeaser";
 import { useTestState } from "@/hooks/test-session/useTestState";
 import { TestSettingsMenu } from "@/components/TestSettingsMenu";
-import { FloatingAITrigger } from "@/components/ai/FloatingAITrigger";
+
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 
 import { useTestSettings } from "@/hooks/test-session/useTestSettings";
@@ -715,6 +715,9 @@ const TestSession = () => {
 
   const [showExitConfirm, setShowExitConfirm] = useState(false);
   const [testLanguage, setTestLanguage] = useState<'es' | 'en' | 'ru'>(() => {
+    const params = new URLSearchParams(window.location.search);
+    const urlLang = params.get('lang');
+    if (urlLang === 'es' || urlLang === 'en' || urlLang === 'ru') return urlLang;
     const saved = localStorage.getItem('test-language');
     return (saved === 'en' || saved === 'ru' ? saved : 'es') as 'es' | 'en' | 'ru';
   });
@@ -1609,30 +1612,7 @@ const TestSession = () => {
           onViewResults={onViewResults}
         />
 
-        {/* Floating AI Assistant for Tablets/Laptops where sidebar is hidden */}
-        <FloatingAITrigger
-          isVisible={!isWide && isPracticeLikeMode && !isBlitzMode && !isExamMode}
-          questionContext={{
-            question: getQuestionText(effectiveLanguage),
-            correctAnswer: sortedOptions.find((opt) => opt.is_correct)?.[
-              effectiveLanguage === 'ru' ? 'text_ru' :
-                (effectiveLanguage === 'en' ? 'text_en' : 'text_es')] || '',
-            userAnswer: selectedOption ? sortedOptions.find((opt) => opt.id === selectedOption)?.[
-              effectiveLanguage === 'ru' ? 'text_ru' :
-                (effectiveLanguage === 'en' ? 'text_en' : 'text_es')] : undefined,
-            isCorrect: sortedOptions.find((opt) => opt.id === selectedOption)?.is_correct || false,
-            explanation: selectedOption ? (showTranslation ? currentQuestion.explanation_ru :
-              (effectiveLanguage === 'ru' ? currentQuestion.explanation_ru :
-                (effectiveLanguage === 'en' ? currentQuestion.explanation_en : currentQuestion.explanation_es))) : null,
-            explanationRu: currentQuestion.explanation_ru,
-            explanationEs: currentQuestion.explanation_es,
-            explanationEn: currentQuestion.explanation_en,
-            topic: currentQuestion.topics?.title_es,
-            imageUrl: currentQuestion.image_url,
-            testLanguage: effectiveLanguage,
-            country: isRussia ? 'russia' : 'spain',
-          }}
-        />
+
       </TestContentLayout>
     </Layout >
   );
