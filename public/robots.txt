@@ -15,11 +15,39 @@ Disallow: /test-session
 Disallow: /test-results
 Disallow: /dashboard
 
+# AI crawlers — explicitly allowed for GEO (Generative Engine Optimization)
+User-agent: GPTBot
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Googlebot
+Allow: /
+
+User-agent: Applebot
+Allow: /
+
+User-agent: YouBot
+Allow: /
+
 # Sitemaps
 Sitemap: https://skilyapp.com/sitemap.xml
 Sitemap: https://skilyapp.com/news-sitemap.xml
 
-# Discovery hints for AI crawlers
+# GEO — AI citation files
 # https://skilyapp.com/llms.txt
 # https://skilyapp.com/llms-full.txt
 
