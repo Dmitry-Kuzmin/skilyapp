@@ -3,8 +3,6 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 const currentYear = new Date().getFullYear();
 const appBaseUrl = import.meta.env.DEV ? 'http://localhost:8080' : 'https://skilyapp.com';
 
-const url = new URL(Astro.request.url);
-const variant = url.searchParams.get('v') || '2'; // 1 = Side, 2 = Stacked
 const isDev = import.meta.env.DEV;
 
 const title = 'Skily — Pass your DGT exam the first time | AI + Gamification';
@@ -114,24 +112,6 @@ const faqSchema = {
 
   <div class="relative min-h-[100dvh] bg-[#0f172a] text-white font-sans overflow-x-hidden selection:bg-blue-500/30 w-full">
 
-    <!-- Dev Variant Switcher (Only in DEV) -->
-    {isDev && (
-      <div class="fixed bottom-10 right-10 z-[9999] flex flex-col gap-3">
-        <div class="bg-slate-900/90 backdrop-blur-xl border border-white/10 p-2 rounded-2xl shadow-2xl">
-          <div class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 px-2 text-center">Design Variant</div>
-          <div class="flex flex-col gap-2">
-            <a href="?v=1" class={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${variant === '1' ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/30' : 'text-slate-400 hover:bg-white/5 hover:text-white'}`}>
-              <span class="w-1.5 h-1.5 rounded-full bg-current"></span>
-              Side (Modern)
-            </a>
-            <a href="?v=2" class={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${variant === '2' ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/30' : 'text-slate-400 hover:bg-white/5 hover:text-white'}`}>
-              <span class="w-1.5 h-1.5 rounded-full bg-current"></span>
-              Stacked (Classic)
-            </a>
-          </div>
-        </div>
-      </div>
-    )}
 
     <!-- Noise texture -->
     <div class="fixed inset-0 pointer-events-none opacity-[0.03] z-0" style="background-image:url('/noise.svg')"></div>
@@ -174,75 +154,7 @@ const faqSchema = {
     <!-- ═══════════════════════════════════════ HERO SECTION ═══════════════════════════════════ -->
     <section class="relative pt-12 pb-10 md:pt-16 md:pb-32 overflow-hidden px-6">
       <div class="max-w-[1400px] mx-auto relative z-10">
-        <!-- Variant 1 Container (Side) -->
-        <div id="hero-v1" class="hidden">
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-8 items-center pt-4 md:pt-10">
-            <div class="flex flex-col items-center lg:items-start text-center lg:text-left">
-              <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-300 text-[10px] font-bold tracking-[0.2em] uppercase mb-8">
-                🇪🇸 DGT Approved · {currentYear}
-              </div>
-              <h1 class="text-[clamp(2.5rem,8vw,5rem)] lg:text-[clamp(3rem,5vw,5.5rem)] font-black tracking-tighter leading-[1.05] mb-6">
-                <span class="bg-clip-text text-transparent bg-gradient-to-b from-white via-slate-100 to-slate-300 block pb-2">Pass DGT theory first time</span>
-                <span class="bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-sky-400 to-cyan-300 block">Stress-free</span>
-              </h1>
-              <p class="max-w-xl text-lg md:text-xl text-slate-300 leading-relaxed mb-10 font-medium">
-                <span class="text-white font-bold">Forget boring textbooks</span>. Our AI finds your mistakes and personalizes your learning. Gamification, up-to-date questions, and your 'L' plate are waiting.
-              </p>
-              <div class="flex flex-col items-center lg:items-start gap-4 w-full lg:justify-start">
-                <div class="engine-scale-wrapper">
-                  <button class="engine-btn-outer" id="engine-btn-v1" data-url={`${appBaseUrl}/login`} onclick="handleStartEngine(this)">
-                    <div class="engine-glow" id="engine-glow-v1"></div>
-                    <div class="engine-ring-layer" id="engine-ring-v1">
-                      <div class="engine-dark-circle">
-                        <div class="engine-inner-circle">
-                          <div class="engine-radial-overlay"></div>
-                          <div class="engine-bar-track"><div class="engine-bar-fill" id="engine-bar-v1"></div></div>
-                          <div class="engine-content-group">
-                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="engine-power-icon">
-                              <path d="M12 2v10"/><path d="M18.4 6.6a9 9 0 1 1-12.77.04"/>
-                            </svg>
-                            <span class="engine-lbl-engine">Engine</span>
-                            <span class="engine-lbl-ss">Start/Stop</span>
-                          </div>
-                          <div class="engine-ambient-light"></div>
-                        </div>
-                      </div>
-                    </div>
-                  </button>
-                </div>
-                <div class="engine-press-row">
-                  <div class="engine-sep-line"></div>
-                  <span class="engine-sep-text">Press Start</span>
-                  <div class="engine-sep-line engine-sep-line-right"></div>
-                </div>
-                <a href={`${appBaseUrl}/demo?lang=en`} class="engine-demo-link">or sign up directly →</a>
-              </div>
-            </div>
-            <div class="relative w-[115%] -ml-[7.5%] h-[280px] sm:h-[450px] lg:h-[700px] sm:w-full sm:ml-0" style="transition-delay: 200ms" id="product-showcase-v1">
-              <div class="lg:absolute lg:top-1/2 lg:-translate-y-1/2 lg:left-0 lg:w-[140%] lg:max-w-none perspective-2000">
-                <div class="relative w-full parallax-element">
-                   <div class="floating-animation">
-                      <div class="absolute -inset-20 bg-blue-500/20 blur-[120px] rounded-full opacity-60"></div>
-                      <div class="relative rounded-[2.5rem] overflow-hidden shadow-[0_30px_60px_-15px_rgba(0,0,0,0.9),0_0_80px_0_rgba(59,130,246,0.4)] border border-white/20 group">
-                        <img 
-                          src="/images/dashboard-preview.webp" 
-                          alt="Skily Dashboard" 
-                          width="1200"
-                          height="645"
-                          fetchpriority="high"
-                          loading="eager"
-                          class="w-full h-auto object-cover scale-[1.3] md:scale-[1.02] group-hover:scale-105 transition-transform duration-1000" 
-                        />
-                      </div>
-                   </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Variant 2 Container (Stacked) -->
-        <div id="hero-v2" class="hidden">
+        <div>
           <div class="flex flex-col items-center text-center max-w-4xl mx-auto pt-2">
             <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-300 text-[10px] font-bold tracking-[0.2em] uppercase mb-6 reveal-on-scroll">
               🇪🇸 DGT Approved · {currentYear}
@@ -386,7 +298,19 @@ const faqSchema = {
 
     <!-- ═══════════════════════════════════════ FEATURES (Zig-Zag) ══════════════════════════════════════ -->
     <section id="features" class="relative z-10 py-24 md:py-40">
-      <div class="max-w-[1400px] mx-auto px-6 space-y-32 md:space-y-64">
+      <div class="max-w-[1400px] mx-auto px-6">
+        <!-- Features Header -->
+        <div class="text-center mb-24 md:mb-40 reveal-on-scroll">
+          <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-300 text-[10px] font-bold tracking-[0.2em] uppercase mb-8">
+            ✦ Complete Platform
+          </div>
+          <h2 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white mb-6 leading-tight max-w-5xl mx-auto">
+            Everything you need to pass<br/><span class="text-slate-300">in one single place</span>
+          </h2>
+          <p class="text-slate-400 text-base md:text-lg max-w-2xl mx-auto">Thousands of students are already preparing for their carnet with Skily — personalized AI, real duels and gamification.</p>
+        </div>
+
+        <div class="space-y-32 md:space-y-64">
 
         <!-- 1. IA TUTOR (Text Left, Demo Right) -->
         <div class="grid lg:grid-cols-[1fr,1.3fr] gap-12 lg:gap-20 items-center reveal-on-scroll">
@@ -719,9 +643,15 @@ const faqSchema = {
         <!-- Card 2: Categories -->
         <div class="bg-slate-900/50 border border-slate-800 p-8 rounded-[2rem] hover:border-blue-500/30 transition-all">
           <div class="flex gap-4 mb-4">
-            <svg class="w-8 h-8 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 18.75a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 0 1-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 0 0-3.213-9.193 2.056 2.056 0 0 0-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 0 0-10.026 0 1.106 1.106 0 0 0-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12"/></svg>
-            <svg class="w-8 h-8 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25m-4.5 0a4.5 4.5 0 1 1 0 9 4.5 4.5 0 0 1 0-9Zm-7.5 0A4.5 4.5 0 0 0 4.5 9v.75m0 0v2.25m0-2.25h.75m-.75 0H3.375m1.125 2.25-.019.052a.5.5 0 0 1-.923-.013L3 11.25l.75-2.25m3 0h.75m-3.75 0h3.75M9 9.75v.75m3-3.75.75-.75m.75.75L15 6M15 6l-.75.75"/></svg>
-            <svg class="w-8 h-8 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7h8m-8 4h8m-8 4h8M3.75 4.5A.75.75 0 0 1 4.5 3.75h15a.75.75 0 0 1 .75.75v15a.75.75 0 0 1-.75.75h-15a.75.75 0 0 1-.75-.75v-15Z"/></svg>
+            <svg class="w-8 h-8 text-blue-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/>
+            </svg>
+            <svg class="w-8 h-8 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="18.5" cy="17.5" r="3.5"/><circle cx="5.5" cy="17.5" r="3.5"/><circle cx="15" cy="5" r="1"/><path d="M12 17.5V14l-3-3 4-3 2 3h2"/>
+            </svg>
+            <svg class="w-8 h-8 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M8 6v6"/><path d="M15 6v6"/><path d="M2 12h19.6"/><path d="M18 18h3s.5-1.7.8-2.8c.1-.4.2-.8.2-1.2 0-.4-.1-.8-.2-1.2l-1.4-5C20.1 6.8 19.1 6 18 6H4a2 2 0 0 0-2 2v10h3"/><circle cx="7" cy="18" r="2"/><path d="M9 18h5"/><circle cx="16" cy="18" r="2"/>
+            </svg>
           </div>
           <h3 class="font-bold text-lg mb-1">All Categories</h3>
           <p class="text-slate-500 text-sm">Cars, motorcycles, and professional transport.</p>
@@ -893,7 +823,7 @@ const faqSchema = {
             if (entry.isIntersecting) {
               entry.target.classList.add('revealed');
               // If it's a showcase, init parallax
-              if (entry.target.id === 'product-showcase-container' || entry.target.id === 'product-showcase-v1') {
+              if (entry.target.id === 'product-showcase-container') {
                 initShowcaseParallax();
               }
             }
@@ -902,16 +832,9 @@ const faqSchema = {
 
         document.querySelectorAll('.reveal-on-scroll').forEach(el => observer.observe(el));
 
-        // Logic for variant display
-        const variant = new URLSearchParams(window.location.search).get('v') || '2';
-        const h1 = document.getElementById('hero-v1');
-        const h2 = document.getElementById('hero-v2');
-        if(h1) h1.style.display = variant === '1' ? 'block' : 'none';
-        if(h2) h2.style.display = variant === '2' ? 'block' : 'none';
-
         // Parallax effect for product showcase
         function initShowcaseParallax() {
-          const showcase = document.getElementById('product-showcase-container') || document.getElementById('product-showcase-v1');
+          const showcase = document.getElementById('product-showcase-container');
           if (!showcase || showcase.dataset.parallaxInit) return;
           showcase.dataset.parallaxInit = "true";
 
@@ -946,7 +869,7 @@ const faqSchema = {
             const rect = el.getBoundingClientRect();
             if (rect.top < window.innerHeight) {
               el.classList.add('revealed');
-              if (el.id === 'product-showcase-container' || el.id === 'product-showcase-v1') initShowcaseParallax();
+              if (el.id === 'product-showcase-container') initShowcaseParallax();
             }
           });
         }, 500);
