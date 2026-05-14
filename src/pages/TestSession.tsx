@@ -1484,14 +1484,6 @@ const TestSession = () => {
           </div>
         )}
 
-        {/* Mid-test AI teaser — appears after first mistake, once per session */}
-        {mode !== 'blitz' && mode !== 'exam-russia' && (
-          <div className="mt-2 mb-1">
-            <MidTestAITeaser incorrectCount={errorCount} />
-          </div>
-        )}
-
-        {/* Guest paywall popup — shows after 3rd answered question */}
         {showGuestPaywall && (() => {
           const pw = {
             es: {
@@ -1575,9 +1567,10 @@ const TestSession = () => {
                       <p className="text-[10px] font-black uppercase tracking-[0.2em] text-blue-400 mb-0.5">
                         {pw.badge}
                       </p>
-                      <h2 className="text-lg font-black text-white leading-tight">
-                        {pw.title}
-                      </h2>
+                      <h2 
+                        className="text-lg font-black text-white leading-tight"
+                        dangerouslySetInnerHTML={{ __html: pw.title }}
+                      />
                     </div>
                   </div>
 
