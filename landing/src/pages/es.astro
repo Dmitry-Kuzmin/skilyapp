@@ -186,7 +186,7 @@ const faqSchema = {
           <h1 class="font-black tracking-tighter leading-[1.05] mb-8 reveal-on-scroll">
             <span class="text-[clamp(1.5rem,2.8vw,2.5rem)] text-slate-300 block pb-3 whitespace-nowrap">Tu teórico a la primera</span>
             <span class="block text-[clamp(3rem,9vw,6rem)]" style="position:relative;padding-bottom:0.08em;margin-bottom:-0.08em">
-              <span id="hero-word-glow" aria-hidden="true" style="position:absolute;inset:-20% -8%;background:linear-gradient(to right,#3b82f6,#38bdf8,#67e8f9);filter:blur(55px);opacity:0.38;pointer-events:none;border-radius:9999px;transition:background 0.4s ease;"></span>
+              <span id="hero-word-glow" aria-hidden="true" style="position:absolute;inset:-60% -5%;background:radial-gradient(ellipse 90% 80% at 50% 55%,rgba(56,189,248,0.55) 0%,transparent 68%);filter:blur(30px);pointer-events:none;transition:background 0.4s ease;"></span>
               <span style="display:block;overflow:hidden">
                 <span id="hero-word" class="hero-rotating-word block" style="background:linear-gradient(to right,#3b82f6,#38bdf8,#67e8f9);-webkit-background-clip:text;background-clip:text;color:transparent;white-space:nowrap;position:relative;z-index:1;">Sin libros aburridos</span>
               </span>
@@ -319,11 +319,11 @@ const faqSchema = {
         // ── Hero rotating words ────────────────────────────────────────────────
         (function() {
           var WORDS = [
-            { text:'Sin dramas',            grad:'linear-gradient(to right,#3b82f6,#38bdf8,#67e8f9)' },
-            { text:'Con IA inteligente',    grad:'linear-gradient(to right,#8b5cf6,#c084fc,#e879f9)' },
-            { text:'Compitiendo en duelos', grad:'linear-gradient(to right,#f97316,#fb923c,#fcd34d)' },
-            { text:'En tiempo récord',      grad:'linear-gradient(to right,#10b981,#2dd4bf,#67e8f9)' },
-            { text:'Sin libros aburridos',  grad:'linear-gradient(to right,#ec4899,#f472b6,#fb923c)' },
+            { text:'Sin dramas',            grad:'linear-gradient(to right,#3b82f6,#38bdf8,#67e8f9)', gc:'56,189,248' },
+            { text:'Con IA inteligente',    grad:'linear-gradient(to right,#8b5cf6,#c084fc,#e879f9)', gc:'192,132,252' },
+            { text:'Compitiendo en duelos', grad:'linear-gradient(to right,#f97316,#fb923c,#fcd34d)', gc:'249,115,22' },
+            { text:'En tiempo récord',      grad:'linear-gradient(to right,#10b981,#2dd4bf,#67e8f9)', gc:'16,185,129' },
+            { text:'Sin libros aburridos',  grad:'linear-gradient(to right,#ec4899,#f472b6,#fb923c)', gc:'236,72,153' },
           ];
           var idx = 0;
 
@@ -340,7 +340,7 @@ const faqSchema = {
                 el.textContent = word.text;
                 el.style.backgroundImage = word.grad;
                 var glow = document.getElementById('hero-word-glow');
-                if(glow) glow.style.background = word.grad;
+                if(glow) glow.style.background = 'radial-gradient(ellipse 90% 80% at 50% 55%,rgba('+word.gc+',0.55) 0%,transparent 68%)';
                 el.classList.remove('hero-word-out');
                 el.classList.add('hero-word-in');
                 setTimeout(function(){ el.classList.remove('hero-word-in'); }, 700);
@@ -893,65 +893,91 @@ const faqSchema = {
     </section>
 
     <!-- ═══════════════════════════════════════ COMPARISON ═══════════════════════════════ -->
-    <section class="relative z-10 px-6 py-16 max-w-[1400px] mx-auto">
-      <div class="mb-10 text-center">
-        <h2 class="text-3xl md:text-5xl font-black text-white mb-3">¿Por qué Skily?</h2>
-        <p class="text-slate-500 text-sm">Evolución vs tradición</p>
+    <section class="relative z-10 px-6 py-24 md:py-32 max-w-[1400px] mx-auto">
+      <div class="mb-16 text-center reveal-on-scroll">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-300 text-[10px] font-bold tracking-[0.2em] uppercase mb-6">
+          ⚖️ Comparativa
+        </div>
+        <h2 class="text-3xl md:text-6xl font-black text-white mb-4">¿Por qué Skily?</h2>
+        <p class="text-slate-500 text-lg">Evolución tecnológica vs. métodos tradicionales</p>
       </div>
 
-      <div class="max-w-2xl mx-auto rounded-3xl overflow-hidden border border-slate-700/50 shadow-2xl shadow-indigo-500/5 bg-slate-900/40 backdrop-blur-md">
-        <div class="w-full">
-          <!-- Header -->
-          <div class="grid grid-cols-[0.7fr_1fr_1fr] bg-slate-900/80 border-b border-slate-700/50">
-            <div class="px-3 py-4"></div>
-            <div class="px-2 py-4 text-center border-l border-slate-700/50">
-              <span class="text-[9px] md:text-xs font-bold text-slate-500 uppercase tracking-widest">Tradicional</span>
-            </div>
-            <div class="px-2 py-4 text-center border-l border-slate-700/50 bg-blue-500/10">
-              <span class="text-[9px] md:text-xs font-bold text-blue-400 uppercase tracking-widest">Skily ★</span>
-            </div>
-          </div>
-
-          <!-- Price row -->
-          <div class="grid grid-cols-[0.7fr_1fr_1fr] border-b border-slate-800/80 bg-slate-900/40">
-            <div class="px-3 py-4 flex items-center">
-              <span class="text-[9px] md:text-xs font-bold text-slate-400 uppercase tracking-tight">Precio</span>
-            </div>
-            <div class="px-2 py-4 flex items-center justify-center border-l border-slate-800/80">
-              <span class="text-xs md:text-base font-bold text-slate-600 line-through">€400</span>
-            </div>
-            <div class="px-2 py-4 flex flex-col items-center justify-center gap-0.5 border-l border-slate-800/80 bg-blue-500/5">
-              <span class="text-sm md:text-base font-black text-white">€4.99</span>
-              <span class="text-[8px] font-bold text-emerald-400 uppercase">🔥 -95%</span>
-            </div>
-          </div>
-
-          {[
-            ['Contenido',    'Libros',      'Live 🔄'],
-            ['Ayuda',        'Profe',       'AI 24/7 🤖'],
-            ['Acceso',       'Academia',    'Móvil 📱'],
-            ['Gaming',       'Solo',        'PvP ⚔️'],
-            ['Progreso',     'Cero',        'Smart 🎯'],
-          ].map(([feature, bad, good]) => (
-            <div class="grid grid-cols-[0.7fr_1fr_1fr] border-b border-slate-800/50 last:border-0 hover:bg-white/5 transition-colors">
-              <div class="px-3 py-4 flex items-center">
-                <span class="text-[9px] md:text-xs font-bold text-slate-500 uppercase tracking-tight">{feature}</span>
+      <div class="max-w-4xl mx-auto reveal-on-scroll">
+        <div class="relative rounded-[2.5rem] overflow-hidden border border-white/10 bg-slate-900/40 backdrop-blur-xl shadow-2xl">
+          <div class="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-transparent to-purple-500/5 pointer-events-none"></div>
+          
+          <div class="w-full relative z-10">
+            <!-- Header -->
+            <div class="grid grid-cols-[1fr_1fr_1.2fr] border-b border-white/5">
+              <div class="px-6 py-8"></div>
+              <div class="px-4 py-8 text-center flex flex-col items-center justify-center border-l border-white/5">
+                <span class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-1">Tradicional</span>
+                <span class="text-xs text-slate-600 font-medium italic">Autoescuela clásica</span>
               </div>
-              <div class="px-2 py-4 flex items-center justify-center border-l border-slate-800/50">
-                <div class="flex flex-col items-center gap-1">
-                  <svg class="w-3 h-3 text-red-500/40" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path d="m18 6-12 12M6 6l12 12"/></svg>
-                  <span class="text-[10px] md:text-xs text-slate-600 font-medium">{bad}</span>
+              <div class="px-4 py-8 text-center flex flex-col items-center justify-center border-l border-white/5 bg-blue-500/10 relative">
+                <div class="absolute top-0 left-0 right-0 h-1 bg-blue-500"></div>
+                <span class="text-[10px] font-black text-blue-400 uppercase tracking-[0.2em] mb-1">Skily ★</span>
+                <span class="text-xs text-blue-200/60 font-medium">Plataforma IA</span>
+              </div>
+            </div>
+
+            <!-- Price row -->
+            <div class="grid grid-cols-[1fr_1fr_1.2fr] border-b border-white/5 group hover:bg-white/[0.02] transition-colors">
+              <div class="px-8 py-8 flex items-center">
+                <div class="flex flex-col">
+                  <span class="text-sm font-black text-white mb-1 uppercase tracking-wider">Inversión</span>
+                  <span class="text-[10px] text-slate-500 font-medium">Costo estimado total</span>
                 </div>
               </div>
-              <div class="px-2 py-4 flex items-center justify-center border-l border-slate-800/50 bg-blue-500/5">
-                <div class="flex flex-col items-center gap-1">
-                  <svg class="w-3 h-3 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5L19 7"/></svg>
-                  <span class="text-[10px] md:text-xs text-blue-100 font-bold">{good}</span>
+              <div class="px-4 py-8 flex items-center justify-center border-l border-white/5">
+                <span class="text-xl md:text-2xl font-black text-slate-600 line-through opacity-50">€400</span>
+              </div>
+              <div class="px-4 py-8 flex flex-col items-center justify-center gap-1 border-l border-white/5 bg-blue-500/10">
+                <div class="flex items-baseline gap-1">
+                  <span class="text-3xl md:text-4xl font-black text-white">€9.99</span>
+                </div>
+                <div class="px-2 py-0.5 rounded-md bg-emerald-500/20 border border-emerald-500/30">
+                  <span class="text-[10px] font-black text-emerald-400 uppercase tracking-tighter">Ahorro -97% 🔥</span>
                 </div>
               </div>
             </div>
-          ))}
+
+            {[
+              ['Contenido',    'Libros de papel',      'Contenido Live 🔄', 'Acceso a todas las preguntas oficiales actualizadas al instante.'],
+              ['Tutoría',      'Horarios fijos',       'AI 24/7 Personal 🤖', 'Un mentor inteligente que resuelve tus dudas en segundos.'],
+              ['Movilidad',    'Asistencia física',    'En tu bolsillo 📱', 'Estudia en el bus, en casa o en cualquier lugar desde el móvil.'],
+              ['Experiencia',  'Estudio solitario',    'Arena PvP ⚔️', 'Compite con otros estudiantes y gana premios reales.'],
+              ['Garantía',     'Sin predicción',       'Smart Analytics 🎯', 'Algoritmo que predice cuándo estás listo para el examen real.'],
+            ].map(([feature, bad, good, desc]) => (
+              <div class="grid grid-cols-[1fr_1fr_1.2fr] border-b border-white/5 last:border-0 group hover:bg-white/[0.02] transition-colors">
+                <div class="px-8 py-8 flex flex-col justify-center">
+                  <span class="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">{feature}</span>
+                  <p class="text-[10px] text-slate-500 leading-tight hidden md:block">{desc}</p>
+                </div>
+                <div class="px-4 py-8 flex items-center justify-center border-l border-white/5 opacity-40 grayscale group-hover:grayscale-0 transition-all">
+                  <div class="flex flex-col items-center gap-2">
+                    <div class="w-6 h-6 rounded-full bg-red-500/10 flex items-center justify-center border border-red-500/20">
+                      <svg class="w-3 h-3 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path d="m18 6-12 12M6 6l12 12"/></svg>
+                    </div>
+                    <span class="text-[10px] md:text-xs text-slate-500 font-bold text-center">{bad}</span>
+                  </div>
+                </div>
+                <div class="px-4 py-8 flex items-center justify-center border-l border-white/5 bg-blue-500/5">
+                  <div class="flex flex-col items-center gap-2">
+                    <div class="w-8 h-8 rounded-xl bg-blue-500/20 flex items-center justify-center border border-blue-500/30 shadow-lg shadow-blue-500/10 group-hover:scale-110 transition-transform">
+                      <svg class="w-4 h-4 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5L19 7"/></svg>
+                    </div>
+                    <span class="text-[11px] md:text-sm text-blue-50 font-black text-center">{good}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
+        
+        <p class="text-center mt-8 text-slate-500 text-xs font-medium italic">
+          * Basado en el precio promedio de inscripción en autoescuelas físicas en España vs. Suscripción Base de Skily.
+        </p>
       </div>
     </section>
 
