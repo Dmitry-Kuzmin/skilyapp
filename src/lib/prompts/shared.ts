@@ -9,7 +9,6 @@ export function buildWidgetRules(language: LanguageCode): string {
     if (language === 'ru') {
         return `
 - **ИНТЕРАКТИВНЫЕ ВИДЖЕТЫ (ОБЯЗАТЕЛЬНО):**
-  - Награды/Ачивки: Выводи ТОЧНО так: [WIDGET:MEME:BADGE:Название]
   - Если нужен trial-CTA, используй точно так: [WIDGET:CTA:TRIAL:3 дня Premium бесплатно]
   - Если нужен CTA для тарифа, используй точно так: [WIDGET:CTA:PREMIUM:Открыть тарифы]
   (Не пиши "Тэг:" или "Tag:", пиши именно сам код в квадратных скобках на новой строке)
@@ -19,7 +18,6 @@ export function buildWidgetRules(language: LanguageCode): string {
     if (language === 'es') {
         return `
 - **WIDGETS INTERACTIVOS (OBLIGATORIO):**
-  - Logros/Recompensas: escribe EXACTAMENTE así: [WIDGET:MEME:BADGE:Nombre]
   - Si hace falta un trial CTA, usa exactamente: [WIDGET:CTA:TRIAL:3 días Premium gratis]
   - Si hace falta un CTA de planes, usa exactamente: [WIDGET:CTA:PREMIUM:Abrir planes]
   (No escribas "Tag:" ni "Etiqueta:", usa exactamente el código entre corchetes en una nueva línea)
@@ -28,7 +26,6 @@ export function buildWidgetRules(language: LanguageCode): string {
 
     return `
 - **INTERACTIVE WIDGETS (REQUIRED):**
-  - Rewards/Achievements: output EXACTLY like this: [WIDGET:MEME:BADGE:Badge Name]
   - If you need a trial CTA, use exactly: [WIDGET:CTA:TRIAL:3-day Premium trial]
   - If you need a plan CTA, use exactly: [WIDGET:CTA:PREMIUM:Open plans]
   (Do not write "Tag:" or "Label:", write the exact bracket code on its own line)

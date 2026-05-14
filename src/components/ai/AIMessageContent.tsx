@@ -2,11 +2,11 @@ import React from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Button } from '@/components/ui/button';
-import { Sparkles, Languages } from 'lucide-react';
+import { Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { SignWidget } from '@/components/chat/SignWidget';
 import { TrialCTA } from '@/components/monetization/TrialCTA';
-import { toast } from 'sonner';
+
 
 type AIMessageContentProps = {
   content: string;
@@ -112,27 +112,6 @@ export function AIMessageContent({ content, className, onOpenPremium }: AIMessag
 
     if (upperType === 'SIGN') {
       elements.push(<SignWidget key={key} code={param} />);
-    } else if (upperType === 'MEME' && upperParam.startsWith('BADGE:')) {
-      const badgeName = param.split(':').slice(1).join(':').trim() || 'Новичок';
-      elements.push(
-        <div key={key} className="my-4 p-4 rounded-2xl bg-gradient-to-br from-yellow-400/20 via-orange-500/10 to-pink-500/20 border border-orange-200/50 shadow-inner overflow-hidden relative group">
-          <div className="absolute -right-4 -top-4 w-24 h-24 bg-orange-500/10 rounded-full blur-2xl group-hover:bg-orange-500/20 transition-all" />
-          <div className="relative z-10 flex flex-col items-center text-center space-y-2">
-            <div className="w-16 h-16 bg-white dark:bg-zinc-800 rounded-full flex items-center justify-center shadow-lg border-2 border-orange-400/30 mb-1 ring-4 ring-orange-400/10">
-              <Sparkles className="w-8 h-8 text-orange-500 animate-pulse" />
-            </div>
-            <div className="space-y-1">
-              <h4 className="text-sm font-black text-orange-600 dark:text-orange-400 tracking-tighter uppercase">Достижение разблокировано!</h4>
-              <p className="text-xl font-extrabold text-slate-800 dark:text-white leading-tight">{badgeName}</p>
-            </div>
-            <p className="text-[11px] text-slate-500 dark:text-slate-400 max-w-[200px]">Это достижение подтверждено в блокчейне Memelandia!</p>
-            <Button size="sm" className="bg-slate-900 text-white rounded-full px-6 font-bold text-xs h-8 hover:scale-105 transition-transform active:scale-95" onClick={() => toast.success('Скопировано в буфер для Share!')}>
-              <Languages className="w-3 h-3 mr-2" />
-              Поделиться в Story
-            </Button>
-          </div>
-        </div>
-      );
     } else if (upperType === 'CTA' && upperParam.startsWith('TRIAL')) {
       const trialLabel = param.split(':').slice(1).join(':').trim();
       elements.push(
