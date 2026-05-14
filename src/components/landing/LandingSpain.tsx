@@ -481,6 +481,34 @@ export const LandingSpain: React.FC<LandingSpainProps> = ({
   const [shouldLoadDemo, setShouldLoadDemo] = useState(false);
   const demoContainerRef = React.useRef<HTMLDivElement>(null);
 
+  // Hero rotating words
+  const HERO_WORDS = [
+    { text: 'Sin dramas',            grad: 'linear-gradient(to right,#3b82f6,#38bdf8,#67e8f9)' },
+    { text: 'Con IA inteligente',    grad: 'linear-gradient(to right,#8b5cf6,#c084fc,#e879f9)' },
+    { text: 'Compitiendo en duelos', grad: 'linear-gradient(to right,#f97316,#fb923c,#fcd34d)' },
+    { text: 'En tiempo récord',      grad: 'linear-gradient(to right,#10b981,#2dd4bf,#67e8f9)' },
+    { text: 'Sin libros aburridos',  grad: 'linear-gradient(to right,#ec4899,#f472b6,#fb923c)' },
+  ];
+  const [heroWordIdx, setHeroWordIdx] = useState(0);
+  const heroWordRef = React.useRef<HTMLSpanElement>(null);
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      const el = heroWordRef.current;
+      if (!el) return;
+      el.classList.remove('hero-word-in');
+      el.classList.add('hero-word-out');
+      setTimeout(() => {
+        setHeroWordIdx(i => (i + 1) % HERO_WORDS.length);
+        el.classList.remove('hero-word-out');
+        el.classList.add('hero-word-in');
+        setTimeout(() => el.classList.remove('hero-word-in'), 700);
+      }, 420);
+    }, 2800);
+    return () => clearInterval(id);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   useEffect(() => {
     if (!demoContainerRef.current) return;
     const observer = new IntersectionObserver(
@@ -1001,16 +1029,20 @@ export const LandingSpain: React.FC<LandingSpainProps> = ({
           <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full blur-3xl opacity-10 bg-blue-500 pointer-events-none"></div>
 
           <h1
-            className="relative text-[clamp(2.25rem,8vw,5.5rem)] font-black tracking-tighter leading-[1.05] sm:leading-[0.95] animate-slide-up select-none max-w-4xl"
+            className="relative font-black tracking-tighter leading-[1.05] sm:leading-[0.95] animate-slide-up select-none max-w-4xl w-full"
           >
-            <>
-              <span className="bg-clip-text text-transparent bg-gradient-to-b from-white via-slate-100 to-slate-300 block pb-1 sm:pb-2">
-                {copy.hero.titleTop}
+            <span className="bg-clip-text text-transparent bg-gradient-to-b from-white via-slate-100 to-slate-300 block pb-1 sm:pb-2 text-[clamp(1.5rem,2.8vw,2.5rem)] whitespace-nowrap">
+              {copy.hero.titleTop}
+            </span>
+            <div className="block overflow-hidden">
+              <span
+                ref={heroWordRef}
+                className="block text-[clamp(1.5rem,7vw,5.5rem)] whitespace-nowrap bg-clip-text text-transparent"
+                style={{ backgroundImage: HERO_WORDS[heroWordIdx].grad }}
+              >
+                {HERO_WORDS[heroWordIdx].text}
               </span>
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-sky-400 to-cyan-300 block">
-                {copy.hero.titleBottom}
-              </span>
-            </>
+            </div>
           </h1>
         </div>
 
