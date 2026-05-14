@@ -185,8 +185,11 @@ const faqSchema = {
           </div>
           <h1 class="font-black tracking-tighter leading-[1.05] mb-8 reveal-on-scroll">
             <span class="text-[clamp(1.5rem,2.8vw,2.5rem)] text-slate-300 block pb-3 whitespace-nowrap">Tu teórico a la primera</span>
-            <span class="block text-[clamp(3rem,9vw,6rem)]" style="overflow:hidden;padding-bottom:0.08em;margin-bottom:-0.08em">
-              <span id="hero-word" class="hero-rotating-word block" style="background:linear-gradient(to right,#3b82f6,#38bdf8,#67e8f9);-webkit-background-clip:text;background-clip:text;color:transparent;white-space:nowrap;filter:drop-shadow(0 6px 36px rgba(56,189,248,0.45)) drop-shadow(0 0 80px rgba(56,189,248,0.2))">Sin libros aburridos</span>
+            <span class="block text-[clamp(3rem,9vw,6rem)]" style="position:relative;padding-bottom:0.08em;margin-bottom:-0.08em">
+              <span id="hero-word-glow" aria-hidden="true" style="position:absolute;inset:-20% -8%;background:linear-gradient(to right,#3b82f6,#38bdf8,#67e8f9);filter:blur(55px);opacity:0.38;pointer-events:none;border-radius:9999px;transition:background 0.4s ease;"></span>
+              <span style="display:block;overflow:hidden">
+                <span id="hero-word" class="hero-rotating-word block" style="background:linear-gradient(to right,#3b82f6,#38bdf8,#67e8f9);-webkit-background-clip:text;background-clip:text;color:transparent;white-space:nowrap;position:relative;z-index:1;">Sin libros aburridos</span>
+              </span>
             </span>
           </h1>
           <p class="max-w-2xl text-lg md:text-xl text-slate-300 leading-relaxed mb-12 font-medium reveal-on-scroll">
@@ -316,11 +319,11 @@ const faqSchema = {
         // ── Hero rotating words ────────────────────────────────────────────────
         (function() {
           var WORDS = [
-            { text:'Sin dramas',            grad:'linear-gradient(to right,#3b82f6,#38bdf8,#67e8f9)', glow:'56,189,248' },
-            { text:'Con IA inteligente',    grad:'linear-gradient(to right,#8b5cf6,#c084fc,#e879f9)', glow:'192,132,252' },
-            { text:'Compitiendo en duelos', grad:'linear-gradient(to right,#f97316,#fb923c,#fcd34d)', glow:'251,146,60'  },
-            { text:'En tiempo récord',      grad:'linear-gradient(to right,#10b981,#2dd4bf,#67e8f9)', glow:'45,212,191'  },
-            { text:'Sin libros aburridos',  grad:'linear-gradient(to right,#ec4899,#f472b6,#fb923c)', glow:'244,114,182' },
+            { text:'Sin dramas',            grad:'linear-gradient(to right,#3b82f6,#38bdf8,#67e8f9)' },
+            { text:'Con IA inteligente',    grad:'linear-gradient(to right,#8b5cf6,#c084fc,#e879f9)' },
+            { text:'Compitiendo en duelos', grad:'linear-gradient(to right,#f97316,#fb923c,#fcd34d)' },
+            { text:'En tiempo récord',      grad:'linear-gradient(to right,#10b981,#2dd4bf,#67e8f9)' },
+            { text:'Sin libros aburridos',  grad:'linear-gradient(to right,#ec4899,#f472b6,#fb923c)' },
           ];
           var idx = 0;
 
@@ -336,7 +339,8 @@ const faqSchema = {
               setTimeout(function() {
                 el.textContent = word.text;
                 el.style.backgroundImage = word.grad;
-                el.style.filter = 'drop-shadow(0 6px 36px rgba('+word.glow+',0.45)) drop-shadow(0 0 80px rgba('+word.glow+',0.2))';
+                var glow = document.getElementById('hero-word-glow');
+                if(glow) glow.style.background = word.grad;
                 el.classList.remove('hero-word-out');
                 el.classList.add('hero-word-in');
                 setTimeout(function(){ el.classList.remove('hero-word-in'); }, 700);
