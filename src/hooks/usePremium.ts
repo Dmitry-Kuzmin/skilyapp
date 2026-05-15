@@ -65,7 +65,7 @@ export function usePremium() {
   const dashboardPremium = dashboardData?.premium
     ? {
         isPremium: dashboardData.premium.is_premium,
-        isTrial: dashboardData.premium.subscription_status === 'trial',
+        isTrial: dashboardData.premium.subscription_status === 'trial' && dashboardData.premium.is_premium,
         isLifetime: dashboardData.premium.subscription_status === 'lifetime',
         hasUsedTrial: dashboardData.premium.has_used_trial ?? false,
         isCancelled: dashboardData.premium.is_cancelled ?? false,
@@ -108,7 +108,7 @@ export function usePremium() {
 
       return {
         isPremium: data.isPremium ?? false,
-        isTrial: data.isTrial ?? false,
+        isTrial: (data.isTrial ?? false) && (data.isPremium ?? false),
         isLifetime: data.isLifetime ?? false,
         activeUntil: data.activeUntil ?? null,
         daysRemaining: data.daysRemaining === null ? 999999 : (data.daysRemaining ?? 0),

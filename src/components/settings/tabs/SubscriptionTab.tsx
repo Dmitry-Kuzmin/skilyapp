@@ -33,7 +33,7 @@ const PLAN_TITLES: Record<string, string> = {
 
 export const SubscriptionTab: React.FC = () => {
   const { closeSettings } = useSettingsStore();
-  const { isPremium, isLifetime, isTrial, isCancelled, isCancelledTrial, activeUntil, subscriptionType, daysRemaining, loading } = usePremium();
+  const { isPremium, isLifetime, isTrial, isCancelled, isCancelledTrial, hasUsedTrial, activeUntil, subscriptionType, daysRemaining, loading } = usePremium();
   const { refresh: dashboardRefresh } = useDashboardData();
   const userContext = useContext(UserContext);
   const profileId = userContext?.profileId ?? null;
@@ -49,6 +49,9 @@ export const SubscriptionTab: React.FC = () => {
   const computedDaysRemaining = activeUntil
     ? Math.max(0, differenceInDays(new Date(activeUntil), new Date()))
     : daysRemaining;
+
+  // Trial was used, expired naturally (not cancelled, not active)
+  const isExpiredTrial = hasUsedTrial && !isPremium && !isTrial && !isCancelled;
 
   const formattedDate = activeUntil
     ? format(new Date(activeUntil), 'd MMMM yyyy', { locale: ru })
@@ -126,16 +129,20 @@ export const SubscriptionTab: React.FC = () => {
     ? 'Premium навсегда'
     : isTrial
     ? 'Пробный период'
+    : isExpiredTrial
+    ? 'Пробный период'
     : isCancelled
     ? (PLAN_TITLES[subscriptionType ?? ''] ?? 'Premium')
     : (PLAN_TITLES[subscriptionType ?? ''] ?? 'Premium');
 
-  const PlanIcon = isLifetime ? InfinityIcon : isTrial ? Clock : isCancelled ? Ban : isPremium ? Crown : AlertCircle;
+  const PlanIcon = isLifetime ? InfinityIcon : (isTrial || isExpiredTrial) ? Clock : isCancelled ? Ban : isPremium ? Crown : AlertCircle;
 
   const accent = isLifetime
     ? { icon: 'text-amber-400', ring: 'ring-amber-500/20', bg: 'bg-amber-500/5',  badge: 'bg-amber-500/10 text-amber-300 border-amber-500/20' }
     : isTrial
     ? { icon: 'text-amber-400', ring: 'ring-amber-500/20', bg: 'bg-amber-500/5',  badge: 'bg-amber-500/10 text-amber-300 border-amber-500/20' }
+    : isExpiredTrial
+    ? { icon: 'text-slate-400', ring: 'ring-slate-700/40', bg: 'bg-slate-800/30', badge: 'bg-slate-700/40 text-slate-400 border-slate-600/30' }
     : isCancelled
     ? { icon: 'text-slate-400', ring: 'ring-slate-700/40', bg: 'bg-slate-800/30', badge: 'bg-slate-700/40 text-slate-400 border-slate-600/30' }
     : isPremium
@@ -165,12 +172,14 @@ export const SubscriptionTab: React.FC = () => {
             <div className="flex items-center gap-2">
               <span className="font-semibold text-slate-100 text-sm leading-tight">{planTitle}</span>
               <Badge className={cn('text-[11px] px-2 py-0 h-5 font-medium border', accent.badge)}>
-                {isLifetime ? 'Навсегда' : isTrial ? `${computedDaysRemaining} дн.` : isCancelled ? (isCancelledTrial ? 'Триал отменён' : 'Отменена') : isPremium ? 'Активна' : 'Базовый'}
+                {isLifetime ? 'Навсегда' : isTrial ? `${computedDaysRemaining} дн.` : isExpiredTrial ? 'Истёк' : isCancelled ? (isCancelledTrial ? 'Триал отменён' : 'Отменена') : isPremium ? 'Активна' : 'Базовый'}
               </Badge>
             </div>
             <p className="text-[12px] text-slate-500 mt-0.5 leading-tight">
               {isLifetime
                 ? 'Вечный доступ ко всем функциям'
+                : isExpiredTrial
+                ? 'Пробный период завершён'
                 : isCancelled && formattedDate
                 ? `Доступ сохраняется до ${formattedDate}`
                 : formattedDate
@@ -200,7 +209,7 @@ export const SubscriptionTab: React.FC = () => {
       </div>
 
       {/* ── Trial banner ─────────────────────────────────────────────────────── */}
-      {!isPremium && !isTrial && !isLifetime && cancelStep === 'idle' && (
+      {!isPremium && !isTrial && !isLifetime && !hasUsedTrial && cancelStep === 'idle' && (
         <TrialCTA variant="banner" onTrialStarted={closeSettings} />
       )}
 
@@ -218,7 +227,7 @@ export const SubscriptionTab: React.FC = () => {
               <div className="flex items-center gap-3">
                 <Crown className="w-4 h-4 text-black" />
                 <span className="text-[15px] font-bold text-black tracking-tight">
-                  {isTrial ? 'Купить Premium' : 'Активировать Premium'}
+                  {(isTrial || isExpiredTrial) ? 'Купить Premium' : 'Активировать Premium'}
                 </span>
               </div>
               <span className="text-sm text-black/30 group-hover:text-black/50 transition-colors">→</span>
