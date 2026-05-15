@@ -269,7 +269,7 @@ const LandingRedirect = () => {
       if (!raw || raw === "null") {
         // Not authenticated — redirect to Astro landing.
         const path = window.location.pathname;
-        const target = path === "/ru" ? "/ru" : "/es";
+        const target = path === "/ru" ? "/ru" : path === "/en" ? "/en" : "/es";
         // In dev, Astro landing runs on a different port (4321). Redirect there directly.
         if (import.meta.env.DEV) {
           const astroBase = `${window.location.protocol}//${window.location.hostname}:4321`;
@@ -294,7 +294,7 @@ const LandingRedirect = () => {
       } else {
         // Token present but no access_token (expired/malformed) — treat as unauthenticated.
         const path = window.location.pathname;
-        const target = path === "/ru" ? "/ru" : "/es";
+        const target = path === "/ru" ? "/ru" : path === "/en" ? "/en" : "/es";
         if (import.meta.env.DEV) {
           const astroBase = `${window.location.protocol}//${window.location.hostname}:4321`;
           window.location.replace(`${astroBase}${target}`);
@@ -305,7 +305,7 @@ const LandingRedirect = () => {
     } catch (error) {
       console.warn("[LandingRedirect] Failed to parse supabase auth token", error);
       const path = window.location.pathname;
-      const target = path === "/ru" ? "/ru" : "/es";
+      const target = path === "/ru" ? "/ru" : path === "/en" ? "/en" : "/es";
       if (import.meta.env.DEV) {
         const astroBase = `${window.location.protocol}//${window.location.hostname}:4321`;
         window.location.replace(`${astroBase}${target}`);

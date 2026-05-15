@@ -229,9 +229,9 @@ const Layout = memo(({ children, hideNavigation = false }: LayoutProps) => {
   // ОПТИМИЗАЦИЯ: Мемоизируем navigation для предотвращения лишних ре-рендеров
   // 🆕 CRITICAL FIX: Показываем "Дуэль" только если дуэль активна или в ожидании, НЕ если finished
   const navigation = useMemo<NavigationItem[]>(() => [
-    { name: t("home"), href: isAuthenticated ? "/dashboard" : "/", icon: Home, matchPaths: ["/dashboard"] },
-    { name: t("tests"), href: isAuthenticated ? "/tests" : "/", icon: FileText, matchPaths: ["/tests", "/test"] },
-    { name: t("learning"), href: isAuthenticated ? "/learning" : "/", icon: BookOpen, matchPaths: ["/learning", "/learning-map", "/topic", "/subtopic"] },
+    { name: t("home"), href: "/dashboard", icon: Home, matchPaths: ["/dashboard"] },
+    { name: t("tests"), href: "/tests", icon: FileText, matchPaths: ["/tests", "/test"] },
+    { name: t("learning"), href: "/learning", icon: BookOpen, matchPaths: ["/learning", "/learning-map", "/topic", "/subtopic"] },
     (isAuthenticated && activeDuel && activeDuel.mode !== 'result' && (duelStatus === 'active' || duelStatus === 'waiting'))
       ? {
         name: "Дуэль",
@@ -240,7 +240,7 @@ const Layout = memo(({ children, hideNavigation = false }: LayoutProps) => {
         isActiveDuel: true,
         matchPaths: ["/games/duel"]
       }
-      : { name: t("games"), href: isAuthenticated ? "/games" : "/", icon: Gamepad2, matchPaths: ["/games"] },
+      : { name: t("games"), href: "/games", icon: Gamepad2, matchPaths: ["/games"] },
   ], [t, activeDuel, duelStatus, isAuthenticated]);
 
   // ОПТИМИЗАЦИЯ: Prefetching для критических маршрутов при hover
@@ -353,7 +353,7 @@ const Layout = memo(({ children, hideNavigation = false }: LayoutProps) => {
                   {isAuthenticated ? (
                     <div className="flex items-center gap-2">
                       <NavLink
-                        to={isAuthenticated ? "/dashboard" : "/"}
+                        to="/dashboard"
                         className="min-w-0 flex-shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-[24px] px-1 py-1 transition-colors hover:opacity-90"
                         style={{ overflow: 'visible', position: 'relative', zIndex: 10 }}
                       >
@@ -369,7 +369,7 @@ const Layout = memo(({ children, hideNavigation = false }: LayoutProps) => {
                     </div>
                   ) : (
                     <NavLink
-                      to={isAuthenticated ? "/dashboard" : "/"}
+                      to="/dashboard"
                       className="min-w-0 flex-shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-xl px-1 py-1 transition-colors hover:opacity-90"
                       style={{ overflow: 'visible', position: 'relative', zIndex: 10 }}
                     >
