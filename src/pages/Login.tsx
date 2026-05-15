@@ -1,19 +1,22 @@
 import { AuthModalNew } from "@/components/AuthModalNew";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useEffect } from "react";
-import { useUserContext } from "@/contexts/UserContext"; // Используем контекст, который будет доступен внутри AppProviders
+import { useUserContext } from "@/contexts/UserContext";
 import { PageLoader } from "@/components/PageLoader";
 
 export default function Login() {
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
     const { user, isLoading } = useUserContext();
 
-    // Если пользователь уже авторизован — редирект на дашборд
+    const redirectTo = searchParams.get('redirect') || '/dashboard';
+
+    // Если пользователь уже авторизован — редирект на целевую страницу
     useEffect(() => {
         if (!isLoading && user) {
-            navigate('/dashboard', { replace: true });
+            navigate(redirectTo, { replace: true });
         }
-    }, [user, isLoading, navigate]);
+    }, [user, isLoading, navigate, redirectTo]);
 
     if (isLoading) {
         return <PageLoader />;
@@ -23,11 +26,7 @@ export default function Login() {
         <div translate="no">
             <AuthModalNew
                 open={true}
-                onClose={() => {
-                    // Если пользователь закрывает модалку (нажимает крестик или фон),
-                    // возвращаем его на главную
-                    navigate('/');
-                }}
+                onClose={() => navigate('/')}
                 variant="page"
             />
         </div>

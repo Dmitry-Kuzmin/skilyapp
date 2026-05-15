@@ -533,12 +533,12 @@ export default function Duel() {
     // Check if we're waiting for profile to load
     const isLoadingProfile = (user || supabaseUser) && !profileId;
 
-    // Автоматически открываем модалку авторизации если пользователь не залогинен
+    // Незалогиненного пользователя отправляем на страницу входа (с возвратом обратно)
     useEffect(() => {
         if (!isLoadingProfile && !isAuthenticated && !isTelegramUser) {
-            setShowAuthModal(true);
+            navigate('/login?redirect=/games/duel', { replace: true });
         }
-    }, [isLoadingProfile, isAuthenticated, isTelegramUser]);
+    }, [isLoadingProfile, isAuthenticated, isTelegramUser, navigate]);
 
     const handleDuelCreated = (id: string, code: string) => {
         setDuelId(id);
