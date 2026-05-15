@@ -208,7 +208,7 @@ const faqSchema = {
     </div>
 
     <!-- ═══════════════════════════════════════ HERO SECTION ═══════════════════════════════════ -->
-    <section class="relative pt-20 pb-10 md:pt-32 md:pb-32 overflow-hidden px-6">
+    <section class="relative pt-20 pb-10 md:pt-32 md:pb-16 overflow-hidden px-6">
       <div class="max-w-[1400px] mx-auto relative z-10">
         <div class="flex flex-col items-center text-center max-w-4xl mx-auto pt-2">
           <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-300 text-[10px] font-bold tracking-[0.2em] uppercase mb-8 reveal-on-scroll">
@@ -270,14 +270,37 @@ const faqSchema = {
             </div>
           </div>
 
-          <div class="mt-20 w-full reveal-on-scroll" id="product-showcase-container">
+          <!-- ══ STATS STRIP ══ -->
+          <div class="mt-14 w-full max-w-4xl mx-auto reveal-on-scroll">
+            <div class="border-y border-white/5 bg-slate-900/30 backdrop-blur-sm rounded-2xl">
+              <div class="grid grid-cols-3 divide-x divide-white/10">
+                <div class="flex flex-col items-center justify-center text-center px-6 py-7">
+                  <div class="text-3xl md:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white to-slate-400 mb-1">97%</div>
+                  <span class="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">Aprueban</span>
+                  <p class="text-[10px] text-slate-500 font-medium max-w-[160px] mx-auto mt-1 leading-relaxed">IA que personaliza el contenido</p>
+                </div>
+                <div class="flex flex-col items-center justify-center text-center px-6 py-7">
+                  <div class="text-3xl md:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white to-slate-400 mb-1">3000+</div>
+                  <span class="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">Preguntas</span>
+                  <p class="text-[10px] text-slate-500 font-medium max-w-[160px] mx-auto mt-1 leading-relaxed">Banco oficial DGT actualizado</p>
+                </div>
+                <div class="flex flex-col items-center justify-center text-center px-6 py-7">
+                  <div class="text-3xl md:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white to-slate-400 mb-1">2×</div>
+                  <span class="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">Más rápido</span>
+                  <p class="text-[10px] text-slate-500 font-medium max-w-[160px] mx-auto mt-1 leading-relaxed">Que con métodos tradicionales</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-16 w-full reveal-on-scroll" id="product-showcase-container">
             <!-- Заголовок из features — теперь здесь как мост -->
             <div class="text-center mb-12">
               <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-300 text-[10px] font-bold tracking-[0.2em] uppercase mb-6">✦ Plataforma Completa</div>
               <h2 class="text-3xl sm:text-4xl md:text-5xl font-black text-white mb-4 leading-tight">TODO lo que necesitas<br/><span class="text-slate-300">para aprobar en un único lugar</span></h2>
               <p class="text-slate-400 text-base max-w-2xl mx-auto">Miles de estudiantes ya preparan su carnet con Skily — IA personalizada, duelos reales y gamificación.</p>
             </div>
-            <div class="relative w-full max-w-6xl mx-auto">
+            <div class="relative w-full max-w-7xl mx-auto">
               <div class="floating-animation">
                 <div class="absolute -inset-20 bg-blue-500/12 blur-[120px] rounded-full pointer-events-none"></div>
                 <div class="product-slider" id="slider-es">
@@ -292,6 +315,9 @@ const faqSchema = {
                       </div>
                     </div>
                     <div class="macbook-deck"></div>
+                  </div>
+                  <div class="macbook-stand-wrap">
+                    <div class="macbook-stand"></div>
                   </div>
                   <div class="slider-caption" id="slider-caption-es">
                     <div class="slider-caption-icon" id="slider-icon-es">
@@ -364,6 +390,7 @@ const faqSchema = {
         <div class="absolute inset-0 bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] bg-[size:40px_40px]"></div>
       </div>
     </section>
+
 
     <script is:inline>
       document.addEventListener('DOMContentLoaded', () => {
@@ -859,29 +886,6 @@ const faqSchema = {
         </div>
       </div>
     </section>
-    <!-- ═══════════════════════════════════════ STATS STRIP ══════════════════════════════ -->
-    <section class="relative z-20 border-y border-white/5 bg-slate-900/30 backdrop-blur-sm shadow-xl mt-8">
-      <div class="max-w-[1400px] mx-auto px-6 py-10">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-0 divide-y md:divide-y-0 md:divide-x divide-white/10">
-          <div class="flex flex-col items-center justify-center text-center md:px-8 py-4 md:py-0">
-            <div class="text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white to-slate-400 mb-2">97%</div>
-            <span class="text-xs font-bold uppercase tracking-[0.2em] text-slate-400">Aprueban</span>
-            <p class="text-[10px] md:text-xs text-slate-500 font-medium max-w-[200px] mx-auto mt-1 leading-relaxed">Nuestros alumnos aprenden más rápido con IA que personaliza el contenido</p>
-          </div>
-          <div class="flex flex-col items-center justify-center text-center md:px-8 py-4 md:py-0">
-            <div class="text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white to-slate-400 mb-2">3000+</div>
-            <span class="text-xs font-bold uppercase tracking-[0.2em] text-slate-400">Preguntas</span>
-            <p class="text-[10px] md:text-xs text-slate-500 font-medium max-w-[200px] mx-auto mt-1 leading-relaxed">Banco oficial DGT actualizado en tiempo real</p>
-          </div>
-          <div class="flex flex-col items-center justify-center text-center md:px-8 py-4 md:py-0">
-            <div class="text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white to-slate-400 mb-2">24/7</div>
-            <span class="text-xs font-bold uppercase tracking-[0.2em] text-slate-400">Disponible</span>
-            <p class="text-[10px] md:text-xs text-slate-500 font-medium max-w-[200px] mx-auto mt-1 leading-relaxed">Desde tu móvil, tablet o PC. Sin horarios.</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
     <!-- ═══════════════════════════════════════ ECOSYSTEM ════════════════════════════════ -->
     <section class="relative z-10 px-6 pt-24 pb-6 max-w-[1400px] mx-auto">
       <div class="mb-10">
