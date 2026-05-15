@@ -212,7 +212,7 @@ const faqSchema = {
       <div class="max-w-[1400px] mx-auto relative z-10">
         <div class="flex flex-col items-center text-center max-w-4xl mx-auto pt-2">
           <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-300 text-[10px] font-bold tracking-[0.2em] uppercase mb-8 reveal-on-scroll">
-            🇪🇸 DGT Approved · {currentYear}
+            🇪🇸 3.000+ preguntas reales · actualizado {currentYear}
           </div>
           <h1 class="font-black tracking-tighter leading-[1.02] mb-6 reveal-on-scroll">
             <span class="text-[clamp(1.1rem,3.5vw,2rem)] text-slate-400 block pb-2 whitespace-nowrap tracking-wide uppercase font-bold">Tu teórico a la primera</span>
@@ -224,9 +224,15 @@ const faqSchema = {
             </span>
           </h1>
           <p class="max-w-xl text-sm md:text-base text-slate-400 leading-relaxed mb-10 font-medium reveal-on-scroll">
-            <span class="text-white font-bold">Olvida los manuales aburridos</span>. Nuestra IA detecta tus fallos y personaliza el estudio. Gamificación, preguntas oficiales actualizadas y Tu 'L' esperando.
+            <span class="text-white font-bold">Preguntas reales DGT.</span> IA que detecta tus errores. Gamificación que engancha. Todo en un lugar.
           </p>
-          <div class="flex flex-col items-center gap-4 w-full mb-12 reveal-on-scroll">
+          <div class="flex flex-col items-center gap-4 w-full mb-12 reveal-on-scroll engine-stage">
+            <div class="engine-social-proof">
+              <span class="text-amber-400" style="font-size:15px;letter-spacing:-1px;">★★★★★</span>
+              <span class="text-white text-xs font-bold">4.9</span>
+              <span class="engine-social-sep"></span>
+              <span class="text-slate-400 text-xs font-medium">12.000+ estudiantes ya van camino a su carnet</span>
+            </div>
             <div class="engine-scale-wrapper">
               <button class="engine-btn-outer" id="engine-btn" data-url={`${appBaseUrl}/login?lang=es`} onclick="handleStartEngine(this)">
                 <div class="engine-glow" id="engine-glow"></div>
@@ -256,7 +262,10 @@ const faqSchema = {
               <span class="engine-sep-text">Pulsa Start</span>
               <div class="engine-sep-line engine-sep-line-right"></div>
             </div>
-            <a href={`${appBaseUrl}/demo?lang=es`} class="engine-demo-link">o accede directamente →</a>
+            <a href={`${appBaseUrl}/demo?lang=es`} class="engine-hint-link">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
+              Empieza el test gratuito — sin registro
+            </a>
           </div>
 
           <div class="mt-8 w-full" id="product-showcase-container">

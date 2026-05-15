@@ -188,7 +188,7 @@ const faqSchema = {
         <div>
           <div class="flex flex-col items-center text-center max-w-4xl mx-auto pt-2">
             <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-300 text-[10px] font-bold tracking-[0.2em] uppercase mb-6 reveal-on-scroll">
-              🇪🇸 DGT Approved · {currentYear}
+              🇪🇸 3,000+ real DGT questions · updated {currentYear}
             </div>
             <h1 class="text-[clamp(2rem,5vw,4rem)] md:whitespace-nowrap font-black tracking-tighter leading-[1.05] mb-6 reveal-on-scroll">
               <span class="bg-clip-text text-transparent bg-gradient-to-b from-white via-slate-100 to-slate-300 block pb-2">Pass DGT theory first time</span>
@@ -271,9 +271,15 @@ const faqSchema = {
             </script>
 
             <p class="max-w-2xl text-lg md:text-xl text-slate-300 leading-relaxed mb-10 font-medium reveal-on-scroll" style="transition-delay: 100ms">
-              <span class="text-white font-bold">Secure your success</span>. Our AI explains the logic behind every rule, and PvP duels turn preparation into an exciting game.
+              <span class="text-white font-bold">Real DGT questions.</span> AI that spots your mistakes. Gamification that keeps you hooked. All in one place.
             </p>
-            <div class="flex flex-col items-center gap-4 w-full sm:w-auto reveal-on-scroll" style="transition-delay: 200ms">
+            <div class="flex flex-col items-center gap-4 w-full sm:w-auto reveal-on-scroll engine-stage" style="transition-delay: 200ms">
+              <div class="engine-social-proof">
+                <span class="text-amber-400" style="font-size:15px;letter-spacing:-1px;">★★★★★</span>
+                <span class="text-white text-xs font-bold">4.9</span>
+                <span class="engine-social-sep"></span>
+                <span class="text-slate-400 text-xs font-medium">12,000+ students already on their way to a license</span>
+              </div>
               <div class="engine-scale-wrapper">
                 <button class="engine-btn-outer" id="engine-btn-v2" data-url={`${appBaseUrl}/login?lang=en`} onclick="handleStartEngine(this)">
                   <div class="engine-glow" id="engine-glow-v2"></div>
@@ -303,7 +309,10 @@ const faqSchema = {
                 <span class="engine-sep-text">Press Start</span>
                 <div class="engine-sep-line engine-sep-line-right"></div>
               </div>
-              <a href={`${appBaseUrl}/demo?lang=en`} class="engine-demo-link">or sign up directly →</a>
+              <a href={`${appBaseUrl}/demo?lang=en`} class="engine-hint-link">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
+                Start the free test — no sign-up
+              </a>
               <a href="https://t.me/skilyapp_bot" class="engine-demo-link" style="color:#475569">Open in Telegram</a>
             </div>
             
