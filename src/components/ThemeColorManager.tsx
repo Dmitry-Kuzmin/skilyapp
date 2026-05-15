@@ -1,13 +1,6 @@
-import { useEffect, useLayoutEffect } from 'react';
+import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useTheme } from 'next-themes';
-
-const MARKETING_RE = /^\/(curso|pricing|about|partners|blog|article|promo|course-payment|ru|es|en)(\/|$)/;
-const ALWAYS_DARK_RE = /^\/(legal|terms|privacy|help|login|demo)(\/|$)/;
-
-const isForcedDarkRoute = (pathname: string) => {
-    return pathname === '/' || MARKETING_RE.test(pathname) || ALWAYS_DARK_RE.test(pathname);
-};
 
 /**
  * Bridges React's authoritative theme state into the inline-script applier.
@@ -22,28 +15,10 @@ export const ThemeColorManager = () => {
     const { pathname } = useLocation();
     const { resolvedTheme } = useTheme();
 
-    useLayoutEffect(() => {
-        const forcedDark = isForcedDarkRoute(pathname);
-        const mode = forcedDark
-            ? 'dark'
-            : (resolvedTheme === 'light' || resolvedTheme === 'dark' ? resolvedTheme : 'dark');
-
+    useEffect(() => {
         // Publish the authoritative mode so __applyThemeColor__ reads it directly.
-        (window as { __themeMode__?: string }).__themeMode__ = mode;
-
-        // Some routes are intentionally dark marketing/auth surfaces. They must
-        // force the actual Tailwind theme class too, not only the page background,
-        // otherwise bg-card/text-foreground components render in light mode on a
-        // dark shell when the stored app theme is light/system-light.
-        const html = document.documentElement;
-        if (forcedDark) {
-            html.classList.remove('light');
-            html.classList.add('dark');
-            html.style.colorScheme = 'dark';
-        } else {
-            html.classList.remove(mode === 'dark' ? 'light' : 'dark');
-            html.classList.add(mode);
-            html.style.colorScheme = mode;
+        if (resolvedTheme === 'light' || resolvedTheme === 'dark') {
+            (window as { __themeMode__?: string }).__themeMode__ = resolvedTheme;
         }
 
         const apply = (window as { __applyThemeColor__?: () => void }).__applyThemeColor__;

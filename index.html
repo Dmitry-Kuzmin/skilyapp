@@ -87,12 +87,10 @@
           var hsl  = spec.color.hsl;
           var html = document.documentElement;
 
-          // Keep the actual Tailwind mode class aligned with route-specific
-          // theme decisions. Marketing/auth routes are forced dark, so merely
-          // painting the page background dark is not enough: components using
-          // bg-card/text-foreground must also resolve dark tokens.
-          html.classList.remove(spec.mode === 'dark' ? 'light' : 'dark');
-          html.classList.add(spec.mode);
+          // Ensure html has a mode class even before next-themes mounts.
+          if (!html.classList.contains('light') && !html.classList.contains('dark')) {
+            html.classList.add(spec.mode);
+          }
           // Keep the CSS color-scheme hint in sync with the active mode so that
           // form controls / scrollbars / overscroll match the active theme.
           html.style.colorScheme = spec.mode;
