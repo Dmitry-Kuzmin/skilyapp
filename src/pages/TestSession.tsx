@@ -267,7 +267,6 @@ const TestSession = () => {
     selectOption,
     setRussiaSelectedOption,
     setIsAnswerLocked,
-    setFeedbackStatus,
     resetExam,
     modifyTime,
     tickTimer,
@@ -299,7 +298,7 @@ const TestSession = () => {
         ...Object.values(activeState.data.extraAnswers)
       ].map((a: any) => ({
         questionId: a.questionId,
-        selectedAnswerId: a.selectedAnswerId || '', // Russia logic might not store ID, only correctness? Check types.
+        selectedAnswerId: a.selectedAnswerId || '',
         isCorrect: a.isCorrect
       }));
     }
@@ -310,6 +309,7 @@ const TestSession = () => {
       isCorrect: (a as { isCorrect: boolean }).isCorrect
     }));
   }, [activeState, questionsState]);
+
 
   // 3. Navigation Wrappers
   const engineNextQuestion = nextQuestionZ;
@@ -1093,6 +1093,17 @@ const TestSession = () => {
     return (questionsState && questionsState.length > 0) ? questionsState : (questions || []);
   }, [questionsState, questions]);
 
+  // Positional array for progress bar — each slot matches the question at that display index.
+  // Avoids the bug where Object.entries ordering differs from display order.
+  const progressBarAnswers = useMemo(() => {
+    if (!activeState || activeState.kind !== 'standard') return [];
+    const record = activeState.data.answers;
+    return effectiveSessionQuestions.map(q => {
+      const a = record[q.id];
+      return a ? { isCorrect: a.isCorrect } : null;
+    });
+  }, [activeState, effectiveSessionQuestions]);
+
   // КРИТИЧНО: Используем effectiveSessionQuestions (то, что реально на экране) для прогресса
   const sessionQuestionCount = effectiveSessionQuestions.length;
 
@@ -1200,6 +1211,9 @@ const TestSession = () => {
     showTestSettings,
     currentQuestion: (questionsState && questionsState[currentIndex]) || (questions && questions[currentIndex]),
     russiaExamCurrentQuestion: russiaExam.currentQuestion,
+    // В режимах авто-перехода (exam, blitz) Enter→nextQuestion при isAnswerLocked не нужен:
+    // nextQuestion уже вызван с задержкой 300ms, иначе получится двойной прыжок через вопрос
+    isPracticeLikeMode: isPracticeLikeMode && mode !== 'blitz',
     selectOption,
     handleAnswer,
     nextQuestion,
@@ -1342,7 +1356,7 @@ const TestSession = () => {
           handleClose={() => setShowExitConfirm(true)}
           currentIndex={currentIndex}
           totalQuestions={sessionQuestionCount}
-          answers={answers as any}
+          answers={progressBarAnswers}
           streak={streak}
           timeLeft={timeLeft}
           russiaExam={{
@@ -1479,6 +1493,7 @@ const TestSession = () => {
               handleOpenAIChat={handleOpenAIChat}
               nextQuestion={nextQuestion}
               isEnterPressed={isEnterPressed}
+              isAnswerLocked={!!isAnswerLocked}
               onReportProblem={() => setShowReportModal(true)}
             />
           </div>

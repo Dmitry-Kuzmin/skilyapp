@@ -47,6 +47,7 @@ interface QuestionCardProps {
     handleOpenAIChat: () => void;
     nextQuestion: () => void;
     isEnterPressed: boolean;
+    isAnswerLocked?: boolean;
     onReportProblem?: () => void;
 }
 
@@ -70,6 +71,7 @@ export const QuestionCard = ({
     handleOpenAIChat,
     nextQuestion,
     isEnterPressed,
+    isAnswerLocked = false,
     onReportProblem,
 }: QuestionCardProps) => {
     const [showHintPulse, setShowHintPulse] = useState(false);
@@ -232,7 +234,7 @@ export const QuestionCard = ({
                                         <SubmitButton
                                             label={isRussia ? "Ответить" : "Responder"}
                                             onClick={() => handleAnswer(selectedOption || undefined)}
-                                            disabled={!selectedOption}
+                                            disabled={!selectedOption || isAnswerLocked}
                                             isEnterPressed={isEnterPressed}
                                             variant="practice"
                                             tooltipText={isRussia ? "Нажмите Enter, чтобы ответить" : "Presiona Enter para responder"}
@@ -352,7 +354,7 @@ export const QuestionCard = ({
                                             <SubmitButton
                                                 label={isRussia ? "Ответить" : "Responder"}
                                                 onClick={() => handleAnswer(selectedOption || undefined)}
-                                                disabled={!selectedOption}
+                                                disabled={!selectedOption || isAnswerLocked}
                                                 isEnterPressed={isEnterPressed}
                                                 variant="practice"
                                                 tooltipText={isRussia ? "Нажмите Enter, чтобы ответить" : "Presiona Enter para responder"}

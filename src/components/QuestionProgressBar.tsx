@@ -28,8 +28,8 @@ interface QuestionProgressBarProps {
   // Optional: Timer or other custom content
   customLeftContent?: React.ReactNode;
 
-  // Optional: Answers for visual indicators
-  answers?: Array<{ isCorrect: boolean }>;
+  // Optional: Answers for visual indicators — positionally aligned (null = not yet answered)
+  answers?: Array<{ isCorrect: boolean } | null>;
 
   // Optional: Hide correct/incorrect indicators (e.g. in exam mode)
   hideScoreIndicators?: boolean;
@@ -79,8 +79,9 @@ export function QuestionProgressBar({
   const isRussia = selectedCountry === 'russia';
 
   const progress = ((currentIndex + 1) / totalQuestions) * 100;
-  const correctCount = answers.filter(a => a.isCorrect).length;
-  const incorrectCount = answers.filter(a => !a.isCorrect).length;
+  const correctCount = answers.filter(a => a?.isCorrect).length;
+  const incorrectCount = answers.filter(a => a != null && !a.isCorrect).length;
+  const lastAnsweredIndex = answers.reduce((last, a, idx) => a != null ? idx : last, -1);
 
   // Components for reuse
   const QuestionCountBlock = () => (
@@ -174,11 +175,11 @@ export function QuestionProgressBar({
           {/* ── Capsule / Line Progress ───────────────────────────────── */}
           <div className="flex-1 flex items-center gap-[2px] sm:gap-[3px] min-w-0">
             {Array.from({ length: totalQuestions }, (_, i) => {
-              const answered = i < answers.length;
+              const answered = answers[i] != null;
               const isCurrent = i === currentIndex;
-              const isCorrect = answered && answers[i].isCorrect;
-              const isWrong   = answered && !answers[i].isCorrect;
-              const isLast    = i === answers.length - 1;
+              const isCorrect = answered && answers[i]!.isCorrect;
+              const isWrong   = answered && !answers[i]!.isCorrect;
+              const isLast    = i === lastAnsweredIndex;
               const isMobileLines = totalQuestions > 20;
 
               return (
@@ -186,9 +187,9 @@ export function QuestionProgressBar({
                   key={i}
                   initial={answered ? { scale: 0.4, opacity: 0 } : false}
                   animate={
-                    isWrong && isLast
+                    !hideScoreIndicators && isWrong && isLast
                       ? { scale: [0.4, 1.15, 0.95, 1.05, 1], x: [0, -2, 2, -1, 0], opacity: 1 }
-                      : isCorrect && isLast
+                      : !hideScoreIndicators && isCorrect && isLast
                       ? { scale: [0.4, 1.25, 0.95, 1], opacity: 1 }
                       : { scale: 1, opacity: 1 }
                   }
@@ -203,16 +204,22 @@ export function QuestionProgressBar({
                       ? "h-[3px] sm:h-[7px]"
                       : "h-[7px] sm:h-[9px]",
 
-                    // ── ВЕРНО: глубокий, благородный teal/emerald
-                    isCorrect && [
+                    // ── ВЕРНО: глубокий teal/emerald (только не в exam mode)
+                    !hideScoreIndicators && isCorrect && [
                       "bg-gradient-to-r from-teal-500 via-emerald-600 to-teal-500",
                       "shadow-[0_0_8px_rgba(16,185,129,0.35),inset_0_-1px_2px_rgba(0,0,0,0.2)]",
                     ],
 
-                    // ── ОШИБКА: приглушённый rose, не кричащий
-                    isWrong && [
+                    // ── ОШИБКА: приглушённый rose (только не в exam mode)
+                    !hideScoreIndicators && isWrong && [
                       "bg-gradient-to-r from-rose-500/80 via-rose-500 to-rose-500/80",
                       "shadow-[0_0_8px_rgba(244,63,94,0.3),inset_0_-1px_2px_rgba(0,0,0,0.25)]",
+                    ],
+
+                    // ── ОТВЕЧЕНО в exam mode: нейтральный slate/indigo, не раскрывает правильность
+                    hideScoreIndicators && answered && [
+                      "bg-gradient-to-r from-slate-400 via-slate-500 to-slate-400",
+                      "dark:from-slate-500 dark:via-slate-400 dark:to-slate-500",
                     ],
 
                     // ── ТЕКУЩИЙ: indigo → cyan, пульсация
@@ -245,17 +252,10 @@ export function QuestionProgressBar({
                     />
                   )}
 
-                  {/* Glossy блик-shine на правильных ответах */}
-                  {isCorrect && (
+                  {/* Glossy блик-shine на правильных/ошибочных (не в exam mode) */}
+                  {!hideScoreIndicators && (isCorrect || isWrong) && (
                     <div
                       className="absolute inset-x-0 top-0 h-[40%] rounded-t-full bg-gradient-to-b from-white/35 to-transparent pointer-events-none"
-                    />
-                  )}
-
-                  {/* Glossy на ошибочных */}
-                  {isWrong && (
-                    <div
-                      className="absolute inset-x-0 top-0 h-[40%] rounded-t-full bg-gradient-to-b from-white/25 to-transparent pointer-events-none"
                     />
                   )}
                 </motion.div>

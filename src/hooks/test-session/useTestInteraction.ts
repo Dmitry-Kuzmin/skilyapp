@@ -241,9 +241,6 @@ export const useTestInteraction = ({
             return;
         }
 
-        // Блокируем ввод СРАЗУ (для предотвращения двойных кликов/нажатий клавиш)
-        setIsAnswerLocked(true);
-
         const selectedAnswer = options.find((opt: any) => opt.id === answerId);
         const isCorrect = selectedAnswer?.is_correct ?? selectedAnswer?.isCorrect ?? false;
 
@@ -340,11 +337,12 @@ export const useTestInteraction = ({
         }
 
         // --- DEFAULT NAVIGATION ---
+        // Режимы, в которых пользователь вручную жмёт "Следующий" (нет авто-перехода после ответа).
+        // exam и blitz — авто-переход после 300ms (они НЕ в этом списке).
         const isPracticeLikeMode = [
-            'practice', 'pdd-topic', 'pdd-ticket', 'by-topic', 'traps',
+            'practice', 'dgt', 'pdd-topic', 'pdd-ticket', 'by-topic', 'traps',
             'mastery', 'hardest', 'sequential', 'challenge-bank',
-            'marathon', 'exam-russia', 'redemption', 'module', 'favorites', 'nonstop',
-            'smart'
+            'marathon', 'redemption', 'module', 'favorites', 'nonstop', 'smart'
         ].includes(mode);
 
         if (isPracticeLikeMode) {

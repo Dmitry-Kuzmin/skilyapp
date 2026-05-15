@@ -8,10 +8,7 @@ import { Trophy } from 'lucide-react';
 import type { TestMode } from '@/store/examStore';
 import type { RussiaExamState } from '@/types/pddExam';
 
-interface HeaderAnswer {
-    questionId: string;
-    isCorrect: boolean;
-}
+type HeaderAnswer = { isCorrect: boolean } | null;
 
 interface TestSessionHeaderProps {
     // Общие

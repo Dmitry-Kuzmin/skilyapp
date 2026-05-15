@@ -15,6 +15,9 @@ interface UseKeyboardNavigationProps {
     showReportModal: boolean;
     showTestSettings: boolean;
 
+    // Нужно ли вручную переходить через Enter (false = режим авто-перехода, не вызываем nextQuestion)
+    isPracticeLikeMode: boolean;
+
     // Data
     currentQuestion: any; // Текущий вопрос (для exam-russia или standard)
     russiaExamCurrentQuestion?: any; // Для режима exam-russia
@@ -49,6 +52,7 @@ export const useKeyboardNavigation = ({
     showTestSettings,
     currentQuestion,
     russiaExamCurrentQuestion,
+    isPracticeLikeMode,
     selectOption,
     handleAnswer,
     nextQuestion,
@@ -98,8 +102,10 @@ export const useKeyboardNavigation = ({
                 if (selectedOption && !isAnswerLocked) {
                     handleAnswer(selectedOption);
                 }
-                // 2. Если ответ уже зафиксирован (isAnswerLocked) — переходим к следующему во ВСЕХ режимах
-                else if (isAnswerLocked) {
+                // 2. Если ответ зафиксирован И режим ручного перехода — переходим.
+                // В режиме авто-перехода (exam, blitz) nextQuestion уже вызван с задержкой 300ms,
+                // поэтому здесь НЕ вызываем — иначе будет двойной прыжок через вопрос.
+                else if (isAnswerLocked && isPracticeLikeMode) {
                     nextQuestion();
                 }
             }
@@ -119,6 +125,7 @@ export const useKeyboardNavigation = ({
         currentIndex,
         isAnswerLocked,
         isRussia,
+        isPracticeLikeMode,
         selectOption,
         handleAnswer,
         nextQuestion,

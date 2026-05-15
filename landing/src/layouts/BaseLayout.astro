@@ -138,11 +138,23 @@ const jsonLdArray = Array.isArray(jsonLd) ? jsonLd : jsonLd ? [jsonLd] : [];
     <!-- Axeptio Cookie Consent Management -->
     <script>
       window.axeptioSettings = {
-        clientId: "668eb0f3c69c6a02c3c0e047",
-        cookiesVersion: "skilyapp-en"
+        clientId: "69a1acef0a02cdc0f86b3b4e",
+        cookiesVersion: "a9f70806-d61a-4b9c-897b-f1e641f17590"
       };
+      // Hide the persistent badge after user makes a choice
+      window._axcb = window._axcb || [];
+      window._axcb.push(function(axeptio) {
+        axeptio.on('cookies:complete', function() {
+          var btn = document.getElementById('axeptio_btn');
+          if (btn) btn.style.setProperty('display', 'none', 'important');
+        });
+      });
     </script>
     <script async src="https://static.axeptio.eu/sdk.js"></script>
+    <style>
+      /* Hide Axeptio persistent badge — consent is stored, banner won't reappear */
+      #axeptio_btn { display: none !important; }
+    </style>
 
     <!-- Start Engine Button Styles -->
     <style is:global>
@@ -381,8 +393,12 @@ const jsonLdArray = Array.isArray(jsonLd) ? jsonLd : jsonLd ? [jsonLd] : [];
         function loadCrisp() {
           if (loaded) return;
           loaded = true;
-          window.$crisp = [];
+          window.$crisp = window.$crisp || [];
           window.CRISP_WEBSITE_ID = "f75e4c12-7db0-4f2f-90fb-711aacc45df3";
+          window.$crisp.push(["do", "chat:hide"]);
+          window.$crisp.push(["on", "chat:closed", function() {
+            window.$crisp.push(["do", "chat:hide"]);
+          }]);
           var s = document.createElement('script');
           s.src = 'https://client.crisp.chat/l.js';
           s.async = true;
@@ -391,12 +407,9 @@ const jsonLdArray = Array.isArray(jsonLd) ? jsonLd : jsonLd ? [jsonLd] : [];
         window.openCrispChat = function() {
           loadCrisp();
           window.$crisp = window.$crisp || [];
+          window.$crisp.push(["do", "chat:show"]);
           window.$crisp.push(["do", "chat:open"]);
         };
-        setTimeout(loadCrisp, 15000);
-        window.addEventListener('pointerdown', loadCrisp, { once: true, passive: true });
-        window.addEventListener('keydown', loadCrisp, { once: true });
-        window.addEventListener('scroll', loadCrisp, { once: true, passive: true });
       })();
     </script>
   </body>
