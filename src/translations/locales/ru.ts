@@ -91,6 +91,7 @@ export const ru = {
     privacyTitle: "Политика конфиденциальности",
     close: "Закрыть",
     new: "NEW",
+    tapForDetails: "Нажми для деталей",
   },
   pageLoader: {
     system: "Система Skily",

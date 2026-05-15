@@ -3,6 +3,7 @@ import { Award, ArrowRight, Loader2 } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { useExamReadiness } from '@/hooks/useExamReadiness';
 import { useUserContext } from '@/contexts/UserContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { cn } from '@/lib/utils';
 import { motion } from "@/components/optimized/Motion";
 
@@ -131,6 +132,7 @@ function CircularProgress({ percent, size = 120, strokeWidth = 10, color = 'prim
 export function ExamReadinessWidget() {
   const navigate = useNavigate();
   const { profileId } = useUserContext();
+  const { t } = useLanguage();
   const { readiness, loading, error } = useExamReadiness(profileId);
 
   if (loading) {
@@ -139,7 +141,7 @@ export function ExamReadinessWidget() {
         <div className="flex items-center justify-center py-8">
           <div className="flex items-center gap-2">
             <Loader2 className="w-4 h-4 text-primary animate-spin" />
-            <div className="text-sm text-muted-foreground">Загрузка...</div>
+            <div className="text-sm text-muted-foreground">{t('common.loading')}</div>
           </div>
         </div>
       </Card>
@@ -147,7 +149,7 @@ export function ExamReadinessWidget() {
   }
 
   if (error || !readiness) {
-    return null; // Не показываем виджет, если нет данных
+    return null;
   }
 
   const { percent, status, color } = readiness;
@@ -160,13 +162,7 @@ export function ExamReadinessWidget() {
     legend: 'text-purple-500',
   };
 
-  const statusTexts = {
-    start: 'Начало',
-    progress: 'Прогресс',
-    near: 'Почти готов',
-    ready: 'Готов!',
-    legend: 'Мастер',
-  };
+  const statusLabel = t(`dashboard.examReadiness.levels.${status}.title`);
 
   return (
     <motion.div
@@ -174,7 +170,7 @@ export function ExamReadinessWidget() {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
     >
-      <Card 
+      <Card
         className="p-4 gradient-card border-border/50 hover:border-primary/50 transition-all duration-300 cursor-pointer group"
         onClick={() => navigate('/tests')}
       >
@@ -192,7 +188,7 @@ export function ExamReadinessWidget() {
               color={color}
             />
           </motion.div>
-          
+
           <motion.div
             initial={{ opacity: 0, x: -10 }}
             animate={{ opacity: 1, x: 0 }}
@@ -201,13 +197,13 @@ export function ExamReadinessWidget() {
           >
             <div className="flex items-center gap-2 mb-1">
               <Award className={cn('w-4 h-4', statusColors[status])} />
-              <h3 className="text-sm font-semibold text-foreground">Готовность к экзамену</h3>
+              <h3 className="text-sm font-semibold text-foreground">{t('dashboard.examReadiness.title')}</h3>
             </div>
             <p className={cn('text-lg font-bold mb-1', statusColors[status])}>
-              {percent}% — {readiness.shortText || statusTexts[status]}
+              {percent}% — {statusLabel}
             </p>
             <p className="text-xs text-muted-foreground">
-              Нажмите, чтобы увидеть детали
+              {t('common.tapForDetails')}
             </p>
           </motion.div>
 

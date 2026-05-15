@@ -155,11 +155,12 @@ export const ExamReadiness = React.memo<ExamReadinessProps>(({
       textColorClass = 'text-slate-400';
       bgColorClass = 'bg-slate-500/20';
     } else if (status && statusText) {
-      // Используем переданный статус и текст из системы
+      // Используем переданный статус, но берём label из i18n (не из Russian examReadiness.ts)
       readinessStatusValue = status;
-      statusLabel = statusText;
-      shortLabel = shortText || statusText;
-      descriptionText = description || '';
+      const levelData = readinessLevels.find(l => l.status === status);
+      statusLabel = levelData?.title || statusText;
+      shortLabel = levelData?.title || shortText || statusText;
+      descriptionText = levelData?.description || description || '';
 
       // Цвета для каждого уровня
       switch (status) {
@@ -345,7 +346,11 @@ export const ExamReadiness = React.memo<ExamReadinessProps>(({
           )}
 
           {/* The Gauge */}
-          <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+          <svg
+            className="w-full h-full transform -rotate-90"
+            viewBox="0 0 100 100"
+            style={!hasNoData ? { filter: `drop-shadow(0 0 6px ${gaugeColor})` } : undefined}
+          >
             <circle cx="50" cy="50" r="45" fill="none" stroke={isDarkTheme ? "#1e293b" : "#e2e8f0"} strokeWidth="8" strokeLinecap="round" />
             {!hasNoData && (
               <circle
@@ -355,7 +360,7 @@ export const ExamReadiness = React.memo<ExamReadinessProps>(({
                 strokeLinecap="round"
                 strokeDasharray={283}
                 strokeDashoffset={283 - (283 * score) / 100}
-                className="transition-all duration-1000 shadow-[0_0_20px_currentColor]"
+                className="transition-all duration-1000"
               />
             )}
           </svg>

@@ -90,6 +90,7 @@ export const en = {
     privacyTitle: "Privacy Policy",
     close: "Close",
     new: "NEW",
+    tapForDetails: "Tap for details",
   },
   pageLoader: {
     system: "Skily System",

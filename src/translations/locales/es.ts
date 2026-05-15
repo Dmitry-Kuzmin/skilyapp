@@ -90,6 +90,7 @@ export const es = {
     privacyTitle: "Política de Privacidad",
     close: "Cerrar",
     new: "NUEVO",
+    tapForDetails: "Toca para ver detalles",
   },
   pageLoader: {
     system: "Sistema Skily",
