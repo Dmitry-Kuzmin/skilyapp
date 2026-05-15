@@ -166,13 +166,6 @@ export default function Duel() {
 
     const navigate = useNavigate();
 
-    // Автоматически открываем модалку авторизации если пользователь не залогинен
-    useEffect(() => {
-        if (!isLoadingProfile && !isAuthenticated && !isTelegramUser) {
-            setShowAuthModal(true);
-        }
-    }, [isLoadingProfile, isAuthenticated, isTelegramUser]);
-
     // 🆕 Telegram BackButton и swipe-back для экрана настройки дуэли (не для battle/results)
     useEffect(() => {
         const isTG = safeIsTelegramMiniApp();
@@ -539,6 +532,13 @@ export default function Duel() {
 
     // Check if we're waiting for profile to load
     const isLoadingProfile = (user || supabaseUser) && !profileId;
+
+    // Автоматически открываем модалку авторизации если пользователь не залогинен
+    useEffect(() => {
+        if (!isLoadingProfile && !isAuthenticated && !isTelegramUser) {
+            setShowAuthModal(true);
+        }
+    }, [isLoadingProfile, isAuthenticated, isTelegramUser]);
 
     const handleDuelCreated = (id: string, code: string) => {
         setDuelId(id);
