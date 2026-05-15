@@ -158,14 +158,18 @@ const jsonLdArray = Array.isArray(jsonLd) ? jsonLd : jsonLd ? [jsonLd] : [];
 
     <!-- Start Engine Button Styles -->
     <style is:global>
-      /* Scale wrapper: 75% mobile, 90% md+ */
+      /* Scale wrapper: 58% mobile, 90% md+ */
       .engine-scale-wrapper {
-        transform: scale(0.75);
+        transform: scale(0.58);
         transform-origin: center;
-        margin: -24px 0;
+        margin: -40px 0;
       }
       @media (min-width: 768px) {
         .engine-scale-wrapper { transform: scale(0.9); margin: -10px 0; }
+      }
+      /* Стрелка — только на десктопе */
+      @media (max-width: 767px) {
+        .engine-arrow-guide { display: none; }
       }
 
       /* Outer button element — 192×192, relative container for all layers */
