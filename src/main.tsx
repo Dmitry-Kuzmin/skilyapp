@@ -417,7 +417,7 @@ try {
 
   root.render(
     <ErrorBoundary>
-        <ThemeProvider attribute="class" defaultTheme="dark">
+        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
           <LanguageProvider>
             <CountryProvider>
               <App />
