@@ -284,7 +284,13 @@ const LandingRedirect = () => {
       const session = parsed?.currentSession ?? parsed?.currentSession?.user ? parsed.currentSession : parsed?.session ?? parsed;
       const hasToken = session?.access_token || session?.currentSession?.access_token;
       if (hasToken) {
-        navigate("/dashboard" + window.location.search, { replace: true });
+        const path = window.location.pathname;
+        const langFromPath = path === '/ru' ? 'ru' : path === '/en' ? 'en' : path === '/es' ? 'es' : null;
+        const existingSearch = window.location.search;
+        const langSuffix = langFromPath && !existingSearch.includes('lang=')
+          ? (existingSearch ? `&lang=${langFromPath}` : `?lang=${langFromPath}`)
+          : '';
+        navigate("/dashboard" + existingSearch + langSuffix, { replace: true });
       } else {
         // Token present but no access_token (expired/malformed) — treat as unauthenticated.
         const path = window.location.pathname;
