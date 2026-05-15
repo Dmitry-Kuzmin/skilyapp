@@ -396,14 +396,42 @@ const jsonLdArray = Array.isArray(jsonLd) ? jsonLd : jsonLd ? [jsonLd] : [];
         100% { transform: scale(1.85); opacity: 0; }
       }
 
-      /* Social proof strip above engine */
-      .engine-social-proof {
+      /* Inline CTA link inside description */
+      .hero-cta-inline {
+        color: #38bdf8;
+        font-weight: 700;
+        text-decoration: none;
+        border-bottom: 1px solid rgba(56,189,248,0.35);
+        transition: color 0.2s, border-color 0.2s;
+      }
+      .hero-cta-inline:hover { color: #67e8f9; border-bottom-color: rgba(103,232,249,0.65); }
+
+      /* Directional arrow */
+      .engine-arrow-guide { display: block; flex-shrink: 0; overflow: visible; }
+      .engine-arrow-guide .arrow-line {
+        stroke-dasharray: 65;
+        stroke-dashoffset: 65;
+        animation: engine-arrow-draw 0.9s cubic-bezier(0.22,1,0.36,1) 0.7s forwards;
+      }
+      .engine-arrow-guide .arrow-head {
+        opacity: 0;
+        animation: engine-arrow-head 0.25s ease-out 1.45s forwards;
+      }
+      @keyframes engine-arrow-draw { to { stroke-dashoffset: 0; } }
+      @keyframes engine-arrow-head {
+        from { opacity: 0; transform: translateY(-3px); }
+        to   { opacity: 0.9; transform: translateY(0); }
+      }
+
+      /* Social proof strip (bottom of hero) */
+      .hero-social-proof {
         display: flex;
         align-items: center;
+        justify-content: center;
         gap: 8px;
-        margin-bottom: 8px;
+        opacity: 0.65;
       }
-      .engine-social-sep {
+      .hero-social-sep {
         display: inline-block;
         width: 1px;
         height: 13px;

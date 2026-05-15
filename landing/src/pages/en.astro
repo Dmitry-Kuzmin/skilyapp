@@ -270,10 +270,21 @@ const faqSchema = {
               })();
             </script>
 
-            <p class="max-w-2xl text-lg md:text-xl text-slate-300 leading-relaxed mb-10 font-medium reveal-on-scroll" style="transition-delay: 100ms">
-              <span class="text-white font-bold">Real DGT questions.</span> AI that spots your mistakes. Gamification that keeps you hooked. All in one place.
+            <p class="max-w-2xl text-lg md:text-xl text-slate-300 leading-relaxed mb-2 font-medium reveal-on-scroll" style="transition-delay: 100ms">
+              <span class="text-white font-bold">Real DGT questions.</span> AI that spots your mistakes.<br/>
+              <a href={`${appBaseUrl}/demo?lang=en`} class="hero-cta-inline">Start the free test — no sign-up →</a>
             </p>
-            <div class="flex flex-col items-center gap-4 w-full sm:w-auto reveal-on-scroll engine-stage" style="transition-delay: 200ms">
+            <div class="flex flex-col items-center gap-0 w-full sm:w-auto reveal-on-scroll" style="transition-delay: 200ms">
+              <svg class="engine-arrow-guide" width="20" height="64" viewBox="0 0 20 64" fill="none" aria-hidden="true">
+                <defs>
+                  <linearGradient id="engineArrowGradEn" x1="10" y1="0" x2="10" y2="64" gradientUnits="userSpaceOnUse">
+                    <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.25"/>
+                    <stop offset="100%" stop-color="#38bdf8" stop-opacity="0.9"/>
+                  </linearGradient>
+                </defs>
+                <path class="arrow-line" d="M10 2 C7 18, 13 36, 10 52" stroke="url(#engineArrowGradEn)" stroke-width="1.5" stroke-linecap="round"/>
+                <path class="arrow-head" d="M5 47 L10 57 L15 47" stroke="#38bdf8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+              </svg>
               <div class="engine-scale-wrapper">
                 <button class="engine-btn-outer" id="engine-btn-v2" data-url={`${appBaseUrl}/login?lang=en`} onclick="handleStartEngine(this)">
                   <div class="engine-glow" id="engine-glow-v2"></div>
@@ -297,23 +308,7 @@ const faqSchema = {
                   </div>
                 </button>
               </div>
-              <div class="engine-press-row">
-                <div class="engine-sep-line"></div>
-                <span class="engine-sep-text">Press Start</span>
-                <div class="engine-sep-line engine-sep-line-right"></div>
-              </div>
-              <div class="engine-social-proof">
-                <span class="text-amber-400" style="font-size:15px;letter-spacing:-1px;">★★★★★</span>
-                <span class="text-white text-xs font-bold">4.9</span>
-                <span class="engine-social-sep"></span>
-                <span class="text-slate-400 text-xs font-medium">12,000+ students already on their way to a license</span>
-              </div>
-              <a href={`${appBaseUrl}/demo?lang=en`} class="engine-cta-secondary">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
-                Start the free test
-                <span class="engine-cta-badge">No sign-up</span>
-              </a>
-              <a href="https://t.me/skilyapp_bot" class="engine-demo-link" style="color:#475569">Open in Telegram</a>
+              <a href="https://t.me/skilyapp_bot" class="engine-demo-link" style="color:#475569;margin-top:12px;">Open in Telegram</a>
             </div>
             
             <div class="mt-20 w-full" id="product-showcase-container">
@@ -333,6 +328,12 @@ const faqSchema = {
                      </div>
                   </div>
                </div>
+            </div>
+            <div class="hero-social-proof mt-10 reveal-on-scroll">
+              <span class="text-amber-400" style="font-size:15px;letter-spacing:-1px;">★★★★★</span>
+              <span class="text-white text-sm font-bold">4.9</span>
+              <span class="hero-social-sep"></span>
+              <span class="text-slate-400 text-sm">12,000+ students already on their way to a license</span>
             </div>
           </div>
         </div>

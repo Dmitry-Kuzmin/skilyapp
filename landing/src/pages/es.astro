@@ -223,10 +223,21 @@ const faqSchema = {
               </span>
             </span>
           </h1>
-          <p class="max-w-xl text-sm md:text-base text-slate-400 leading-relaxed mb-10 font-medium reveal-on-scroll">
-            <span class="text-white font-bold">Preguntas reales DGT.</span> IA que detecta tus errores. Gamificación que engancha. Todo en un lugar.
+          <p class="max-w-xl text-sm md:text-base text-slate-400 leading-relaxed mb-2 font-medium reveal-on-scroll">
+            <span class="text-white font-bold">Preguntas reales DGT.</span> IA que detecta tus errores.<br/>
+            <a href={`${appBaseUrl}/demo?lang=es`} class="hero-cta-inline">Empieza el test gratis — sin registro →</a>
           </p>
-          <div class="flex flex-col items-center gap-4 w-full mb-12 reveal-on-scroll engine-stage">
+          <div class="flex flex-col items-center gap-0 w-full mb-10 reveal-on-scroll">
+            <svg class="engine-arrow-guide" width="20" height="64" viewBox="0 0 20 64" fill="none" aria-hidden="true">
+              <defs>
+                <linearGradient id="engineArrowGrad" x1="10" y1="0" x2="10" y2="64" gradientUnits="userSpaceOnUse">
+                  <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.25"/>
+                  <stop offset="100%" stop-color="#38bdf8" stop-opacity="0.9"/>
+                </linearGradient>
+              </defs>
+              <path class="arrow-line" d="M10 2 C7 18, 13 36, 10 52" stroke="url(#engineArrowGrad)" stroke-width="1.5" stroke-linecap="round"/>
+              <path class="arrow-head" d="M5 47 L10 57 L15 47" stroke="#38bdf8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+            </svg>
             <div class="engine-scale-wrapper">
               <button class="engine-btn-outer" id="engine-btn" data-url={`${appBaseUrl}/login?lang=es`} onclick="handleStartEngine(this)">
                 <div class="engine-glow" id="engine-glow"></div>
@@ -250,22 +261,6 @@ const faqSchema = {
                 </div>
               </button>
             </div>
-            <div class="engine-press-row">
-              <div class="engine-sep-line"></div>
-              <span class="engine-sep-text">Pulsa Start</span>
-              <div class="engine-sep-line engine-sep-line-right"></div>
-            </div>
-            <div class="engine-social-proof">
-              <span class="text-amber-400" style="font-size:15px;letter-spacing:-1px;">★★★★★</span>
-              <span class="text-white text-xs font-bold">4.9</span>
-              <span class="engine-social-sep"></span>
-              <span class="text-slate-400 text-xs font-medium">12.000+ estudiantes ya van camino a su carnet</span>
-            </div>
-            <a href={`${appBaseUrl}/demo?lang=es`} class="engine-cta-secondary">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
-              Empieza el test gratuito
-              <span class="engine-cta-badge">Sin registro</span>
-            </a>
           </div>
 
           <div class="mt-8 w-full" id="product-showcase-container">
@@ -285,6 +280,12 @@ const faqSchema = {
                 </div>
               </div>
             </div>
+          </div>
+          <div class="hero-social-proof mt-10 reveal-on-scroll">
+            <span class="text-amber-400" style="font-size:15px;letter-spacing:-1px;">★★★★★</span>
+            <span class="text-white text-sm font-bold">4.9</span>
+            <span class="hero-social-sep"></span>
+            <span class="text-slate-400 text-sm">12.000+ estudiantes ya van camino a su carnet</span>
           </div>
         </div>
 
