@@ -143,8 +143,8 @@ const faqSchema = {
     <div class="fixed inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none z-0"></div>
 
     <!-- ═══════════════════════════════════════ NAV ══════════════════════════════════════ -->
-    <nav class="relative z-[100] px-4 md:px-10 pt-5 pb-4 md:pb-6 flex items-center justify-between max-w-[1400px] mx-auto gap-4">
-      <a href="/es" class="flex items-center gap-2.5 select-none" aria-label="Skily inicio">
+    <nav class="relative z-[100] px-4 md:px-10 pt-5 pb-4 md:pb-6 flex items-center max-w-[1400px] mx-auto gap-4">
+      <a href="/es" class="flex items-center gap-2.5 select-none shrink-0" aria-label="Skily inicio">
         <!-- Настоящий логотип Skily: синий квадрат + машинка Lucide car-front -->
         <div class="w-10 h-10 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-500/30 shrink-0" style="background:linear-gradient(135deg,#3b82f6,#2563eb,#1d4ed8);">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -157,7 +157,23 @@ const faqSchema = {
         <span class="font-black text-lg tracking-tight text-white" style="letter-spacing:-0.02em;">Skily</span>
       </a>
 
-      <div class="flex items-center gap-2 md:gap-3 ml-auto">
+      <!-- Desktop nav items -->
+      <div class="hidden md:flex flex-1 justify-center items-center gap-0.5 px-4">
+        <a href={`${appBaseUrl}/tests`} class="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-white/[0.07] transition-all duration-200 text-sm font-medium whitespace-nowrap">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg>
+          Pruebas
+        </a>
+        <a href={`${appBaseUrl}/learning`} class="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-white/[0.07] transition-all duration-200 text-sm font-medium whitespace-nowrap">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/></svg>
+          Aprendizaje
+        </a>
+        <a href={`${appBaseUrl}/games`} class="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-white/[0.07] transition-all duration-200 text-sm font-medium whitespace-nowrap">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><line x1="6" x2="10" y1="11" y2="11"/><line x1="8" x2="8" y1="9" y2="13"/><line x1="15" x2="15.01" y1="12" y2="12"/><line x1="18" x2="18.01" y1="10" y2="10"/><path d="M17.32 5H6.68a4 4 0 0 0-3.978 3.59c-.006.052-.01.101-.017.152C2.604 9.416 2 14.456 2 16a3 3 0 0 0 3 3c1 0 1.5-.5 2-1l1.414-1.414A2 2 0 0 1 9.828 16h4.344a2 2 0 0 1 1.414.586L17 18c.5.5 1 1 2 1a3 3 0 0 0 3-3c0-1.545-.604-6.584-.685-7.258-.007-.05-.011-.1-.017-.151A4 4 0 0 0 17.32 5z"/></svg>
+          Juegos
+        </a>
+      </div>
+
+      <div class="flex items-center gap-2 md:gap-3 ml-auto shrink-0">
         <div class="relative group hidden sm:flex items-center h-[40px] w-[40px]">
           <div class="absolute right-0 flex items-center bg-white/5 border border-white/10 backdrop-blur-xl rounded-full overflow-hidden transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] w-[40px] group-hover:w-[120px] h-[40px] shadow-[0_0_15px_rgba(0,0,0,0.1)]">
             <div class="flex items-center min-w-[120px] px-1 gap-1 h-full">
@@ -175,6 +191,21 @@ const faqSchema = {
         </a>
       </div>
     </nav>
+    <!-- Mobile nav pills -->
+    <div class="md:hidden flex items-center gap-2 px-4 pb-4 overflow-x-auto relative z-[100] max-w-[1400px] mx-auto" style="-webkit-overflow-scrolling:touch;scrollbar-width:none;">
+      <a href={`${appBaseUrl}/tests`} class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/[0.06] border border-white/[0.08] text-slate-300 text-xs font-semibold whitespace-nowrap hover:bg-white/10 transition-colors shrink-0">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg>
+        Pruebas
+      </a>
+      <a href={`${appBaseUrl}/learning`} class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/[0.06] border border-white/[0.08] text-slate-300 text-xs font-semibold whitespace-nowrap hover:bg-white/10 transition-colors shrink-0">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/></svg>
+        Aprendizaje
+      </a>
+      <a href={`${appBaseUrl}/games`} class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/[0.06] border border-white/[0.08] text-slate-300 text-xs font-semibold whitespace-nowrap hover:bg-white/10 transition-colors shrink-0">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="6" x2="10" y1="11" y2="11"/><line x1="8" x2="8" y1="9" y2="13"/><line x1="15" x2="15.01" y1="12" y2="12"/><line x1="18" x2="18.01" y1="10" y2="10"/><path d="M17.32 5H6.68a4 4 0 0 0-3.978 3.59c-.006.052-.01.101-.017.152C2.604 9.416 2 14.456 2 16a3 3 0 0 0 3 3c1 0 1.5-.5 2-1l1.414-1.414A2 2 0 0 1 9.828 16h4.344a2 2 0 0 1 1.414.586L17 18c.5.5 1 1 2 1a3 3 0 0 0 3-3c0-1.545-.604-6.584-.685-7.258-.007-.05-.011-.1-.017-.151A4 4 0 0 0 17.32 5z"/></svg>
+        Juegos
+      </a>
+    </div>
 
     <!-- ═══════════════════════════════════════ HERO SECTION ═══════════════════════════════════ -->
     <section class="relative pt-20 pb-10 md:pt-32 md:pb-32 overflow-hidden px-6">
@@ -185,7 +216,7 @@ const faqSchema = {
           </div>
           <h1 class="font-black tracking-tighter leading-[1.05] mb-8 reveal-on-scroll">
             <span class="text-[clamp(1.5rem,2.8vw,2.5rem)] text-slate-300 block pb-3 whitespace-nowrap">Tu teórico a la primera</span>
-            <span class="block text-[clamp(3rem,9vw,6rem)]" style="position:relative;padding-bottom:0.08em;margin-bottom:-0.08em">
+            <span class="block text-[clamp(1.5rem,8vw,6rem)]" style="position:relative;padding-bottom:0.08em;margin-bottom:-0.08em">
               <span id="hero-word-glow" aria-hidden="true" style="position:absolute;inset:-120% -55%;background:radial-gradient(ellipse 70% 50% at 50% 50%,rgba(56,189,248,0.42) 0%,transparent 62%);filter:blur(80px);pointer-events:none;transition:background 0.5s ease;"></span>
               <span style="display:block;overflow:hidden">
                 <span id="hero-word" class="hero-rotating-word block" style="background:linear-gradient(to right,#3b82f6,#38bdf8,#67e8f9);-webkit-background-clip:text;background-clip:text;color:transparent;white-space:nowrap;position:relative;z-index:1;">Sin libros aburridos</span>
@@ -908,26 +939,26 @@ const faqSchema = {
           
           <div class="w-full relative z-10">
             <!-- Header -->
-            <div class="grid grid-cols-[1fr_1fr_1fr] border-b border-white/5 bg-white/[0.02]">
-              <div class="px-5 py-5"></div>
-              <div class="px-4 py-5 text-center flex flex-col items-center justify-center border-l border-white/5">
+            <div class="grid grid-cols-[1.2fr_1fr_1.2fr] border-b border-white/5 bg-white/[0.02]">
+              <div class="px-5 py-4"></div>
+              <div class="px-4 py-4 text-center flex flex-col items-center justify-center border-l border-white/5">
                 <span class="text-[9px] font-black text-slate-500 uppercase tracking-widest">Tradicional</span>
               </div>
-              <div class="px-4 py-5 text-center flex flex-col items-center justify-center border-l border-white/5 bg-blue-500/10 relative">
+              <div class="px-4 py-4 text-center flex flex-col items-center justify-center border-l border-white/10 bg-blue-500/10 relative">
                 <div class="absolute top-0 left-0 right-0 h-1 bg-blue-500"></div>
                 <span class="text-[9px] font-black text-blue-400 uppercase tracking-widest">Skily ★</span>
               </div>
             </div>
 
             <!-- Price row -->
-            <div class="grid grid-cols-[1fr_1fr_1fr] border-b border-white/5 group hover:bg-white/[0.01] transition-colors">
+            <div class="grid grid-cols-[1.2fr_1fr_1.2fr] border-b border-white/5 group hover:bg-white/[0.01] transition-colors">
               <div class="px-6 py-5 flex items-center">
-                <span class="text-[11px] font-black text-white uppercase tracking-wider">Inversión</span>
+                <span class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Inversión</span>
               </div>
               <div class="px-4 py-5 flex items-center justify-center border-l border-white/5">
-                <span class="text-lg font-black text-slate-600 line-through opacity-50">€400</span>
+                <span class="text-lg font-black text-slate-400 line-through opacity-40">€400</span>
               </div>
-              <div class="px-4 py-5 flex flex-col items-center justify-center gap-1 border-l border-white/5 bg-blue-500/10">
+              <div class="px-4 py-5 flex flex-col items-center justify-center gap-1 border-l border-white/10 bg-blue-500/10">
                 <span class="text-2xl font-black text-white">€9.99</span>
                 <div class="px-1.5 py-0.5 rounded bg-emerald-500/20 border border-emerald-500/30">
                   <span class="text-[8px] font-black text-emerald-400 uppercase">-97%</span>
@@ -942,15 +973,15 @@ const faqSchema = {
               ['Dinámica', 'Estudio solo', 'PvP Arena'],
               ['Garantía', 'Sin predicción', 'Smart Analytics'],
             ].map(([feature, bad, good]) => (
-              <div class="grid grid-cols-[1fr_1fr_1fr] border-b border-white/5 last:border-0 group hover:bg-white/[0.01] transition-colors">
-                <div class="px-6 py-4 flex items-center">
-                  <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">{feature}</span>
+              <div class="grid grid-cols-[1.2fr_1fr_1.2fr] border-b border-white/5 last:border-0 group hover:bg-white/[0.01] transition-colors">
+                <div class="px-6 py-5 flex items-center">
+                  <span class="text-[9px] font-black text-slate-500 uppercase tracking-[0.2em]">{feature}</span>
                 </div>
-                <div class="px-4 py-4 flex items-center justify-center border-l border-white/5 bg-slate-900/20">
-                  <span class="text-[10px] text-slate-400 font-medium">{bad}</span>
+                <div class="px-4 py-5 flex items-center justify-center border-l border-white/5">
+                  <span class="text-[11px] text-slate-400 font-medium">{bad}</span>
                 </div>
-                <div class="px-4 py-4 flex items-center justify-center border-l border-white/5 bg-blue-500/10">
-                  <span class="text-[11px] text-blue-50 font-black tracking-tight">{good}</span>
+                <div class="px-4 py-5 flex items-center justify-center border-l border-white/10 bg-blue-500/[0.03]">
+                  <span class="text-[12px] text-white font-bold tracking-tight">{good}</span>
                 </div>
               </div>
             ))}
@@ -1271,7 +1302,7 @@ const faqSchema = {
             <a href="https://skilyapp.com/legal/cookies" class="text-slate-500 hover:text-slate-300 text-xs transition-colors">Cookies</a>
             <a href="https://skilyapp.com/pricing" class="text-slate-500 hover:text-slate-300 text-xs transition-colors">Precios</a>
             <a href="https://t.me/skilyapp_bot" target="_blank" rel="noopener noreferrer" class="text-slate-500 hover:text-slate-300 text-xs transition-colors">Soporte</a>
-            <a href="https://skilyapp.com/help" class="text-slate-500 hover:text-slate-300 text-xs transition-colors">Ayuda</a>
+            <button onclick="openCrispChat()" class="text-slate-500 hover:text-slate-300 text-xs transition-colors cursor-pointer bg-transparent border-0 p-0 font-[inherit]">💬 Ayuda</button>
             <a href="https://skilyapp.com/partners" class="text-slate-500 hover:text-slate-300 text-xs transition-colors">Afiliados</a>
           </nav>
         </div>

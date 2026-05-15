@@ -136,13 +136,13 @@ const jsonLdArray = Array.isArray(jsonLd) ? jsonLd : jsonLd ? [jsonLd] : [];
     <!-- /Google tag -->
 
     <!-- Axeptio Cookie Consent Management -->
-    <script src="https://static.axeptio.eu/sdk.js"></script>
     <script>
       window.axeptioSettings = {
         clientId: "668eb0f3c69c6a02c3c0e047",
         cookiesVersion: "skilyapp-en"
       };
     </script>
+    <script async src="https://static.axeptio.eu/sdk.js"></script>
 
     <!-- Start Engine Button Styles -->
     <style is:global>
@@ -388,6 +388,11 @@ const jsonLdArray = Array.isArray(jsonLd) ? jsonLd : jsonLd ? [jsonLd] : [];
           s.async = true;
           document.head.appendChild(s);
         }
+        window.openCrispChat = function() {
+          loadCrisp();
+          window.$crisp = window.$crisp || [];
+          window.$crisp.push(["do", "chat:open"]);
+        };
         setTimeout(loadCrisp, 15000);
         window.addEventListener('pointerdown', loadCrisp, { once: true, passive: true });
         window.addEventListener('keydown', loadCrisp, { once: true });

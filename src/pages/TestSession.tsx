@@ -1486,57 +1486,17 @@ const TestSession = () => {
 
         {showGuestPaywall && (() => {
           const pw = {
-            es: {
-              badge: 'Skily AI · Diagnóstico',
-              title: '¡Ya llevas 3 preguntas!',
-              coinTitle: '+100 monedas gratis',
-              coinSub: 'Úsalas en duelos y boosters de XP',
-              perks: [
-                { icon: '🧠', text: 'Plan IA con tus puntos débiles' },
-                { icon: '⚔️', text: 'Duelos PvP 1vs1 en tiempo real' },
-                { icon: '🚀', text: 'Explicaciones de IA en cada pregunta' },
-              ],
-              cta: 'Registrarme gratis · +100 monedas',
-              skip: 'Continuar sin registrarme',
-            },
-            ru: {
-              badge: 'Skily AI · Диагностика',
-              title: 'Ты ответил на 3 вопроса!',
-              coinTitle: '+100 монет бесплатно',
-              coinSub: 'Используй в дуэлях и бустерах XP',
-              perks: [
-                { icon: '🧠', text: 'ИИ-план по твоим слабым местам' },
-                { icon: '⚔️', text: 'PvP дуэли 1vs1 в реальном времени' },
-                { icon: '🚀', text: 'Объяснения ИИ к каждому вопросу' },
-              ],
-              cta: 'Зарегистрироваться · +100 монет',
-              skip: 'Продолжить без регистрации',
-            },
-            en: {
-              badge: 'Skily AI · Diagnosis',
-              title: "You've answered 3 questions!",
-              coinTitle: '+100 free coins',
-              coinSub: 'Use them in duels and XP boosters',
-              perks: [
-                { icon: '🧠', text: 'AI plan targeting your weak spots' },
-                { icon: '⚔️', text: 'Real-time 1vs1 PvP duels' },
-                { icon: '🚀', text: 'AI explanations for every question' },
-              ],
-              cta: 'Sign up free · +100 coins',
-              skip: 'Continue without signing up',
-            },
-          }[effectiveLanguage as 'es' | 'ru' | 'en'] ?? {
-            badge: 'Skily AI · Diagnóstico',
-            title: '¡Ya llevas 3 preguntas!',
-            coinTitle: '+100 monedas gratis',
-            coinSub: 'Úsalas en duelos y boosters de XP',
+            badge: t('guestPaywall.badge'),
+            title: t('guestPaywall.title'),
+            coinTitle: t('guestPaywall.coinTitle'),
+            coinSub: t('guestPaywall.coinSub'),
             perks: [
-              { icon: '🧠', text: 'Plan IA con tus puntos débiles' },
-              { icon: '⚔️', text: 'Duelos PvP 1vs1 en tiempo real' },
-              { icon: '🚀', text: 'Explicaciones de IA en cada pregunta' },
+              { icon: '🧠', text: t('guestPaywall.perks.plan') },
+              { icon: '⚔️', text: t('guestPaywall.perks.duels') },
+              { icon: '🚀', text: t('guestPaywall.perks.explanations') },
             ],
-            cta: 'Registrarme gratis · +100 monedas',
-            skip: 'Continuar sin registrarme',
+            cta: t('guestPaywall.cta'),
+            skip: t('guestPaywall.skip'),
           };
           return (
             <div
