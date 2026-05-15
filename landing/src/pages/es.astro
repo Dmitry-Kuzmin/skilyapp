@@ -140,7 +140,7 @@ const faqSchema = {
     <!-- Noise texture -->
     <div class="fixed inset-0 pointer-events-none opacity-[0.03] z-0" style="background-image:url('/noise.svg')"></div>
     <!-- Grid pattern -->
-    <div class="fixed inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none z-0"></div>
+    <div class="fixed inset-0 bg-[linear-gradient(to_right,#80808014_1px,transparent_1px),linear-gradient(to_bottom,#80808014_1px,transparent_1px)] bg-[size:48px_48px] pointer-events-none z-0"></div>
 
     <!-- ═══════════════════════════════════════ NAV ══════════════════════════════════════ -->
     <nav class="relative z-[100] px-4 md:px-10 pt-5 pb-4 md:pb-6 flex items-center max-w-[1400px] mx-auto gap-4">
@@ -214,16 +214,16 @@ const faqSchema = {
           <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-300 text-[10px] font-bold tracking-[0.2em] uppercase mb-8 reveal-on-scroll">
             🇪🇸 DGT Approved · {currentYear}
           </div>
-          <h1 class="font-black tracking-tighter leading-[1.05] mb-8 reveal-on-scroll">
-            <span class="text-[clamp(1.5rem,2.8vw,2.5rem)] text-slate-300 block pb-3 whitespace-nowrap">Tu teórico a la primera</span>
-            <span class="block text-[clamp(1.5rem,8vw,6rem)]" style="position:relative;padding-bottom:0.08em;margin-bottom:-0.08em">
-              <span id="hero-word-glow" aria-hidden="true" style="position:absolute;inset:-120% -55%;background:radial-gradient(ellipse 70% 50% at 50% 50%,rgba(56,189,248,0.42) 0%,transparent 62%);filter:blur(80px);pointer-events:none;transition:background 0.5s ease;"></span>
-              <span style="display:block;overflow:hidden">
+          <h1 class="font-black tracking-tighter leading-[1.02] mb-6 reveal-on-scroll">
+            <span class="text-[clamp(1.1rem,3.5vw,2rem)] text-slate-400 block pb-2 whitespace-nowrap tracking-wide uppercase font-bold">Tu teórico a la primera</span>
+            <span class="block text-[clamp(3.2rem,13vw,9rem)]" style="position:relative;padding-bottom:0.06em;margin-bottom:-0.06em">
+              <span id="hero-word-glow" aria-hidden="true" style="position:absolute;inset:-130% -60%;background:radial-gradient(ellipse 72% 52% at 50% 50%,rgba(56,189,248,0.55) 0%,transparent 60%);filter:blur(80px);pointer-events:none;transition:background 0.5s ease;"></span>
+              <span style="display:block;clip-path:inset(0 -100vw)">
                 <span id="hero-word" class="hero-rotating-word block" style="background:linear-gradient(to right,#3b82f6,#38bdf8,#67e8f9);-webkit-background-clip:text;background-clip:text;color:transparent;white-space:nowrap;position:relative;z-index:1;">Sin libros aburridos</span>
               </span>
             </span>
           </h1>
-          <p class="max-w-2xl text-lg md:text-xl text-slate-300 leading-relaxed mb-12 font-medium reveal-on-scroll">
+          <p class="max-w-xl text-sm md:text-base text-slate-400 leading-relaxed mb-10 font-medium reveal-on-scroll">
             <span class="text-white font-bold">Olvida los manuales aburridos</span>. Nuestra IA detecta tus fallos y personaliza el estudio. Gamificación, preguntas oficiales actualizadas y Tu 'L' esperando.
           </p>
           <div class="flex flex-col items-center gap-4 w-full mb-12 reveal-on-scroll">
@@ -371,7 +371,7 @@ const faqSchema = {
                 el.textContent = word.text;
                 el.style.backgroundImage = word.grad;
                 var glow = document.getElementById('hero-word-glow');
-                if(glow) glow.style.background = 'radial-gradient(ellipse 70% 50% at 50% 50%,rgba('+word.gc+',0.42) 0%,transparent 62%)';
+                if(glow) glow.style.background = 'radial-gradient(ellipse 72% 52% at 50% 50%,rgba('+word.gc+',0.55) 0%,transparent 60%)';
                 el.classList.remove('hero-word-out');
                 el.classList.add('hero-word-in');
                 setTimeout(function(){ el.classList.remove('hero-word-in'); }, 700);
@@ -1288,41 +1288,100 @@ const faqSchema = {
     </section>
 
     <!-- ═══════════════════════════════════════ FOOTER ═══════════════════════════════════ -->
-    <footer class="relative z-10 border-t border-white/5 bg-slate-950/50 px-6 py-12">
-      <div class="max-w-[1400px] mx-auto">
-        <div class="flex flex-col md:flex-row items-center justify-between gap-8 mb-8">
-          <div class="flex items-center gap-2">
-            <div class="w-7 h-7 rounded-lg bg-gradient-to-br from-indigo-500 to-blue-600 flex items-center justify-center font-black text-white text-xs shadow-lg">S</div>
-            <span class="font-black text-base tracking-tight text-white">Skily</span>
+    <footer class="relative z-10 overflow-hidden border-t border-white/10 bg-[#070b18] px-6 pt-14 pb-10">
+      <div class="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-400/50 to-transparent"></div>
+      <div class="absolute left-1/2 top-0 h-64 w-[720px] -translate-x-1/2 rounded-full bg-blue-500/10 blur-[110px] pointer-events-none"></div>
+
+      <div class="relative max-w-[1400px] mx-auto">
+        <div class="grid gap-10 lg:grid-cols-[1.05fr_1.35fr_.9fr] lg:items-start">
+          <div class="space-y-5">
+            <a href="/es" class="inline-flex items-center gap-3" aria-label="Skily inicio">
+              <div class="w-10 h-10 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-500/30" style="background:linear-gradient(135deg,#3b82f6,#2563eb,#1d4ed8);">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="m21 8-2 2-1.5-3.7A2 2 0 0 0 15.646 5H8.4a2 2 0 0 0-1.903 1.257L5 10 3 8"/>
+                  <path d="M7 14h.01"/><path d="M17 14h.01"/>
+                  <rect width="18" height="8" x="3" y="10" rx="2"/>
+                  <path d="M5 18v2"/><path d="M19 18v2"/>
+                </svg>
+              </div>
+              <span class="font-black text-lg tracking-tight text-white">Skily</span>
+            </a>
+            <p class="max-w-sm text-sm leading-relaxed text-slate-400">
+              Preparación DGT con IA, práctica diaria y apoyo humano cuando necesitas avanzar más rápido.
+            </p>
+            <div class="flex flex-wrap gap-2 text-[11px] font-bold text-slate-300">
+              <span class="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5">IA 24/7</span>
+              <span class="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5">DGT {currentYear}</span>
+              <span class="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5">Español · EN · RU</span>
+            </div>
           </div>
-          <nav class="flex flex-wrap justify-center gap-x-6 gap-y-2">
-            <a href="https://skilyapp.com/about" class="text-slate-500 hover:text-slate-300 text-xs transition-colors">Acerca de</a>
-            <a href="https://skilyapp.com/legal/terms" class="text-slate-500 hover:text-slate-300 text-xs transition-colors">Términos</a>
-            <a href="https://skilyapp.com/legal/privacy" class="text-slate-500 hover:text-slate-300 text-xs transition-colors">Privacidad</a>
-            <a href="https://skilyapp.com/legal/cookies" class="text-slate-500 hover:text-slate-300 text-xs transition-colors">Cookies</a>
-            <a href="https://skilyapp.com/pricing" class="text-slate-500 hover:text-slate-300 text-xs transition-colors">Precios</a>
-            <a href="https://t.me/skilyapp_bot" target="_blank" rel="noopener noreferrer" class="text-slate-500 hover:text-slate-300 text-xs transition-colors">Soporte</a>
-            <button onclick="openCrispChat()" class="text-slate-500 hover:text-slate-300 text-xs transition-colors cursor-pointer bg-transparent border-0 p-0 font-[inherit]">💬 Ayuda</button>
-            <a href="https://skilyapp.com/partners" class="text-slate-500 hover:text-slate-300 text-xs transition-colors">Afiliados</a>
+
+          <nav class="grid grid-cols-2 gap-8 sm:grid-cols-3" aria-label="Footer">
+            <div>
+              <h3 class="mb-4 text-xs font-black uppercase tracking-[0.18em] text-slate-500">Aprender</h3>
+              <ul class="space-y-3 text-sm">
+                <li><a href={`${appBaseUrl}/tests?lang=es`} class="text-slate-400 hover:text-white transition-colors">Tests DGT</a></li>
+                <li><a href={`${appBaseUrl}/learning?lang=es`} class="text-slate-400 hover:text-white transition-colors">Plan de estudio</a></li>
+                <li><a href={`${appBaseUrl}/games`} class="text-slate-400 hover:text-white transition-colors">Juegos</a></li>
+                <li><a href="https://skilyapp.com/pricing" class="text-slate-400 hover:text-white transition-colors">Precios</a></li>
+              </ul>
+            </div>
+            <div>
+              <h3 class="mb-4 text-xs font-black uppercase tracking-[0.18em] text-slate-500">Skily</h3>
+              <ul class="space-y-3 text-sm">
+                <li><a href="https://skilyapp.com/about" class="text-slate-400 hover:text-white transition-colors">Acerca de</a></li>
+                <li><a href="https://skilyapp.com/blog" class="text-slate-400 hover:text-white transition-colors">Blog DGT</a></li>
+                <li><a href="https://skilyapp.com/partners" class="text-slate-400 hover:text-white transition-colors">Afiliados</a></li>
+                <li>
+                  <button onclick="openCrispChat()" class="inline-flex items-center gap-2 text-left text-slate-400 hover:text-white transition-colors cursor-pointer bg-transparent border-0 p-0 font-[inherit]">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a4 4 0 0 1-4 4H7l-4 4V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/></svg>
+                    Ayuda
+                  </button>
+                </li>
+              </ul>
+            </div>
+            <div>
+              <h3 class="mb-4 text-xs font-black uppercase tracking-[0.18em] text-slate-500">Legal</h3>
+              <ul class="space-y-3 text-sm">
+                <li><a href="https://skilyapp.com/legal/terms" class="text-slate-400 hover:text-white transition-colors">Términos</a></li>
+                <li><a href="https://skilyapp.com/legal/privacy" class="text-slate-400 hover:text-white transition-colors">Privacidad</a></li>
+                <li><a href="https://skilyapp.com/legal/cookies" class="text-slate-400 hover:text-white transition-colors">Cookies</a></li>
+                <li><a href="https://skilyapp.com/legal/refund" class="text-slate-400 hover:text-white transition-colors">Reembolsos</a></li>
+              </ul>
+            </div>
           </nav>
-        </div>
-        <div class="flex flex-col md:flex-row items-center justify-between gap-4 pt-6 border-t border-white/5">
-          <p class="text-slate-600 text-xs">© {currentYear} Skilyapp. Plataforma de aprendizaje interactivo para la seguridad vial.</p>
-          <div class="flex items-center gap-3">
-            <a href="/ru" class="text-slate-600 hover:text-slate-400 text-xs transition-colors">RU</a>
-            <a href="/en" class="text-slate-600 hover:text-slate-400 text-xs transition-colors">EN</a>
-            <span class="text-slate-400 text-xs font-bold">ES</span>
-          </div>
-        </div>
-        <div class="flex justify-center md:justify-start pt-6">
-          <a href="https://www.nrtv.studio" target="_blank" rel="noreferrer"
-             class="inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-xs text-slate-300 shadow-[0_8px_24px_rgba(15,23,42,0.18)] backdrop-blur-sm transition-colors hover:border-white/20 hover:bg-white/[0.06] hover:text-white">
-            <img src="/nrtv-logo.png" alt="NRTV" class="h-6 w-6 rounded-md object-cover" />
-            <span>Sitio lanzado por el estudio NRTV</span>
-            <span class="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.05] px-2 py-1 text-[11px] font-medium text-slate-200">
-              nrtv.studio ↗
-            </span>
+
+          <a href="https://skilyapp.com/curso" class="group relative block overflow-hidden rounded-3xl border border-amber-300/25 bg-gradient-to-br from-amber-300/15 via-white/[0.06] to-cyan-400/10 p-5 shadow-2xl shadow-amber-950/20 transition-all hover:-translate-y-0.5 hover:border-amber-200/50">
+            <div class="absolute right-0 top-0 h-24 w-24 translate-x-6 -translate-y-6 rounded-full bg-amber-300/20 blur-2xl"></div>
+            <div class="relative">
+              <div class="mb-4 inline-flex items-center gap-2 rounded-full border border-amber-200/20 bg-amber-200/10 px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-amber-200">
+                Curso en vivo
+              </div>
+              <h3 class="text-xl font-black leading-tight text-white">DGT con profesor en directo</h3>
+              <p class="mt-3 text-sm leading-relaxed text-slate-300">Clases online en grupo, profesor real, estructura semanal y acompañamiento hasta el examen.</p>
+              <div class="mt-5 inline-flex items-center gap-2 text-sm font-black text-amber-100">
+                Ver curso
+                <svg class="h-4 w-4 transition-transform group-hover:translate-x-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg>
+              </div>
+            </div>
           </a>
+        </div>
+
+        <div class="mt-10 flex flex-col gap-5 border-t border-white/10 pt-6 md:flex-row md:items-center md:justify-between">
+          <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
+            <p class="text-slate-600 text-xs">© {currentYear} Skilyapp. Plataforma de aprendizaje interactivo para la seguridad vial.</p>
+            <a href="https://www.nrtv.studio" target="_blank" rel="noreferrer"
+               class="inline-flex w-fit items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 text-[11px] text-slate-300 transition-colors hover:border-white/20 hover:bg-white/[0.06] hover:text-white">
+              <img src="/nrtv-logo.png" alt="NRTV" class="h-5 w-5 rounded object-cover" />
+              <span>NRTV studio</span>
+              <span class="text-slate-500">↗</span>
+            </a>
+          </div>
+          <div class="flex items-center gap-3 text-xs font-bold">
+            <a href="/ru" class="text-slate-600 hover:text-slate-400 transition-colors">RU</a>
+            <a href="/en" class="text-slate-600 hover:text-slate-400 transition-colors">EN</a>
+            <span class="rounded-full bg-white text-slate-900 px-2.5 py-1">ES</span>
+          </div>
         </div>
       </div>
     </footer>
