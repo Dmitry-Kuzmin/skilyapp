@@ -975,116 +975,119 @@ const faqSchema = {
       </div>
 
       <!-- ── Bento Grid ── -->
+      <!-- Card structure: rounded box with dark bg, image area on top (overflow hidden), text label below -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-5">
 
-        <!-- ── ROW 1: Probability (1 col) + Telemetría (2 col) — same height ── -->
+        <!-- ══ ROW 1: Readiness (1col) + Telemetría (2col) ══ -->
 
-        <!-- CARD 1: Probabilidad de aprobar -->
-        <div class="relative overflow-hidden rounded-[2rem] group" style="height:460px">
-          <img src="/images/screen-readiness.png" alt="Probabilidad de aprobar"
-            class="absolute inset-0 w-full h-full object-cover object-center scale-100 group-hover:scale-105 transition-transform duration-700"
-            loading="lazy" />
-          <!-- gradient: bottom heavy for text, top subtle for badge -->
-          <div class="absolute inset-0" style="background: linear-gradient(to top, rgba(7,13,26,0.97) 0%, rgba(7,13,26,0.6) 40%, rgba(7,13,26,0.15) 70%, transparent 100%)"></div>
-          <!-- badge -->
-          <div class="absolute top-5 left-5 z-10 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-yellow-500/20 border border-yellow-500/30 backdrop-blur-sm">
-            <span class="w-1.5 h-1.5 rounded-full bg-yellow-400 animate-pulse"></span>
-            <span class="text-[10px] font-bold uppercase tracking-widest text-yellow-300">IA Predicción</span>
+        <!-- CARD 1: Probabilidad de aprobar — portrait 744×862 → fits naturally in 1col tall card -->
+        <div class="rounded-[2rem] overflow-hidden bg-[#0b1220] border border-white/[0.06] group flex flex-col">
+          <!-- image area: 390px tall, image is portrait so object-top shows gauge fully -->
+          <div class="relative overflow-hidden flex-shrink-0" style="height:390px">
+            <div class="absolute top-4 left-4 z-10 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-yellow-500/20 border border-yellow-500/30 backdrop-blur-sm">
+              <span class="w-1.5 h-1.5 rounded-full bg-yellow-400 animate-pulse"></span>
+              <span class="text-[10px] font-bold uppercase tracking-widest text-yellow-300">IA Predicción</span>
+            </div>
+            <img src="/images/screen-readiness.png" alt="Probabilidad de aprobar"
+              class="w-full h-full object-cover object-top group-hover:scale-[1.03] transition-transform duration-700"
+              loading="lazy" />
           </div>
-          <!-- text bottom -->
-          <div class="absolute bottom-0 left-0 right-0 p-6 z-10">
-            <h3 class="text-lg font-black text-white mb-1">Probabilidad de aprobar</h3>
-            <p class="text-slate-400 text-xs leading-relaxed">La IA calcula tu probabilidad real de pasar el DGT con un modelo bayesiano. No es un porcentaje cualquiera.</p>
+          <!-- text -->
+          <div class="px-6 py-5">
+            <h3 class="text-base font-black text-white mb-1">Probabilidad de aprobar</h3>
+            <p class="text-slate-500 text-xs leading-relaxed">La IA predice tu probabilidad real de pasar el DGT con un modelo bayesiano. No es un porcentaje cualquiera.</p>
           </div>
         </div>
 
-        <!-- CARD 2: Panel de Telemetría (2 cols) -->
-        <div class="md:col-span-2 relative overflow-hidden rounded-[2rem] group" style="height:460px">
-          <img src="/images/screen-telemetry.png" alt="Panel de Telemetría"
-            class="absolute inset-0 w-full h-full object-cover object-top scale-100 group-hover:scale-105 transition-transform duration-700"
-            loading="lazy" />
-          <!-- gradient: left for text area -->
-          <div class="absolute inset-0" style="background: linear-gradient(to right, rgba(7,13,26,0.95) 0%, rgba(7,13,26,0.7) 35%, rgba(7,13,26,0.2) 60%, transparent 100%)"></div>
-          <!-- badge -->
-          <div class="absolute top-5 left-5 z-10 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-indigo-500/20 border border-indigo-500/30 backdrop-blur-sm">
-            <span class="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse"></span>
-            <span class="text-[10px] font-bold uppercase tracking-widest text-indigo-300">Telemetría Avanzada</span>
+        <!-- CARD 2: Panel de Telemetría — nearly square 1880×1742 in 2col card -->
+        <!-- object-top shows: header + gauge + veredicto + stats row — the best content -->
+        <div class="md:col-span-2 rounded-[2rem] overflow-hidden bg-[#0b1220] border border-white/[0.06] group flex flex-col">
+          <div class="relative overflow-hidden flex-shrink-0" style="height:390px">
+            <div class="absolute top-4 left-4 z-10 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-indigo-500/20 border border-indigo-500/30 backdrop-blur-sm">
+              <span class="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse"></span>
+              <span class="text-[10px] font-bold uppercase tracking-widest text-indigo-300">Telemetría Avanzada</span>
+            </div>
+            <img src="/images/screen-telemetry.png" alt="Panel de Telemetría"
+              class="w-full h-full object-cover object-top group-hover:scale-[1.03] transition-transform duration-700"
+              loading="lazy" />
           </div>
-          <!-- text left bottom -->
-          <div class="absolute bottom-0 left-0 p-6 z-10 max-w-xs">
-            <h3 class="text-xl font-black text-white mb-2">Panel de Telemetría</h3>
-            <p class="text-slate-400 text-xs leading-relaxed">Tu cabina de piloto: precisión, racha, winrate en duelos, kilometraje total y veredicto del sistema en tiempo real.</p>
+          <div class="px-6 py-5">
+            <h3 class="text-base font-black text-white mb-1">Panel de Telemetría</h3>
+            <p class="text-slate-500 text-xs leading-relaxed">Tu cabina de piloto: precisión, racha, winrate en duelos y veredicto del sistema en tiempo real.</p>
           </div>
         </div>
 
-        <!-- ── ROW 2: License + Duel Pass + Season Rank — 3 equal cards ── -->
+        <!-- ══ ROW 2: License (2col landscape) + Duel Pass (1col square) ══ -->
 
-        <!-- CARD 3: Permiso de Conducción -->
-        <div class="relative overflow-hidden rounded-[2rem] group" style="height:320px">
-          <img src="/images/screen-license.png" alt="Permiso de Conducción"
-            class="absolute inset-0 w-full h-full object-cover object-center scale-100 group-hover:scale-105 transition-transform duration-700"
-            loading="lazy" />
-          <div class="absolute inset-0" style="background: linear-gradient(to top, rgba(7,13,26,0.96) 0%, rgba(7,13,26,0.5) 45%, transparent 100%)"></div>
-          <div class="absolute top-5 left-5 z-10 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/30 backdrop-blur-sm">
-            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-            <span class="text-[10px] font-bold uppercase tracking-widest text-emerald-300">Licencia</span>
+        <!-- CARD 3: Permiso de Conducción — landscape 1436×768 → 2col wide card, fits well -->
+        <div class="md:col-span-2 rounded-[2rem] overflow-hidden bg-[#0b1220] border border-white/[0.06] group flex flex-col">
+          <div class="relative overflow-hidden flex-shrink-0" style="height:270px">
+            <div class="absolute top-4 left-4 z-10 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/30 backdrop-blur-sm">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+              <span class="text-[10px] font-bold uppercase tracking-widest text-emerald-300">Licencia</span>
+            </div>
+            <!-- landscape image in wide 2col card: object-cover object-top shows top portion cleanly -->
+            <img src="/images/screen-license.png" alt="Permiso de Conducción"
+              class="w-full h-full object-cover object-top group-hover:scale-[1.03] transition-transform duration-700"
+              loading="lazy" />
           </div>
-          <div class="absolute bottom-0 left-0 right-0 p-5 z-10">
+          <div class="px-6 py-5">
             <h3 class="text-base font-black text-white mb-1">Permiso de Conducción</h3>
-            <p class="text-slate-400 text-xs leading-relaxed">Tu carnet digital: días restantes, categoría y estado.</p>
+            <p class="text-slate-500 text-xs leading-relaxed">Tu carnet digital en la app: días restantes, categoría y tu estado de preparación.</p>
           </div>
         </div>
 
-        <!-- CARD 4: Duel Pass + Misiones -->
-        <div class="relative overflow-hidden rounded-[2rem] group" style="height:320px">
-          <img src="/images/screen-duel-pass.png" alt="Duel Pass"
-            class="absolute inset-0 w-full h-full object-cover object-top scale-100 group-hover:scale-105 transition-transform duration-700"
-            loading="lazy" />
-          <div class="absolute inset-0" style="background: linear-gradient(to top, rgba(7,13,26,0.96) 0%, rgba(7,13,26,0.5) 45%, transparent 100%)"></div>
-          <div class="absolute top-5 left-5 z-10 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-orange-500/20 border border-orange-500/30 backdrop-blur-sm">
-            <span class="w-1.5 h-1.5 rounded-full bg-orange-400 animate-pulse"></span>
-            <span class="text-[10px] font-bold uppercase tracking-widest text-orange-300">Duel Pass</span>
+        <!-- CARD 4: Duel Pass — square 740×740 → 1col, object-top shows header + missions perfectly -->
+        <div class="rounded-[2rem] overflow-hidden bg-[#0b1220] border border-white/[0.06] group flex flex-col">
+          <div class="relative overflow-hidden flex-shrink-0" style="height:270px">
+            <div class="absolute top-4 left-4 z-10 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-orange-500/20 border border-orange-500/30 backdrop-blur-sm">
+              <span class="w-1.5 h-1.5 rounded-full bg-orange-400 animate-pulse"></span>
+              <span class="text-[10px] font-bold uppercase tracking-widest text-orange-300">Duel Pass</span>
+            </div>
+            <img src="/images/screen-duel-pass.png" alt="Duel Pass"
+              class="w-full h-full object-cover object-top group-hover:scale-[1.03] transition-transform duration-700"
+              loading="lazy" />
           </div>
-          <div class="absolute bottom-0 left-0 right-0 p-5 z-10">
+          <div class="px-6 py-5">
             <h3 class="text-base font-black text-white mb-1">Duel Pass + Misiones</h3>
-            <p class="text-slate-400 text-xs leading-relaxed">Misiones diarias, puntos SP y recompensas de temporada.</p>
+            <p class="text-slate-500 text-xs leading-relaxed">Misiones diarias, puntos SP y recompensas exclusivas por temporada.</p>
           </div>
         </div>
 
-        <!-- CARD 5: Season Rank -->
-        <div class="relative overflow-hidden rounded-[2rem] group" style="height:320px">
-          <img src="/images/screen-season-rank.png" alt="Clasificación de temporada"
-            class="absolute inset-0 w-full h-full object-cover object-center scale-100 group-hover:scale-105 transition-transform duration-700"
-            loading="lazy" />
-          <div class="absolute inset-0" style="background: linear-gradient(to top, rgba(7,13,26,0.96) 0%, rgba(7,13,26,0.5) 45%, transparent 100%)"></div>
-          <div class="absolute top-5 left-5 z-10 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-purple-500/20 border border-purple-500/30 backdrop-blur-sm">
-            <span class="w-1.5 h-1.5 rounded-full bg-purple-400 animate-pulse"></span>
-            <span class="text-[10px] font-bold uppercase tracking-widest text-purple-300">Liga</span>
+        <!-- ══ ROW 3: Season Rank (1col) + PvP (2col) ══ -->
+
+        <!-- CARD 5: Clasificación — nearly square 1844×1654 → 1col, object-top shows podium -->
+        <div class="rounded-[2rem] overflow-hidden bg-[#0b1220] border border-white/[0.06] group flex flex-col">
+          <div class="relative overflow-hidden flex-shrink-0" style="height:310px">
+            <div class="absolute top-4 left-4 z-10 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-purple-500/20 border border-purple-500/30 backdrop-blur-sm">
+              <span class="w-1.5 h-1.5 rounded-full bg-purple-400 animate-pulse"></span>
+              <span class="text-[10px] font-bold uppercase tracking-widest text-purple-300">Liga</span>
+            </div>
+            <img src="/images/screen-season-rank.png" alt="Clasificación de temporada"
+              class="w-full h-full object-cover object-top group-hover:scale-[1.03] transition-transform duration-700"
+              loading="lazy" />
           </div>
-          <div class="absolute bottom-0 left-0 right-0 p-5 z-10">
+          <div class="px-6 py-5">
             <h3 class="text-base font-black text-white mb-1">Clasificación Global</h3>
-            <p class="text-slate-400 text-xs leading-relaxed">Compite en temporadas contra otros estudiantes. ¿Top 3?</p>
+            <p class="text-slate-500 text-xs leading-relaxed">Compite por el top 3 cada temporada. Los mejores pilotos reciben premios.</p>
           </div>
         </div>
 
-        <!-- ── ROW 3: PvP Duel — full width banner ── -->
-
-        <!-- CARD 6: PvP Duels -->
-        <div class="md:col-span-3 relative overflow-hidden rounded-[2rem] group" style="height:320px">
-          <img src="/images/screen-duel-pvp.png" alt="Duelo PvP en vivo"
-            class="absolute inset-0 w-full h-full object-cover object-center scale-100 group-hover:scale-105 transition-transform duration-700"
-            loading="lazy" />
-          <!-- gradient from left for text, right stays clear -->
-          <div class="absolute inset-0" style="background: linear-gradient(to right, rgba(7,13,26,0.96) 0%, rgba(7,13,26,0.75) 30%, rgba(7,13,26,0.2) 60%, transparent 100%)"></div>
-          <!-- badge top-right -->
-          <div class="absolute top-5 right-5 z-10 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-blue-500/20 border border-blue-500/30 backdrop-blur-sm">
-            <span class="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse"></span>
-            <span class="text-[10px] font-bold uppercase tracking-widest text-blue-300">PvP en vivo</span>
+        <!-- CARD 6: PvP Duel — ultra-wide 2710×1188 → 2col, object-top shows header + scene -->
+        <div class="md:col-span-2 rounded-[2rem] overflow-hidden bg-[#0b1220] border border-white/[0.06] group flex flex-col">
+          <div class="relative overflow-hidden flex-shrink-0" style="height:310px">
+            <div class="absolute top-4 right-4 z-10 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-blue-500/20 border border-blue-500/30 backdrop-blur-sm">
+              <span class="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse"></span>
+              <span class="text-[10px] font-bold uppercase tracking-widest text-blue-300">PvP en vivo</span>
+            </div>
+            <!-- ultra-wide 2.28:1 image in 2col card ~2:1 → object-top shows game header + road photo -->
+            <img src="/images/screen-duel-pvp.png" alt="Duelo PvP en vivo"
+              class="w-full h-full object-cover object-top group-hover:scale-[1.03] transition-transform duration-700"
+              loading="lazy" />
           </div>
-          <!-- text left -->
-          <div class="absolute top-1/2 -translate-y-1/2 left-0 p-8 z-10 max-w-sm">
-            <h3 class="text-2xl md:text-3xl font-black text-white mb-3 leading-tight">Duelos PvP<br/>contra otros estudiantes</h3>
-            <p class="text-slate-400 text-sm leading-relaxed">Partidas de 3 min, respuestas en tiempo real. El miedo al examen desaparece después de 10 duelos.</p>
+          <div class="px-6 py-5">
+            <h3 class="text-base font-black text-white mb-1">Duelos PvP en vivo</h3>
+            <p class="text-slate-500 text-xs leading-relaxed">Compite contra otros estudiantes en partidas de 3 minutos. El miedo al examen desaparece rápido.</p>
           </div>
         </div>
 
