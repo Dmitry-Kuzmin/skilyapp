@@ -1,25 +1,41 @@
-import { useEffect } from 'react';
+import { useEffect, useLayoutEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useTheme } from 'next-themes';
+
+// Marketing/landing and auth routes are intentionally dark regardless of user theme.
+const FORCED_DARK_RE = /^\/(curso|pricing|about|partners|blog|article|promo|course-payment|ru|es|en|legal|terms|privacy|help|login|demo)(\/|$)/;
+
+const isForcedDark = (pathname: string) =>
+    pathname === '/' || FORCED_DARK_RE.test(pathname);
 
 /**
  * Bridges React's authoritative theme state into the inline-script applier.
  *
- * The inline script in index.html (window.__applyThemeColor__) is the single
- * source of truth for meta[theme-color] + html bg. It guesses the mode from
- * html.class / localStorage before React mounts. Once React mounts, THIS
- * component writes the exact resolved theme to window.__themeMode__ so the
- * inline applier doesn't have to guess anymore.
+ * Also forces `dark` class on marketing and auth routes so Tailwind dark
+ * variants apply correctly even when the user's stored preference is light.
+ *
+ * ⚠️ Safe with the ORIGINAL index.html __applyThemeColor__ (conditional add).
+ * Would loop if index.html always does classList.remove/add unconditionally.
  */
 export const ThemeColorManager = () => {
     const { pathname } = useLocation();
     const { resolvedTheme } = useTheme();
 
-    useEffect(() => {
-        // Publish the authoritative mode so __applyThemeColor__ reads it directly.
-        if (resolvedTheme === 'light' || resolvedTheme === 'dark') {
-            (window as { __themeMode__?: string }).__themeMode__ = resolvedTheme;
-        }
+    useLayoutEffect(() => {
+        const forcedDark = isForcedDark(pathname);
+        const mode = forcedDark
+            ? 'dark'
+            : (resolvedTheme === 'light' || resolvedTheme === 'dark' ? resolvedTheme : 'dark');
+
+        (window as { __themeMode__?: string }).__themeMode__ = mode;
+
+        // Sync html class so Tailwind dark: variants work correctly.
+        // apply() (called below) uses the original conditional-add logic from
+        // index.html, so it won't change classList again → no MutationObserver loop.
+        const html = document.documentElement;
+        html.classList.remove(mode === 'dark' ? 'light' : 'dark');
+        html.classList.add(mode);
+        html.style.colorScheme = mode;
 
         const apply = (window as { __applyThemeColor__?: () => void }).__applyThemeColor__;
         if (typeof apply !== 'function') return;
