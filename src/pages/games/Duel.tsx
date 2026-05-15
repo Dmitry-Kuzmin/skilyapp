@@ -166,6 +166,13 @@ export default function Duel() {
 
     const navigate = useNavigate();
 
+    // Автоматически открываем модалку авторизации если пользователь не залогинен
+    useEffect(() => {
+        if (!isLoadingProfile && !isAuthenticated && !isTelegramUser) {
+            setShowAuthModal(true);
+        }
+    }, [isLoadingProfile, isAuthenticated, isTelegramUser]);
+
     // 🆕 Telegram BackButton и swipe-back для экрана настройки дуэли (не для battle/results)
     useEffect(() => {
         const isTG = safeIsTelegramMiniApp();
@@ -1463,26 +1470,6 @@ export default function Duel() {
                     "container mx-auto px-3 sm:px-4 max-w-[1370px]",
                     mode === 'result' ? "pt-0 pb-6" : "py-4 sm:py-6"
                 )}>
-                    {!isLoadingProfile && !isAuthenticated && !isTelegramUser && (
-                        <Card className="max-w-2xl mx-auto p-6 sm:p-8 md:p-12 text-center space-y-4 sm:space-y-6 bg-gradient-to-br from-blue-50/80 to-blue-100/60 border-blue-200">
-                            <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto bg-blue-500/10 rounded-full flex items-center justify-center">
-                                <LogIn className="w-8 h-8 sm:w-10 sm:h-10 text-blue-500" />
-                            </div>
-                            <div className="space-y-2">
-                                <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
-                                    {t('duelMenu.auth.title')}
-                                </h2>
-                                <p className="text-muted-foreground text-base sm:text-lg">
-                                    {t('duelMenu.auth.subtitle')}
-                                </p>
-                            </div>
-                            <Button size="lg" onClick={() => setShowAuthModal(true)} className="px-6 sm:px-8 bg-blue-600 hover:bg-blue-700">
-                                <LogIn className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
-                                {t('duelMenu.auth.button')}
-                            </Button>
-                        </Card>
-                    )}
-
                     {!isLoadingProfile && (isAuthenticated || isTelegramUser) && mode === 'menu' && (
                         <div className="max-w-5xl mx-auto space-y-8 sm:space-y-10 animate-fade-in pb-8">
 
