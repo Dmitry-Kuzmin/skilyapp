@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+
+# Sitemaps
+Sitemap: https://skilyapp.com/sitemap-index.xml
+Sitemap: https://skilyapp.com/sitemap-0.xml
