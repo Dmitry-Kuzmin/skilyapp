@@ -227,12 +227,6 @@ const faqSchema = {
             <span class="text-white font-bold">Preguntas reales DGT.</span> IA que detecta tus errores. Gamificación que engancha. Todo en un lugar.
           </p>
           <div class="flex flex-col items-center gap-4 w-full mb-12 reveal-on-scroll engine-stage">
-            <div class="engine-social-proof">
-              <span class="text-amber-400" style="font-size:15px;letter-spacing:-1px;">★★★★★</span>
-              <span class="text-white text-xs font-bold">4.9</span>
-              <span class="engine-social-sep"></span>
-              <span class="text-slate-400 text-xs font-medium">12.000+ estudiantes ya van camino a su carnet</span>
-            </div>
             <div class="engine-scale-wrapper">
               <button class="engine-btn-outer" id="engine-btn" data-url={`${appBaseUrl}/login?lang=es`} onclick="handleStartEngine(this)">
                 <div class="engine-glow" id="engine-glow"></div>
@@ -249,7 +243,6 @@ const faqSchema = {
                           <path d="M12 2v10"/><path d="M18.4 6.6a9 9 0 1 1-12.77.04"/>
                         </svg>
                         <span class="engine-lbl-engine">Engine</span>
-                        <span class="engine-lbl-ss">Start/Stop</span>
                       </div>
                       <div class="engine-ambient-light"></div>
                     </div>
@@ -262,9 +255,16 @@ const faqSchema = {
               <span class="engine-sep-text">Pulsa Start</span>
               <div class="engine-sep-line engine-sep-line-right"></div>
             </div>
-            <a href={`${appBaseUrl}/demo?lang=es`} class="engine-hint-link">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
-              Empieza el test gratuito — sin registro
+            <div class="engine-social-proof">
+              <span class="text-amber-400" style="font-size:15px;letter-spacing:-1px;">★★★★★</span>
+              <span class="text-white text-xs font-bold">4.9</span>
+              <span class="engine-social-sep"></span>
+              <span class="text-slate-400 text-xs font-medium">12.000+ estudiantes ya van camino a su carnet</span>
+            </div>
+            <a href={`${appBaseUrl}/demo?lang=es`} class="engine-cta-secondary">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
+              Empieza el test gratuito
+              <span class="engine-cta-badge">Sin registro</span>
             </a>
           </div>
 
