@@ -224,19 +224,19 @@ const faqSchema = {
             </span>
           </h1>
           <p class="max-w-xl text-sm md:text-base text-slate-400 leading-relaxed mb-2 font-medium reveal-on-scroll">
-            <span class="text-white font-bold">Preguntas reales DGT.</span> IA que detecta tus errores.<br/>
-            <a href={`${appBaseUrl}/demo?lang=es`} class="hero-cta-inline">Empieza el test gratis — sin registro →</a>
+            <span class="text-white font-bold">Preguntas reales DGT.</span> IA que detecta tus errores.
+            Empieza el test gratis y sin registro ahora.
           </p>
           <div class="flex flex-col items-center gap-0 w-full mb-10 reveal-on-scroll">
-            <svg class="engine-arrow-guide" width="20" height="64" viewBox="0 0 20 64" fill="none" aria-hidden="true">
+            <svg class="engine-arrow-guide" width="24" height="80" viewBox="0 0 24 80" fill="none" aria-hidden="true">
               <defs>
-                <linearGradient id="engineArrowGrad" x1="10" y1="0" x2="10" y2="64" gradientUnits="userSpaceOnUse">
-                  <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.25"/>
-                  <stop offset="100%" stop-color="#38bdf8" stop-opacity="0.9"/>
+                <linearGradient id="engineArrowGrad" x1="12" y1="0" x2="12" y2="80" gradientUnits="userSpaceOnUse">
+                  <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.15"/>
+                  <stop offset="100%" stop-color="#38bdf8" stop-opacity="1"/>
                 </linearGradient>
               </defs>
-              <path class="arrow-line" d="M10 2 C7 18, 13 36, 10 52" stroke="url(#engineArrowGrad)" stroke-width="1.5" stroke-linecap="round"/>
-              <path class="arrow-head" d="M5 47 L10 57 L15 47" stroke="#38bdf8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+              <path class="arrow-line" d="M12 2 C8 22, 16 52, 12 68" stroke="url(#engineArrowGrad)" stroke-width="2" stroke-linecap="round"/>
+              <path class="arrow-head" d="M6 62 L12 74 L18 62" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
             </svg>
             <div class="engine-scale-wrapper">
               <button class="engine-btn-outer" id="engine-btn" data-url={`${appBaseUrl}/login?lang=es`} onclick="handleStartEngine(this)">
@@ -261,6 +261,7 @@ const faqSchema = {
                 </div>
               </button>
             </div>
+            <span class="engine-pulsa-label">Pulsa para empezar</span>
           </div>
 
           <div class="mt-8 w-full" id="product-showcase-container">

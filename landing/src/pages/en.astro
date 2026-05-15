@@ -271,19 +271,19 @@ const faqSchema = {
             </script>
 
             <p class="max-w-2xl text-lg md:text-xl text-slate-300 leading-relaxed mb-2 font-medium reveal-on-scroll" style="transition-delay: 100ms">
-              <span class="text-white font-bold">Real DGT questions.</span> AI that spots your mistakes.<br/>
-              <a href={`${appBaseUrl}/demo?lang=en`} class="hero-cta-inline">Start the free test — no sign-up →</a>
+              <span class="text-white font-bold">Real DGT questions.</span> AI that spots your mistakes.
+              Start the free test — no sign-up needed.
             </p>
             <div class="flex flex-col items-center gap-0 w-full sm:w-auto reveal-on-scroll" style="transition-delay: 200ms">
-              <svg class="engine-arrow-guide" width="20" height="64" viewBox="0 0 20 64" fill="none" aria-hidden="true">
+              <svg class="engine-arrow-guide" width="24" height="80" viewBox="0 0 24 80" fill="none" aria-hidden="true">
                 <defs>
-                  <linearGradient id="engineArrowGradEn" x1="10" y1="0" x2="10" y2="64" gradientUnits="userSpaceOnUse">
-                    <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.25"/>
-                    <stop offset="100%" stop-color="#38bdf8" stop-opacity="0.9"/>
+                  <linearGradient id="engineArrowGradEn" x1="12" y1="0" x2="12" y2="80" gradientUnits="userSpaceOnUse">
+                    <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.15"/>
+                    <stop offset="100%" stop-color="#38bdf8" stop-opacity="1"/>
                   </linearGradient>
                 </defs>
-                <path class="arrow-line" d="M10 2 C7 18, 13 36, 10 52" stroke="url(#engineArrowGradEn)" stroke-width="1.5" stroke-linecap="round"/>
-                <path class="arrow-head" d="M5 47 L10 57 L15 47" stroke="#38bdf8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                <path class="arrow-line" d="M12 2 C8 22, 16 52, 12 68" stroke="url(#engineArrowGradEn)" stroke-width="2" stroke-linecap="round"/>
+                <path class="arrow-head" d="M6 62 L12 74 L18 62" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
               </svg>
               <div class="engine-scale-wrapper">
                 <button class="engine-btn-outer" id="engine-btn-v2" data-url={`${appBaseUrl}/login?lang=en`} onclick="handleStartEngine(this)">
@@ -308,6 +308,7 @@ const faqSchema = {
                   </div>
                 </button>
               </div>
+              <span class="engine-pulsa-label">Tap to start</span>
               <a href="https://t.me/skilyapp_bot" class="engine-demo-link" style="color:#475569;margin-top:12px;">Open in Telegram</a>
             </div>
             
