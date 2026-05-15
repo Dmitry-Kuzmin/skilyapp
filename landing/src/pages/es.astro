@@ -554,12 +554,27 @@ const faqSchema = {
 
       /* Mobile: slightly bigger than before, stays in screen */
       .hero-word-size { font-size: clamp(2.2rem, 9vw, 3rem); }
-      .hero-word-clip { overflow: hidden; }
+      /* Clip только по вертикали — горизонт открыт, без прямоугольной рамки */
+      .hero-word-clip {
+        overflow: visible;
+        clip-path: inset(0 0);
+      }
+      /* Гло на мобиле: меньше blur, mask для плавного fade по краям */
+      #hero-word-glow {
+        filter: blur(40px) !important;
+        -webkit-mask-image: radial-gradient(ellipse 70% 70% at 50% 50%, black 10%, transparent 80%);
+        mask-image: radial-gradient(ellipse 70% 70% at 50% 50%, black 10%, transparent 80%);
+      }
 
       /* Desktop: original scale, slight overflow on mid-width screens */
       @media (min-width: 768px) {
         .hero-word-size { font-size: clamp(4rem, 8vw, 6rem); }
         .hero-word-clip { overflow: visible; clip-path: inset(0 -100vw); }
+        #hero-word-glow {
+          filter: blur(80px) !important;
+          -webkit-mask-image: none;
+          mask-image: none;
+        }
       }
     </style>
 
