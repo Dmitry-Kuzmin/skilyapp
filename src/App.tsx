@@ -286,15 +286,25 @@ const LandingRedirect = () => {
       if (hasToken) {
         navigate("/dashboard" + window.location.search, { replace: true });
       } else {
-        const fallbackTarget = window.location.pathname === "/ru" ? "/ru" : "/es";
-        if (window.location.pathname !== fallbackTarget) {
-          window.location.replace(fallbackTarget);
+        // Token present but no access_token (expired/malformed) — treat as unauthenticated.
+        const path = window.location.pathname;
+        const target = path === "/ru" ? "/ru" : "/es";
+        if (import.meta.env.DEV) {
+          const astroBase = `${window.location.protocol}//${window.location.hostname}:4321`;
+          window.location.replace(`${astroBase}${target}`);
+        } else if (path !== target) {
+          window.location.replace(target);
         }
       }
     } catch (error) {
       console.warn("[LandingRedirect] Failed to parse supabase auth token", error);
-      if (window.location.pathname !== "/es") {
-        window.location.replace("/es");
+      const path = window.location.pathname;
+      const target = path === "/ru" ? "/ru" : "/es";
+      if (import.meta.env.DEV) {
+        const astroBase = `${window.location.protocol}//${window.location.hostname}:4321`;
+        window.location.replace(`${astroBase}${target}`);
+      } else if (path !== target) {
+        window.location.replace(target);
       }
     }
   }, [authStorageKey, isPrerenderMode, navigate]);
