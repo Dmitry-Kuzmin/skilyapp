@@ -376,6 +376,9 @@ export const es = {
         sample: "EXPERIENCIA",
         target: "OBJETIVO",
         rank: "RANGO",
+        rankLabels: {
+          apprentice: "Alumno",
+        },
         extendedTelemetry: "TELEMETRÍA EXTENDIDA",
         knowledgeRadar: "RADAR DE CONOCIMIENTO",
         flightLevels: {

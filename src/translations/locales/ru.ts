@@ -375,6 +375,9 @@ export const ru = {
         sample: "ОПЫТ",
         target: "ЦЕЛЬ",
         rank: "РАНГ",
+        rankLabels: {
+          apprentice: "Ученик",
+        },
         extendedTelemetry: "РАСШИРЕННАЯ ТЕЛЕМЕТРИЯ",
         knowledgeRadar: "РАДАР ЗНАНИЙ",
         flightLevels: {

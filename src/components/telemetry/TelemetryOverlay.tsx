@@ -164,6 +164,13 @@ export function TelemetryContent({ onClose }: { onClose: () => void }) {
     const score = readiness?.percent ?? 0;
     const overlay = useCallback((path: string, params?: Record<string, string | number>) => t(`dashboard.examReadiness.overlay.${path}`, params), [t]);
     const readinessStatus = readiness?.status || 'start';
+
+    const RANK_KEY_MAP: Record<string, string> = { 'Ученик': 'apprentice' };
+    const getRankLabel = (rank: string | null | undefined) => {
+      if (!rank) return '—';
+      const key = RANK_KEY_MAP[rank] || 'apprentice';
+      return `#${overlay(`rankLabels.${key}`)}`;
+    };
     const verdictTitle = t(`dashboard.examReadiness.levels.${readinessStatus}.title`);
     const verdictDescription = t(`dashboard.examReadiness.levels.${readinessStatus}.desc`);
 
@@ -280,7 +287,7 @@ export function TelemetryContent({ onClose }: { onClose: () => void }) {
                                     <div className="flex flex-col gap-1">
                                         <span className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">{overlay('rank')}</span>
                                         <span className="text-2xl font-black text-amber-600 dark:text-amber-500 tabular-nums">
-                                            {dashData?.profile?.rank ? `#${dashData.profile.rank}` : '—'}
+                                            {getRankLabel(dashData?.profile?.rank)}
                                         </span>
                                     </div>
                                 </div>
