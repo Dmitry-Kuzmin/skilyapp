@@ -385,13 +385,13 @@ const jsonLdArray = Array.isArray(jsonLd) ? jsonLd : jsonLd ? [jsonLd] : [];
         position: absolute;
         inset: 0;
         border-radius: 50%;
-        border: 1.5px solid rgba(99, 102, 241, 0.55);
-        animation: engine-pulse-expand 2.4s cubic-bezier(0, 0, 0.2, 1) infinite;
+        border: 1px solid rgba(99, 102, 241, 0.2);
+        animation: engine-pulse-expand 5s cubic-bezier(0, 0, 0.2, 1) infinite;
         pointer-events: none;
         z-index: 0;
       }
-      .engine-btn-outer > .engine-pulse-ring:nth-child(3) { animation-delay: 0.8s; }
-      .engine-btn-outer > .engine-pulse-ring:nth-child(4) { animation-delay: 1.6s; }
+      .engine-btn-outer > .engine-pulse-ring:nth-child(3) { animation-delay: 1.6s; }
+      .engine-btn-outer > .engine-pulse-ring:nth-child(4) { animation-delay: 3.2s; }
 
       .engine-btn-outer.engine-shaking .engine-pulse-ring,
       .engine-btn-outer.engine-igniting .engine-pulse-ring {
@@ -400,9 +400,9 @@ const jsonLdArray = Array.isArray(jsonLd) ? jsonLd : jsonLd ? [jsonLd] : [];
       }
 
       @keyframes engine-pulse-expand {
-        0%   { transform: scale(1);    opacity: 0.7; }
-        60%  { opacity: 0.15; }
-        100% { transform: scale(1.85); opacity: 0; }
+        0%   { transform: scale(1);    opacity: 0.35; }
+        60%  { opacity: 0.08; }
+        100% { transform: scale(1.7);  opacity: 0; }
       }
 
       /* Directional arrow — neon */
@@ -435,18 +435,18 @@ const jsonLdArray = Array.isArray(jsonLd) ? jsonLd : jsonLd ? [jsonLd] : [];
       /* "Pulsa para empezar" shimmer label */
       .engine-pulsa-label {
         display: block;
-        margin-top: 18px;
-        font-size: 13px;
-        font-weight: 700;
-        letter-spacing: 0.12em;
-        text-transform: uppercase;
+        margin-top: 14px;
+        font-size: 11px;
+        font-weight: 500;
+        letter-spacing: 0.04em;
+        text-transform: none;
         text-align: center;
-        background: linear-gradient(90deg, #475569 0%, #94a3b8 30%, #f1f5f9 50%, #94a3b8 70%, #475569 100%);
+        background: linear-gradient(90deg, #334155 0%, #64748b 35%, #94a3b8 50%, #64748b 65%, #334155 100%);
         background-size: 260% auto;
         -webkit-background-clip: text;
         background-clip: text;
         color: transparent;
-        animation: pulsa-shimmer 3.2s linear 2.4s infinite;
+        animation: pulsa-shimmer 7s linear 3s infinite;
       }
       @keyframes pulsa-shimmer {
         0%   { background-position: 200% center; }
