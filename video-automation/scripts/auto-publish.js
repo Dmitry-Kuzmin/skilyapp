@@ -77,33 +77,21 @@ function getCaption(lang, platform) {
   const d = publishData[lang] || {};
   const hookTitle = cleanMarkdown(d.hookTitle || d.question || "");
   const explanation = cleanMarkdown(d.explanation || "");
-  const num = String(d.seriesNumber || "").padStart(3, "0");
+  // Gemini-generated 2-3 bullet insight; fallback: first ~180 chars of explanation
+  const insight = d.captionInsight
+    ? cleanMarkdown(d.captionInsight)
+    : explanation.slice(0, 180) + (explanation.length > 180 ? "…" : "");
 
   if (platform === "pinterest") {
-    // Pinterest: title (≤100 chars) + description (≤500 chars) + link
     const pinTags = lang === "ru"
-      ? `#ПДДИспании #DGT #РусскиевИспании #Skily #ВодительскиеПрава`
-      : `#DGT #ExamenDGT #CarnetDeConducir #Skily #AutoescuelaEspaña`;
+      ? `#ПДДИспании #DGT #РусскиевИспании #SkilyApp #ВодительскиеПрава #АвтошколаИспания`
+      : `#DGT #ExamenDGT #CarnetDeConducir #SkilyApp #AutoescuelaEspaña`;
     const pinCta = lang === "ru"
       ? `📌 Сохрани — пригодится перед экзаменом!\n👉 Тренируйся бесплатно: skilyapp.com`
       : `📌 ¡Guárdalo para el examen!\n👉 Practica gratis: skilyapp.com`;
     return {
       title:       hookTitle.slice(0, 100),
-      description: `${hookTitle}\n\n${pinCta}\n\n${pinTags}`.slice(0, 500),
-    };
-  }
-
-  if (platform === "facebook") {
-    // Facebook Reels: same caption style as TikTok, shorter hashtags
-    const fbTags = lang === "ru"
-      ? `#ПДДИспании #DGT #РусскиевИспании #Skily`
-      : `#DGT #ExamenDGT #CarnetDeConducir #Skily`;
-    const commentCta = lang === "ru"
-      ? `✍️ Напиши: 1 — знал, 0 — не знал 👇\n💾 Сохрани — пригодится перед экзаменом`
-      : `✍️ Escribe: 1 — lo sabías, 0 — fallaste 👇\n💾 Guárdalo — te ayudará en el examen`;
-    return {
-      title:       hookTitle,
-      description: `${hookTitle}\n\n${commentCta}\n\n${fbTags}`,
+      description: `${hookTitle}\n\n${insight}\n\n${pinCta}\n\n${pinTags}`.slice(0, 500),
     };
   }
 
@@ -111,25 +99,35 @@ function getCaption(lang, platform) {
     const title = d.youtubeTitle || hookTitle;
     const desc = d.youtubeDescription || (
       lang === "ru"
-        ? `📖 Объяснение: ${explanation}\n\n🚗 Готовишься к экзамену ПДД Испании? Тренируйся на Skily!\n👉 https://skilyapp.com\n\n#ПДД #ВодительскиеПрава #DGT #Skily\n\nMusic: Impact Moderato by Kevin MacLeod (incompetech.com) — Licensed under CC BY 3.0: http://creativecommons.org/licenses/by/3.0/`
-        : `📖 Explicación: ${explanation}\n\n🚗 ¿Preparando el DGT? ¡Practica en Skily!\n👉 https://skilyapp.com\n\n#DGT #ExamenConducir #CarnetDeConducir #Skily\n\nMusic: Impact Moderato by Kevin MacLeod (incompetech.com) — Licensed under CC BY 3.0: http://creativecommons.org/licenses/by/3.0/`
+        ? `📖 Объяснение: ${explanation}\n\n🚗 Готовишься к экзамену ПДД Испании? Тренируйся на Skily!\n👉 https://skilyapp.com\n\n#ПДД #ВодительскиеПрава #DGT #SkilyApp\n\nMusic: Impact Moderato by Kevin MacLeod (incompetech.com) — Licensed under CC BY 3.0: http://creativecommons.org/licenses/by/3.0/`
+        : `📖 Explicación: ${explanation}\n\n🚗 ¿Preparando el DGT? ¡Practica en Skily!\n👉 https://skilyapp.com\n\n#DGT #ExamenConducir #CarnetDeConducir #SkilyApp\n\nMusic: Impact Moderato by Kevin MacLeod (incompetech.com) — Licensed under CC BY 3.0: http://creativecommons.org/licenses/by/3.0/`
     );
     return { title, description: desc };
   }
 
+  // ── Smart minimalism format for TikTok, Instagram, Facebook ─────────────────
+  // Structure: Hook → Insight (2-3 bullet cheat-code) → CTA → Hashtags
   const tags = lang === "ru"
-    ? `#ПДДИспании #ИспанскиеПрава #DGT #РусскиевИспании #ЖизньвИспании #Skily #ЭкзаменDGT #ВодительскиеПрава`
-    : `#DGT #ExamenDGT #CarnetDeConducir #Autoescuela #PreguntaDGT #Conducir #Skily #ExamenConducir`;
+    ? `#ПДДИспании #ИспанскиеПрава #DGT #РусскиевИспании #ЖизньвИспании #SkilyApp #ЭкзаменDGT #АвтошколаИспания`
+    : `#DGT #ExamenDGT #CarnetDeConducir #Autoescuela #PreguntaDGT #Conducir #SkilyApp #ExamenConducir`;
 
-  // CTA: комментарий + сохранение — ключевые сигналы для алгоритма
-  const commentCta = lang === "ru"
-    ? `✍️ Напиши: 1 — знал, 0 — не знал 👇\n💾 Сохрани — пригодится перед экзаменом`
-    : `✍️ Escribe: 1 — lo sabías, 0 — fallaste 👇\n💾 Guárdalo — te ayudará en el examen`;
+  const cta = lang === "ru"
+    ? `Хватит зубрить PDF-сборники — учи логику испанских ПДД на ИИ-платформе Skily. Ссылка в шапке профиля 🚗💨`
+    : `Deja los temarios aburridos — aprende la lógica del DGT en la plataforma IA Skily. ¡Link en el perfil! 🚗💨`;
 
-  const caption = lang === "ru"
-    ? `${hookTitle}\n\n${commentCta}\n\n${tags}`
-    : `${hookTitle}\n\n${commentCta}\n\n${tags}`;
+  const caption = `${hookTitle}\n\n${insight}\n\n${cta}\n\n${tags}`;
 
+  if (platform === "facebook") {
+    const fbTags = lang === "ru"
+      ? `#ПДДИспании #DGT #РусскиевИспании #SkilyApp #АвтошколаИспания`
+      : `#DGT #ExamenDGT #CarnetDeConducir #SkilyApp`;
+    return {
+      title:       hookTitle,
+      description: `${hookTitle}\n\n${insight}\n\n${cta}\n\n${fbTags}`,
+    };
+  }
+
+  // TikTok / Instagram
   return { title: hookTitle, description: caption, caption };
 }
 

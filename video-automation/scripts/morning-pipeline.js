@@ -438,10 +438,70 @@ Explicación: ${explanation?.slice(0, 200)}`;
       });
     }
 
-    log("🤖 Generating YouTube titles via Gemini...");
-    const [ytTitleEs, ytTitleRu] = await Promise.all([
+    // 3b. Генерируем caption insight — 2-3 строки "чит-кода" для TikTok/IG/FB
+    async function geminiCaptionInsight(question, explanation, lang) {
+      if (!geminiKey) return null;
+      const isRu = lang === "ru";
+      const prompt = isRu
+        ? `Ты эксперт по контенту для TikTok и Instagram Reels.
+Для ролика о правилах вождения DGT напиши 2-3 строки с конкретным "чит-кодом" — самой полезной информацией из объяснения.
+Формат: каждая строка начинается с эмодзи (суть, не украшение), затем краткий факт.
+Требования:
+- Максимум 3 строки
+- Конкретные факты, знаки (P-23, P-24 и т.д.) если упоминаются
+- Ключевой ответ — почему один вариант правильный
+- Без вступления, без воды
+- Только строки, без заголовков и пояснений
+
+Вопрос: ${question}
+Объяснение: ${explanation?.slice(0, 300)}`
+        : `Eres experto en contenido para TikTok y Instagram Reels.
+Para un vídeo sobre las normas DGT escribe 2-3 líneas con el "cheat code" — la información más útil del tema.
+Formato: cada línea empieza con un emoji (de contenido, no decorativo), luego un dato concreto.
+Requisitos:
+- Máximo 3 líneas
+- Datos concretos, señales (P-23, P-24, etc.) si se mencionan
+- La clave de por qué esa respuesta es correcta
+- Sin introducción, sin relleno
+- Solo las líneas, sin títulos ni explicaciones
+
+Pregunta: ${question}
+Explicación: ${explanation?.slice(0, 300)}`;
+
+      const body = JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] });
+      return new Promise((resolve) => {
+        const req = https.request({
+          hostname: "generativelanguage.googleapis.com",
+          path: `/v1beta/models/${geminiModel}:generateContent?key=${geminiKey}`,
+          method: "POST",
+          headers: { "Content-Type": "application/json", "Content-Length": Buffer.byteLength(body) },
+        }, (res) => {
+          const chunks = [];
+          res.on("data", c => chunks.push(c));
+          res.on("end", () => {
+            try {
+              const json = JSON.parse(Buffer.concat(chunks).toString("utf-8"));
+              const text = json.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+              resolve(text ? text.slice(0, 400) : null);
+            } catch { resolve(null); }
+          });
+        });
+        req.on("error", () => resolve(null));
+        req.write(body);
+        req.end();
+      });
+    }
+
+    log("🤖 Generating YouTube titles + caption insights via Gemini...");
+    const [ytTitleEs, ytTitleRu, captionInsightEs, captionInsightRu] = await Promise.all([
       geminiYouTubeTitle(videoQuestion.question, videoQuestion.explanation, "es"),
       geminiYouTubeTitle(
+        videoQuestion.question_ru || videoQuestion.question,
+        videoQuestion.explanationRu || videoQuestion.explanation,
+        "ru"
+      ),
+      geminiCaptionInsight(videoQuestion.question, videoQuestion.explanation, "es"),
+      geminiCaptionInsight(
         videoQuestion.question_ru || videoQuestion.question,
         videoQuestion.explanationRu || videoQuestion.explanation,
         "ru"
@@ -449,11 +509,14 @@ Explicación: ${explanation?.slice(0, 200)}`;
     ]);
     if (ytTitleEs) log(`   📺 YouTube ES: "${ytTitleEs}"`);
     if (ytTitleRu) log(`   📺 YouTube RU: "${ytTitleRu}"`);
+    if (captionInsightEs) log(`   💡 Caption ES: "${captionInsightEs.split("\n")[0]}..."`);
+    if (captionInsightRu) log(`   💡 Caption RU: "${captionInsightRu.split("\n")[0]}..."`);
 
     const pubData = {
       es: {
         hookTitle:        finalHookEs,
         youtubeTitle:     ytTitleEs || finalHookEs,
+        captionInsight:   captionInsightEs || null,
         question:         videoQuestion.question,
         explanation:      videoQuestion.explanation,
         seriesNumber,
@@ -462,6 +525,7 @@ Explicación: ${explanation?.slice(0, 200)}`;
       ru: {
         hookTitle:        finalHookRu,
         youtubeTitle:     ytTitleRu || finalHookRu,
+        captionInsight:   captionInsightRu || null,
         question:         videoQuestion.question_ru || videoQuestion.question,
         explanation:      videoQuestion.explanationRu || videoQuestion.explanation,
         seriesNumber,

@@ -1131,6 +1131,22 @@ let total = 0;
 const LIMIT = 30;
 let searchTimer;
 
+// Module-level topic map cache (populated lazily, keyed by topic UUID → slug)
+let _topicMapCache = null;
+async function resolveTopicMap() {
+  if (_topicMapCache) return _topicMapCache;
+  _topicMapCache = {};
+  try {
+    const topics = await supabaseRequest("topics", "?select=id,title_es");
+    if (Array.isArray(topics)) {
+      for (const t of topics) {
+        _topicMapCache[t.id] = (t.title_es || "").toLowerCase().split(/[\s,\/]/)[0];
+      }
+    }
+  } catch {}
+  return _topicMapCache;
+}
+
 // Language states
 window._outroLang = 'ru';  // Default outro language
 window._descLang = 'es';   // Default description language
@@ -1947,6 +1963,15 @@ const server = http.createServer(async (req, res) => {
           const arr = pool || outroPools.es;
           return arr[seriesNum % arr.length];
         };
+
+        // ── Resolve topic slug from topic_id if not already set ──────────────
+        // morning-pipeline.js sends topic_id but not the resolved slug.
+        // Without this, TOPIC_BG lookup in VideoTemplate always gets topicKey=""
+        // and the explanation phase never switches to a topic-specific background.
+        if (!question.topic && question.topic_id) {
+          const topicMap = await resolveTopicMap();
+          question = { ...question, topic: topicMap[question.topic_id] || null };
+        }
 
         // ── Server-side topic → backgroundVideo resolution ────────────────────
         // Mirrors VideoTemplate.tsx TOPIC_BG so background video is always set
