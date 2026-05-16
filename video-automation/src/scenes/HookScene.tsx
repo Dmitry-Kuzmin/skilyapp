@@ -3,7 +3,6 @@ import {
   useCurrentFrame,
   useVideoConfig,
   spring,
-  interpolate,
 } from "remotion";
 import { VideoQuestion, BRAND } from "../types";
 
@@ -22,8 +21,9 @@ export const HookScene: React.FC<{ q: VideoQuestion }> = ({ q }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
-  const scale = spring({ frame, fps, config: { damping: 12, stiffness: 200 } });
-  const opacity = interpolate(frame, [0, 8], [0, 1], { extrapolateRight: "clamp" });
+  // Pre-play 10 frames so frame 0 is already near-settled (thumbnail not blank)
+  const scale = spring({ frame: frame + 10, fps, config: { damping: 12, stiffness: 200 } });
+  const opacity = 1;
 
   const diffColor = DIFFICULTY_COLORS[q.difficulty];
   const diffLabel = DIFFICULTY_LABELS[q.language][q.difficulty];

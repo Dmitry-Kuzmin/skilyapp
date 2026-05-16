@@ -1022,19 +1022,19 @@ async function uploadFacebook(videoPath, lang) {
 
   plog(`\n📘 Facebook [${lang.toUpperCase()}] → ${path.basename(videoPath)}`);
 
-  const browser = await chromium.launch({
-    executablePath: CHROME_PATH,
-    headless: false,
-    args: ["--no-sandbox"],
-  });
-  const context = await browser.newContext({
-    storageState: AUTH_FB,
-    viewport: { width: 1280, height: 900 },
-    userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
-  });
-  const page = await context.newPage();
-
+  let browser, context, page;
   try {
+    browser = await chromium.launch({
+      executablePath: CHROME_PATH,
+      headless: false,
+      args: ["--no-sandbox"],
+    });
+    context = await browser.newContext({
+      storageState: AUTH_FB,
+      viewport: { width: 1280, height: 900 },
+      userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+    });
+    page = await context.newPage();
     // Открываем страницу (поддерживает slug и profile.php?id=...)
     const pageUrl = pageName.startsWith("http")
       ? pageName
@@ -1255,15 +1255,15 @@ async function uploadFacebook(videoPath, lang) {
 
   } catch(e) {
     const screenshotPath = `/tmp/facebook-error-${lang}-${Date.now()}.png`;
-    try { await page.screenshot({ path: screenshotPath }); } catch {}
+    try { await page?.screenshot({ path: screenshotPath }); } catch {}
     plog(`  ❌ Facebook [${lang.toUpperCase()}] error: ${e.message}`);
     plog(`  📸 ${screenshotPath}`);
     notify("Skily Video Maker", `❌ Facebook ${lang.toUpperCase()} ошибка: ${e.message.slice(0, 60)}`);
     failures.push(`Facebook [${lang.toUpperCase()}]: ${e.message}`);
   } finally {
-    await page.close();
-    await context.close();
-    await browser.close();
+    try { await page?.close(); } catch {}
+    try { await context?.close(); } catch {}
+    try { await browser?.close(); } catch {}
   }
 }
 
@@ -1530,20 +1530,21 @@ async function uploadPinterest(videoPath, lang) {
       if (!skipTikTok)    await uploadTikTok(ctxES,    path.resolve(esVideo), "es");
       if (!skipYouTube)   await uploadYouTube(ctxES,   path.resolve(esVideo), "es");
       if (!skipInstagram) await uploadInstagram(ctxES, path.resolve(esVideo), "es");
-      if (!skipFacebook) {
-        await uploadFacebook(path.resolve(esVideo), "es").catch(e => {
-          plog(`  ❌ Facebook ES failed: ${e.message}`);
-          failures.push(`Facebook ES: ${e.message.slice(0, 80)}`);
-        });
-      }
-      if (!skipPinterest) {
-        await uploadPinterest(path.resolve(esVideo), "es").catch(e => {
-          plog(`  ❌ Pinterest ES failed: ${e.message}`);
-          failures.push(`Pinterest ES: ${e.message.slice(0, 80)}`);
-        });
-      }
     } finally {
       await ctxES.close();
+    }
+    // Facebook and Pinterest open their own Chrome — close shared context first to free RAM
+    if (!skipFacebook) {
+      await uploadFacebook(path.resolve(esVideo), "es").catch(e => {
+        plog(`  ❌ Facebook ES failed: ${e.message}`);
+        failures.push(`Facebook ES: ${e.message.slice(0, 80)}`);
+      });
+    }
+    if (!skipPinterest) {
+      await uploadPinterest(path.resolve(esVideo), "es").catch(e => {
+        plog(`  ❌ Pinterest ES failed: ${e.message}`);
+        failures.push(`Pinterest ES: ${e.message.slice(0, 80)}`);
+      });
     }
     await delay(3000);
   }
@@ -1556,20 +1557,21 @@ async function uploadPinterest(videoPath, lang) {
       if (!skipTikTok)    await uploadTikTok(ctxRU,    path.resolve(ruVideo), "ru");
       if (!skipYouTube)   await uploadYouTube(ctxRU,   path.resolve(ruVideo), "ru");
       if (!skipInstagram) await uploadInstagram(ctxRU, path.resolve(ruVideo), "ru");
-      if (!skipFacebook) {
-        await uploadFacebook(path.resolve(ruVideo), "ru").catch(e => {
-          plog(`  ❌ Facebook RU failed: ${e.message}`);
-          failures.push(`Facebook RU: ${e.message.slice(0, 80)}`);
-        });
-      }
-      if (!skipPinterest) {
-        await uploadPinterest(path.resolve(ruVideo), "ru").catch(e => {
-          plog(`  ❌ Pinterest RU failed: ${e.message}`);
-          failures.push(`Pinterest RU: ${e.message.slice(0, 80)}`);
-        });
-      }
     } finally {
       await ctxRU.close();
+    }
+    // Facebook and Pinterest open their own Chrome — close shared context first to free RAM
+    if (!skipFacebook) {
+      await uploadFacebook(path.resolve(ruVideo), "ru").catch(e => {
+        plog(`  ❌ Facebook RU failed: ${e.message}`);
+        failures.push(`Facebook RU: ${e.message.slice(0, 80)}`);
+      });
+    }
+    if (!skipPinterest) {
+      await uploadPinterest(path.resolve(ruVideo), "ru").catch(e => {
+        plog(`  ❌ Pinterest RU failed: ${e.message}`);
+        failures.push(`Pinterest RU: ${e.message.slice(0, 80)}`);
+      });
     }
   }
 
