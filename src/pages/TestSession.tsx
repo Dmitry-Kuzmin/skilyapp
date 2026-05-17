@@ -718,8 +718,9 @@ const TestSession = () => {
     const params = new URLSearchParams(window.location.search);
     const urlLang = params.get('lang');
     if (urlLang === 'es' || urlLang === 'en' || urlLang === 'ru') return urlLang;
-    const saved = localStorage.getItem('test-language');
-    return (saved === 'en' || saved === 'ru' ? saved : 'es') as 'es' | 'en' | 'ru';
+    // DGT questions are always in Spanish by default — translation is opt-in via the translate button.
+    // Russian PDD mode uses effectiveLanguage='ru' regardless of this value.
+    return 'es';
   });
 
   const effectiveLanguage = useMemo(() => {

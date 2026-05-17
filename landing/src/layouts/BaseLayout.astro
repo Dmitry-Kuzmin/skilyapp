@@ -158,25 +158,23 @@ const jsonLdArray = Array.isArray(jsonLd) ? jsonLd : jsonLd ? [jsonLd] : [];
 
     <!-- Start Engine Button Styles -->
     <style is:global>
-      /* Scale wrapper: 58% mobile, 90% md+ */
+      /* Scale wrapper: 68% mobile, 100% md+ */
       .engine-scale-wrapper {
-        transform: scale(0.58);
+        transform: scale(0.68);
         transform-origin: center;
-        margin: -40px 0;
+        margin: -34px 0;
       }
       @media (min-width: 768px) {
-        .engine-scale-wrapper { transform: scale(0.9); margin: -10px 0; }
+        .engine-scale-wrapper { transform: scale(1.0); margin: -2px 0; }
       }
-      /* Стрелка — только на десктопе */
-      @media (max-width: 767px) {
-        .engine-arrow-guide { display: none; }
-      }
+      /* Стрелку убрали — создавала visual noise */
+      .engine-arrow-guide { display: none; }
 
-      /* Outer button element — 192×192, relative container for all layers */
+      /* Outer button element — 220×220, relative container for all layers */
       .engine-btn-outer {
         position: relative;
-        width: 192px;
-        height: 192px;
+        width: 220px;
+        height: 220px;
         border-radius: 50%;
         cursor: pointer;
         background: transparent;
@@ -204,20 +202,21 @@ const jsonLdArray = Array.isArray(jsonLd) ? jsonLd : jsonLd ? [jsonLd] : [];
       .engine-btn-outer:hover .engine-glow { opacity: 0.6; }
       .engine-btn-outer.engine-igniting .engine-glow { opacity: 1; }
 
-      /* Metal ring — absolute inset-0, thick padding (p-3 = 12px) */
+      /* Blue metallic ring */
       .engine-ring-layer {
         position: absolute;
         inset: 0;
         border-radius: 50%;
-        background: conic-gradient(#d1d5db 0%, #f3f4f6 25%, #9ca3af 50%, #f3f4f6 75%, #d1d5db 100%);
-        box-shadow: 0 20px 50px rgba(0,0,0,0.8), inset 0 2px 5px rgba(255,255,255,0.5);
+        background: conic-gradient(#1e3a8a 0%, #2563eb 15%, #3b82f6 30%, #818cf8 50%, #3b82f6 70%, #2563eb 85%, #1e3a8a 100%);
+        box-shadow: 0 20px 50px rgba(0,0,0,0.8), inset 0 2px 5px rgba(99,102,241,0.5),
+                    0 0 22px rgba(59,130,246,0.35), 0 0 44px rgba(99,102,241,0.15);
         padding: 12px;
         z-index: 10;
         transition: box-shadow 0.45s ease;
       }
       .engine-btn-outer:hover .engine-ring-layer {
-        box-shadow: 0 20px 50px rgba(0,0,0,0.8), inset 0 2px 5px rgba(255,255,255,0.5),
-                    0 0 28px rgba(56,189,248,0.45), 0 0 60px rgba(56,189,248,0.2);
+        box-shadow: 0 20px 50px rgba(0,0,0,0.8), inset 0 2px 5px rgba(99,102,241,0.7),
+                    0 0 40px rgba(56,189,248,0.65), 0 0 80px rgba(56,189,248,0.3);
       }
 
       /* Dark circle layer — bg #111 with recessed shadow */
@@ -235,8 +234,8 @@ const jsonLdArray = Array.isArray(jsonLd) ? jsonLd : jsonLd ? [jsonLd] : [];
         width: 100%;
         height: 100%;
         border-radius: 50%;
-        background: linear-gradient(to bottom, #2a2a2a, #050505);
-        border-top: 1px solid rgba(255,255,255,0.1);
+        background: linear-gradient(to bottom, #0d1f3c, #040810);
+        border-top: 1px solid rgba(99,102,241,0.35);
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -274,8 +273,8 @@ const jsonLdArray = Array.isArray(jsonLd) ? jsonLd : jsonLd ? [jsonLd] : [];
         height: 100%;
         border-radius: 999px;
         width: 0%;
-        background: linear-gradient(to right, #4f46e5, #a855f7);
-        box-shadow: 0 0 10px rgba(99,102,241,0.8);
+        background: linear-gradient(to right, #1d4ed8, #38bdf8);
+        box-shadow: 0 0 10px rgba(56,189,248,0.8);
         transition: width 1.5s ease-out;
       }
 
@@ -288,28 +287,28 @@ const jsonLdArray = Array.isArray(jsonLd) ? jsonLd : jsonLd ? [jsonLd] : [];
         z-index: 10;
       }
       .engine-power-icon {
-        width: 32px;
-        height: 32px;
+        width: 36px;
+        height: 36px;
         margin-bottom: 8px;
-        color: #94a3b8;
-        filter: drop-shadow(0 2px 4px rgba(0,0,0,1));
-        transition: color 0.3s;
+        color: #60a5fa;
+        filter: drop-shadow(0 0 8px rgba(59,130,246,0.6));
+        transition: color 0.3s, filter 0.3s;
       }
       .engine-btn-outer:hover .engine-power-icon,
-      .engine-btn-outer.engine-igniting .engine-power-icon { color: white; }
+      .engine-btn-outer.engine-igniting .engine-power-icon { color: white; filter: drop-shadow(0 0 12px rgba(99,102,241,0.9)); }
 
       .engine-lbl-engine {
-        font-size: 12px;
-        font-weight: 700;
-        letter-spacing: 0.25em;
+        font-size: 13px;
+        font-weight: 800;
+        letter-spacing: 0.15em;
         text-transform: uppercase;
-        color: #64748b;
+        color: #93c5fd;
         line-height: 1;
         font-family: inherit;
         transition: color 0.3s;
       }
       .engine-btn-outer:hover .engine-lbl-engine,
-      .engine-btn-outer.engine-igniting .engine-lbl-engine { color: #818cf8; }
+      .engine-btn-outer.engine-igniting .engine-lbl-engine { color: #ffffff; }
 
       .engine-lbl-ss {
         font-size: 10px;
@@ -327,12 +326,12 @@ const jsonLdArray = Array.isArray(jsonLd) ? jsonLd : jsonLd ? [jsonLd] : [];
         bottom: 12px;
         left: 50%;
         transform: translateX(-50%);
-        width: 80px;
-        height: 32px;
-        background: rgba(255,255,255,0.05);
-        filter: blur(8px);
+        width: 90px;
+        height: 36px;
+        background: rgba(59,130,246,0.25);
+        filter: blur(10px);
         border-radius: 50% 50% 0 0;
-        opacity: 0.5;
+        opacity: 0.8;
         pointer-events: none;
       }
 
@@ -435,18 +434,18 @@ const jsonLdArray = Array.isArray(jsonLd) ? jsonLd : jsonLd ? [jsonLd] : [];
       /* "Pulsa para empezar" shimmer label */
       .engine-pulsa-label {
         display: block;
-        margin-top: 14px;
-        font-size: 11px;
-        font-weight: 500;
-        letter-spacing: 0.04em;
+        margin-top: 16px;
+        font-size: 13px;
+        font-weight: 600;
+        letter-spacing: 0.06em;
         text-transform: none;
         text-align: center;
-        background: linear-gradient(90deg, #334155 0%, #64748b 35%, #94a3b8 50%, #64748b 65%, #334155 100%);
+        background: linear-gradient(90deg, #475569 0%, #94a3b8 30%, #e2e8f0 50%, #94a3b8 70%, #475569 100%);
         background-size: 260% auto;
         -webkit-background-clip: text;
         background-clip: text;
         color: transparent;
-        animation: pulsa-shimmer 7s linear 3s infinite;
+        animation: pulsa-shimmer 6s linear 2s infinite;
       }
       @keyframes pulsa-shimmer {
         0%   { background-position: 200% center; }

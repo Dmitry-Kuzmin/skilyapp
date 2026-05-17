@@ -187,6 +187,19 @@ const faqSchema = {
       </div>
 
       <div class="flex items-center gap-2 md:gap-3 ml-auto shrink-0">
+        <!-- Mobile lang switcher: tap ES → dropdown -->
+        <div class="relative sm:hidden" id="mobile-lang-wrapper">
+          <button
+            onclick="var m=document.getElementById('mobile-lang-menu');m.classList.toggle('hidden')"
+            class="w-[36px] h-[36px] flex items-center justify-center rounded-full bg-white/5 border border-white/10 text-white font-black text-[10px] active:scale-95 transition-transform">
+            ES
+          </button>
+          <div id="mobile-lang-menu" class="hidden absolute right-0 top-[calc(100%+6px)] z-50 flex flex-col gap-0.5 rounded-2xl border border-white/10 p-1.5 shadow-xl backdrop-blur-xl" style="background:#0f172a;">
+            <a href="/en" class="flex items-center gap-2 px-3 py-2 rounded-xl text-slate-300 hover:bg-white/10 font-bold text-xs whitespace-nowrap transition-colors">🇬🇧 English</a>
+            <a href="/ru" class="flex items-center gap-2 px-3 py-2 rounded-xl text-slate-300 hover:bg-white/10 font-bold text-xs whitespace-nowrap transition-colors">🇷🇺 Русский</a>
+          </div>
+        </div>
+        <!-- Desktop lang switcher: hover-expand -->
         <div class="relative group hidden sm:flex items-center h-[40px] w-[40px]">
           <div class="absolute right-0 flex items-center bg-white/5 border border-white/10 backdrop-blur-xl rounded-full overflow-hidden transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] w-[40px] group-hover:w-[120px] h-[40px] shadow-[0_0_15px_rgba(0,0,0,0.1)]">
             <div class="flex items-center min-w-[120px] px-1 gap-1 h-full">
@@ -205,14 +218,14 @@ const faqSchema = {
       </div>
     </nav>
     <!-- ═══════════════════════════════════════ HERO SECTION ═══════════════════════════════════ -->
-    <section class="relative pt-10 pb-10 md:pt-32 md:pb-16 overflow-hidden px-6">
-      <div class="max-w-[1400px] mx-auto relative z-10">
+    <section class="relative pt-10 pb-10 md:pt-32 md:pb-16 overflow-hidden">
+      <div class="max-w-[1400px] mx-auto relative z-10 px-6">
         <div class="flex flex-col items-center text-center max-w-4xl mx-auto pt-2">
           <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-300 text-[9px] md:text-[10px] font-bold tracking-[0.2em] uppercase mb-4 md:mb-8 whitespace-nowrap reveal-on-scroll">
             🇪🇸 3.000+ preguntas · DGT {currentYear}
           </div>
           <h1 class="font-black tracking-tighter leading-[1.02] mb-6 reveal-on-scroll">
-            <span class="text-[clamp(0.7rem,3.5vw,2rem)] text-slate-500 block pb-2 whitespace-nowrap tracking-normal uppercase font-semibold">Tu teórico a la primera</span>
+            <span class="text-[clamp(1.5rem,4.2vw,2.5rem)] text-slate-300 block pb-2 whitespace-nowrap tracking-wide uppercase font-bold">Tu teórico a la primera</span>
             <span class="block hero-word-size" style="position:relative;padding-bottom:0.06em;margin-bottom:-0.06em">
               <span id="hero-word-glow" aria-hidden="true" style="position:absolute;inset:-130% -60%;background:radial-gradient(ellipse 72% 52% at 50% 50%,rgba(56,189,248,0.55) 0%,transparent 60%);filter:blur(80px);pointer-events:none;transition:background 0.5s ease;"></span>
               <span class="hero-word-clip" style="display:block">
@@ -220,23 +233,19 @@ const faqSchema = {
               </span>
             </span>
           </h1>
-          <p class="max-w-xl text-sm md:text-base text-slate-400 leading-relaxed mb-2 font-medium reveal-on-scroll">
+          <p class="max-w-xl text-sm md:text-base text-slate-400 leading-relaxed mb-6 font-medium reveal-on-scroll">
             <span class="text-white font-bold">Preguntas reales DGT.</span> IA que detecta tus errores.
             Empieza el test gratis y sin registro ahora.
           </p>
+          <div class="hero-social-proof mb-8 reveal-on-scroll">
+            <span class="text-amber-400" style="font-size:14px;letter-spacing:-1px;">★★★★★</span>
+            <span class="text-white text-xs font-bold">4.9</span>
+            <span class="hero-social-sep"></span>
+            <span class="text-slate-400 text-xs">12.000+ estudiantes</span>
+          </div>
           <div class="flex flex-col items-center gap-0 w-full mb-10 reveal-on-scroll">
-            <svg class="engine-arrow-guide" width="24" height="80" viewBox="0 0 24 80" fill="none" aria-hidden="true">
-              <defs>
-                <linearGradient id="engineArrowGrad" x1="12" y1="0" x2="12" y2="80" gradientUnits="userSpaceOnUse">
-                  <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.4"/>
-                  <stop offset="100%" stop-color="#38bdf8" stop-opacity="1"/>
-                </linearGradient>
-              </defs>
-              <path class="arrow-line" d="M12 2 C8 22, 16 52, 12 68" stroke="url(#engineArrowGrad)" stroke-width="2" stroke-linecap="round"/>
-              <path class="arrow-head" d="M6 62 L12 74 L18 62" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-            </svg>
             <div class="engine-scale-wrapper">
-              <button class="engine-btn-outer" id="engine-btn" data-url={`${appBaseUrl}/demo?lang=es`} onclick="handleStartEngine(this)">
+              <button class="engine-btn-outer" id="engine-btn-es" data-url={`${appBaseUrl}/demo?lang=es`} onclick="handleStartEngine(this)">
                 <div class="engine-glow" id="engine-glow"></div>
                 <div class="engine-pulse-ring"></div>
                 <div class="engine-pulse-ring"></div>
@@ -245,12 +254,12 @@ const faqSchema = {
                   <div class="engine-dark-circle">
                     <div class="engine-inner-circle">
                       <div class="engine-radial-overlay"></div>
-                      <div class="engine-bar-track"><div class="engine-bar-fill" id="engine-bar"></div></div>
+                      <div class="engine-bar-track"><div class="engine-bar-fill" id="engine-bar-es"></div></div>
                       <div class="engine-content-group">
                         <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="engine-power-icon">
                           <path d="M12 2v10"/><path d="M18.4 6.6a9 9 0 1 1-12.77.04"/>
                         </svg>
-                        <span class="engine-lbl-engine">Engine</span>
+                        <span class="engine-lbl-engine">Empezar</span>
                       </div>
                       <div class="engine-ambient-light"></div>
                     </div>
@@ -259,136 +268,227 @@ const faqSchema = {
               </button>
             </div>
             <span class="engine-pulsa-label">Pulsa para empezar</span>
-            <div class="hero-social-proof mt-4 reveal-on-scroll">
-              <span class="text-amber-400" style="font-size:14px;letter-spacing:-1px;">★★★★★</span>
-              <span class="text-white text-xs font-bold">4.9</span>
-              <span class="hero-social-sep"></span>
-              <span class="text-slate-400 text-xs">12.000+ estudiantes</span>
-            </div>
           </div>
 
-          <!-- ══ STATS STRIP ══ -->
-          <div class="mt-14 w-full max-w-4xl mx-auto reveal-on-scroll">
-            <div class="border-y border-white/5 bg-slate-900/30 backdrop-blur-sm rounded-2xl">
-              <div class="grid grid-cols-3 divide-x divide-white/10">
-                <div class="flex flex-col items-center justify-center text-center px-6 py-7">
-                  <div class="text-3xl md:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white to-slate-400 mb-1">97%</div>
-                  <span class="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">Aprueban</span>
-                  <p class="text-[10px] text-slate-500 font-medium max-w-[160px] mx-auto mt-1 leading-relaxed">IA que personaliza el contenido</p>
+        </div><!-- /max-w-4xl -->
+
+        <!-- ══ STATS STRIP — full width ══ -->
+        <div class="mt-14 w-full reveal-on-scroll">
+          <div class="border-y border-white/5 bg-slate-900/30 backdrop-blur-sm rounded-2xl">
+            <div class="grid grid-cols-3 divide-x divide-white/10">
+              <div class="flex flex-col items-center justify-center text-center px-6 py-8 md:py-12">
+                <div class="text-4xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white to-slate-400 mb-1">97%</div>
+                <span class="text-[10px] md:text-sm font-bold uppercase tracking-[0.2em] text-slate-400 mt-1">Aprueban</span>
+                <p class="hidden md:block text-xs text-slate-500 font-medium max-w-[220px] mx-auto mt-1.5 leading-relaxed">IA que personaliza el contenido</p>
+              </div>
+              <div class="flex flex-col items-center justify-center text-center px-6 py-8 md:py-12">
+                <div class="text-4xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white to-slate-400 mb-1">3000+</div>
+                <span class="text-[10px] md:text-sm font-bold uppercase tracking-[0.2em] text-slate-400 mt-1">Preguntas</span>
+                <p class="hidden md:block text-xs text-slate-500 font-medium max-w-[220px] mx-auto mt-1.5 leading-relaxed">Banco oficial DGT actualizado</p>
+              </div>
+              <div class="flex flex-col items-center justify-center text-center px-6 py-8 md:py-12">
+                <div class="text-4xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white to-slate-400 mb-1">2×</div>
+                <span class="text-[10px] md:text-sm font-bold uppercase tracking-[0.2em] text-slate-400 mt-1">Más rápido</span>
+                <p class="hidden md:block text-xs text-slate-500 font-medium max-w-[220px] mx-auto mt-1.5 leading-relaxed">Que con métodos tradicionales</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-20 w-full reveal-on-scroll px-0" id="product-showcase-container">
+
+            <!-- Section label + headline — left-aligned on desktop -->
+            <div class="mb-12 lg:mb-16">
+              <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-300 text-[10px] font-bold tracking-[0.2em] uppercase mb-5">✦ Plataforma completa</div>
+              <h2 class="text-3xl sm:text-4xl lg:text-5xl font-black text-white leading-[1.05] mb-4">
+                TODO lo que necesitas<br/>
+                <span class="text-slate-400 font-black">para aprobar en un único lugar</span>
+              </h2>
+              <p class="text-slate-500 text-base max-w-xl">Miles de estudiantes ya preparan su carnet con Skily — IA personalizada, duelos reales y gamificación.</p>
+            </div>
+
+            <!-- ── Main 2-col layout: tabs LEFT · browser RIGHT ── -->
+            <div class="relative">
+              <div class="absolute inset-0 bg-blue-600/8 blur-[140px] rounded-full pointer-events-none"></div>
+
+              <div class="relative grid grid-cols-1 lg:grid-cols-[400px,1fr] gap-8 lg:gap-12 items-start">
+
+                <!-- ══ LEFT: Feature tabs ══ -->
+                <div class="flex flex-col" id="feature-tabs-es">
+
+                  <!-- Tab 0 -->
+                  <button class="ftab active group text-left relative" data-tab="0">
+                    <div class="flex items-start gap-5 py-6 px-5">
+                      <div class="ftab-num w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 font-black text-sm transition-all duration-300" style="background:rgba(59,130,246,0.15);color:#60a5fa;">01</div>
+                      <div class="flex-1 min-w-0 pt-0.5">
+                        <div class="ftab-title text-base font-black mb-1.5 transition-colors duration-300 text-slate-300 group-[.active]:text-white">Tu panel de control</div>
+                        <p class="ftab-desc text-sm leading-relaxed transition-colors duration-300 text-slate-600 group-[.active]:text-slate-400">Todo tu progreso, estadísticas, racha y probabilidad de aprobar en un único vistazo.</p>
+                        <div class="mt-4 h-[3px] rounded-full bg-white/[0.06] overflow-hidden">
+                          <div class="ftab-fill h-full rounded-full" style="width:0%;background:linear-gradient(90deg,#3b82f6,#6366f1)"></div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="ftab-sep h-px bg-white/[0.05] mx-5"></div>
+                  </button>
+
+                  <!-- Tab 1 -->
+                  <button class="ftab group text-left relative" data-tab="1">
+                    <div class="flex items-start gap-5 py-6 px-5">
+                      <div class="ftab-num w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 font-black text-sm transition-all duration-300" style="background:rgba(99,102,241,0.12);color:#818cf8;">02</div>
+                      <div class="flex-1 min-w-0 pt-0.5">
+                        <div class="ftab-title text-base font-black mb-1.5 transition-colors duration-300 text-slate-500 group-[.active]:text-white">IA que te explica</div>
+                        <p class="ftab-desc text-sm leading-relaxed transition-colors duration-300 text-slate-600 group-[.active]:text-slate-400">No memorices. La IA analiza tu error, entiende tu razonamiento y te guía hasta la respuesta correcta.</p>
+                        <div class="mt-4 h-[3px] rounded-full bg-white/[0.06] overflow-hidden">
+                          <div class="ftab-fill h-full rounded-full" style="width:0%;background:linear-gradient(90deg,#6366f1,#a855f7)"></div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="ftab-sep h-px bg-white/[0.05] mx-5"></div>
+                  </button>
+
+                  <!-- Tab 2 -->
+                  <button class="ftab group text-left relative" data-tab="2">
+                    <div class="flex items-start gap-5 py-6 px-5">
+                      <div class="ftab-num w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 font-black text-sm transition-all duration-300" style="background:rgba(239,68,68,0.12);color:#f87171;">03</div>
+                      <div class="flex-1 min-w-0 pt-0.5">
+                        <div class="ftab-title text-base font-black mb-1.5 transition-colors duration-300 text-slate-500 group-[.active]:text-white">Duelos PvP en vivo</div>
+                        <p class="ftab-desc text-sm leading-relaxed transition-colors duration-300 text-slate-600 group-[.active]:text-slate-400">Partidas de 3 minutos contra otros estudiantes en tiempo real. El miedo al examen desaparece.</p>
+                        <div class="mt-4 h-[3px] rounded-full bg-white/[0.06] overflow-hidden">
+                          <div class="ftab-fill h-full rounded-full" style="width:0%;background:linear-gradient(90deg,#ef4444,#f97316)"></div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="ftab-sep h-px bg-white/[0.05] mx-5"></div>
+                  </button>
+
+                  <!-- Tab 3 -->
+                  <button class="ftab group text-left relative" data-tab="3">
+                    <div class="flex items-start gap-5 py-6 px-5">
+                      <div class="ftab-num w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 font-black text-sm transition-all duration-300" style="background:rgba(16,185,129,0.12);color:#34d399;">04</div>
+                      <div class="flex-1 min-w-0 pt-0.5">
+                        <div class="ftab-title text-base font-black mb-1.5 transition-colors duration-300 text-slate-500 group-[.active]:text-white">Zona de juegos</div>
+                        <p class="ftab-desc text-sm leading-relaxed transition-colors duration-300 text-slate-600 group-[.active]:text-slate-400">Flashcards, identificación de señales, simulacros cronometrados — aprende sin darte cuenta.</p>
+                        <div class="mt-4 h-[3px] rounded-full bg-white/[0.06] overflow-hidden">
+                          <div class="ftab-fill h-full rounded-full" style="width:0%;background:linear-gradient(90deg,#10b981,#06b6d4)"></div>
+                        </div>
+                      </div>
+                    </div>
+                  </button>
+
                 </div>
-                <div class="flex flex-col items-center justify-center text-center px-6 py-7">
-                  <div class="text-3xl md:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white to-slate-400 mb-1">3000+</div>
-                  <span class="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">Preguntas</span>
-                  <p class="text-[10px] text-slate-500 font-medium max-w-[160px] mx-auto mt-1 leading-relaxed">Banco oficial DGT actualizado</p>
+
+                <!-- ══ RIGHT: Browser frame ══ -->
+                <div class="w-full floating-animation">
+                  <div class="product-slider" id="slider-es">
+                    <div class="browser-frame" style="border-radius:20px;overflow:hidden;box-shadow:0 32px 80px rgba(0,0,0,0.5),0 0 0 1px rgba(255,255,255,0.06);">
+                      <div style="display:flex;align-items:center;gap:8px;padding:12px 18px;border-bottom:1px solid rgba(255,255,255,0.05);background:rgba(8,14,26,1);">
+                        <div style="display:flex;gap:6px;flex-shrink:0;">
+                          <div style="width:12px;height:12px;border-radius:50%;background:#ff5f57;"></div>
+                          <div style="width:12px;height:12px;border-radius:50%;background:#febc2e;"></div>
+                          <div style="width:12px;height:12px;border-radius:50%;background:#28c840;"></div>
+                        </div>
+                        <div style="flex:1;margin:0 12px;height:26px;border-radius:8px;background:rgba(15,23,42,0.9);border:1px solid rgba(255,255,255,0.07);display:flex;align-items:center;padding:0 12px;gap:7px;min-width:0;">
+                          <div style="width:7px;height:7px;border-radius:50%;background:rgba(34,197,94,0.85);flex-shrink:0;"></div>
+                          <span id="browser-url-es" style="font-size:12px;color:#475569;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:ui-monospace,monospace;">skilyapp.com · Dashboard</span>
+                        </div>
+                      </div>
+                      <div class="product-slider-frame">
+                        <img class="slide-img active" src="/images/screen-dashboard.webp"  alt="Panel de control"  width="1280" height="684" fetchpriority="high" loading="eager"/>
+                        <img class="slide-img" src="/images/screen-test-ai-2.webp"         alt="Test con IA"        width="1280" height="632" loading="lazy"/>
+                        <img class="slide-img" src="/images/screen-duel-live.webp"         alt="Duelo en vivo"      width="1280" height="653" loading="lazy"/>
+                        <img class="slide-img" src="/images/screen-games.webp"             alt="Zona de juegos"     width="1280" height="689" loading="lazy"/>
+                      </div>
+                    </div>
+
+                    <!-- Mobile: dots only (tabs already show above) -->
+                    <div class="lg:hidden">
+                      <div class="slider-dots mt-4" id="slider-dots-es">
+                        <button class="slider-dot active" data-idx="0" aria-label="Slide 1"></button>
+                        <button class="slider-dot" data-idx="1" aria-label="Slide 2"></button>
+                        <button class="slider-dot" data-idx="2" aria-label="Slide 3"></button>
+                        <button class="slider-dot" data-idx="3" aria-label="Slide 4"></button>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <div class="flex flex-col items-center justify-center text-center px-6 py-7">
-                  <div class="text-3xl md:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white to-slate-400 mb-1">2×</div>
-                  <span class="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">Más rápido</span>
-                  <p class="text-[10px] text-slate-500 font-medium max-w-[160px] mx-auto mt-1 leading-relaxed">Que con métodos tradicionales</p>
-                </div>
+
               </div>
             </div>
           </div>
 
-          <div class="mt-16 w-full reveal-on-scroll" id="product-showcase-container">
-            <!-- Заголовок из features — теперь здесь как мост -->
-            <div class="text-center mb-12">
-              <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-300 text-[10px] font-bold tracking-[0.2em] uppercase mb-6">✦ Plataforma Completa</div>
-              <h2 class="text-3xl sm:text-4xl md:text-5xl font-black text-white mb-4 leading-tight">TODO lo que necesitas<br/><span class="text-slate-300">para aprobar en un único lugar</span></h2>
-              <p class="text-slate-400 text-base max-w-2xl mx-auto">Miles de estudiantes ya preparan su carnet con Skily — IA personalizada, duelos reales y gamificación.</p>
-            </div>
-            <div class="relative w-full max-w-7xl mx-auto">
-              <div class="floating-animation">
-                <div class="absolute -inset-20 bg-blue-500/12 blur-[120px] rounded-full pointer-events-none"></div>
-                <div class="product-slider" id="slider-es">
-                  <div class="browser-frame">
-                    <!-- Browser chrome -->
-                    <div style="display:flex;align-items:center;gap:8px;padding:10px 16px;border-bottom:1px solid rgba(255,255,255,0.05);background:rgba(10,18,35,0.98);">
-                      <div style="display:flex;gap:5px;flex-shrink:0;">
-                        <div style="width:11px;height:11px;border-radius:50%;background:#ff5f57;"></div>
-                        <div style="width:11px;height:11px;border-radius:50%;background:#febc2e;"></div>
-                        <div style="width:11px;height:11px;border-radius:50%;background:#28c840;"></div>
-                      </div>
-                      <div style="flex:1;margin:0 10px;height:24px;border-radius:6px;background:rgba(20,32,55,0.9);border:1px solid rgba(255,255,255,0.07);display:flex;align-items:center;padding:0 10px;gap:6px;min-width:0;">
-                        <div style="width:6px;height:6px;border-radius:50%;background:rgba(34,197,94,0.8);flex-shrink:0;"></div>
-                        <span id="browser-url-es" style="font-size:11px;color:#64748b;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">skilyapp.com · Dashboard</span>
-                      </div>
-                    </div>
-                    <!-- Slides -->
-                    <div class="product-slider-frame">
-                      <img class="slide-img active" src="/images/screen-dashboard.webp"  alt="Panel de control"  width="1280" height="684" fetchpriority="high" loading="eager"/>
-                      <img class="slide-img" src="/images/screen-test-ai-2.webp"         alt="Test con IA"        width="1280" height="632" loading="lazy"/>
-                      <img class="slide-img" src="/images/screen-duel-live.webp"         alt="Duelo en vivo"      width="1280" height="653" loading="lazy"/>
-                      <img class="slide-img" src="/images/screen-games.webp"             alt="Zona de juegos"     width="1280" height="689" loading="lazy"/>
-                    </div>
-                  </div>
-                  <div class="slider-caption" id="slider-caption-es">
-                    <div class="slider-caption-icon" id="slider-icon-es">
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
-                    </div>
-                    <div class="slider-caption-text">
-                      <span class="slider-caption-title" id="slider-title-es">Tu panel de control</span>
-                      <span class="slider-caption-desc"  id="slider-desc-es">Todo tu progreso, estadísticas y próximos pasos en un vistazo</span>
-                    </div>
-                  </div>
-                  <div class="slider-dots" id="slider-dots-es">
-                    <button class="slider-dot active" data-idx="0" aria-label="Slide 1"></button>
-                    <button class="slider-dot" data-idx="1" aria-label="Slide 2"></button>
-                    <button class="slider-dot" data-idx="2" aria-label="Slide 3"></button>
-                    <button class="slider-dot" data-idx="3" aria-label="Slide 4"></button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          <style>
+            .ftab { background: transparent; transition: background 0.25s; }
+            .ftab:hover:not(.active) { background: rgba(255,255,255,0.02); }
+            .ftab.active { background: rgba(255,255,255,0.035); }
+            .ftab.active .ftab-num { box-shadow: 0 0 20px rgba(99,102,241,0.2); }
+            .ftab:not(.active) .ftab-fill { width: 0% !important; transition: none !important; }
+          </style>
+
           <script>
             (function() {
               var SLIDES = [
-                { title: 'Tu panel de control',  url: 'skilyapp.com · Dashboard',    desc: 'Todo tu progreso, estadísticas y próximos pasos en un vistazo', icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>' },
-                { title: 'IA que te explica',    url: 'skilyapp.com · Test con IA',  desc: 'No memorices: entiende el por qué. La IA detecta tus errores y te los explica', icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg>' },
-                { title: 'Duelos en vivo',       url: 'skilyapp.com · Duelos PvP',   desc: 'Compite contra otros estudiantes en tiempo real — aprende más rápido bajo presión', icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>' },
-                { title: 'Zona de juegos',       url: 'skilyapp.com · Juegos',       desc: 'Flashcards, duelos, intersecciones y más — estudia en modo juego', icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="6" x2="10" y1="11" y2="11"/><line x1="8" x2="8" y1="9" y2="13"/><line x1="15" x2="15.01" y1="12" y2="12"/><line x1="18" x2="18.01" y1="10" y2="10"/><path d="M17.32 5H6.68a4 4 0 0 0-3.978 3.59c-.006.052-.01.101-.017.152C2.604 9.416 2 14.456 2 16a3 3 0 0 0 3 3c1 0 1.5-.5 2-1l1.414-1.414A2 2 0 0 1 9.828 16h4.344a2 2 0 0 1 1.414.586L17 18c.5.5 1 1 2 1a3 3 0 0 0 3-3c0-1.545-.604-6.584-.685-7.258-.007-.05-.011-.1-.017-.151A4 4 0 0 0 17.32 5z"/></svg>' },
+                { url: 'skilyapp.com · Dashboard'  },
+                { url: 'skilyapp.com · Test con IA'},
+                { url: 'skilyapp.com · Duelos PvP' },
+                { url: 'skilyapp.com · Juegos'     },
               ];
+              var INTERVAL = 5000;
               var idx = 0;
               var timer = null;
 
+              function activateTab(n) {
+                document.querySelectorAll('#feature-tabs-es .ftab').forEach(function(t, i) {
+                  var fill = t.querySelector('.ftab-fill');
+                  if (i === n) {
+                    t.classList.add('active');
+                    if (fill) {
+                      fill.style.transition = 'none';
+                      fill.style.width = '0%';
+                      requestAnimationFrame(function() { requestAnimationFrame(function() {
+                        fill.style.transition = 'width ' + INTERVAL + 'ms linear';
+                        fill.style.width = '100%';
+                      }); });
+                    }
+                  } else {
+                    t.classList.remove('active');
+                    if (fill) { fill.style.transition = 'none'; fill.style.width = '0%'; }
+                  }
+                });
+              }
+
               function goTo(n) {
-                var imgs  = document.querySelectorAll('#slider-es .slide-img');
-                var dots  = document.querySelectorAll('#slider-dots-es .slider-dot');
-                var title = document.getElementById('slider-title-es');
-                var desc  = document.getElementById('slider-desc-es');
-                var icon  = document.getElementById('slider-icon-es');
-                var url   = document.getElementById('browser-url-es');
+                var imgs = document.querySelectorAll('#slider-es .slide-img');
+                var dots = document.querySelectorAll('#slider-dots-es .slider-dot');
+                var url  = document.getElementById('browser-url-es');
                 if (!imgs.length) return;
                 imgs[idx].classList.remove('active');
-                dots[idx].classList.remove('active');
+                if (dots[idx]) dots[idx].classList.remove('active');
                 idx = (n + SLIDES.length) % SLIDES.length;
                 imgs[idx].classList.add('active');
-                dots[idx].classList.add('active');
-                if (title) title.textContent = SLIDES[idx].title;
-                if (desc)  desc.textContent  = SLIDES[idx].desc;
-                if (icon)  icon.innerHTML    = SLIDES[idx].icon;
-                if (url)   url.textContent   = SLIDES[idx].url;
+                if (dots[idx]) dots[idx].classList.add('active');
+                if (url) url.textContent = SLIDES[idx].url;
+                activateTab(idx);
               }
 
               function startTimer() {
                 clearInterval(timer);
-                timer = setInterval(function() { goTo(idx + 1); }, 4500);
+                timer = setInterval(function() { goTo(idx + 1); }, INTERVAL);
               }
 
               document.querySelectorAll('#slider-dots-es .slider-dot').forEach(function(btn) {
-                btn.addEventListener('click', function() {
-                  goTo(parseInt(this.dataset.idx, 10));
-                  startTimer();
-                });
+                btn.addEventListener('click', function() { goTo(parseInt(this.dataset.idx, 10)); startTimer(); });
+              });
+              document.querySelectorAll('#feature-tabs-es .ftab').forEach(function(btn) {
+                btn.addEventListener('click', function() { goTo(parseInt(this.dataset.tab, 10)); startTimer(); });
               });
 
+              activateTab(0);
               startTimer();
             })();
           </script>
-        </div>
+        </div><!-- /product-showcase-container -->
 
-      </div>
+      </div><!-- /max-w-[1400px] -->
 
       <!-- Background Grid Decoration -->
       <div class="absolute inset-0 z-0 opacity-20 [mask-image:radial-gradient(ellipse_at_center,black,transparent)] pointer-events-none">
@@ -398,6 +498,13 @@ const faqSchema = {
 
 
     <script is:inline>
+      // Close mobile lang dropdown on outside click
+      document.addEventListener('click', function(e) {
+        var wrapper = document.getElementById('mobile-lang-wrapper');
+        var menu = document.getElementById('mobile-lang-menu');
+        if (wrapper && menu && !wrapper.contains(e.target)) menu.classList.add('hidden');
+      });
+
       document.addEventListener('DOMContentLoaded', () => {
         const observerOptions = { threshold: 0.05, rootMargin: '0px 0px -50px 0px' };
         
@@ -465,7 +572,7 @@ const faqSchema = {
           var WORDS = [
             { text:'Sin dramas',            grad:'linear-gradient(to right,#3b82f6,#38bdf8,#67e8f9)', gc:'56,189,248' },
             { text:'Con IA inteligente',    grad:'linear-gradient(to right,#8b5cf6,#c084fc,#e879f9)', gc:'192,132,252' },
-            { text:'Compitiendo en duelos', grad:'linear-gradient(to right,#f97316,#fb923c,#fcd34d)', gc:'249,115,22' },
+            { text:'Sin perder tiempo',      grad:'linear-gradient(to right,#f97316,#fb923c,#fcd34d)', gc:'249,115,22' },
             { text:'En tiempo récord',      grad:'linear-gradient(to right,#10b981,#2dd4bf,#67e8f9)', gc:'16,185,129' },
             { text:'Sin libros aburridos',  grad:'linear-gradient(to right,#ec4899,#f472b6,#fb923c)', gc:'236,72,153' },
           ];
@@ -797,164 +904,7 @@ const faqSchema = {
           </div>
         </div>
 
-        <!-- 4. GAMIFICATION & PROGRESS (Text Right, Cards Left) -->
-        <div class="grid lg:grid-cols-[1.3fr,1fr] gap-12 lg:gap-20 items-center reveal-on-scroll">
-           <div class="order-1 lg:order-1 w-full">
-            <div class="rounded-[1.5rem] overflow-hidden border border-slate-700/60 shadow-2xl shadow-blue-500/10 p-8 sm:p-10 relative" style="background:#0f172a;">
-              <div class="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 blur-[80px] rounded-full pointer-events-none"></div>
-              <div class="absolute bottom-0 left-0 w-64 h-64 bg-slate-500/10 blur-[80px] rounded-full pointer-events-none"></div>
-              
-              <div class="relative z-10 max-w-lg mx-auto flex flex-col gap-6">
-                <!-- Level Card -->
-                <div class="grid grid-cols-2 gap-4">
-                  <div class="bg-gradient-to-br from-blue-500/20 to-blue-600/10 border border-blue-400/30 rounded-2xl p-5 text-center shadow-lg">
-                    <p class="text-4xl font-black text-white mb-1">12</p>
-                    <p class="text-[10px] font-black uppercase tracking-wider text-blue-300/70">Nivel</p>
-                    <div class="mt-3 h-2.5 rounded-full bg-black/40 overflow-hidden"><div class="h-full w-[68%] bg-gradient-to-r from-blue-400 to-blue-600 rounded-full"></div></div>
-                    <p class="text-[10px] text-blue-300/60 mt-2 font-medium">680 / 1000 XP</p>
-                  </div>
-                  <div class="bg-gradient-to-br from-blue-500/20 to-blue-600/10 border border-blue-400/30 rounded-2xl p-5 text-center shadow-lg flex flex-col justify-center">
-                    <p class="text-4xl font-black text-blue-300 mb-1">🪙 340</p>
-                    <p class="text-[10px] font-black uppercase tracking-wider text-blue-300/70">Balance</p>
-                  </div>
-                </div>
 
-                <!-- Stats Strip -->
-                <div class="grid grid-cols-3 gap-3">
-                  <div class="bg-slate-900/80 border border-slate-700/50 rounded-xl p-3 text-center backdrop-blur-sm"><p class="text-xl mb-1">🔥</p><p class="font-black text-white text-lg">14</p><p class="text-[9px] text-slate-400 uppercase tracking-wider font-bold">Racha</p></div>
-                  <div class="bg-slate-900/80 border border-slate-700/50 rounded-xl p-3 text-center backdrop-blur-sm"><p class="text-xl mb-1">⚔️</p><p class="font-black text-white text-lg">23</p><p class="text-[9px] text-slate-400 uppercase tracking-wider font-bold">Duelos</p></div>
-                  <div class="bg-slate-900/80 border border-slate-700/50 rounded-xl p-3 text-center backdrop-blur-sm"><p class="text-xl mb-1">🏆</p><p class="font-black text-white text-lg">#4</p><p class="text-[9px] text-slate-400 uppercase tracking-wider font-bold">Liga</p></div>
-                </div>
-
-                <!-- Topic Progress -->
-                <div class="bg-slate-900/80 border border-slate-700/50 rounded-xl p-5 backdrop-blur-sm mt-2">
-                  <p class="text-[10px] font-black uppercase tracking-[0.15em] text-blue-400 mb-4">Progreso por Temas</p>
-                  <div class="space-y-3">
-                    {[['Señales','91','emerald'],['Velocidad','72','amber'],['Prioridades','64','amber']].map(([tema, pct, color]) => (
-                      <div>
-                        <div class="flex justify-between text-xs mb-1.5">
-                          <span class="text-slate-300 font-medium">{tema}</span>
-                          <span class={`font-black text-blue-400`}>{pct}%</span>
-                        </div>
-                        <div class="h-1.5 rounded-full bg-slate-800 overflow-hidden">
-                          <div class={`h-full bg-gradient-to-r from-blue-400 to-blue-600 rounded-full`} style={`width:${pct}%`}></div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="order-2 lg:order-2">
-            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-300 text-[10px] font-bold tracking-[0.2em] uppercase mb-6">
-              🎮 Gamificación Total
-            </div>
-            <h3 class="text-3xl sm:text-4xl font-black text-white mb-6 leading-tight">Sube de nivel hasta el <br/><span class="text-amber-400">«Apto» oficial</span></h3>
-            <p class="text-slate-400 text-lg mb-8 leading-relaxed">
-              Convierte el estudio en un juego. Gana experiencia, subе de nivel и colecciona monedas. Skily visualiza tu progreso por cada tema para que sepas exactamente cuándo estás listo.
-            </p>
-            <div class="flex flex-col gap-4">
-              <div class="flex items-start gap-4">
-                <div class="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center shrink-0 border border-amber-500/20 text-xl">🪙</div>
-                <div><h4 class="text-white font-bold mb-1">Economía del juego</h4><p class="text-sm text-slate-400">Usa tus monedas para comprar potenciadores и personalizar tu perfil.</p></div>
-              </div>
-              <div class="flex items-start gap-4">
-                <div class="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center shrink-0 border border-blue-500/20 text-xl">🌌</div>
-                <div><h4 class="text-white font-bold mb-1">España del Futuro</h4><p class="text-sm text-slate-400">Olvida las fotos grises de la DGT. Resuelve tests inmerso en paisajes Solarpunk increíbles.</p></div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- 5. MULTIPLATAFORMA (Video Left, Text Right) -->
-        <div class="grid lg:grid-cols-[1.3fr,1fr] gap-12 lg:gap-20 items-center reveal-on-scroll">
-          <div class="order-1 lg:order-1 w-full">
-            <div class="rounded-[1.5rem] overflow-hidden border border-slate-700/60 shadow-2xl shadow-blue-500/10 relative" style="background:#161c2c;">
-              <div class="flex items-center gap-2 px-5 py-3.5 border-b border-slate-700/50 absolute top-0 left-0 right-0 z-10 bg-slate-900/80 backdrop-blur-md">
-                <div class="flex gap-1.5"><div class="w-3 h-3 rounded-full bg-[#ff5f57]"></div><div class="w-3 h-3 rounded-full bg-[#febc2e]"></div><div class="w-3 h-3 rounded-full bg-[#28c840]"></div></div>
-                <div class="flex-1 mx-4 h-7 rounded-lg bg-slate-800/80 border border-slate-700/40 flex items-center px-3 gap-2">
-                  <div class="w-2 h-2 rounded-full bg-emerald-400/70 shrink-0"></div>
-                  <span class="text-[11px] text-slate-400 font-medium">skilyapp.com · Multi-idioma</span>
-                </div>
-              </div>
-              <video src="/videos/feat-translate.webm" autoplay loop muted playsinline class="w-full block pt-14" style="max-height:480px;object-fit:cover;object-position:top;"></video>
-            </div>
-          </div>
-
-          <div class="order-2 lg:order-2">
-            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-300 text-[10px] font-bold tracking-[0.2em] uppercase mb-6">
-              🌍 Sin barreras
-            </div>
-            <h3 class="text-3xl sm:text-4xl font-black text-white mb-6 leading-tight">Estudia en tu idioma, <br/><span class="text-blue-400">donde quieras</span></h3>
-            <p class="text-slate-400 text-lg mb-8 leading-relaxed">
-              ¿Tu español aún no es perfecto? Cambia entre español, inglés и ruso al instante. Prepárate en tu lengua materna и aprueba sin barreras idiomáticas.
-            </p>
-            <div class="flex flex-col gap-4">
-              <div class="flex items-start gap-4">
-                <div class="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center shrink-0 border border-blue-500/20 text-xl">📱</div>
-                <div><h4 class="text-white font-bold mb-1">Telegram Mini App</h4><p class="text-sm text-slate-400">Accede directamente desde Telegram sin instalar apps pesadas.</p></div>
-              </div>
-              <div class="flex items-start gap-4">
-                <div class="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center shrink-0 border border-blue-500/20 text-xl">☁️</div>
-                <div><h4 class="text-white font-bold mb-1">Sincronización total</h4><p class="text-sm text-slate-400">Empieza en el móvil, sigue en el PC. Tu progreso siempre contigo.</p></div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        </div>
-      </div>
-    </section>
-    <!-- ═══════════════════════════════════════ ECOSYSTEM ════════════════════════════════ -->
-    <section class="relative z-10 px-6 pt-24 pb-6 max-w-[1400px] mx-auto">
-      <div class="mb-10">
-        <h2 class="text-3xl md:text-5xl font-black mb-4">Ecosistema de aprendizaje</h2>
-        <p class="text-slate-400 max-w-xl">Plataforma unificada para teoría, práctica y análisis de progreso.</p>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <!-- Card 1: Questions -->
-        <div class="bg-slate-900/50 border border-slate-800 p-8 rounded-[2rem] hover:border-indigo-500/30 transition-all relative overflow-hidden group">
-          <div class="absolute top-4 right-4 opacity-10 text-indigo-400 rotate-12 group-hover:scale-110 group-hover:rotate-6 transition-all duration-500">
-            <svg class="w-[120px] h-[120px]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>
-          </div>
-          <div class="relative z-10 pt-2">
-            <div class="font-black text-white mb-2 leading-snug text-[clamp(1.4rem,2vw,2rem)] max-w-[280px]">Base Oficial 2025</div>
-            <p class="text-slate-500 text-sm max-w-[200px]">100% coincidencia con el examen real. Actualización automática.</p>
-          </div>
-        </div>
-
-        <!-- Card 2: Categories -->
-        <div class="bg-slate-900/50 border border-slate-800 p-8 rounded-[2rem] hover:border-indigo-500/30 transition-all">
-          <div class="flex gap-4 mb-4">
-            <svg class="w-8 h-8 text-blue-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/>
-            </svg>
-            <svg class="w-8 h-8 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="18.5" cy="17.5" r="3.5"/><circle cx="5.5" cy="17.5" r="3.5"/><circle cx="15" cy="5" r="1"/><path d="M12 17.5V14l-3-3 4-3 2 3h2"/>
-            </svg>
-            <svg class="w-8 h-8 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M8 6v6"/><path d="M15 6v6"/><path d="M2 12h19.6"/><path d="M18 18h3s.5-1.7.8-2.8c.1-.4.2-.8.2-1.2 0-.4-.1-.8-.2-1.2l-1.4-5C20.1 6.8 19.1 6 18 6H4a2 2 0 0 0-2 2v10h3"/><circle cx="7" cy="18" r="2"/><path d="M9 18h5"/><circle cx="16" cy="18" r="2"/>
-            </svg>
-          </div>
-          <h3 class="font-bold text-lg mb-1">Todas las categorías</h3>
-          <p class="text-slate-500 text-sm">Coches, motos y transporte profesional.</p>
-        </div>
-
-        <!-- Card 3+4: Simulation (span 2) -->
-        <div class="lg:col-span-2 bg-gradient-to-br from-indigo-900/20 to-slate-900 border border-indigo-500/20 p-8 rounded-[2rem] relative overflow-hidden flex items-center justify-between">
-          <div>
-            <div class="flex items-center gap-2 mb-2 text-indigo-300 font-mono text-xs uppercase tracking-widest">
-              <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-              30 min
-            </div>
-            <h3 class="font-bold text-2xl text-white mb-2">Simulación Real</h3>
-            <p class="text-slate-400 text-sm max-w-xs">Mismo interfaz, tiempos y estrés que en la DGT. Entrena en condiciones de combate.</p>
-          </div>
-          <div class="hidden md:block">
-            <div class="w-20 h-20 rounded-full border-4 border-indigo-500 flex items-center justify-center text-xl font-black bg-indigo-900/20">PRO</div>
-          </div>
         </div>
       </div>
     </section>
@@ -974,16 +924,17 @@ const faqSchema = {
         <p class="text-slate-500 max-w-lg mx-auto text-sm md:text-base">Cada función fue diseñada para que apruebes en el menor tiempo posible.</p>
       </div>
 
-      <!-- ── Bento Grid ── -->
-      <!-- Card structure: rounded box with dark bg, image area on top (overflow hidden), text label below -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-5">
+      <!-- ── Bento Grid — adaptive aspect-ratio cards, zero cropping on ROW 2+3 ── -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-5 items-start">
 
-        <!-- ══ ROW 1: Readiness (1col) + Telemetría (2col) ══ -->
+        <!-- ══ ROW 1: Readiness (1col) + Telemetría (2col) ══
+             These are tall/square images — cap at 420px to keep row sane,
+             object-top keeps the key gauge content visible. -->
 
-        <!-- CARD 1: Probabilidad de aprobar — portrait 744×862 → fits naturally in 1col tall card -->
-        <div class="rounded-[2rem] overflow-hidden bg-[#0b1220] border border-white/[0.06] group flex flex-col">
-          <!-- image area: 390px tall, image is portrait so object-top shows gauge fully -->
-          <div class="relative overflow-hidden flex-shrink-0" style="height:390px">
+        <!-- CARD 1: Readiness — portrait 744×862 →1col -->
+        <div class="rounded-[2rem] overflow-hidden border border-white/[0.07] group flex flex-col"
+          style="background: radial-gradient(ellipse at 60% 0%, rgba(234,179,8,0.10) 0%, #080e1b 55%)">
+          <div class="relative overflow-hidden" style="width:100%; aspect-ratio:744/862; max-height:420px">
             <div class="absolute top-4 left-4 z-10 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-yellow-500/20 border border-yellow-500/30 backdrop-blur-sm">
               <span class="w-1.5 h-1.5 rounded-full bg-yellow-400 animate-pulse"></span>
               <span class="text-[10px] font-bold uppercase tracking-widest text-yellow-300">IA Predicción</span>
@@ -992,17 +943,16 @@ const faqSchema = {
               class="w-full h-full object-cover object-top group-hover:scale-[1.03] transition-transform duration-700"
               loading="lazy" />
           </div>
-          <!-- text -->
-          <div class="px-6 py-5">
+          <div class="px-6 py-5 flex-1">
             <h3 class="text-base font-black text-white mb-1">Probabilidad de aprobar</h3>
             <p class="text-slate-500 text-xs leading-relaxed">La IA predice tu probabilidad real de pasar el DGT con un modelo bayesiano. No es un porcentaje cualquiera.</p>
           </div>
         </div>
 
-        <!-- CARD 2: Panel de Telemetría — nearly square 1880×1742 in 2col card -->
-        <!-- object-top shows: header + gauge + veredicto + stats row — the best content -->
-        <div class="md:col-span-2 rounded-[2rem] overflow-hidden bg-[#0b1220] border border-white/[0.06] group flex flex-col">
-          <div class="relative overflow-hidden flex-shrink-0" style="height:390px">
+        <!-- CARD 2: Telemetría — 1880×1742 (nearly square) → 2col -->
+        <div class="md:col-span-2 rounded-[2rem] overflow-hidden border border-white/[0.07] group flex flex-col"
+          style="background: radial-gradient(ellipse at 30% 0%, rgba(99,102,241,0.10) 0%, #080e1b 55%)">
+          <div class="relative overflow-hidden" style="width:100%; aspect-ratio:1880/1742; max-height:420px">
             <div class="absolute top-4 left-4 z-10 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-indigo-500/20 border border-indigo-500/30 backdrop-blur-sm">
               <span class="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse"></span>
               <span class="text-[10px] font-bold uppercase tracking-widest text-indigo-300">Telemetría Avanzada</span>
@@ -1011,83 +961,91 @@ const faqSchema = {
               class="w-full h-full object-cover object-top group-hover:scale-[1.03] transition-transform duration-700"
               loading="lazy" />
           </div>
-          <div class="px-6 py-5">
+          <div class="px-6 py-5 flex-1">
             <h3 class="text-base font-black text-white mb-1">Panel de Telemetría</h3>
             <p class="text-slate-500 text-xs leading-relaxed">Tu cabina de piloto: precisión, racha, winrate en duelos y veredicto del sistema en tiempo real.</p>
           </div>
         </div>
 
-        <!-- ══ ROW 2: License (2col landscape) + Duel Pass (1col square) ══ -->
+        <!-- ══ ROW 2: License (2col) + Duel Pass (1col) ══
+             Exact aspect-ratios → zero cropping, images shown 100%. -->
 
-        <!-- CARD 3: Permiso de Conducción — landscape 1436×768 → 2col wide card, fits well -->
-        <div class="md:col-span-2 rounded-[2rem] overflow-hidden bg-[#0b1220] border border-white/[0.06] group flex flex-col">
-          <div class="relative overflow-hidden flex-shrink-0" style="height:270px">
+        <!-- CARD 3: Permiso de Conducción — landscape 1436×768 → 2col
+             Natural display: ~894px wide × 478px tall → full image, no crop. -->
+        <div class="md:col-span-2 rounded-[2rem] overflow-hidden border border-white/[0.07] group flex flex-col"
+          style="background: radial-gradient(ellipse at 70% 0%, rgba(16,185,129,0.09) 0%, #080e1b 55%)">
+          <div class="relative overflow-hidden" style="width:100%; aspect-ratio:1436/768">
             <div class="absolute top-4 left-4 z-10 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/30 backdrop-blur-sm">
               <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-              <span class="text-[10px] font-bold uppercase tracking-widest text-emerald-300">Licencia</span>
+              <span class="text-[10px] font-bold uppercase tracking-widest text-emerald-300">Licencia Digital</span>
             </div>
-            <!-- landscape image in wide 2col card: object-cover object-top shows top portion cleanly -->
             <img src="/images/screen-license.png" alt="Permiso de Conducción"
-              class="w-full h-full object-cover object-top group-hover:scale-[1.03] transition-transform duration-700"
+              class="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-700"
               loading="lazy" />
           </div>
-          <div class="px-6 py-5">
+          <div class="px-6 py-5 flex-1">
             <h3 class="text-base font-black text-white mb-1">Permiso de Conducción</h3>
-            <p class="text-slate-500 text-xs leading-relaxed">Tu carnet digital en la app: días restantes, categoría y tu estado de preparación.</p>
+            <p class="text-slate-500 text-xs leading-relaxed">Tu carnet digital siempre actualizado: categoría, días restantes y estado del trámite.</p>
           </div>
         </div>
 
-        <!-- CARD 4: Duel Pass — square 740×740 → 1col, object-top shows header + missions perfectly -->
-        <div class="rounded-[2rem] overflow-hidden bg-[#0b1220] border border-white/[0.06] group flex flex-col">
-          <div class="relative overflow-hidden flex-shrink-0" style="height:270px">
+        <!-- CARD 4: Duel Pass — square 740×740 → 1col
+             Natural display: ~437px × 437px → full image, no crop. -->
+        <div class="rounded-[2rem] overflow-hidden border border-white/[0.07] group flex flex-col"
+          style="background: radial-gradient(ellipse at 40% 0%, rgba(249,115,22,0.10) 0%, #080e1b 55%)">
+          <div class="relative overflow-hidden" style="width:100%; aspect-ratio:740/740">
             <div class="absolute top-4 left-4 z-10 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-orange-500/20 border border-orange-500/30 backdrop-blur-sm">
               <span class="w-1.5 h-1.5 rounded-full bg-orange-400 animate-pulse"></span>
               <span class="text-[10px] font-bold uppercase tracking-widest text-orange-300">Duel Pass</span>
             </div>
             <img src="/images/screen-duel-pass.png" alt="Duel Pass"
-              class="w-full h-full object-cover object-top group-hover:scale-[1.03] transition-transform duration-700"
+              class="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-700"
               loading="lazy" />
           </div>
-          <div class="px-6 py-5">
-            <h3 class="text-base font-black text-white mb-1">Duel Pass + Misiones</h3>
-            <p class="text-slate-500 text-xs leading-relaxed">Misiones diarias, puntos SP y recompensas exclusivas por temporada.</p>
+          <div class="px-5 py-4 flex-1">
+            <h3 class="text-sm font-black text-white mb-1">Duel Pass + Misiones</h3>
+            <p class="text-slate-500 text-xs leading-relaxed">Misiones diarias, puntos SP y recompensas de temporada.</p>
           </div>
         </div>
 
-        <!-- ══ ROW 3: Season Rank (1col) + PvP (2col) ══ -->
+        <!-- ══ ROW 3: Season Rank (1col) + PvP (2col) ══
+             Both cards have ~identical natural heights (~392px) → perfectly aligned row. -->
 
-        <!-- CARD 5: Clasificación — nearly square 1844×1654 → 1col, object-top shows podium -->
-        <div class="rounded-[2rem] overflow-hidden bg-[#0b1220] border border-white/[0.06] group flex flex-col">
-          <div class="relative overflow-hidden flex-shrink-0" style="height:310px">
+        <!-- CARD 5: Season Rank — 1844×1654 → 1col
+             Natural: ~437px × 392px → full image, no crop. -->
+        <div class="rounded-[2rem] overflow-hidden border border-white/[0.07] group flex flex-col"
+          style="background: radial-gradient(ellipse at 50% 0%, rgba(168,85,247,0.10) 0%, #080e1b 55%)">
+          <div class="relative overflow-hidden" style="width:100%; aspect-ratio:1844/1654">
             <div class="absolute top-4 left-4 z-10 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-purple-500/20 border border-purple-500/30 backdrop-blur-sm">
               <span class="w-1.5 h-1.5 rounded-full bg-purple-400 animate-pulse"></span>
-              <span class="text-[10px] font-bold uppercase tracking-widest text-purple-300">Liga</span>
+              <span class="text-[10px] font-bold uppercase tracking-widest text-purple-300">Liga de Temporada</span>
             </div>
             <img src="/images/screen-season-rank.png" alt="Clasificación de temporada"
-              class="w-full h-full object-cover object-top group-hover:scale-[1.03] transition-transform duration-700"
+              class="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-700"
               loading="lazy" />
           </div>
-          <div class="px-6 py-5">
-            <h3 class="text-base font-black text-white mb-1">Clasificación Global</h3>
-            <p class="text-slate-500 text-xs leading-relaxed">Compite por el top 3 cada temporada. Los mejores pilotos reciben premios.</p>
+          <div class="px-5 py-5 flex-1">
+            <h3 class="text-sm font-black text-white mb-1">Clasificación Global</h3>
+            <p class="text-slate-500 text-xs leading-relaxed">Compite por el top 3 cada temporada y gana premios reales.</p>
           </div>
         </div>
 
-        <!-- CARD 6: PvP Duel — ultra-wide 2710×1188 → 2col, object-top shows header + scene -->
-        <div class="md:col-span-2 rounded-[2rem] overflow-hidden bg-[#0b1220] border border-white/[0.06] group flex flex-col">
-          <div class="relative overflow-hidden flex-shrink-0" style="height:310px">
-            <div class="absolute top-4 right-4 z-10 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-blue-500/20 border border-blue-500/30 backdrop-blur-sm">
+        <!-- CARD 6: PvP Duel — 2710×1188 (wide) → 2col
+             Natural: ~894px × 392px → full image, no crop. -->
+        <div class="md:col-span-2 rounded-[2rem] overflow-hidden border border-white/[0.07] group flex flex-col"
+          style="background: radial-gradient(ellipse at 30% 0%, rgba(59,130,246,0.10) 0%, #080e1b 55%)">
+          <div class="relative overflow-hidden" style="width:100%; aspect-ratio:2710/1188">
+            <div class="absolute top-4 left-4 z-10 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-blue-500/20 border border-blue-500/30 backdrop-blur-sm">
               <span class="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse"></span>
               <span class="text-[10px] font-bold uppercase tracking-widest text-blue-300">PvP en vivo</span>
             </div>
-            <!-- ultra-wide 2.28:1 image in 2col card ~2:1 → object-top shows game header + road photo -->
-            <img src="/images/screen-duel-pvp.png" alt="Duelo PvP en vivo"
-              class="w-full h-full object-cover object-top group-hover:scale-[1.03] transition-transform duration-700"
+            <img src="/images/screen-duel-pvp.png" alt="Duelo PvP en tiempo real"
+              class="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-700"
               loading="lazy" />
           </div>
-          <div class="px-6 py-5">
+          <div class="px-6 py-5 flex-1">
             <h3 class="text-base font-black text-white mb-1">Duelos PvP en vivo</h3>
-            <p class="text-slate-500 text-xs leading-relaxed">Compite contra otros estudiantes en partidas de 3 minutos. El miedo al examen desaparece rápido.</p>
+            <p class="text-slate-500 text-xs leading-relaxed">Partidas de 3 min contra otros estudiantes. El miedo al examen desaparece cuando compites de verdad.</p>
           </div>
         </div>
 

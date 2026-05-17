@@ -167,6 +167,23 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const loadLanguage = async () => {
+      // 1. URL lang wins over everything — persist it as device preference
+      const urlLang = detectUrlLanguage();
+      if (urlLang) {
+        applyLanguage(urlLang, true);
+        return;
+      }
+
+      // 2. Explicit device preference (set by landing page visit or in-app switcher)
+      //    Checked directly from app_language, not via getStoredLanguage() which reads
+      //    sdadim-settings first (that store may have stale profile language).
+      const deviceLang = normalizeLanguage(localStorage.getItem('app_language'));
+      if (deviceLang) {
+        applyLanguage(deviceLang);
+        return;
+      }
+
+      // 3. No stored preference — fresh device. Apply profile/country defaults.
       if (!profileId) {
         applyLanguage(detectPreferredLanguage());
         return;
@@ -186,12 +203,9 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
         const preferredCountry = profile.preferred_country;
         const lang = settings?.language as Language | undefined;
 
-        // If country is Russia, force Russian language unless it's already ru
         if (preferredCountry === 'russia' || preferredCountry === 'ru') {
-          if (lang !== 'ru') {
-            applyLanguage('ru');
-            return;
-          }
+          applyLanguage('ru');
+          return;
         }
 
         if (lang && SUPPORTED_LANGUAGES.includes(lang)) {
