@@ -181,7 +181,7 @@ export function ResponsiveModal({
             "flex flex-col fixed z-[99999] outline-none",
             mobileFullscreen
               ? "inset-x-0 bottom-0 top-0 h-[100dvh] max-h-[100dvh] rounded-none left-0 right-0"
-              : "inset-x-2 max-h-[92dvh] h-auto !rounded-[28px] border border-white/[0.06]",
+              : "inset-x-2 w-auto max-h-[92dvh] h-auto !rounded-[28px] border border-white/[0.06]",
             // Hide vaul drag-handle when user has scrolled down (frees 14 px)
             "[&_[data-vaul-handle]]:transition-[opacity,transform] [&_[data-vaul-handle]]:duration-200 motion-reduce:[&_[data-vaul-handle]]:transition-none",
             isScrolled

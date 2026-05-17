@@ -1662,6 +1662,7 @@ export function BoostShopModal({
             <TabsContent
               value="boosts"
               className="flex-1 overflow-y-auto p-3 md:p-4 space-y-4 m-0 data-[state=inactive]:hidden outline-none scrollbar-hide min-h-0"
+              style={{ paddingBottom: 'max(1rem, env(safe-area-inset-bottom, 0px))' }}
             >
               {/* Фильтры категорий */}
               <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide sm:flex-wrap sm:overflow-visible">
@@ -1742,6 +1743,7 @@ export function BoostShopModal({
             <TabsContent
               value="coins"
               className="flex-1 overflow-y-auto p-3 md:p-4 space-y-4 m-0 data-[state=inactive]:hidden outline-none scrollbar-hide min-h-0"
+              style={{ paddingBottom: 'max(1rem, env(safe-area-inset-bottom, 0px))' }}
             >
               <div className="space-y-6">
                 {/* Crypto Miner — бесплатные монеты за рекламу */}
@@ -1794,6 +1796,7 @@ export function BoostShopModal({
             <TabsContent
               value="premium"
               className="flex-1 overflow-y-auto p-3 md:p-4 space-y-6 m-0 data-[state=inactive]:hidden outline-none scrollbar-hide min-h-0"
+              style={{ paddingBottom: 'max(1rem, env(safe-area-inset-bottom, 0px))' }}
             >
               <div className="space-y-8">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
@@ -1975,7 +1978,7 @@ export function BoostShopModal({
                 )}
               </div>
 
-              <div className="flex-1 overflow-y-auto p-3 md:p-4">
+              <div className="flex-1 overflow-y-auto p-3 md:p-4" style={{ paddingBottom: 'max(1rem, env(safe-area-inset-bottom, 0px))' }}>
                 {loadingHistory ? (
                   <div className="space-y-3">
                     {[1, 2, 3, 4].map((i) => (
