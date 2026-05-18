@@ -208,9 +208,16 @@ function buildResult(
   p: number,
   metrics: ReadinessMetrics,
 ): ReadinessResult {
-  const percent = Math.round(Math.min(100, Math.max(0, prob * 100)));
-  // Active users with mathematically-zero pass probability should see "Начало пути"
-  // not "Начни обучение" — the latter is reserved for brand-new users with no data.
+  // Display percent uses pAdj (Bayesian accuracy + coverage gate) instead of raw
+  // passProbability so learners see gradual progress across all stages.
+  // passProbability stays intact in the return value for telemetry/analytics.
+  let displayP = pAdj;
+  if (metrics.worstTopicAcc != null && metrics.worstTopicAcc < 0.6) displayP = Math.min(displayP, 0.5);
+  if (metrics.weakTopicsCount >= 3) displayP = Math.min(displayP, 0.6);
+  if (metrics.lifetimeAttempts < 50) displayP = Math.min(displayP, 0.4);
+  if (metrics.testsCompleted < 3) displayP = Math.min(displayP, 0.3);
+  const percent = Math.round(Math.min(100, Math.max(0, displayP * 100)));
+  // Active users with near-zero display score still see "Начало пути", not "Начни обучение".
   const statusInput = (percent === 0 && metrics.lifetimeAttempts > 0) ? 1 : percent;
   const status = getReadinessStatus(statusInput);
 
