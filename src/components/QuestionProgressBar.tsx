@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { X, Grid3x3, Bookmark, BookmarkCheck, MoreVertical, CheckCircle2, XCircle, Clock, Sparkles, Flag, Coins, Languages } from 'lucide-react';
+import { X, Grid3x3, Bookmark, BookmarkCheck, MoreVertical, Clock, Sparkles, Flag, Coins, Languages } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import { usePDDContext } from '@/contexts/PDDContext';
@@ -79,8 +79,6 @@ export function QuestionProgressBar({
   const isRussia = selectedCountry === 'russia';
 
   const progress = ((currentIndex + 1) / totalQuestions) * 100;
-  const correctCount = answers.filter(a => a?.isCorrect).length;
-  const incorrectCount = answers.filter(a => a != null && !a.isCorrect).length;
   const lastAnsweredIndex = answers.reduce((last, a, idx) => a != null ? idx : last, -1);
 
   // Components for reuse
@@ -266,19 +264,6 @@ export function QuestionProgressBar({
           {/* 💰 Bank / Pot */}
           <BankBlock />
 
-          {/* Score indicators — только на десктопе, только если hideScoreIndicators=false */}
-          {answers.length > 0 && !hideScoreIndicators && (
-            <div className="hidden md:flex items-center gap-1.5 shrink-0">
-              <div className="flex items-center gap-1 px-2 py-1 rounded-md bg-emerald-500/10 border border-emerald-500/20">
-                <CheckCircle2 className="w-3 h-3 text-emerald-500" />
-                <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">{correctCount}</span>
-              </div>
-              <div className="flex items-center gap-1 px-2 py-1 rounded-md bg-red-500/10 border border-red-500/20">
-                <XCircle className="w-3 h-3 text-red-500" />
-                <span className="text-xs font-semibold text-red-600 dark:text-red-400">{incorrectCount}</span>
-              </div>
-            </div>
-          )}
         </div>
 
         {/* Right Side Controls - Bookmark + Settings + Close (in focus mode) */}
