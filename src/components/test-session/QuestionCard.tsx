@@ -153,7 +153,7 @@ export const QuestionCard = ({
                                 showResult={selectedOption !== null && isPracticeLikeMode}
                                 showTranslation={showTranslation}
                                 testLanguage={testLanguage}
-                                fontSize={fontSize === 0 ? 'small' : fontSize >= 3 ? 'large' : 'medium'}
+                                fontSize={fontSize === 0 ? 'small' : fontSize >= 2 ? 'large' : 'medium'}
                                 isTransitioning={isTransitioning}
                                 answerPopularity={answerPopularity}
                                 onSelect={(val) => {
@@ -275,7 +275,7 @@ export const QuestionCard = ({
                                 showResult={selectedOption !== null && isPracticeLikeMode}
                                 showTranslation={showTranslation}
                                 testLanguage={testLanguage}
-                                fontSize={fontSize === 0 ? 'small' : fontSize >= 3 ? 'large' : 'medium'}
+                                fontSize={fontSize === 0 ? 'small' : fontSize >= 2 ? 'large' : 'medium'}
                                 isTransitioning={isTransitioning}
                                 answerPopularity={answerPopularity}
                                 onSelect={(val) => {
@@ -393,7 +393,7 @@ export const QuestionCard = ({
                         showResult={selectedOption !== null && isPracticeLikeMode}
                         showTranslation={showTranslation}
                         testLanguage={testLanguage}
-                        fontSize={fontSize === 0 ? 'small' : fontSize >= 3 ? 'large' : 'medium'}
+                        fontSize={fontSize === 0 ? 'small' : fontSize >= 2 ? 'large' : 'medium'}
                         isTransitioning={isTransitioning}
                         answerPopularity={answerPopularity}
                         onSelect={(val) => {

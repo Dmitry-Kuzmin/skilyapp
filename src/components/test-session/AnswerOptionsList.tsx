@@ -29,8 +29,8 @@ interface AnswerButtonProps {
 // Swiss Design font config - refined, not gigantic
 const fontSizeConfig = {
     small: 'text-sm leading-relaxed',
-    medium: 'text-[15px] leading-relaxed',
-    large: 'text-base leading-relaxed',
+    medium: 'text-base leading-relaxed',
+    large: 'text-lg leading-relaxed',
 };
 
 // Keycap labels (1, 2, 3 style)
