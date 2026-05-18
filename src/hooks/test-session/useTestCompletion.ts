@@ -44,6 +44,7 @@ interface UseTestCompletionParams {
         test_duration_seconds?: number;
         premium_flag?: boolean;
         double_sp_active?: boolean;
+        effective_question_count?: number;
     }) => Promise<{
         success: true;
         score: number;
@@ -332,11 +333,18 @@ export const useTestCompletion = ({
             try {
                 const realOnline = await checkOnlineStatus();
                 if (realOnline) {
+                    // Для russia-exam snapshot >> real: передаём реальное число пройденных
+                    // (main + extra). Сервер использует max(answered, effective) как знаменатель.
+                    const effectiveCount = mode === 'exam-russia'
+                        ? Math.max(currentAnswers.length, 20)
+                        : undefined;
+
                     const serverResult = await serverComplete({
                         client_correct_count: correctCount,
                         test_duration_seconds: Math.max(timeSpent, 0),
                         premium_flag: Boolean(isPremium),
                         double_sp_active: false,
+                        effective_question_count: effectiveCount,
                     });
 
                     if (serverResult) {

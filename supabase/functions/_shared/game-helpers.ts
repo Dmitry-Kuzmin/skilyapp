@@ -42,6 +42,9 @@ export const completeTestSessionSchema = z.object({
   test_duration_seconds: z.number().int().min(0).max(7200).optional(),
   premium_flag: z.boolean().optional().default(false),
   double_sp_active: z.boolean().optional().default(false),
+  // Для режимов где snapshot > реально пройденных вопросов (russia-exam: 60 в snapshot,
+  // реально 20-30 main+extra). Сервер: знаменатель = min(effective, answers.length, questions_count).
+  effective_question_count: z.number().int().min(1).max(60).optional(),
 });
 
 // ===== AUTH =====

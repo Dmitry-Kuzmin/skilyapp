@@ -159,7 +159,7 @@ export async function handleCompleteSession({ supabase, profileId, ipHash, param
   if (!parsed.success) {
     return errorResponse('Invalid params', 400, { issues: parsed.error.issues });
   }
-  const { session_id, client_correct_count, test_duration_seconds, premium_flag, double_sp_active } = parsed.data;
+  const { session_id, client_correct_count, test_duration_seconds, premium_flag, double_sp_active, effective_question_count } = parsed.data;
 
   const { data: session, error: sessionError } = await supabase
     .from('test_sessions')
@@ -189,9 +189,19 @@ export async function handleCompleteSession({ supabase, profileId, ipHash, param
 
   if (answersError) return errorResponse('Failed to fetch answers', 500, { details: answersError.message });
 
+  const answeredCount = (answers ?? []).length;
   const correctCount = (answers ?? []).filter((a) => a.is_correct && !a.is_skipped).length;
-  const totalQuestions = session.questions_count ?? 0;
-  const score = totalQuestions > 0 ? Math.round((correctCount / totalQuestions) * 100) : 0;
+  const snapshotCount = session.questions_count ?? 0;
+
+  // Знаменатель для score:
+  //   - если клиент сказал effective_question_count → clamp в [answeredCount, snapshotCount]
+  //   - иначе → snapshotCount (старое поведение для не-russia режимов)
+  let denominator = snapshotCount;
+  if (effective_question_count !== undefined) {
+    denominator = Math.max(answeredCount, Math.min(effective_question_count, snapshotCount));
+  }
+
+  const score = denominator > 0 ? Math.round((correctCount / denominator) * 100) : 0;
 
   // Длительность — берём min(client, server)
   const startedAt = new Date(session.started_at).getTime();
@@ -200,8 +210,8 @@ export async function handleCompleteSession({ supabase, profileId, ipHash, param
     ? Math.min(test_duration_seconds, serverDuration)
     : serverDuration;
 
-  // Anti speed-cheat
-  const speedCheat = isSpeedCheat(durationSec, totalQuestions);
+  // Anti speed-cheat — считаем по реально ответившим, не по snapshot
+  const speedCheat = isSpeedCheat(durationSec, Math.max(answeredCount, 1));
 
   // ===== Запись результата в сессию =====
   const now = new Date().toISOString();
@@ -241,7 +251,9 @@ export async function handleCompleteSession({ supabase, profileId, ipHash, param
         session_id,
         test_id: session.test_id ?? null,
         score,
-        questions_count: totalQuestions,
+        // Для complete-test-and-award questions_count должен быть тем же знаменателем,
+        // что использован для score — иначе формула SP в этой функции пересчитает по-другому.
+        questions_count: denominator,
         correct_count: correctCount,
         test_duration_seconds: Math.max(0, durationSec),
         premium_flag: Boolean(premium_flag),
@@ -262,7 +274,8 @@ export async function handleCompleteSession({ supabase, profileId, ipHash, param
     success: true,
     score,
     correct_count: correctCount,
-    questions_count: totalQuestions,
+    questions_count: denominator,
+    answered_count: answeredCount,
     test_duration_seconds: durationSec,
     speed_cheat_detected: speedCheat,
     reward: rewardData,

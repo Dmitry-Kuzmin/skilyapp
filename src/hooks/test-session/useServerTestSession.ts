@@ -44,6 +44,7 @@ export type UseServerTestSessionResult = {
     test_duration_seconds?: number;
     premium_flag?: boolean;
     double_sp_active?: boolean;
+    effective_question_count?: number;
   }) => Promise<Awaited<ReturnType<typeof completeTestSession>> | null>;
 };
 
@@ -123,6 +124,7 @@ export function useServerTestSession(params: UseServerTestSessionParams): UseSer
     test_duration_seconds?: number;
     premium_flag?: boolean;
     double_sp_active?: boolean;
+    effective_question_count?: number;
   }) => {
     if (!sessionId) {
       console.warn('[useServerTestSession] complete called before session_id ready');

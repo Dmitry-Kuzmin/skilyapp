@@ -131,6 +131,7 @@ export function completeTestSession(params: {
   test_duration_seconds?: number;
   premium_flag?: boolean;
   double_sp_active?: boolean;
+  effective_question_count?: number;
 }): Promise<CompleteSessionResult> {
   return callTestManager<CompleteSessionResult>('complete_session', params);
 }

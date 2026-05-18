@@ -656,18 +656,35 @@ const TestSession = () => {
   // Derived testInfo merged above
 
   // === SERVER-VALIDATED SESSION (test-manager) ===
-  // Включаем серверную валидацию для всех режимов КРОМЕ exam-russia
-  // (там динамические extra-questions, требуется отдельная серверная поддержка).
   const SERVER_MODES: ServerTestMode[] = [
-    'practice', 'exam', 'blitz', 'module', 'mastery', 'marathon',
+    'practice', 'exam', 'exam-russia', 'blitz', 'module', 'mastery', 'marathon',
     'pdd-ticket', 'pdd-random', 'pdd-sequential', 'pdd-topic',
     'sequential', 'redemption', 'round-retry',
   ];
   const useServerValidation = SERVER_MODES.includes(mode as ServerTestMode);
-  const serverQuestionIds = useMemo(
-    () => (useServerValidation ? questions.map((q) => q.id) : []),
-    [useServerValidation, questions]
-  );
+
+  // Для russia-exam передаём расширенный список: main 20 + полный extraPool по блокам.
+  // Snapshot всех потенциальных вопросов сразу — extra-questions при ошибке уже будут в сессии.
+  // Cap на 60 (Zod max). На практике пул небольшой, но защитимся.
+  const serverQuestionIds = useMemo(() => {
+    if (!useServerValidation) return [];
+    if (mode === 'exam-russia' && allQuestionsByBlock) {
+      const seen = new Set<string>();
+      const ids: string[] = [];
+      for (const q of questions) {
+        if (q?.id && !seen.has(q.id)) { seen.add(q.id); ids.push(q.id); }
+      }
+      for (const blockQs of Object.values(allQuestionsByBlock)) {
+        for (const q of blockQs as Array<{ id: string }>) {
+          if (q?.id && !seen.has(q.id)) { seen.add(q.id); ids.push(q.id); }
+          if (ids.length >= 60) break;
+        }
+        if (ids.length >= 60) break;
+      }
+      return ids;
+    }
+    return questions.map((q) => q.id);
+  }, [useServerValidation, mode, questions, allQuestionsByBlock]);
 
   const serverSession = useServerTestSession({
     enabled: useServerValidation && serverQuestionIds.length > 0,

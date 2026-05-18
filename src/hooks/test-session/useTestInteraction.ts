@@ -180,6 +180,23 @@ export const useTestInteraction = ({
             const selectedAnswer = (russiaExam.currentQuestion.answers || []).find((a: any) => a.id === answerId);
             const isCorrect = selectedAnswer?.isCorrect || false;
 
+            // Server-validated submit (fire-and-forget). Сервер пересчитает финальный
+            // score при complete_session — клиентскому isCorrect верить не обязательно.
+            if (serverSubmit && getServerQuestionId) {
+                const tsqId = getServerQuestionId(russiaExam.currentQuestion.id);
+                if (tsqId) {
+                    serverSubmit({
+                        test_session_question_id: tsqId,
+                        selected_option_id: answerId,
+                        time_taken_ms: 0,
+                        client_reported_correct: Boolean(isCorrect),
+                        is_skipped: false,
+                    }).catch((err) => {
+                        console.error('[useTestInteraction][russia] serverSubmit failed:', err);
+                    });
+                }
+            }
+
             const result = russiaExam.handleAnswer(isCorrect);
             saveAnswerToDB(russiaExam.currentQuestion.id, isCorrect);
             answerQuestionZ(answerId, isCorrect);
