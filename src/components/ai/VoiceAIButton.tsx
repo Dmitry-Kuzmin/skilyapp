@@ -607,14 +607,6 @@ export const VoiceAIButton: React.FC<VoiceAIButtonProps> = ({
                     );
                 })()}
 
-                {voiceState === 'idle' && (
-                    <div className="absolute -top-1.5 -right-1.5 flex h-4 w-4 z-20">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-60" />
-                        <span className="relative inline-flex rounded-full h-4 w-4 bg-indigo-500 border-2 border-background items-center justify-center shadow-sm">
-                            <Mic className="w-2 h-2 text-white" />
-                        </span>
-                    </div>
-                )}
             </motion.button>
 
             {showFirstTimeHint && voiceState === 'idle' && typeof document !== 'undefined' && createPortal(
