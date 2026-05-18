@@ -50,6 +50,16 @@ interface UseTestInteractionParams {
     navigate: any;
     answers: any[];
     isAnswerLocked: boolean;
+
+    // Server-validated session (test-manager). Если есть — is_correct берётся от сервера.
+    serverSubmit?: (params: {
+        test_session_question_id: string;
+        selected_option_id: string | null;
+        time_taken_ms: number;
+        client_reported_correct?: boolean;
+        is_skipped?: boolean;
+    }) => Promise<boolean>;
+    getServerQuestionId?: (questionId: string) => string | null;
 }
 
 export const useTestInteraction = ({
@@ -83,7 +93,9 @@ export const useTestInteraction = ({
     redemptionFailedQuestions,
     navigate,
     answers,
-    isAnswerLocked
+    isAnswerLocked,
+    serverSubmit,
+    getServerQuestionId,
 }: UseTestInteractionParams) => {
     const queryClient = useQueryClient();
     const [isFirstWrongAnswer, setIsFirstWrongAnswer] = useState(true);
@@ -242,7 +254,30 @@ export const useTestInteraction = ({
         }
 
         const selectedAnswer = options.find((opt: any) => opt.id === answerId);
-        const isCorrect = selectedAnswer?.is_correct ?? selectedAnswer?.isCorrect ?? false;
+        // Локальная (клиентская) оценка — используется как fallback и для optimistic UI.
+        const clientReportedCorrect = selectedAnswer?.is_correct ?? selectedAnswer?.isCorrect ?? false;
+
+        // === SERVER-VALIDATED SUBMIT ===
+        // Если есть серверная сессия для этого вопроса, ждём вердикт сервера.
+        // Это блокирует ~100-300ms, но даёт неподдельную защиту от подмены is_correct.
+        let isCorrect = clientReportedCorrect;
+        if (serverSubmit && getServerQuestionId) {
+            const tsqId = getServerQuestionId(currentQuestion.id);
+            if (tsqId) {
+                try {
+                    const serverIsCorrect = await serverSubmit({
+                        test_session_question_id: tsqId,
+                        selected_option_id: answerId,
+                        time_taken_ms: 0,
+                        client_reported_correct: Boolean(clientReportedCorrect),
+                        is_skipped: false,
+                    });
+                    isCorrect = serverIsCorrect;
+                } catch (err) {
+                    console.error('[useTestInteraction] serverSubmit failed, using client fallback:', err);
+                }
+            }
+        }
 
         if (isTelegramApp) {
             // В режиме экзамена всегда одинаковая слабая вибрация, чтобы не подсказывать ответ
