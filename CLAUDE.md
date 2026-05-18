@@ -108,6 +108,22 @@ Docker НЕ нужен. Функции деплоятся через Management 
 ls supabase/migrations/ | tail -5
 ```
 
+### ⚠️ Гранты для новых таблиц (с 30 октября 2026 обязательно)
+
+Каждая новая таблица в миграции ДОЛЖНА содержать явные гранты, иначе supabase-js не сможет к ней обращаться:
+
+```sql
+-- Для пользовательских таблиц (доступных с фронтенда):
+grant select, insert, update, delete on public.your_table to authenticated;
+grant select on public.your_table to anon;        -- только если нужен анонимный доступ
+grant all on public.your_table to service_role;
+alter table public.your_table enable row level security;
+
+-- Для backend-only таблиц (только Edge Functions):
+grant all on public.your_table to service_role;
+-- RLS не нужен если нет анонимного/authenticated доступа
+```
+
 ### Фронтенд (Vercel)
 
 Деплой происходит **автоматически** при пуше в `main`. Вручную ничего делать не нужно.
