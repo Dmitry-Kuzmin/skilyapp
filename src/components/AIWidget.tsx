@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { Send, Maximize2, Minimize2, Languages, ThumbsUp, ThumbsDown, Mic, MicOff, Zap, Crown, Paperclip, ImagePlus, Camera, XCircle, Loader2 } from "lucide-react";
+import { Send, Languages, ThumbsUp, ThumbsDown, Mic, MicOff, Zap, Paperclip, ImagePlus, Camera, XCircle, Loader2, Lightbulb, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
@@ -21,7 +21,7 @@ import { useDashboardData } from "@/hooks/useDashboardData";
 import { useDuelPassData } from "@/hooks/useDuelPassData";
 import { useTTSStore } from "@/store/useTTSStore";
 import { AIMessageContent } from "@/components/ai/AIMessageContent";
-import { useMicrophonePermission } from "@/hooks/useMicrophonePermission";
+import { useVoiceRecording } from "@/hooks/useVoiceRecording";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -169,9 +169,9 @@ function buildPersonalizedGreeting(ctx: GreetingContext): string {
       ? 'Pregúntame lo que necesites — te explico la lógica, no solo la respuesta.'
       : 'Ask me anything — I\'ll explain the logic, not just the answer.';
 
-  return [base, questionLine, topicLine, seasonLine || errorNudge, closing]
+  return [base, questionLine || seasonLine]
     .filter(Boolean)
-    .join('\n\n');
+    .join('\n');
 }
 
 // Внутренний компонент: все хуки вызываются безусловно (правила React)
@@ -203,8 +203,6 @@ const AIWidgetContent = ({
   const [isExpanded, setIsExpanded] = useState(false);
   const [messageRatings, setMessageRatings] = useState<Record<number, 1 | -1>>({});
   const [maxHeight, setMaxHeight] = useState<number | undefined>(undefined);
-  const [isRecording, setIsRecording] = useState(false);
-  const [isProcessingVoice, setIsProcessingVoice] = useState(false);
   const [pendingAttachment, setPendingAttachment] = useState<PendingAttachment | null>(null);
   const [limitModalOpen, setLimitModalOpen] = useState(false);
   const [limitData, setLimitData] = useState({ currentCount: 0, limit: 5, message: '' });
@@ -213,19 +211,6 @@ const AIWidgetContent = ({
   const { profileId } = useUserContext();
   const imageInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
-  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-  const audioChunksRef = useRef<Blob[]>([]);
-  const voiceBaselineInputRef = useRef('');
-  const voiceFinalTranscriptRef = useRef('');
-  const speechRecognitionEnabledRef = useRef(false);
-  const speechRecognitionFailedRef = useRef(false);
-  const { refreshPermission: refreshMicrophonePermission, isDenied: isMicrophoneDenied } = useMicrophonePermission();
-  const clearVoiceDraft = useCallback(() => {
-    voiceBaselineInputRef.current = '';
-    voiceFinalTranscriptRef.current = '';
-    speechRecognitionEnabledRef.current = false;
-    speechRecognitionFailedRef.current = false;
-  }, []);
 
   // Personalization context — reads from already-loaded React Query cache, no extra requests
   const { data: dashboardData } = useDashboardData();
@@ -253,8 +238,6 @@ const AIWidgetContent = ({
   const aiLimit = isPremium ? 999 : Math.max(aiUsed, 5);
   const aiLimitReached = aiUsage?.limit_reached ?? false;
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const recognitionRef = useRef<any>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const widgetRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -269,127 +252,12 @@ const AIWidgetContent = ({
       ? profileLanguage as 'ru' | 'en'
       : (testLanguage ?? 'es');
 
-  const pickRecorderMime = (): string => {
-    const candidates = ['audio/webm;codecs=opus', 'audio/webm', 'audio/ogg;codecs=opus', 'audio/mp4'];
-    const MR: any = typeof window !== 'undefined' && (window as any).MediaRecorder || null;
-    if (MR?.isTypeSupported) {
-      for (const m of candidates) if (MR.isTypeSupported(m)) return m;
-    }
-    return '';
-  };
-
-  const startRecording = async () => {
-    const permission = await refreshMicrophonePermission();
-    if (permission === 'unsupported' || !navigator.mediaDevices?.getUserMedia) {
-      toast.error(interfaceLanguage === 'ru' ? 'Браузер не поддерживает запись голоса' : 'El navegador no soporta grabación de voz');
-      return;
-    }
-    if (permission === 'denied') {
-      toast.error(interfaceLanguage === 'ru'
-        ? 'Доступ к микрофону отключён. Разреши в настройках сайта.'
-        : 'El acceso al micrófono está bloqueado. Permítelo en los ajustes del sitio.');
-      return;
-    }
-
-    let stream: MediaStream;
-    try {
-      stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } });
-    } catch {
-      toast.error(interfaceLanguage === 'ru' ? 'Нет доступа к микрофону' : 'Sin acceso al micrófono');
-      return;
-    }
-
-    const mimeType = pickRecorderMime();
-    const mediaRecorder = mimeType ? new MediaRecorder(stream, { mimeType }) : new MediaRecorder(stream);
-    mediaRecorderRef.current = mediaRecorder;
-    audioChunksRef.current = [];
-    voiceBaselineInputRef.current = input.trim();
-    voiceFinalTranscriptRef.current = '';
-    speechRecognitionFailedRef.current = false;
-    speechRecognitionEnabledRef.current = false;
-
-    const SpeechRecognitionCtor = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    if (SpeechRecognitionCtor) {
-      try {
-        const recognition = new SpeechRecognitionCtor();
-        recognition.lang = interfaceLanguage === 'ru' ? 'ru-RU' : interfaceLanguage === 'en' ? 'en-US' : 'es-ES';
-        recognition.continuous = true;
-        recognition.interimResults = true;
-        recognition.onresult = (event: any) => {
-          let interimTranscript = '';
-          let finalDelta = '';
-          for (let i = event.resultIndex; i < event.results.length; ++i) {
-            const t = (event.results[i][0]?.transcript || '').trim();
-            if (!t) continue;
-            if (event.results[i].isFinal) finalDelta = finalDelta ? `${finalDelta} ${t}` : t;
-            else interimTranscript = interimTranscript ? `${interimTranscript} ${t}` : t;
-          }
-          if (finalDelta) {
-            voiceFinalTranscriptRef.current = voiceFinalTranscriptRef.current
-              ? `${voiceFinalTranscriptRef.current} ${finalDelta}` : finalDelta;
-          }
-          const live = [voiceFinalTranscriptRef.current, interimTranscript].filter(Boolean).join(' ').trim();
-          setInput([voiceBaselineInputRef.current, live].filter(Boolean).join(' ').trim());
-        };
-        recognition.onerror = () => { speechRecognitionFailedRef.current = true; };
-        recognition.onend = () => { recognitionRef.current = null; };
-        recognitionRef.current = recognition;
-        speechRecognitionEnabledRef.current = true;
-        recognition.start();
-      } catch { speechRecognitionEnabledRef.current = false; }
-    }
-
-    mediaRecorder.ondataavailable = (e) => { if (e.data.size > 0) audioChunksRef.current.push(e.data); };
-    mediaRecorder.onstop = async () => {
-      const usedMime = mediaRecorder.mimeType || mimeType || 'audio/webm';
-      const audioBlob = new Blob(audioChunksRef.current, { type: usedMime });
-      stream.getTracks().forEach(t => t.stop());
-      recognitionRef.current?.stop?.();
-      recognitionRef.current = null;
-      setIsRecording(false);
-
-      if (audioBlob.size < 2048) {
-        toast.message(interfaceLanguage === 'ru' ? 'Запись слишком короткая' : 'Grabación demasiado corta');
-        return;
-      }
-
-      const liveTranscript = [voiceBaselineInputRef.current, voiceFinalTranscriptRef.current].filter(Boolean).join(' ').trim();
-      const shouldFallback = !speechRecognitionEnabledRef.current || speechRecognitionFailedRef.current || !liveTranscript;
-      if (!shouldFallback) { setInput(liveTranscript); triggerHapticFeedback('success'); return; }
-
-      setIsProcessingVoice(true);
-      try {
-        const ext = usedMime.includes('mp4') ? 'mp4' : usedMime.includes('ogg') ? 'ogg' : 'webm';
-        const formData = new FormData();
-        formData.append('file', audioBlob, `voice.${ext}`);
-        const { data, error } = await supabase.functions.invoke('speech-to-text', { body: formData });
-        if (error) throw error;
-        const recognised = (data?.text || '').trim();
-        if (recognised) {
-          setInput(prev => { const t = prev.trim(); return t ? `${t} ${recognised}` : recognised; });
-          triggerHapticFeedback('success');
-          setTimeout(() => textareaRef.current?.focus(), 150);
-        } else {
-          toast.message(interfaceLanguage === 'ru' ? 'Ничего не услышал — попробуйте ещё раз' : 'No te he entendido, inténtalo de nuevo');
-        }
-      } catch {
-        toast.error(interfaceLanguage === 'ru' ? 'Не удалось распознать речь' : 'No se pudo reconocer la voz');
-      } finally { setIsProcessingVoice(false); }
-    };
-
-    mediaRecorder.start();
-    setIsRecording(true);
-    triggerHapticFeedback('light');
-  };
-
-  const stopRecording = () => {
-    if (mediaRecorderRef.current?.state === 'recording') {
-      mediaRecorderRef.current.stop();
-      triggerHapticFeedback('medium');
-    }
-  };
-
-  const toggleVoiceInput = () => { if (isRecording) stopRecording(); else startRecording(); };
+  const { isRecording, isProcessingVoice, toggleVoiceInput, stopRecording, clearDraft } = useVoiceRecording({
+    lang: interfaceLanguage,
+    onTranscript: setInput,
+    onLiveTranscript: setInput,
+    inputRef: textareaRef,
+  });
 
   const handleFileSelect = (source: 'gallery' | 'camera') => (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -690,7 +558,7 @@ ${imageUrl ? `\n⚠️ К вопросу есть иллюстрация — о�
     const userMessage = input.trim();
     const imageFile = pendingAttachment?.file;
     setInput('');
-    clearVoiceDraft();
+    clearDraft();
     askAI(userMessage, imageFile);
   };
 
@@ -752,14 +620,14 @@ ${imageUrl ? `\n⚠️ К вопросу есть иллюстрация — о�
         {/* Header */}
         <div className="p-3 xl:p-4 border-b flex items-center shrink-0 gap-3 bg-muted/30 dark:bg-slate-900/50 dark:border-white/5">
           <div className="flex items-center gap-2 xl:gap-3 min-w-0 flex-1">
-            <div className="relative w-8 h-8 xl:w-10 xl:h-10 flex items-center justify-center shrink-0 transition-transform duration-500 group-hover:scale-105">
+            <div className="relative shrink-0 w-10 h-10 flex items-center justify-center transition-transform duration-500 group-hover:scale-105 overflow-hidden rounded-full">
               {isSpeaking && (
                 <>
-                  <span className="absolute inset-0 rounded-full bg-purple-500/20 animate-ping" />
-                  <span className="absolute inset-[-4px] rounded-full border border-purple-400/40 animate-pulse" />
+                  <span className="absolute inset-0 rounded-full bg-purple-500/20 animate-ping pointer-events-none" />
+                  <span className="absolute inset-[-4px] rounded-full border border-purple-400/40 animate-pulse pointer-events-none" />
                 </>
               )}
-              <SkilyAICharacter size="sm" mood="happy" className="scale-75" />
+              <SkilyAICharacter size="sm" mood="happy" className="scale-[0.83]" />
             </div>
             <div className="min-w-0">
               <h3 className="font-bold text-sm xl:text-base text-foreground dark:text-slate-100 truncate">
@@ -768,12 +636,8 @@ ${imageUrl ? `\n⚠️ К вопросу есть иллюстрация — о�
             </div>
           </div>
           <div className="flex items-center gap-2">
-            {isPremium ? (
-              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400">
-                <Crown className="w-3 h-3 fill-current" />
-                <span className="text-[10px] font-black uppercase tracking-wider hidden sm:inline">PRO</span>
-              </div>
-            ) : aiUsage !== null ? (
+            {/* Счётчик — только free-пользователям. Premium — безлимит, ничего не показываем. */}
+            {!isPremium && aiUsage !== null ? (
               <div className={cn(
                 "flex items-center gap-1.5 px-2 py-1 rounded-full border transition-all shadow-sm",
                 aiRemaining <= 1
@@ -786,15 +650,6 @@ ${imageUrl ? `\n⚠️ К вопросу есть иллюстрация — о�
                 </span>
               </div>
             ) : null}
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-7 w-7 xl:h-8 xl:w-8 shrink-0 text-muted-foreground hover:text-foreground"
-              onClick={() => setIsExpanded(!isExpanded)}
-              title={isExpanded ? (interfaceLanguage === 'ru' ? t('lumiCollapse') : interfaceLanguage === 'en' ? 'Collapse' : 'Contraer') : (interfaceLanguage === 'ru' ? t('lumiExpand') : interfaceLanguage === 'en' ? 'Expand' : 'Expandir')}
-            >
-              {isExpanded ? <Minimize2 className="h-3.5 w-3.5 xl:h-4 xl:w-4" /> : <Maximize2 className="h-3.5 w-3.5 xl:h-4 xl:w-4" />}
-            </Button>
           </div>
         </div>
 
@@ -835,10 +690,13 @@ ${imageUrl ? `\n⚠️ К вопросу есть иллюстрация — о�
               {/* Quick Action Buttons */}
               <div className="grid grid-cols-2 gap-2 xl:gap-2.5">
                 <Button
-                  variant="outline"
-                  className="h-auto py-2 xl:py-2.5 px-2.5 xl:px-3 text-[10px] xl:text-xs font-medium text-blue-600 hover:text-blue-700 hover:bg-blue-50 border-blue-200 hover:border-blue-300 dark:text-blue-400 dark:hover:bg-blue-950/20 dark:border-blue-800 dark:hover:border-blue-700 rounded-lg whitespace-normal break-words"
+                  variant="ghost"
+                  className="h-auto py-2.5 xl:py-3 px-3 xl:px-3.5 text-[10px] xl:text-xs font-medium gap-2 justify-start
+                    bg-white/5 hover:bg-white/10
+                    border border-white/8 hover:border-white/14
+                    text-slate-300 hover:text-white
+                    rounded-xl whitespace-normal break-words transition-all duration-150 active:scale-[0.97]"
                   onClick={() => {
-                    // "Дай мне подсказку" - запрашиваем подсказку у AI (не правильный ответ)
                     const hintPrompt = interfaceLanguage === 'ru'
                       ? "Дай мне подсказку к этому вопросу, но не говори правильный ответ напрямую. Помоги мне подумать самостоятельно."
                       : interfaceLanguage === 'en'
@@ -848,27 +706,31 @@ ${imageUrl ? `\n⚠️ К вопросу есть иллюстрация — о�
                   }}
                   disabled={isLoading}
                 >
+                  <Lightbulb className="w-3 h-3 shrink-0 opacity-60" />
                   {interfaceLanguage === 'ru' ? t('lumiHintButton') :
                     interfaceLanguage === 'en' ? 'Give me a hint' :
                       'Dame una pista'}
                 </Button>
                 <Button
-                  variant="outline"
-                  className="h-auto py-2 xl:py-2.5 px-2.5 xl:px-3 text-[10px] xl:text-xs font-medium text-blue-600 hover:text-blue-700 hover:bg-blue-50 border-blue-200 hover:border-blue-300 dark:text-blue-400 dark:hover:bg-blue-950/20 dark:border-blue-800 dark:hover:border-blue-700 rounded-lg whitespace-normal break-words"
+                  variant="ghost"
+                  className="h-auto py-2.5 xl:py-3 px-3 xl:px-3.5 text-[10px] xl:text-xs font-medium gap-2 justify-start
+                    bg-white/5 hover:bg-white/10
+                    border border-white/8 hover:border-white/14
+                    text-slate-300 hover:text-white
+                    rounded-xl whitespace-normal break-words transition-all duration-150 active:scale-[0.97]"
                   onClick={() => {
-                    // "Помоги понять" - показываем explanation из БД, если есть
                     if (explanation) {
                       setMessages([{
                         role: "assistant",
                         content: explanation
                       }]);
                     } else {
-                      // Если explanation нет, запрашиваем у AI
                       askAI(interfaceLanguage === 'ru' ? "Помоги мне понять это" : interfaceLanguage === 'en' ? "Help me understand this" : "Ayúdame a entender esto");
                     }
                   }}
                   disabled={isLoading}
                 >
+                  <BookOpen className="w-3 h-3 shrink-0 opacity-60" />
                   {interfaceLanguage === 'ru' ? t('lumiHelpButton') :
                     interfaceLanguage === 'en' ? 'Help me understand this' :
                       'Ayúdame a entender esto'}
@@ -995,12 +857,12 @@ ${imageUrl ? `\n⚠️ К вопросу есть иллюстрация — о�
           <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={handleFileSelect('camera')} />
 
           <form onSubmit={handleSubmit}>
+            {/* Полный периметр — живой градиент (skily-glow-wrap) */}
+            <div className="skily-glow-wrap rounded-[22px] shadow-[0_8px_20px_rgba(2,6,23,0.18)]">
             <div className={cn(
-              "rounded-[22px] border transition-all duration-200",
-              "border-slate-200 dark:border-white/8",
-              "bg-white dark:bg-slate-800/80",
-              "shadow-sm dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.03),0_8px_20px_rgba(2,6,23,0.18)]",
-              "focus-within:border-blue-300/70 dark:focus-within:border-white/12"
+              "rounded-[21px] overflow-hidden",
+              "shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]",
+              "bg-white dark:bg-slate-800"
             )}>
               <div className="flex min-h-[52px] items-end gap-1 px-3 py-2">
                 {/* Paperclip — opens gallery/camera */}
@@ -1057,17 +919,17 @@ ${imageUrl ? `\n⚠️ К вопросу есть иллюстрация — о�
                 {/* Combined send / mic button */}
                 <Button
                   type={isRecording ? 'button' : hasComposerContent ? 'submit' : 'button'}
-                  onClick={isRecording || isProcessingVoice ? toggleVoiceInput : hasComposerContent ? undefined : toggleVoiceInput}
+                  onClick={isRecording || isProcessingVoice ? () => toggleVoiceInput() : hasComposerContent ? undefined : () => toggleVoiceInput(input)}
                   disabled={isLoading || isProcessingVoice}
                   variant="ghost"
                   size="icon"
                   className={cn(
-                    "shrink-0 h-9 w-9 rounded-full border transition-all duration-200 active:scale-[0.97]",
+                    "relative shrink-0 h-9 w-9 rounded-full transition-all duration-200 active:scale-[0.97] overflow-hidden border-0",
                     isRecording
-                      ? "border-slate-900/10 dark:border-white/10 bg-slate-900 dark:bg-white/[0.06] text-white shadow-sm"
+                      ? "bg-red-500/20 text-red-400 shadow-[0_0_14px_rgba(239,68,68,0.25)]"
                       : hasComposerContent
-                        ? "border-slate-900/10 dark:border-white/10 bg-slate-900 dark:bg-white/[0.05] text-white shadow-sm hover:bg-slate-700 dark:hover:bg-white/[0.08]"
-                        : "border-slate-200 dark:border-white/8 bg-slate-900 dark:bg-white/[0.03] text-white dark:text-white/85 hover:bg-slate-700 dark:hover:bg-white/[0.06]"
+                        ? "bg-gradient-to-br from-indigo-500 to-violet-600 text-white shadow-[0_4px_14px_rgba(99,102,241,0.45)] hover:shadow-[0_4px_18px_rgba(99,102,241,0.6)]"
+                        : "bg-gradient-to-br from-indigo-600/70 to-violet-700/60 text-white shadow-[0_4px_12px_rgba(99,102,241,0.3)] hover:from-indigo-500/80 hover:to-violet-600/70"
                   )}
                   title={isRecording
                     ? (interfaceLanguage === 'ru' ? 'Остановить запись' : 'Detener grabación')
@@ -1097,7 +959,8 @@ ${imageUrl ? `\n⚠️ К вопросу есть иллюстрация — о�
                   </AnimatePresence>
                 </Button>
               </div>
-            </div>
+            </div>{/* /bg-slate-800 inner */}
+            </div>{/* /skily-glow-wrap outer */}
           </form>
         </div>
       </Card>

@@ -10,7 +10,7 @@
  */
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Bot, Loader2, Sparkles, Send, ThumbsUp, ThumbsDown, Languages, X, Mic, MicOff, Zap, Crown, Volume2, VolumeX, ImagePlus, XCircle, Trash2, Paperclip, Camera, FileText } from 'lucide-react';
+import { Bot, Loader2, Sparkles, Send, ThumbsUp, ThumbsDown, Languages, X, Mic, MicOff, Zap, Volume2, VolumeX, ImagePlus, XCircle, Trash2, Paperclip, Camera, FileText, Lightbulb, BookOpen } from 'lucide-react';
 import { SkilyAICharacter } from '@/components/skily-ai/SkilyAICharacter';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -40,7 +40,7 @@ import { AIMessageContent } from '@/components/ai/AIMessageContent';
 import { useTTS } from '@/hooks/useTTS';
 import { useTypewriter } from '@/hooks/useTypewriter';
 import { cleanForSpeech } from '@/lib/speechUtils';
-import { useMicrophonePermission } from '@/hooks/useMicrophonePermission';
+import { useVoiceRecording } from '@/hooks/useVoiceRecording';
 import type { TTSLang } from '@/lib/ttsEngine';
 import {
     DropdownMenu,
@@ -217,209 +217,12 @@ export function AIChatWidget() {
     // Стабильная высота viewport + offset клавиатуры (решает iOS + Telegram + keyboard)
     const { layoutHeight, keyboardOffset } = useStableViewportHeight(isOpen);
 
-    // Voice Input State (Whisper API)
-    const [isRecording, setIsRecording] = useState(false);
-    const [isProcessingVoice, setIsProcessingVoice] = useState(false);
-    const { refreshPermission: refreshMicrophonePermission, isDenied: isMicrophoneDenied, isUnsupported: isMicrophoneUnsupported } = useMicrophonePermission();
-    const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-    const audioChunksRef = useRef<Blob[]>([]);
-    const recognitionRef = useRef<any>(null);
-    const voiceBaselineInputRef = useRef('');
-    const voiceFinalTranscriptRef = useRef('');
-    const speechRecognitionEnabledRef = useRef(false);
-    const speechRecognitionFailedRef = useRef(false);
-    const clearVoiceDraft = useCallback(() => {
-        voiceBaselineInputRef.current = '';
-        voiceFinalTranscriptRef.current = '';
-        speechRecognitionEnabledRef.current = false;
-        speechRecognitionFailedRef.current = false;
-    }, []);
-
-    // Подберём лучший mime, который поддерживает текущий браузер (Safari ≠ Chrome)
-    const pickRecorderMime = (): string => {
-        const candidates = [
-            'audio/webm;codecs=opus',
-            'audio/webm',
-            'audio/ogg;codecs=opus',
-            'audio/mp4',
-            'audio/mp4;codecs=mp4a.40.2',
-        ];
-        const MR: any = (typeof window !== 'undefined' && (window as any).MediaRecorder) || null;
-        if (MR && typeof MR.isTypeSupported === 'function') {
-            for (const m of candidates) if (MR.isTypeSupported(m)) return m;
-        }
-        return '';
-    };
-
-    const startRecording = async () => {
-        const permission = await refreshMicrophonePermission();
-
-        if (permission === 'unsupported' || typeof window === 'undefined' || !navigator.mediaDevices?.getUserMedia) {
-            toast.error('Браузер не поддерживает запись голоса');
-            return;
-        }
-
-        if (permission === 'denied') {
-            toast.error(interfaceLanguage === 'ru'
-                ? 'Доступ к микрофону отключён в Safari. Разреши его в настройках сайта.'
-                : interfaceLanguage === 'en'
-                    ? 'Microphone access is blocked in Safari. Allow it in site settings.'
-                    : 'El acceso al micrófono está bloqueado en Safari. Permítelo en los ajustes del sitio.');
-            return;
-        }
-
-        let stream: MediaStream;
-        try {
-            stream = await navigator.mediaDevices.getUserMedia({
-                audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true },
-            });
-        } catch (err: any) {
-            const msg = err?.name === 'NotAllowedError'
-                ? 'Доступ к микрофону запрещён. Разрешите в настройках браузера.'
-                : 'Нет доступа к микрофону';
-            toast.error(msg);
-            return;
-        }
-
-        const mimeType = pickRecorderMime();
-        const mediaRecorder = mimeType ? new MediaRecorder(stream, { mimeType }) : new MediaRecorder(stream);
-        mediaRecorderRef.current = mediaRecorder;
-        audioChunksRef.current = [];
-        voiceBaselineInputRef.current = input.trim();
-        voiceFinalTranscriptRef.current = '';
-        speechRecognitionFailedRef.current = false;
-        speechRecognitionEnabledRef.current = false;
-
-        const SpeechRecognitionCtor = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-        if (SpeechRecognitionCtor) {
-            try {
-                const recognition = new SpeechRecognitionCtor();
-                recognition.lang = interfaceLanguage === 'ru' ? 'ru-RU' : interfaceLanguage === 'en' ? 'en-US' : 'es-ES';
-                recognition.continuous = true;
-                recognition.interimResults = true;
-                recognition.maxAlternatives = 1;
-
-                recognition.onresult = (event: any) => {
-                    let interimTranscript = '';
-                    let finalDelta = '';
-
-                    for (let i = event.resultIndex; i < event.results.length; ++i) {
-                        const transcript = (event.results[i][0]?.transcript || '').trim();
-                        if (!transcript) continue;
-                        if (event.results[i].isFinal) {
-                            finalDelta = finalDelta ? `${finalDelta} ${transcript}` : transcript;
-                        } else {
-                            interimTranscript = interimTranscript ? `${interimTranscript} ${transcript}` : transcript;
-                        }
-                    }
-
-                    if (finalDelta) {
-                        voiceFinalTranscriptRef.current = voiceFinalTranscriptRef.current
-                            ? `${voiceFinalTranscriptRef.current} ${finalDelta}`
-                            : finalDelta;
-                    }
-
-                    const liveTranscript = [voiceFinalTranscriptRef.current, interimTranscript].filter(Boolean).join(' ').trim();
-                    const combined = [voiceBaselineInputRef.current, liveTranscript].filter(Boolean).join(' ').trim();
-                    setInput(combined);
-                };
-
-                recognition.onerror = (event: any) => {
-                    console.error('[SpeechRecognition] error', event?.error);
-                    speechRecognitionFailedRef.current = true;
-                };
-
-                recognition.onend = () => {
-                    recognitionRef.current = null;
-                };
-
-                recognitionRef.current = recognition;
-                speechRecognitionEnabledRef.current = true;
-                recognition.start();
-            } catch (err) {
-                console.warn('[SpeechRecognition] failed to start', err);
-                speechRecognitionEnabledRef.current = false;
-            }
-        }
-
-        mediaRecorder.ondataavailable = (event) => {
-            if (event.data.size > 0) audioChunksRef.current.push(event.data);
-        };
-
-        mediaRecorder.onstop = async () => {
-            const usedMime = mediaRecorder.mimeType || mimeType || 'audio/webm';
-            const audioBlob = new Blob(audioChunksRef.current, { type: usedMime });
-            stream.getTracks().forEach(track => track.stop());
-            recognitionRef.current?.stop?.();
-            recognitionRef.current = null;
-
-            setIsRecording(false);
-
-            // Слишком короткая запись — не дёргаем сеть
-            if (audioBlob.size < 2048) {
-                toast.message(interfaceLanguage === 'ru' ? 'Запись слишком короткая' : 'Grabación demasiado corta');
-                return;
-            }
-
-            const liveTranscript = [voiceBaselineInputRef.current, voiceFinalTranscriptRef.current].filter(Boolean).join(' ').trim();
-            const shouldFallbackToWhisper = !speechRecognitionEnabledRef.current || speechRecognitionFailedRef.current || !liveTranscript;
-
-            if (!shouldFallbackToWhisper) {
-                setInput(liveTranscript);
-                triggerHapticFeedback('success');
-                return;
-            }
-
-            setIsProcessingVoice(true);
-            try {
-                const ext = usedMime.includes('mp4') ? 'mp4' : usedMime.includes('ogg') ? 'ogg' : 'webm';
-                const formData = new FormData();
-                formData.append('file', audioBlob, `voice.${ext}`);
-                // Не передаём language — Whisper auto-detect работает лучше
-                // на смешанной речи (рус + es), чем фиксированный bias на UI-язык
-
-                const { data, error } = await supabase.functions.invoke('speech-to-text', {
-                    body: formData,
-                });
-
-                if (error) throw error;
-
-                const recognised = (data?.text || '').trim();
-                if (recognised) {
-                    setInput(prev => {
-                        const trimmed = prev.trim();
-                        return trimmed ? `${trimmed} ${recognised}` : recognised;
-                    });
-                    triggerHapticFeedback('success');
-                    setTimeout(() => inputRef.current?.focus(), 150);
-                } else {
-                    toast.message(interfaceLanguage === 'ru' ? 'Ничего не услышал — попробуйте ещё раз' : 'No te he entendido, inténtalo de nuevo');
-                }
-            } catch (err: any) {
-                console.error('[STT] error', err);
-                toast.error(interfaceLanguage === 'ru' ? 'Не удалось распознать речь' : 'No se pudo reconocer la voz');
-                triggerHapticFeedback('error');
-            } finally {
-                setIsProcessingVoice(false);
-            }
-        };
-
-        mediaRecorder.start();
-        setIsRecording(true);
-        triggerHapticFeedback('light');
-    };
-
-    const stopRecording = () => {
-        if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
-            mediaRecorderRef.current.stop();
-            triggerHapticFeedback('medium');
-        }
-    };
-
-    const toggleVoiceInput = () => {
-        if (isRecording) stopRecording();
-        else startRecording();
-    };
+    const { isRecording, isProcessingVoice, toggleVoiceInput, stopRecording, clearDraft, isDenied: isMicrophoneDenied, isUnsupported: isMicrophoneUnsupported } = useVoiceRecording({
+        lang: interfaceLanguage,
+        onTranscript: setInput,
+        onLiveTranscript: setInput,
+        inputRef,
+    });
 
     // Фокус на input при открытии (с задержкой для анимации)
     useEffect(() => {
@@ -644,7 +447,7 @@ export function AIChatWidget() {
         const userMessage = input.trim();
         const imageFile = pendingAttachment?.file;
         setInput('');
-        clearVoiceDraft();
+        clearDraft();
         askAI(userMessage, imageFile);
     };
 
@@ -682,7 +485,7 @@ export function AIChatWidget() {
     const attachmentHint = interfaceLanguage === 'ru'
         ? 'Документы отправляются как вложения с названием файла.'
         : 'Los documentos se envían como adjuntos con el nombre del archivo.';
-    const composerPlaceholder = interfaceLanguage === 'ru' ? 'Спросите что угодно' : 'Escribe tu pregunta';
+    const composerPlaceholder = interfaceLanguage === 'ru' ? 'Спроси что-нибудь...' : interfaceLanguage === 'en' ? 'Ask me anything...' : 'Pregúntame algo...';
     const microphoneHint = isMicrophoneDenied
         ? (interfaceLanguage === 'ru'
             ? 'Микрофон выключен в Safari. Открой настройки сайта и включи доступ.'
@@ -759,14 +562,8 @@ export function AIChatWidget() {
                         <Trash2 className="w-4 h-4" />
                     </Button>
 
-                    {/* Для premium — Crown, для free — счётчик (только после загрузки данных).
-                    premiumLoading: скрываем всё пока не знаем статус, чтобы не мелькать.
-                    isPremium проверяем явно в обоих ветках, иначе stale cache даст 999/5 */}
-                {!premiumLoading && isPremium ? (
-                        <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-amber-500/10 border border-amber-500/15 text-amber-500 dark:text-amber-400">
-                            <Crown className="w-3 h-3 fill-current" />
-                        </div>
-                    ) : !premiumLoading && !isPremium && usageLoaded ? (
+                    {/* Счётчик запросов — только для free-пользователей после загрузки. Premium — безлимит, не показываем ничего. */}
+                {!premiumLoading && !isPremium && usageLoaded ? (
                         <div className={cn(
                             "flex items-center gap-1 px-2 py-1 rounded-full border transition-all shadow-sm",
                             aiRemaining <= 1
@@ -836,19 +633,31 @@ export function AIChatWidget() {
                                 ? 'Нужна подсказка или объяснение? Просто нажми кнопку или задай свой вопрос!'
                                 : '¿Necesitas una pista o una explicación rápida? Simplemente presiona el botón o haz tu pregunta, ¡y te ayudaré al momento!'}
                         </p>
-                        <div className="flex flex-col w-full max-w-sm gap-3 px-2">
+                        <div className="flex flex-col w-full max-w-sm gap-2.5 px-2">
                             <Button
-                                variant="outline"
-                                className="w-full h-auto py-3 text-primary border-primary/20 hover:bg-primary/5 text-sm font-medium whitespace-normal"
+                                variant="ghost"
+                                className="w-full h-auto py-3 text-sm font-semibold gap-2 justify-start
+                                    bg-indigo-500/12 hover:bg-indigo-500/20 border border-indigo-400/25 hover:border-indigo-400/45
+                                    text-indigo-100 hover:text-white
+                                    dark:bg-indigo-400/10 dark:hover:bg-indigo-400/18 dark:border-indigo-500/22
+                                    dark:text-indigo-200 dark:hover:text-white
+                                    rounded-xl whitespace-normal transition-all duration-150 active:scale-[0.98]"
                                 onClick={() => askAI(interfaceLanguage === 'ru' ? 'Дай подсказку' : 'Dame una pista')}
                             >
+                                <Lightbulb className="w-4 h-4 shrink-0 text-yellow-300" />
                                 {interfaceLanguage === 'ru' ? 'Дай подсказку' : 'Dame una pista'}
                             </Button>
                             <Button
-                                variant="outline"
-                                className="w-full h-auto py-3 text-primary border-primary/20 hover:bg-primary/5 text-sm font-medium whitespace-normal"
+                                variant="ghost"
+                                className="w-full h-auto py-3 text-sm font-semibold gap-2 justify-start
+                                    bg-sky-500/12 hover:bg-sky-500/20 border border-sky-400/25 hover:border-sky-400/45
+                                    text-sky-100 hover:text-white
+                                    dark:bg-sky-400/10 dark:hover:bg-sky-400/18 dark:border-sky-500/22
+                                    dark:text-sky-200 dark:hover:text-white
+                                    rounded-xl whitespace-normal transition-all duration-150 active:scale-[0.98]"
                                 onClick={() => askAI(interfaceLanguage === 'ru' ? 'Объясни это' : 'Ayúdame a entender esto')}
                             >
+                                <BookOpen className="w-4 h-4 shrink-0 text-sky-300" />
                                 {interfaceLanguage === 'ru' ? 'Объясни это' : 'Ayúdame a entender esto'}
                             </Button>
                         </div>
@@ -930,47 +739,61 @@ export function AIChatWidget() {
                                 )}
 
                                 {message.role === 'assistant' && message.content && (
-                                    <div className="flex items-center gap-1 mt-2 pt-2 border-t border-black/5 dark:border-white/5">
+                                    <div className="flex items-center gap-0.5 mt-2">
+                                        {/* Озвучить */}
                                         <Button
                                             variant="ghost"
                                             size="icon"
                                             className={cn(
-                                                "h-6 w-6 hover:bg-black/5 dark:hover:bg-white/10",
-                                                isSpeakingMessage(message.id) && "text-indigo-500",
+                                                "h-6 w-6 rounded-lg transition-all duration-150",
+                                                isSpeakingMessage(message.id)
+                                                    ? "bg-indigo-500/15 text-indigo-500 hover:bg-indigo-500/20"
+                                                    : "text-slate-400 dark:text-slate-500 hover:bg-black/6 dark:hover:bg-white/10 hover:text-slate-700 dark:hover:text-slate-300",
                                             )}
                                             onClick={() => handleSpeakMessage(message.id, message.content)}
                                             aria-label={isSpeakingMessage(message.id)
                                                 ? (interfaceLanguage === 'ru' ? 'Остановить' : 'Detener')
-                                                : (interfaceLanguage === 'ru' ? 'Озвучить ответ' : 'Escuchar respuesta')}
-                                            title={isSpeakingMessage(message.id)
-                                                ? (interfaceLanguage === 'ru' ? 'Остановить' : 'Detener')
-                                                : (interfaceLanguage === 'ru' ? 'Озвучить ответ' : 'Escuchar respuesta')}
+                                                : (interfaceLanguage === 'ru' ? 'Озвучить' : 'Escuchar')}
                                         >
                                             {isSpeakingMessage(message.id)
-                                                ? <VolumeX className="w-3.5 h-3.5" />
-                                                : <Volume2 className="w-3.5 h-3.5" />}
+                                                ? <VolumeX className="w-3 h-3" />
+                                                : <Volume2 className="w-3 h-3" />}
                                         </Button>
+                                        {/* Лайк */}
                                         <Button
                                             variant="ghost"
                                             size="icon"
-                                            className={cn("h-6 w-6 hover:bg-black/5 dark:hover:bg-white/10", message.rating === 1 && "text-green-500")}
+                                            className={cn(
+                                                "h-6 w-6 rounded-lg transition-all duration-150",
+                                                message.rating === 1
+                                                    ? "bg-emerald-500/15 text-emerald-500 hover:bg-emerald-500/20"
+                                                    : "text-slate-400 dark:text-slate-500 hover:bg-black/6 dark:hover:bg-white/10 hover:text-slate-700 dark:hover:text-slate-300",
+                                            )}
                                             onClick={() => {
                                                 setMessageRating(message.id, 1);
                                                 if (message.dbId) updateRating(message.dbId, 1);
                                             }}
+                                            aria-label={interfaceLanguage === 'ru' ? 'Полезно' : 'Útil'}
                                         >
-                                            <ThumbsUp className="w-3.5 h-3.5" />
+                                            <ThumbsUp className={cn("w-3 h-3 transition-all", message.rating === 1 && "fill-current")} />
                                         </Button>
+                                        {/* Дизлайк */}
                                         <Button
                                             variant="ghost"
                                             size="icon"
-                                            className={cn("h-6 w-6 hover:bg-black/5 dark:hover:bg-white/10", message.rating === -1 && "text-red-500")}
+                                            className={cn(
+                                                "h-6 w-6 rounded-lg transition-all duration-150",
+                                                message.rating === -1
+                                                    ? "bg-red-500/15 text-red-500 hover:bg-red-500/20"
+                                                    : "text-slate-400 dark:text-slate-500 hover:bg-black/6 dark:hover:bg-white/10 hover:text-slate-700 dark:hover:text-slate-300",
+                                            )}
                                             onClick={() => {
                                                 setMessageRating(message.id, -1);
                                                 if (message.dbId) updateRating(message.dbId, -1);
                                             }}
+                                            aria-label={interfaceLanguage === 'ru' ? 'Не помогло' : 'No útil'}
                                         >
-                                            <ThumbsDown className="w-3.5 h-3.5" />
+                                            <ThumbsDown className={cn("w-3 h-3 transition-all", message.rating === -1 && "fill-current")} />
                                         </Button>
                                     </div>
                                 )}
@@ -1092,7 +915,13 @@ export function AIChatWidget() {
                 />
 
                 <form onSubmit={handleSubmit} className="max-w-2xl mx-auto w-full">
-                    <div className="rounded-[30px] border border-white/8 bg-[#121a2a]/92 shadow-[inset_0_1px_0_rgba(255,255,255,0.03),0_12px_30px_rgba(2,6,23,0.22)] transition-all duration-200 focus-within:border-white/12 focus-within:ring-1 focus-within:ring-white/6">
+                    {/* Внешний div — 1px градиентный кант (анимируется при фокусе).
+                        Внутренний div — НЕПРОЗРАЧНЫЙ фон, перекрывает всё кроме 1px. */}
+                    <div className="skily-glow-wrap rounded-[30px] shadow-[0_12px_30px_rgba(2,6,23,0.22)]">
+                    <div className={cn(
+                        "rounded-[29px] overflow-hidden shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]",
+                        isDarkTheme ? "bg-[#121a2a]" : "bg-[#f0f4fa]"
+                    )}>
                         <div className="flex min-h-[76px] items-center gap-2 px-3 py-3">
                             <DropdownMenu open={!isMobile && isAttachmentMenuOpen} onOpenChange={setIsAttachmentMenuOpen}>
                                 <DropdownMenuTrigger asChild>
@@ -1254,12 +1083,12 @@ export function AIChatWidget() {
                             />
                             <Button
                                 type={isRecording ? 'button' : hasComposerContent ? 'submit' : 'button'}
-                                onClick={isRecording || isProcessingVoice ? toggleVoiceInput : hasComposerContent ? undefined : toggleVoiceInput}
+                                onClick={isRecording || isProcessingVoice ? () => toggleVoiceInput() : hasComposerContent ? undefined : () => toggleVoiceInput(input)}
                                 disabled={isLoading || isProcessingVoice}
                                 variant="ghost"
                                 size="icon"
                                 className={cn(
-                                    "shrink-0 h-12 w-12 rounded-full border transition-all duration-200 active:scale-[0.97] overflow-hidden backdrop-blur-md",
+                                    "relative shrink-0 h-12 w-12 rounded-full border transition-all duration-200 active:scale-[0.97] overflow-hidden backdrop-blur-md",
                                     isRecording
                                         ? isDarkTheme
                                             ? "border-white/10 bg-white/[0.06] text-white/90 shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_10px_22px_rgba(2,6,23,0.22)]"
@@ -1355,7 +1184,8 @@ export function AIChatWidget() {
                                 </p>
                             </div>
                         )}
-                    </div>
+                    </div>{/* /bg-[#121a2a] inner */}
+                    </div>{/* /skily-glow-wrap outer */}
                 </form>
             </div>
         </div>

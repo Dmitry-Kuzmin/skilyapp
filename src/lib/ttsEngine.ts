@@ -88,6 +88,8 @@ const playFallback = (text: string, language: TTSLang) => {
 };
 
 let apiFailed = false;
+let apiFailedAt = 0;
+const API_RETRY_AFTER_MS = 30_000;
 
 const fetchAudioBuffer = async (
     text: string,
@@ -140,8 +142,12 @@ export const speakTTS = async (rawText: string, language: TTSLang): Promise<void
     stopTTS();
 
     if (apiFailed) {
-        playFallback(text, language);
-        return;
+        if (Date.now() - apiFailedAt > API_RETRY_AFTER_MS) {
+            apiFailed = false;
+        } else {
+            playFallback(text, language);
+            return;
+        }
     }
 
     await unlockAudioContext();
@@ -193,6 +199,7 @@ export const speakTTS = async (rawText: string, language: TTSLang): Promise<void
         if (err?.name === 'AbortError') return;
         console.warn('[TTS] network failed, using fallback:', err?.message);
         apiFailed = true;
+        apiFailedAt = Date.now();
         stopTTS();
         playFallback(text, language);
     } finally {

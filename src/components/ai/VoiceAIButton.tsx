@@ -5,7 +5,6 @@ import { SkilyAICharacter } from '@/components/skily-ai/SkilyAICharacter';
 import { supabase } from '@/integrations/supabase/client';
 import { useAIRequest } from '@/hooks/useAIRequest';
 import { useTypewriter } from '@/hooks/useTypewriter';
-import { useAIChat } from '@/hooks/useAIChat';
 import { useAIChatStore } from '@/stores/useAIChatStore';
 import { useTTS } from '@/hooks/useTTS';
 import { cleanForSpeech } from '@/lib/speechUtils';
@@ -14,7 +13,8 @@ import { triggerHapticFeedback } from '@/lib/telegram';
 import { cn } from '@/lib/utils';
 import { useMicrophonePermission } from '@/hooks/useMicrophonePermission';
 import { Sparkles, X, ExternalLink, Mic, Volume2, VolumeX } from 'lucide-react';
-import ReactMarkdown from 'react-markdown';
+import { AIMessageContent } from '@/components/ai/AIMessageContent';
+import { useModalStore } from '@/store/modalStore';
 import { toast } from 'sonner';
 
 type VoiceState = 'idle' | 'recording' | 'processing' | 'responding' | 'response';
@@ -71,6 +71,8 @@ export const VoiceAIButton: React.FC<VoiceAIButtonProps> = ({
     const [isMuted, setIsMuted] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
 
+    const openModal = useModalStore((s) => s.openModal);
+
     const buttonRef = useRef<HTMLButtonElement>(null);
     const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
     const recordingInterval = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -79,8 +81,10 @@ export const VoiceAIButton: React.FC<VoiceAIButtonProps> = ({
     const streamRef = useRef<MediaStream | null>(null);
     const didLongPressRef = useRef(false);
     const responseTextRef = useRef('');
+    // Separate ref that accumulates RAW network chunks (not throttled typewriter output)
+    // so addMessage always saves the complete response, even if typewriter hasn't finished yet
+    const fullResponseRef = useRef('');
 
-    const { openWithQuestion } = useAIChat();
     const { sendRequest } = useAIRequest();
     const typewriter = useTypewriter({ charsPerSecond: 80 });
     const { refreshPermission: refreshMicrophonePermission, isDenied: isMicrophoneDenied, isUnsupported: isMicrophoneUnsupported } = useMicrophonePermission();
@@ -184,6 +188,7 @@ export const VoiceAIButton: React.FC<VoiceAIButtonProps> = ({
         setVoiceState('responding');
         setResponseText('');
         responseTextRef.current = '';
+        fullResponseRef.current = '';
         triggerHapticFeedback('success');
 
         typewriter.start((slice) => {
@@ -202,19 +207,22 @@ export const VoiceAIButton: React.FC<VoiceAIButtonProps> = ({
                 imageUrl: context.imageUrl || null,
             },
             {
-                onChunk: (text) => typewriter.push(text),
-                onDone: () => { 
-                    typewriter.finish(); 
+                // Accumulate raw chunks — independent of typewriter throttle
+                onChunk: (text) => { fullResponseRef.current += text; typewriter.push(text); },
+                onDone: () => {
+                    typewriter.finish();
                     setVoiceState('response');
 
-                    // Добавляем в глобальную историю чата
+                    // Sync to global chat store so AIChatWidget shows this conversation
                     const store = useAIChatStore.getState();
-                    store.setQuestionContext(context); // Синхронизируем контекст вопроса
+                    store.setQuestionContext(context);
                     store.addMessage({ role: 'user', content: transcript });
-                    store.addMessage({ role: 'assistant', content: responseTextRef.current });
+                    // Use fullResponseRef (complete network text) not responseTextRef (typewriter partial)
+                    store.addMessage({ role: 'assistant', content: fullResponseRef.current || responseTextRef.current });
 
                     if (!isMuted) {
-                        const cleaned = cleanForSpeech(responseTextRef.current);
+                        // fullResponseRef has complete network text; responseTextRef may be typewriter-partial
+                        const cleaned = cleanForSpeech(fullResponseRef.current || responseTextRef.current);
                         if (cleaned) speak(cleaned, ttsLang);
                     }
                 },
@@ -312,21 +320,12 @@ export const VoiceAIButton: React.FC<VoiceAIButtonProps> = ({
 
     const openFullChat = useCallback(() => {
         dismissResponse();
-        openWithQuestion({
-            question: context.question,
-            correctAnswer: context.correctAnswer,
-            userAnswer: context.userAnswer,
-            isCorrect: context.isCorrect,
-            explanation: context.explanation,
-            explanationRu: context.explanationRu,
-            explanationEs: context.explanationEs,
-            explanationEn: context.explanationEn,
-            topic: context.topic,
-            imageUrl: context.imageUrl,
-            testLanguage: lang,
-            country: context.country,
-        });
-    }, [dismissResponse, openWithQuestion, context, lang]);
+        // Open the chat as-is — voice messages were already added to the store in onDone.
+        // Don't call openWithQuestion: that would append a divider + explanation after the
+        // voice messages and auto-scroll to the explanation, making the voice conversation
+        // look "not there". Instead just open the drawer at its current state.
+        useAIChatStore.getState().openChat();
+    }, [dismissResponse]);
 
     const isRecording = voiceState === 'recording';
     const isProcessing = voiceState === 'processing';
@@ -389,11 +388,15 @@ export const VoiceAIButton: React.FC<VoiceAIButtonProps> = ({
                             </div>
                         </div>
 
-                        <div className="text-xs text-zinc-200 leading-relaxed relative z-10 min-h-[2rem]">
+                        <div className="relative z-10 min-h-[2rem]">
                             {responseText ? (
-                                <ReactMarkdown>{responseText}</ReactMarkdown>
+                                <AIMessageContent
+                                    content={responseText}
+                                    className="text-xs text-zinc-200"
+                                    onOpenPremium={() => openModal('PAYWALL', { trigger: 'ai_cta' })}
+                                />
                             ) : (
-                                <span className="text-zinc-500 italic">
+                                <span className="text-xs text-zinc-500 italic">
                                     {lang === 'ru' ? 'Skily думает…' : 'Skily está pensando…'}
                                 </span>
                             )}
@@ -444,8 +447,7 @@ export const VoiceAIButton: React.FC<VoiceAIButtonProps> = ({
                     'transition-colors duration-300',
                     isRecording
                         ? 'bg-red-500/15 border border-red-500/50 shadow-[0_0_20px_rgba(239,68,68,0.2)]'
-                        : 'bg-zinc-900/40 dark:bg-black/40 backdrop-blur-md border border-white/10 dark:border-white/5 shadow-lg',
-                    showHintPulse && !isRecording && !isProcessing && 'ring-2 ring-indigo-500/40 shadow-[0_0_15px_rgba(99,102,241,0.2)]',
+                        : 'bg-zinc-900/50 dark:bg-black/50 backdrop-blur-md shadow-lg',
                     isProcessing && 'pointer-events-none opacity-75'
                 )}
                 style={{ WebkitTapHighlightColor: 'transparent' }}
@@ -540,8 +542,11 @@ export const VoiceAIButton: React.FC<VoiceAIButtonProps> = ({
                             transition={{ duration: 0.15 }}
                             className="flex items-center justify-center"
                         >
-                            <div className="absolute inset-0 bg-gradient-to-tr from-indigo-500/10 via-purple-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-xl" />
-                            <SkilyAICharacter size="sm" mood="happy" className="scale-90 relative z-10" />
+                            <SkilyAICharacter
+                                size="sm"
+                                mood={showHintPulse ? 'celebrating' : 'happy'}
+                                className="scale-90 relative z-10"
+                            />
                         </motion.div>
                     )}
                 </AnimatePresence>
