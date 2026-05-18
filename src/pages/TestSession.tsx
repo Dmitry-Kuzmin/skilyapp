@@ -1,7 +1,7 @@
 import { useRef, useMemo, memo, useState, useEffect, useCallback, lazy, Suspense } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useParams, useNavigate, useSearchParams, useLocation } from "react-router-dom";
-import { motion } from "@/components/optimized/Motion";
+import { motion, AnimatePresence } from "@/components/optimized/Motion";
 import {
   Clock, CheckCircle2, XCircle, Languages, Lightbulb, ChevronLeft,
   ChevronRight, Grid3x3, X, AlertTriangle, Bot, MessageCircle,
@@ -735,7 +735,11 @@ const TestSession = () => {
     img.src = url;
   }, [dataLoader.isLoading, questions.length, firstImageUrl]);
 
-  const loading = dataLoader.isLoading || (!firstImageLoaded && questions.length > 0 && !!firstImageUrl);
+  // Loading НЕ ждёт изображение — показываем UI сразу, картинка догрузится в фоне
+  // с placeholder (blur/skeleton в самом QuestionCard).
+  // firstImageLoaded остаётся для тонкой настройки UI компонентов которые
+  // могут отрабатывать момент когда картинка готова.
+  const loading = dataLoader.isLoading;
 
   // === MODE EFFECTS (Moved here to have 'questions' available) ===
   const {
@@ -1513,48 +1517,64 @@ const TestSession = () => {
             />
           </motion.div>
         ) : mode === 'blitz' ? (
-          <div className="max-w-5xl mx-auto w-full">
-            <BlitzQuestionCard
-              blitzShaking={blitzShaking}
-              currentQuestion={currentQuestion}
-              displayQuestion={displayQuestion}
-              fontSize={fontSize}
-              sortedOptions={sortedOptions || []}
-              selectedOption={selectedOption}
-              selectOption={selectOption}
-              handleAnswer={handleAnswer}
-              nextQuestion={nextQuestion}
-              testLanguage={effectiveLanguage}
-            />
-          </div>
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.div
+              key={currentQuestion?.id ?? currentIndex}
+              initial={{ opacity: 0, x: 24 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -24 }}
+              transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+              className="max-w-5xl mx-auto w-full"
+            >
+              <BlitzQuestionCard
+                blitzShaking={blitzShaking}
+                currentQuestion={currentQuestion}
+                displayQuestion={displayQuestion}
+                fontSize={fontSize}
+                sortedOptions={sortedOptions || []}
+                selectedOption={selectedOption}
+                selectOption={selectOption}
+                handleAnswer={handleAnswer}
+                nextQuestion={nextQuestion}
+                testLanguage={effectiveLanguage}
+              />
+            </motion.div>
+          </AnimatePresence>
         ) : (
-          <div className={cn(
-            "max-w-[1300px] w-full mx-auto",
-          )}>
-            <QuestionCard
-              currentQuestion={currentQuestion as any}
-              displayQuestion={displayQuestion}
-              isRussia={isRussia}
-              feedbackStatus={feedbackStatus}
-              fontSize={fontSize as any}
-              isTransitioning={isTransitioning}
-              sortedOptions={sortedOptions || []}
-              selectedOption={selectedOption}
-              isPracticeLikeMode={isPracticeLikeMode}
-              mode={mode}
-              testLanguage={effectiveLanguage}
-              showTranslation={showTranslation}
-              toggleTranslation={toggleTranslation}
-              answerPopularity={answerPopularity || false}
-              selectOption={selectOption}
-              handleAnswer={handleAnswer}
-              handleOpenAIChat={handleOpenAIChat}
-              nextQuestion={nextQuestion}
-              isEnterPressed={isEnterPressed}
-              isAnswerLocked={!!isAnswerLocked}
-              onReportProblem={() => setShowReportModal(true)}
-            />
-          </div>
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.div
+              key={currentQuestion?.id ?? currentIndex}
+              initial={{ opacity: 0, x: 24 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -24 }}
+              transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+              className={cn("max-w-[1300px] w-full mx-auto")}
+            >
+              <QuestionCard
+                currentQuestion={currentQuestion as any}
+                displayQuestion={displayQuestion}
+                isRussia={isRussia}
+                feedbackStatus={feedbackStatus}
+                fontSize={fontSize as any}
+                isTransitioning={isTransitioning}
+                sortedOptions={sortedOptions || []}
+                selectedOption={selectedOption}
+                isPracticeLikeMode={isPracticeLikeMode}
+                mode={mode}
+                testLanguage={effectiveLanguage}
+                showTranslation={showTranslation}
+                toggleTranslation={toggleTranslation}
+                answerPopularity={answerPopularity || false}
+                selectOption={selectOption}
+                handleAnswer={handleAnswer}
+                handleOpenAIChat={handleOpenAIChat}
+                nextQuestion={nextQuestion}
+                isEnterPressed={isEnterPressed}
+                isAnswerLocked={!!isAnswerLocked}
+                onReportProblem={() => setShowReportModal(true)}
+              />
+            </motion.div>
+          </AnimatePresence>
         )}
 
         {showGuestPaywall && (() => {
