@@ -50,11 +50,14 @@ function preprocessTTS(text: string, lang: string): string {
 
     // Strip ALL emoji and pictographs
     text = text
+        .replace(/\p{Extended_Pictographic}/gu, '')
         .replace(/[\u{1F000}-\u{1FFFF}]/gu, '')
         .replace(/[\u{2600}-\u{27BF}]/gu, '')
         .replace(/[\u{2300}-\u{23FF}]/gu, '')
         .replace(/[\u{FE00}-\u{FE0F}]/gu, '')
         .replace(/[\u{1F900}-\u{1F9FF}]/gu, '')
+        .replace(/[\u{1F1E6}-\u{1F1FF}]/gu, '')
+        .replace(/[\u{200D}\u{20E3}\u{FE0F}]/gu, '')
         .replace(/️/g, '')
         .replace(/‍/g, '')
         .replace(/[✀-➿]/g, '')

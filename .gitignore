@@ -36,6 +36,8 @@ video-automation/.env*
 video-automation/node_modules/
 video-automation/renders/
 video-automation/public/audio/
+video-automation/public/backgrounds/
+video-automation/public/*.mp4
 video-automation/chrome-profile/
 video-automation/chrome-profile-*/
 video-automation/chrome-login-*/

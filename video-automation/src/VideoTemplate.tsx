@@ -5,7 +5,7 @@
  */
 import React from "react";
 import { AbsoluteFill, useCurrentFrame, Audio, Sequence, staticFile, Img, OffthreadVideo, Loop } from "remotion";
-import { VideoQuestion, DynamicTiming, buildDynamicTiming, FPS, UI_TEXT } from "./types";
+import { VideoQuestion, DynamicTiming, buildDynamicTiming, FPS, UI_TEXT, WordTiming } from "./types";
 
 const S = (f: string) => staticFile(`sounds/${f}`);
 
@@ -717,58 +717,6 @@ function CTAScene({ q, t }: { q: VideoQuestion; t: DynamicTiming }) {
   );
 }
 
-// Карта тем DGT → читаемые названия
-const TOPIC_RU: Record<string, string> = {
-  velocidad: "СКОРОСТЬ", señales: "ЗНАКИ", preferencia: "ПРИОРИТЕТ",
-  adelantamiento: "ОБГОН", distancia: "ДИСТАНЦИЯ", alcohol: "АЛКОГОЛЬ",
-  interseccion: "ПЕРЕКРЁСТОК", intersección: "ПЕРЕКРЁСТОК",
-  peatones: "ПЕШЕХОДЫ", iluminacion: "ОСВЕЩЕНИЕ", iluminación: "ОСВЕЩЕНИЕ",
-  carga: "ГРУЗ", conductor: "ВОДИТЕЛЬ", vias: "ДОРОГИ", carretera: "ДОРОГА",
-  autopistas: "АВТОСТРАДА", parking: "ПАРКОВКА", arcen: "ОБОЧИНА", arcén: "ОБОЧИНА",
-  cinturon: "РЕМЕНЬ", cinturón: "РЕМЕНЬ", ciclistas: "ВЕЛОСИПЕДИСТЫ",
-  motocicletas: "МОТОЦИКЛЫ", camiones: "ГРУЗОВИКИ", trenes: "ЖД ПЕРЕЕЗД",
-  emergencia: "АВАРИЙНЫЕ СЛУЖБЫ", medioambiente: "ЭКОЛОГИЯ",
-  documentacion: "ДОКУМЕНТЫ", documentación: "ДОКУМЕНТЫ",
-  mecanica: "МЕХАНИКА", mecánica: "МЕХАНИКА",
-};
-const TOPIC_ES: Record<string, string> = {
-  velocidad: "VELOCIDAD", señales: "SEÑALES", preferencia: "PRIORIDAD",
-  adelantamiento: "ADELANTAMIENTO", distancia: "DISTANCIA", alcohol: "ALCOHOL",
-  interseccion: "INTERSECCIÓN", intersección: "INTERSECCIÓN",
-  peatones: "PEATONES", iluminacion: "ILUMINACIÓN", iluminación: "ILUMINACIÓN",
-  carga: "CARGA", conductor: "CONDUCTOR", vias: "VÍAS", carretera: "CARRETERA",
-  autopistas: "AUTOPISTAS", parking: "APARCAMIENTO", arcen: "ARCÉN", arcén: "ARCÉN",
-  cinturon: "CINTURÓN", cinturón: "CINTURÓN",
-};
-
-// Определяем тему по ключевым словам испанского вопроса
-function inferTopicFromQuestion(text: string): string {
-  const t = text.toLowerCase();
-  if (/velocidad|v\.max|km\/h|límite de velocidad/.test(t))  return "velocidad";
-  if (/arcén|arcen/.test(t))                                 return "arcén";
-  if (/señal|señales|cedan|ceda|stop|prohibi/.test(t))       return "señales";
-  if (/alcohol|tasa|bebida/.test(t))                         return "alcohol";
-  if (/adelanta|rebasar/.test(t))                            return "adelantamiento";
-  if (/distancia|segurid/.test(t))                           return "distancia";
-  if (/intersection|intersec|cruce|glorieta/.test(t))        return "intersección";
-  if (/peat[oó]n|peatones|paso de peat/.test(t))             return "peatones";
-  if (/luz|luces|ilumina|faro/.test(t))                      return "iluminación";
-  if (/autopista|autov[ií]a/.test(t))                        return "autopistas";
-  if (/cintur[oó]n|silla|ni[ñn]o/.test(t))                  return "cinturón";
-  if (/ciclista|bicicleta/.test(t))                          return "ciclistas";
-  if (/cami[oó]n|v\.pesado|pesado/.test(t))                  return "camiones";
-  if (/carretera|v[ií]a/.test(t))                            return "carretera";
-  if (/estaciona|aparca|parking/.test(t))                    return "parking";
-  if (/moto|motocicleta/.test(t))                            return "motocicletas";
-  return "";
-}
-
-function getTopicLabel(q: VideoQuestion): string {
-  const raw = (q.topic || inferTopicFromQuestion(q.question)).toLowerCase().trim();
-  if (!raw) return q.language === "ru" ? "ПРАВИЛА" : "NORMAS";
-  if (q.language === "ru") return TOPIC_RU[raw] || raw.toUpperCase();
-  return TOPIC_ES[raw] || raw.toUpperCase();
-}
 
 // ─── ThumbnailScene — frame 0 only ───────────────────────────────────────────
 // Layout: тёмный фон → картинка-карточка → hook → вопрос → бренд
@@ -882,6 +830,76 @@ function ThumbnailScene({ q }: { q: VideoQuestion }) {
   );
 }
 
+// ─── SubtitleOverlay — karaoke-style word-by-word subtitle ───────────────────
+// Shows a chunk of N words at a time; active word highlighted in blue.
+// audioStartSec: absolute video time (in seconds) when this audio starts.
+const SUBTITLE_CHUNK = 5;
+
+function SubtitleOverlay({ words, audioStartSec }: { words: WordTiming[] | undefined; audioStartSec: number }) {
+  const frame = useCurrentFrame();
+  if (!words?.length) return null;
+
+  const currentSec = frame / FPS - audioStartSec;
+  if (currentSec < -0.1) return null;
+
+  // Find active word index
+  let activeIdx = words.findIndex(w => currentSec >= w.start && currentSec < w.end);
+  // If between words, show the next upcoming
+  if (activeIdx === -1) {
+    const nextIdx = words.findIndex(w => w.start > currentSec);
+    if (nextIdx === -1) return null; // past all words
+    activeIdx = nextIdx;
+  }
+
+  // Phrase-based: show a fixed chunk of SUBTITLE_CHUNK words, advance on chunk boundary
+  const chunkIdx   = Math.floor(activeIdx / SUBTITLE_CHUNK);
+  const chunkStart = chunkIdx * SUBTITLE_CHUNK;
+  const chunkEnd   = Math.min(words.length, chunkStart + SUBTITLE_CHUNK);
+  const chunk      = words.slice(chunkStart, chunkEnd);
+  const activeInChunk = activeIdx - chunkStart;
+
+  return (
+    <div style={{
+      position: "absolute",
+      bottom: 185,
+      left: 40,
+      right: 40,
+      display: "flex",
+      justifyContent: "center",
+      flexWrap: "wrap",
+      gap: "6px 14px",
+      padding: "18px 32px",
+      borderRadius: 22,
+      backgroundColor: "rgba(0,0,0,0.82)",
+      pointerEvents: "none",
+    }}>
+      {chunk.map((w, i) => {
+        const isActive = i === activeInChunk;
+        const isPast   = i < activeInChunk;
+        return (
+          <span key={chunkStart + i} style={{
+            fontSize: 50,
+            fontWeight: isActive ? 900 : 600,
+            color: isActive
+              ? "#2F81F7"
+              : isPast
+              ? "rgba(255,255,255,0.32)"
+              : "rgba(255,255,255,0.88)",
+            fontFamily: "system-ui,sans-serif",
+            lineHeight: 1.35,
+            textShadow: isActive
+              ? "0 0 22px rgba(47,129,247,0.95), 0 0 44px rgba(47,129,247,0.45), 0 2px 8px rgba(0,0,0,1)"
+              : "0 2px 6px rgba(0,0,0,0.9)",
+            WebkitFontSmoothing: "antialiased",
+          }}>
+            {w.word}
+          </span>
+        );
+      })}
+    </div>
+  );
+}
+
 // ─── Main composition ─────────────────────────────────────────────────────────
 interface VideoTemplateProps { question: VideoQuestion }
 
@@ -898,53 +916,15 @@ export const VideoTemplate: React.FC<VideoTemplateProps> = ({ question }) => {
     ? question.explanationRuAudioFile
     : question.explanationAudioFile;
 
-  // ── Тематический фон для объяснения ─────────────────────────────────────────
-  // Маппинг тем → видеофайлы в public/backgrounds/topics/
-  // Добавляй файлы в папку — они подхватятся автоматически
-  // Keys = первое слово title_es из таблицы topics (lowercase)
-  // плюс доп. варианты написания через нормализацию
-  const TOPIC_BG: Record<string, string> = {
-    // Таблица topics → title_es → первое слово
-    "señales":       "backgrounds/topics/signs.mp4",        // Señales
-    "maniobras":     "backgrounds/topics/intersection.mp4", // Maniobras
-    "alumbrado":     "backgrounds/topics/night.mp4",        // Alumbrado
-    "el":            "backgrounds/topics/driver.mp4",       // El uso del vehículo
-    "documentación": "backgrounds/topics/background_01.mp4",// Documentación
-    "los":           "backgrounds/topics/emergency.mp4",    // Los accidentes
-    "comportamiento":"backgrounds/topics/emergency.mp4",    // Comportamiento en caso de accidente
-    "mecánica":      "backgrounds/topics/background_02.mp4",// Mecánica y mantenimiento
-    "tipos":         "backgrounds/topics/highway.mp4",      // Tipos y técnicas de conducción
-    "definiciones":  "backgrounds/topics/highway.mp4",      // Definiciones y uso de las vías
-    // Дополнительные ключи для ручного поля topic
-    "alcohol":       "backgrounds/topics/alcohol.mp4",
-    "velocidad":     "backgrounds/topics/speed.mp4",
-    "autopistas":    "backgrounds/topics/highway.mp4",
-    "carretera":     "backgrounds/topics/highway.mp4",
-    "distancia":     "backgrounds/topics/highway.mp4",
-    "adelantamiento":"backgrounds/topics/highway.mp4",
-    "interseccion":  "backgrounds/topics/intersection.mp4",
-    "intersección":  "backgrounds/topics/intersection.mp4",
-    "rotonda":       "backgrounds/topics/intersection_02.mp4",
-    "peatones":      "backgrounds/topics/pedestrians.mp4",
-    "cinturon":      "backgrounds/topics/seatbelt.mp4",
-    "cinturón":      "backgrounds/topics/seatbelt.mp4",
-    "parking":       "backgrounds/topics/parking.mp4",
-    "emergencia":    "backgrounds/topics/emergency.mp4",
-    "ciclistas":     "backgrounds/topics/cyclist.mp4",
-    "motocicletas":  "backgrounds/topics/moto.mp4",
-    "conductor":     "backgrounds/topics/driver.mp4",
-  };
+  // ── Фоновые видео ────────────────────────────────────────────────────────────
+  // backgroundVideo        — generic (bg1/bg2), назначается сервером рандомно
+  // explanationBackgroundVideo — тематическое, назначается сервером по топику
+  // Оба поля приходят из props — VideoTemplate не занимается резолвингом тем.
+  const explanationBg = question.explanationBackgroundVideo ?? null;
 
-  const topicKey = (question.topic || "").toLowerCase().trim();
-  const explanationBg = question.explanationBackgroundVideo
-    || TOPIC_BG[topicKey]
-    || question.backgroundVideo;
-
-  // Длительности всех используемых фоновых видео (frames @ 30fps)
   const BG_DURATIONS: Record<string, number> = {
     "backgrounds/bg1.mp4": 300,
     "backgrounds/bg2.mp4": 622,
-    // Для топик-видео ставим 300 по умолчанию (10s loop) — запас
   };
   const getBgFrames = (src: string) => BG_DURATIONS[src] ?? 300;
 
@@ -1092,6 +1072,33 @@ export const VideoTemplate: React.FC<VideoTemplateProps> = ({ question }) => {
           <CTAScene q={question} t={t} />
         </div>
       )}
+
+      {/* ── Subtitle overlays (karaoke) ── */}
+      {/* Hook subtitles: active during hook voiceover */}
+      {question.hookWords?.length && frame >= t.hookStart * F && frame < t.questionAudioStart * F && (
+        <SubtitleOverlay words={question.hookWords} audioStartSec={t.hookStart} />
+      )}
+      {/* Question subtitles: active during question narration */}
+      {question.questionWords?.length && frame >= t.questionAudioStart * F && frame < t.answersStart * F && (
+        <SubtitleOverlay words={question.questionWords} audioStartSec={t.questionAudioStart} />
+      )}
+      {/* Answer subtitles: active during each answer's narration window */}
+      {question.answerWords?.map((words, i) => {
+        const startSec = t.answerAppearAt[i] ?? 0;
+        const endSec   = startSec + (question.answerAudioDurationsSec?.[i] ?? 2.5);
+        return (words?.length && frame >= startSec * F && frame < endSec * F) ? (
+          <SubtitleOverlay key={`ans-${i}`} words={words} audioStartSec={startSec} />
+        ) : null;
+      })}
+      {/* Explanation subtitles: prefer RU words for RU video */}
+      {(() => {
+        const expWords = question.language === "ru"
+          ? (question.explanationRuWords?.length ? question.explanationRuWords : question.explanationWords)
+          : question.explanationWords;
+        return (expWords?.length && frame >= t.explanationStart * F && frame < t.ctaStart * F) ? (
+          <SubtitleOverlay words={expWords} audioStartSec={t.explanationStart} />
+        ) : null;
+      })()}
 
       {/* Bottom brand line */}
       <div style={{ position:"absolute", bottom:0, left:0, right:0, height:5,

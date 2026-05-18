@@ -173,7 +173,7 @@ export function QuestionProgressBar({
           </div>
 
           {/* ── Capsule / Line Progress ───────────────────────────────── */}
-          <div className="flex-1 flex items-center gap-[2px] sm:gap-[3px] min-w-0">
+          <div className="flex-1 flex items-center gap-[1.5px] sm:gap-[3px] min-w-0">
             {Array.from({ length: totalQuestions }, (_, i) => {
               const answered = answers[i] != null;
               const isCurrent = i === currentIndex;
@@ -201,7 +201,7 @@ export function QuestionProgressBar({
                     "flex-1 min-w-0 rounded-full origin-center relative overflow-hidden",
                     "transition-[background,box-shadow] duration-500",
                     isMobileLines
-                      ? "h-[3px] sm:h-[7px]"
+                      ? "h-[14px] sm:h-[7px]"
                       : "h-[7px] sm:h-[9px]",
 
                     // ── ВЕРНО: глубокий teal/emerald (только не в exam mode)

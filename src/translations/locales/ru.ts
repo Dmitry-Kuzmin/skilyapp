@@ -573,6 +573,12 @@ export const ru = {
         cryptoMiner: {
           title: "⚡ CRYPTO MINER",
           description: "Добывай криптомонеты. Смотри рекламу и получай награду.",
+          bannerTitle: "CRYPTO MINER",
+          ready: "READY",
+          watchAd: "Смотри рекламу — получай монеты",
+          limitReached: "Лимит исчерпан — вернись завтра",
+          cooldown: "Доступно через {{time}}",
+          watchButton: "Смотреть",
         },
         overclocking: {
           title: "OVERCLOCKING",
@@ -658,7 +664,7 @@ export const ru = {
 
   // Other
   version: "v1.0.0 © 2025 Sdadim",
-  online: "Онлайн",
+  online: "в сети",
   xpProgress: "XP до следующего уровня",
 
   // Tests Page
@@ -2434,6 +2440,7 @@ export const ru = {
       lexicon_old: "Лексикон",
       guessSign: "Угадай Знак",
       roadRace: "Дорожная Гонка",
+      speedQuiz: "Знай скорости",
       blitz: "Блиц",
     },
     gameDescriptions: {
@@ -2445,6 +2452,7 @@ export const ru = {
       lexicon_old: "Мастерство перевода. Выбери верное значение ПДД-терминов и прокачивай свой словарный запас.",
       guessSign: "Проверь свои знания дорожных знаков в премиум игре",
       roadRace: "Марафон тестов в формате гонки по трассе Испании",
+      speedQuiz: "Проверь знание лимитов скорости Испании: от магистралей до жилых зон.",
       blitz: "Успей ответить на максимум вопросов за 5 минут. Каждая ошибка — штраф!",
     },
   },

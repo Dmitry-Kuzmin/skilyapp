@@ -122,6 +122,105 @@ async function elevenLabsSynth(text, voiceId) {
   return null;
 }
 
+// ── ElevenLabs with-timestamps (for word-level subtitles) ─────────────────────
+function elevenLabsSynthWithTimestampsKey(text, voiceId, apiKey) {
+  return new Promise((resolve) => {
+    const body = JSON.stringify({
+      text,
+      model_id: "eleven_v3",
+      voice_settings: { stability: 0.45, similarity_boost: 0.80, style: 0.35, use_speaker_boost: true },
+    });
+    const req = https.request({
+      hostname: "api.elevenlabs.io",
+      path: `/v1/text-to-speech/${voiceId}/with-timestamps`,
+      method: "POST",
+      headers: {
+        "xi-api-key": apiKey,
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+        "Content-Length": Buffer.byteLength(body),
+      },
+    }, (res) => {
+      const chunks = [];
+      res.on("data", c => chunks.push(c));
+      res.on("end", () => {
+        if (res.statusCode === 200) {
+          try {
+            const data = JSON.parse(Buffer.concat(chunks).toString());
+            const audio = Buffer.from(data.audio_base64 || "", "base64");
+            const al = data.normalized_alignment || data.alignment;
+            resolve({ ok: true, audio, alignment: al });
+          } catch { resolve({ ok: false, status: "parse" }); }
+        } else {
+          resolve({ ok: false, status: res.statusCode });
+        }
+      });
+    });
+    req.on("error", (e) => resolve({ ok: false, status: "network", error: e.message }));
+    req.write(body);
+    req.end();
+  });
+}
+
+async function elevenLabsSynthWithWords(text, voiceId) {
+  if (ELEVENLABS_KEYS.length === 0) return null;
+  // Try with-timestamps first (gives audio + alignment in one call)
+  for (let attempt = 0; attempt < ELEVENLABS_KEYS.length; attempt++) {
+    const idx = (elevenLabsKeyIndex + attempt) % ELEVENLABS_KEYS.length;
+    const key = ELEVENLABS_KEYS[idx];
+    const result = await elevenLabsSynthWithTimestampsKey(text, voiceId, key);
+    if (result.ok && result.audio.length > 0) {
+      if (attempt > 0) { elevenLabsKeyIndex = idx; console.log(`  ↪ ElevenLabs: switched to key #${idx + 1}`); }
+      const words = alignmentToWords(result.alignment);
+      return { audio: result.audio, words };
+    }
+    console.error(`  ✗ ElevenLabs timestamps key #${idx + 1} failed (HTTP ${result.status}) — trying next`);
+  }
+  // Fallback: audio without timestamps
+  const audio = await elevenLabsSynth(text, voiceId);
+  return audio ? { audio, words: null } : null;
+}
+
+// Convert ElevenLabs character-level alignment → word-level timings
+function alignmentToWords(al) {
+  if (!al || !al.characters) return [];
+  const { characters: chars, character_start_times_seconds: starts, character_end_times_seconds: ends } = al;
+  const words = [];
+  let wChars = "", wStart = null, wEnd = null;
+  for (let i = 0; i < chars.length; i++) {
+    const c = chars[i];
+    if (c === " " || c === "\n" || c === "\t") {
+      if (wChars.trim()) words.push({ word: wChars, start: wStart, end: wEnd });
+      wChars = ""; wStart = null;
+    } else {
+      if (wStart === null) wStart = starts[i];
+      wChars += c;
+      wEnd = ends[i];
+    }
+  }
+  if (wChars.trim()) words.push({ word: wChars, start: wStart, end: wEnd });
+  return words;
+}
+
+// Estimate word timings for Edge TTS (proportional by character count)
+function estimateWordTimings(processedText, totalDurationSec) {
+  if (!processedText || !totalDurationSec) return [];
+  const rawWords = processedText.trim().split(/\s+/).filter(Boolean);
+  if (!rawWords.length) return [];
+  const totalChars = rawWords.reduce((s, w) => s + w.length, 0);
+  if (!totalChars) return [];
+  const gapFrac = 0.012; // ~1.2% of total duration as inter-word gap
+  const result = [];
+  let cursor = 0;
+  for (const word of rawWords) {
+    const frac = word.length / totalChars;
+    const dur = frac * totalDurationSec * (1 - gapFrac * rawWords.length);
+    result.push({ word, start: parseFloat(cursor.toFixed(3)), end: parseFloat((cursor + dur).toFixed(3)) });
+    cursor += dur + gapFrac * totalDurationSec;
+  }
+  return result;
+}
+
 // ── Get MP3 duration via music-metadata (ESM, dynamic import) ────────────────
 const MM_PATH = path.join(__dirname, "node_modules/music-metadata/lib/index.js");
 async function getAudioDurationSec(filePath) {
@@ -297,42 +396,72 @@ async function speedUpAudio(filePath, rate) {
   });
 }
 
+// Returns { dur: number|null, words: WordTiming[]|null }
+// Words are cached in <filePath>.words.json for subsequent renders
 async function synth(text, voiceId, filePath, label, lang = "es", speedRate = 1.0) {
-  if (!fs.existsSync(filePath)) {
-    process.stdout.write(`  🎙 ${label}…`);
-    const processed = preprocessTTS(text, lang);
+  const wordsPath = filePath + ".words.json";
 
-    if (lang === "es") {
-      // Spanish → Edge TTS only
-      const audio = await edgeSynth(processed, EDGE_VOICE_ES, filePath).then(() => fs.readFileSync(filePath)).catch(() => null);
-      if (audio) {
-        if (speedRate > 1.0) await speedUpAudio(filePath, speedRate).catch(() => {});
-        process.stdout.write(` ✓ Edge/${EDGE_VOICE_ES} (${(fs.statSync(filePath).size/1024).toFixed(0)}KB${speedRate > 1.0 ? ` ×${speedRate}` : ""})\n`);
-        return getAudioDurationSec(filePath);
-      }
-      process.stdout.write(` ✗ Edge failed\n`); return null;
+  // ── Cache hit: file already exists ───────────────────────────────────────────
+  if (fs.existsSync(filePath)) {
+    const dur = await getAudioDurationSec(filePath);
+    let words = null;
+    try { if (fs.existsSync(wordsPath)) words = JSON.parse(fs.readFileSync(wordsPath, "utf-8")); } catch {}
+    // Backfill: existing audio without .words.json → estimate from text + duration
+    if (!words && dur) {
+      const processed = preprocessTTS(text, lang);
+      words = estimateWordTimings(processed, dur);
+      try { fs.writeFileSync(wordsPath, JSON.stringify(words)); } catch {}
     }
-
-    // Russian → try ElevenLabs first, fallback to Edge TTS (Dmitry)
-    const elAudio = await elevenLabsSynth(processed, voiceId);
-    if (elAudio) {
-      fs.writeFileSync(filePath, elAudio);
-      if (speedRate > 1.0) await speedUpAudio(filePath, speedRate).catch(() => {});
-      process.stdout.write(` ✓ ElevenLabs (${(fs.statSync(filePath).size/1024).toFixed(0)}KB${speedRate > 1.0 ? ` ×${speedRate}` : ""})\n`);
-      return getAudioDurationSec(filePath);
-    }
-    // ElevenLabs failed — use Edge TTS Russian voice
-    process.stdout.write(` ↪ Edge fallback…`);
-    const edgeAudio = await edgeSynth(processed, EDGE_VOICE_RU, filePath).then(() => fs.readFileSync(filePath)).catch(() => null);
-    if (edgeAudio) {
-      if (speedRate > 1.0) await speedUpAudio(filePath, speedRate).catch(() => {});
-      process.stdout.write(` ✓ Edge/${EDGE_VOICE_RU} (${(fs.statSync(filePath).size/1024).toFixed(0)}KB${speedRate > 1.0 ? ` ×${speedRate}` : ""})\n`);
-      return getAudioDurationSec(filePath);
-    }
-    process.stdout.write(` ✗ both TTS failed\n`);
-    return null;
+    return { dur, words };
   }
-  return getAudioDurationSec(filePath);
+
+  // ── Generate ──────────────────────────────────────────────────────────────────
+  process.stdout.write(`  🎙 ${label}…`);
+  const processed = preprocessTTS(text, lang);
+
+  if (lang === "es") {
+    // Spanish → Edge TTS only (word timings estimated from duration)
+    const audio = await edgeSynth(processed, EDGE_VOICE_ES, filePath).then(() => fs.readFileSync(filePath)).catch(() => null);
+    if (audio) {
+      if (speedRate > 1.0) await speedUpAudio(filePath, speedRate).catch(() => {});
+      const dur = await getAudioDurationSec(filePath);
+      process.stdout.write(` ✓ Edge/${EDGE_VOICE_ES} (${(fs.statSync(filePath).size/1024).toFixed(0)}KB${speedRate > 1.0 ? ` ×${speedRate}` : ""})\n`);
+      const words = estimateWordTimings(processed, dur);
+      try { fs.writeFileSync(wordsPath, JSON.stringify(words)); } catch {}
+      return { dur, words };
+    }
+    process.stdout.write(` ✗ Edge failed\n`);
+    return { dur: null, words: null };
+  }
+
+  // Russian → ElevenLabs with-timestamps first (exact timings), fallback to Edge TTS
+  const elResult = await elevenLabsSynthWithWords(processed, voiceId);
+  if (elResult) {
+    fs.writeFileSync(filePath, elResult.audio);
+    if (speedRate > 1.0) await speedUpAudio(filePath, speedRate).catch(() => {});
+    const dur = await getAudioDurationSec(filePath);
+    process.stdout.write(` ✓ ElevenLabs (${(fs.statSync(filePath).size/1024).toFixed(0)}KB${speedRate > 1.0 ? ` ×${speedRate}` : ""})\n`);
+    // Scale timings by 1/speedRate to match sped-up audio
+    const words = elResult.words
+      ? elResult.words.map(w => ({ word: w.word, start: parseFloat((w.start / speedRate).toFixed(3)), end: parseFloat((w.end / speedRate).toFixed(3)) }))
+      : estimateWordTimings(processed, dur);
+    try { fs.writeFileSync(wordsPath, JSON.stringify(words)); } catch {}
+    return { dur, words };
+  }
+
+  // ElevenLabs failed — use Edge TTS Russian voice
+  process.stdout.write(` ↪ Edge fallback…`);
+  const edgeAudio = await edgeSynth(processed, EDGE_VOICE_RU, filePath).then(() => fs.readFileSync(filePath)).catch(() => null);
+  if (edgeAudio) {
+    if (speedRate > 1.0) await speedUpAudio(filePath, speedRate).catch(() => {});
+    const dur = await getAudioDurationSec(filePath);
+    process.stdout.write(` ✓ Edge/${EDGE_VOICE_RU} (${(fs.statSync(filePath).size/1024).toFixed(0)}KB${speedRate > 1.0 ? ` ×${speedRate}` : ""})\n`);
+    const words = estimateWordTimings(processed, dur);
+    try { fs.writeFileSync(wordsPath, JSON.stringify(words)); } catch {}
+    return { dur, words };
+  }
+  process.stdout.write(` ✗ both TTS failed\n`);
+  return { dur: null, words: null };
 }
 
 async function generateTTSForQuestion(question) {
@@ -374,10 +503,11 @@ async function generateTTSForQuestion(question) {
 
     const hPathRu = path.join(AUDIO_DIR, `${id}-ru-hook.mp3`);
     if (fs.existsSync(hPathRu)) fs.unlinkSync(hPathRu);
-    const hDurRu = await synth(ruHookText, voiceId, hPathRu, "hook intro [RU]", "ru", 1.15);
+    const { dur: hDurRu, words: hWordsRu } = await synth(ruHookText, voiceId, hPathRu, "hook intro [RU]", "ru", 1.15);
     if (hDurRu !== null) {
       result.hookAudioFileRu        = `audio/${id}-ru-hook.mp3`;
       result.hookAudioDurationSecRu = hDurRu;
+      if (hWordsRu) result.hookWordsRu = hWordsRu;
     }
 
     // Spanish hook (only for ES DGT videos)
@@ -385,10 +515,11 @@ async function generateTTSForQuestion(question) {
       const esHookText = question.hookAudioText || esHooksStatic[hKey];
       const hPathEs = path.join(AUDIO_DIR, `${id}-es-hook.mp3`);
       if (fs.existsSync(hPathEs)) fs.unlinkSync(hPathEs);
-      const hDurEs = await synth(esHookText, null, hPathEs, "hook intro [ES]", "es", 1.15);
+      const { dur: hDurEs, words: hWordsEs } = await synth(esHookText, null, hPathEs, "hook intro [ES]", "es", 1.15);
       if (hDurEs !== null) {
         result.hookAudioFileEs        = `audio/${id}-es-hook.mp3`;
         result.hookAudioDurationSecEs = hDurEs;
+        if (hWordsEs) result.hookWordsEs = hWordsEs;
       }
     }
 
@@ -398,36 +529,39 @@ async function generateTTSForQuestion(question) {
 
   // Question — чуть быстрее, но разборчиво
   const qPath = path.join(AUDIO_DIR, `${id}-${lang}-question.mp3`);
-  const qDur  = await synth(question.question, voiceId, qPath, "question", lang, 1.10);
+  const { dur: qDur, words: qWords } = await synth(question.question, voiceId, qPath, "question", lang, 1.20);
   if (qDur !== null) {
     result.questionAudioFile        = `audio/${id}-${lang}-question.mp3`;
     result.questionAudioDurationSec = qDur;
   }
 
   // Answer options — чуть быстрее
-  const answerFiles = [], answerDurs = [];
+  const answerFiles = [], answerDurs = [], answerWordsList = [];
   for (let i = 0; i < (question.answer_options || []).length; i++) {
     const text  = prefixes[i] + question.answer_options[i].text;
     const aPath = path.join(AUDIO_DIR, `${id}-${lang}-answer-${i}.mp3`);
-    const dur   = await synth(text, voiceId, aPath, `answer ${i+1}`, lang, 1.10);
+    const { dur, words: aWords } = await synth(text, voiceId, aPath, `answer ${i+1}`, lang, 1.25);
     answerFiles.push(`audio/${id}-${lang}-answer-${i}.mp3`);
     answerDurs.push(dur ?? 2.5);
+    answerWordsList.push(aWords || []);
   }
   result.answerAudioFiles        = answerFiles;
   result.answerAudioDurationsSec = answerDurs;
 
   // Explanation — максимальное ускорение (самый длинный сегмент)
   const ePath = path.join(AUDIO_DIR, `${id}-${lang}-explanation.mp3`);
-  const eDur  = await synth(question.explanation, voiceId, ePath, "explanation", lang, 1.25);
+  const { dur: eDur, words: eWords } = await synth(question.explanation, voiceId, ePath, "explanation", lang, 1.40);
   if (eDur !== null) {
     result.explanationAudioFile        = `audio/${id}-${lang}-explanation.mp3`;
     result.explanationAudioDurationSec = eDur;
   }
 
   // Russian explanation
+  let erWords = null;
   if (question.explanationRu) {
     const erPath = path.join(AUDIO_DIR, `${id}-ru-explanation.mp3`);
-    const erDur  = await synth(question.explanationRu, VOICE_RU, erPath, "explanation [RU]", "ru", 1.25);
+    const { dur: erDur, words: _erWords } = await synth(question.explanationRu, VOICE_RU, erPath, "explanation [RU]", "ru", 1.40);
+    erWords = _erWords;
     if (erDur !== null) {
       result.explanationRuAudioFile        = `audio/${id}-ru-explanation.mp3`;
       result.explanationRuAudioDurationSec = erDur;
@@ -441,7 +575,7 @@ async function generateTTSForQuestion(question) {
   if (outroTextRu) {
     const outroPathRu = path.join(AUDIO_DIR, `${id}-ru-outro.mp3`);
     if (fs.existsSync(outroPathRu)) fs.unlinkSync(outroPathRu);
-    const outroDurRu = await synth(outroTextRu, VOICE_RU, outroPathRu, "outro [RU]", "ru", 1.15);
+    const { dur: outroDurRu } = await synth(outroTextRu, VOICE_RU, outroPathRu, "outro [RU]", "ru", 1.15);
     if (outroDurRu !== null) {
       result.outroAudioFileRu        = `audio/${id}-ru-outro.mp3`;
       result.outroAudioDurationSecRu = outroDurRu;
@@ -451,7 +585,7 @@ async function generateTTSForQuestion(question) {
   if (outroTextEs && lang === "es") {
     const outroPathEs = path.join(AUDIO_DIR, `${id}-es-outro.mp3`);
     if (fs.existsSync(outroPathEs)) fs.unlinkSync(outroPathEs);
-    const outroDurEs = await synth(outroTextEs, null, outroPathEs, "outro [ES]", "es", 1.15);
+    const { dur: outroDurEs } = await synth(outroTextEs, null, outroPathEs, "outro [ES]", "es", 1.15);
     if (outroDurEs !== null) {
       result.outroAudioFileEs        = `audio/${id}-es-outro.mp3`;
       result.outroAudioDurationSecEs = outroDurEs;
@@ -461,6 +595,12 @@ async function generateTTSForQuestion(question) {
   // Legacy single-field fallback
   result.outroAudioFile        = result.outroAudioFileRu || null;
   result.outroAudioDurationSec = result.outroAudioDurationSecRu || null;
+
+  // ── Subtitle word timings ─────────────────────────────────────────────────────
+  if (qWords)                                    result.questionWords      = qWords;
+  if (answerWordsList?.some(a => a?.length))     result.answerWords        = answerWordsList;
+  if (eWords)                                    result.explanationWords   = eWords;
+  if (erWords)                                   result.explanationRuWords = erWords;
 
   return result;
 }
@@ -532,7 +672,7 @@ async function generateViralExplanation(dryText, lang, question = "", percent_co
 - Числа словами: не "600€" а "шестьсот евро"
 - Аббревиатуры расшифровать: ДГТ → "экзамен ДГТ", ПДД → "правила дорожного движения"
 - Короткие ударные предложения. Ритм. Паузы через запятые.
-- Макс 65 слов
+- Макс 30 слов. Три коротких удара — по одному предложению каждый.
 
 СУХОЙ ТЕКСТ ИЗ БД:
 ${dryText}
@@ -566,7 +706,7 @@ OBLIGATORIO:
 - Números en palabras: no "600€" sino "seiscientos euros"
 - Abreviaciones expandidas: DGT → "examen de la DGT"
 - Frases cortas e impactantes. Ritmo. Pausas con comas.
-- Máx 65 palabras
+- Máx 30 palabras. Tres golpes cortos — una frase cada uno.
 
 TEXTO ABURRIDO DE LA BD:
 ${dryText}
@@ -659,6 +799,22 @@ function supabaseRequest(endpoint, params = "") {
       });
     }).on("error", reject);
   });
+}
+
+// ── Server-side topic map cache (UUID → slug) ─────────────────────────────────
+let _serverTopicMapCache = null;
+async function resolveTopicMap() {
+  if (_serverTopicMapCache) return _serverTopicMapCache;
+  _serverTopicMapCache = {};
+  try {
+    const topics = await supabaseRequest("topics", "?select=id,title_es");
+    if (Array.isArray(topics)) {
+      for (const t of topics) {
+        _serverTopicMapCache[t.id] = (t.title_es || "").toLowerCase().split(/[\s,\/]/)[0];
+      }
+    }
+  } catch {}
+  return _serverTopicMapCache;
 }
 
 // ── Fetch questions from Supabase ─────────────────────────────────────────────
@@ -1828,7 +1984,7 @@ const server = http.createServer(async (req, res) => {
     req.on("data", d => body += d);
     req.on("end", async () => {
       try {
-        const { question } = JSON.parse(body);
+        let { question } = JSON.parse(body);
 
         // Build full VideoQuestion object
         const seriesState = (() => {
@@ -2005,9 +2161,18 @@ const server = http.createServer(async (req, res) => {
           "conductor":     "backgrounds/topics/driver.mp4",
         };
 
-        // Resolve topic → backgroundVideo if not explicitly set
+        // ── Background video resolution ───────────────────────────────────────
+        // Topic bg covers the WHOLE video; generic is fallback when topic unknown
+        const GENERIC_BGS = ["backgrounds/bg1.mp4", "backgrounds/bg2.mp4"];
+        const genericBg = GENERIC_BGS[Math.floor(Math.random() * GENERIC_BGS.length)];
+
         const topicKey = (question.topic || "").toLowerCase().trim();
-        const resolvedBg = question.backgroundVideo || SERVER_TOPIC_BG[topicKey] || "backgrounds/bg2.mp4";
+        const topicBg  = SERVER_TOPIC_BG[topicKey] || null;
+
+        // If explicitly set in DB — respect it; otherwise topic → generic fallback
+        const resolvedBg            = question.backgroundVideo            || topicBg || genericBg;
+        // No separate explanation bg — topic bg already covers the whole video
+        const resolvedExplanationBg = question.explanationBackgroundVideo || null;
 
         const videoQuestion = {
           ...question,
@@ -2019,8 +2184,10 @@ const server = http.createServer(async (req, res) => {
           outro_text_ru: question.outro_text_ru || pickOutro(outroPools.ru),
           outro_text_es: question.outro_text_es || pickOutro(outroPools.es),
           outro_text:    question.outro_text    || pickOutro(outroPools[lang] || outroPools.es),
-          // Always set backgroundVideo so Q&A phase has a background
+          // Main background: random generic (bg1/bg2) — changes every render
           backgroundVideo: resolvedBg,
+          // Explanation background: topic-specific (different from main → overlay fires)
+          explanationBackgroundVideo: resolvedExplanationBg,
         };
 
         // ── Viral hook via Gemini (уникальный под каждый вопрос) ─────────────
@@ -2131,6 +2298,7 @@ const server = http.createServer(async (req, res) => {
             ...videoQuestion,
             hookAudioFile:        videoQuestion.hookAudioFileEs || videoQuestion.hookAudioFile,
             hookAudioDurationSec: videoQuestion.hookAudioDurationSecEs || videoQuestion.hookAudioDurationSec,
+            hookWords:            videoQuestion.hookWordsEs || videoQuestion.hookWords || null,
             outroAudioFile:       videoQuestion.outroAudioFileEs || null,
             outroAudioDurationSec:videoQuestion.outroAudioDurationSecEs || null,
           };
@@ -2147,6 +2315,7 @@ const server = http.createServer(async (req, res) => {
               hook_title: videoQuestion.hook_title_ru || hookTemplatesRU[hookKey] || hookTemplatesRU.easy,
               hookAudioFile:        videoQuestion.hookAudioFileRu || videoQuestion.hookAudioFile,
               hookAudioDurationSec: videoQuestion.hookAudioDurationSecRu || videoQuestion.hookAudioDurationSec,
+              hookWords:            videoQuestion.hookWordsRu || videoQuestion.hookWords || null,
               outroAudioFile:       videoQuestion.outroAudioFileRu || null,
               outroAudioDurationSec:videoQuestion.outroAudioDurationSecRu || null,
               backgroundVideo: videoQuestion.backgroundVideoRU || videoQuestion.backgroundVideo,

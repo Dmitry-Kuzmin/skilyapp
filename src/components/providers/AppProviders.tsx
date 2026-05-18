@@ -28,7 +28,9 @@ import { GlobalSettingsManager } from "@/components/settings";
 // TON_DISABLED: import { AppKitProvider } from "@ton/appkit-react";
 // TON_DISABLED: import { appKit } from "@/lib/ton-appkit";
 // TON_DISABLED: import { TonAddressProvider } from '@/contexts/TonAddressContext';
-import { useSessionManager } from "@/hooks/useSessionManager";
+// SESSION_MANAGER_DISABLED: вызывает перезагрузку при работе в нескольких вкладках/браузерах
+// Включить обратно когда будет нужна защита от sharing аккаунтов (платные пользователи)
+// import { useSessionManager } from "@/hooks/useSessionManager";
 import { usePremium } from "@/hooks/usePremium";
 import { setPremiumForStrategy, setHasFullQuestionPoolForStrategy } from "@/lib/premiumState";
 
@@ -37,9 +39,10 @@ import { SmartOnboardingFlow } from "@/components/onboarding/SmartOnboardingFlow
 
 /**
  * Глобальный обработчик сессий.
+ * SESSION_MANAGER_DISABLED: useSessionManager() отключён — см. комментарий к импорту выше
  */
 const SessionHandler = () => {
-  useSessionManager();
+  // useSessionManager(); // disabled
   return <SmartOnboardingFlow />;
 };
 

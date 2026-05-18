@@ -210,29 +210,29 @@
     },
     "answers": [
       {
-        "id": "a",
+        "id": "opt_0",
         "text": {
+          "ru": "Нет.",
           "es": "No.",
-          "en": "No.",
-          "ru": "Нет."
+          "en": "No."
         },
         "is_correct": true
       },
       {
-        "id": "b",
+        "id": "opt_1",
         "text": {
+          "ru": "Да, если полоса находится на городской дороге.",
           "es": "Sí, cuando el carril está en vía urbana.",
-          "en": "Yes, when the lane is on an urban road.",
-          "ru": "Да, если полоса находится на городской дороге."
+          "en": "Yes, when the lane is on an urban road."
         },
         "is_correct": false
       },
       {
-        "id": "c",
+        "id": "opt_2",
         "text": {
+          "ru": "Да, для поворота направо.",
           "es": "Sí, para girar a la derecha.",
-          "en": "Yes, to turn right.",
-          "ru": "Да, для поворота направо."
+          "en": "Yes, to turn right."
         },
         "is_correct": false
       }
@@ -240,7 +240,7 @@
     "explanation": {
       "es": "El carril BUS está reservado para la circulación de autobuses y, cuando así se indique, taxis. La línea longitudinal continua que lo delimita prohíbe a los demás conductores (incluidos los turismos) atravesarla, circular por el carril, parar o estacionar en él. Solo si la línea fuera discontinua, se permitiría utilizar el carril exclusivamente para cambiar de dirección o entrar en un inmueble, pero nunca para adelantar, parar, estacionar o cambiar el sentido de la marcha.",
       "en": "The BUS lane is reserved for the circulation of buses and, when indicated, taxis. The continuous longitudinal line delimiting it prohibits other drivers (including passenger cars) from crossing it, driving in the lane, stopping, or parking in it. Only if the line were broken (dashed) would it be permitted to use the lane exclusively to change direction or enter a property, but never to overtake, stop, park, or make a U-turn.",
-      "ru": "1️⃣ 🎓 \nПолоса, обозначенная надписью BUS, предназначена исключительно для общественного транспорта. Для водителя **легкового автомобиля** (Turismo) ключевым фактором является тип разметки:\n\n• **Сплошная линия** (как в вопросе): Это «стена». Пересекать её и заезжать на полосу запрещено категорически — ни для движения, ни для поворота, ни для остановки.\n• **Прерывистая линия**: Если бы линия была прерывистой, ты мог бы заехать на неё, но **только** для смены направления (поворота) или въезда в гараж. Использовать её для обгона, остановки или парковки запрещено даже при прерывистой разметке.\n\n2️⃣ 🇷🇺 \nВ РФ при наличии прерывистой разметки на выделенной полосе разрешено заезжать на неё для **посадки и высадки пассажиров** (п. 18.2 ПДД), если это не мешает автобусам. В Испании это **запрещено**. Даже через прерывистую линию заезжать в полосу BUS, чтобы высадить пассажира, нельзя — штраф.\n\n3️⃣ 💡 \n• Сплошная у BUS — это бетонный блок. Не таранить!\n• Прерывистая у BUS — только для поворота, но не для «подбросить друга»."
+      "ru": "Полоса, обозначенная надписью BUS, предназначена исключительно для общественного транспорта. Для водителя **легкового автомобиля** (Turismo) ключевым фактором является тип разметки:\n\n• **Сплошная линия** (как в вопросе): Это «стена». Пересекать её и заезжать на полосу запрещено категорически — ни для движения, ни для поворота, ни для остановки.\n• **Прерывистая линия**: Если бы линия была прерывистой, ты мог бы заехать на неё, но **только** для смены направления (поворота) или въезда в гараж. Использовать её для обгона, остановки или парковки запрещено даже при прерывистой разметке."
     },
     "image_url": "https://teorica.practicavial.com/question/49f0315e-3575-4493-addf-2629506ccc9c-1651514779-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/49f0315e-3575-4493-addf-2629506ccc9c-s-1.jpg",
@@ -260,29 +260,29 @@
     },
     "answers": [
       {
-        "id": "a",
+        "id": "opt_0",
         "text": {
+          "ru": "При увеличении скорости движения транспортных средств.",
           "es": "Al aumentar la velocidad de circulación de los vehículos.",
-          "en": "When the speed of the vehicles increases.",
-          "ru": "При увеличении скорости движения транспортных средств."
+          "en": "When the speed of the vehicles increases."
         },
         "is_correct": true
       },
       {
-        "id": "b",
+        "id": "opt_1",
         "text": {
+          "ru": "При подготовке к обгону.",
           "es": "Al preparar un adelantamiento.",
-          "en": "When preparing to overtake.",
-          "ru": "При подготовке к обгону."
+          "en": "When preparing to overtake."
         },
         "is_correct": false
       },
       {
-        "id": "c",
+        "id": "opt_2",
         "text": {
+          "ru": "При снижении скорости движения транспортных средств.",
           "es": "Al disminuir la velocidad de circulación de los vehículos.",
-          "en": "When the speed of the vehicles decreases.",
-          "ru": "При снижении скорости движения транспортных средств."
+          "en": "When the speed of the vehicles decreases."
         },
         "is_correct": false
       }
@@ -290,7 +290,7 @@
     "explanation": {
       "es": "Según el principio de seguridad vial y la física del movimiento, la distancia de detención (suma de la distancia de reacción y la de frenado) aumenta exponencialmente con la velocidad. El Reglamento General de Circulación exige mantener un espacio libre frontal suficiente para detener el vehículo en caso de frenado brusco del precedente sin colisionar con él. Por consiguiente, al aumentar la velocidad, es imperativo aumentar la distancia de seguridad para compensar el incremento en los metros necesarios para detener el turismo.",
       "en": "According to road safety principles and the physics of motion, stopping distance (the sum of reaction distance and braking distance) increases exponentially with speed. The General Traffic Regulations require maintaining sufficient frontal clearance to stop the vehicle in the event of sudden braking by the vehicle in front without colliding with it. Consequently, as speed increases, it is imperative to increase the safety distance to compensate for the increased distance required to stop the car.",
-      "ru": "**🎓 **\nДля водителя легкового автомобиля (Turismo) безопасная дистанция — это жизненно важный запас пространства. Физика процесса такова: остановочный путь складывается из пути, пройденного за время реакции водителя, и собственно тормозного пути. Оба этих показателя растут вместе со скоростью. Чем быстрее вы едете, тем больше метров пролетит автомобиль, прежде чем остановится. Поэтому единственно верное действие при наборе скорости — это увеличение дистанции до впереди идущего ТС. При подготовке к обгону (Adelantamiento) мы часто вынуждены приблизиться (сохраняя безопасность), а при снижении скорости тормозной путь уменьшается, поэтому эти варианты не подходят.\n\n**💡 **\nЗапомни правило «Резинки»: представь, что твой бампер привязан резинкой к машине впереди. Чем быстрее вы едете, тем сильнее натягивается и удлиняется эта резинка.\nСкорость вверх ⬆️ — Дистанция вверх ⬆️."
+      "ru": "**🎓 **Для водителя легкового автомобиля (Turismo) безопасная дистанция — это жизненно важный запас пространства. Физика процесса такова: остановочный путь складывается из пути, пройденного за время реакции водителя, и собственно тормозного пути. Оба этих показателя растут вместе со скоростью. Чем быстрее вы едете, тем больше метров пролетит автомобиль, прежде чем остановится. Поэтому единственно верное действие при наборе скорости — это увеличение дистанции до впереди идущего ТС. При подготовке к обгону (Adelantamiento) мы часто вынуждены приблизиться (сохраняя безопасность), а при снижении скорости тормозной путь уменьшается, поэтому эти варианты не подходят.\n\n**💡 **\nЗапомни правило «Резинки»: представь, что твой бампер привязан резинкой к машине впереди. Чем быстрее вы едете, тем сильнее натягивается и удлиняется эта резинка.\nСкорость вверх ⬆️ — Дистанция вверх ⬆️."
     },
     "image_url": "https://teorica.practicavial.com/question/ce46b46d-fad8-4766-97b9-d25cfe6a5b6e-1653073015-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/ce46b46d-fad8-4766-97b9-d25cfe6a5b6e-s-1.jpg",

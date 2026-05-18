@@ -14,6 +14,14 @@
  */
 export type TTSLang = 'ru' | 'es' | 'en';
 
+const stripEmoji = (text: string): string =>
+    text
+        .replace(/\p{Extended_Pictographic}/gu, '')
+        .replace(/[\u{1F1E6}-\u{1F1FF}]{2}/gu, '')
+        .replace(/[\u{FE00}-\u{FE0F}\u{200D}\u{20E3}]/gu, '')
+        .replace(/\s+/g, ' ')
+        .trim();
+
 let globalAudioCtx: AudioContext | null = null;
 const audioBufferCache = new Map<string, AudioBuffer>();
 const inFlight = new Map<string, Promise<AudioBuffer>>();
@@ -126,7 +134,7 @@ export const stopTTS = (): void => {
  * (или сразу после старта fallback'а, т.к. SpeechSynthesis асинхронен).
  */
 export const speakTTS = async (rawText: string, language: TTSLang): Promise<void> => {
-    const text = (rawText || '').trim();
+    const text = stripEmoji((rawText || '').trim());
     if (!text) return;
 
     stopTTS();

@@ -574,6 +574,12 @@ export const es = {
         cryptoMiner: {
           title: "⚡ CRYPTO MINER",
           description: "Mina criptomonedas. Mira un anuncio y consigue una recompensa.",
+          bannerTitle: "CRYPTO MINER",
+          ready: "READY",
+          watchAd: "Ve anuncios — gana monedas",
+          limitReached: "Límite alcanzado — vuelve mañana",
+          cooldown: "Disponible en {{time}}",
+          watchButton: "Ver",
         },
         overclocking: {
           title: "OVERCLOCKING",
@@ -2421,6 +2427,7 @@ export const es = {
       lexicon_old: "Léxico",
       guessSign: "Adivina la Señal",
       roadRace: "Carrera de Carretera",
+      speedQuiz: "Límites de Velocidad",
       blitz: "Blitz",
     },
     gameDescriptions: {
@@ -2432,6 +2439,7 @@ export const es = {
       lexicon_old: "Maestría en traducción. Elige el significado correcto de los términos de tráfico.",
       guessSign: "Pon a prueba tus conocimientos de señales en un juego premium",
       roadRace: "Maratón de tests en formato carrera por carreteras españolas",
+      speedQuiz: "Pon a prueba tus conocimientos sobre los límites de velocidad en España: desde autopistas hasta zonas residenciales.",
       blitz: "Responde el máximo de preguntas en 5 minutos. ¡Cada error es una penalización!",
     },
   },

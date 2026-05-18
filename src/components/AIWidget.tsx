@@ -1,11 +1,10 @@
-import React, { useState, useEffect, useRef } from "react";
-import { Send, Sparkles, Maximize2, Minimize2, Languages, ThumbsUp, ThumbsDown, Mic, MicOff, Lightbulb, Zap, Crown } from "lucide-react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
+import { Send, Maximize2, Minimize2, Languages, ThumbsUp, ThumbsDown, Mic, MicOff, Zap, Crown, Paperclip, ImagePlus, Camera, XCircle, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { SkilyAICharacter } from "@/components/skily-ai/SkilyAICharacter";
-import { useAIRequest } from "@/hooks/useAIRequest";
+import { useAIRequest, uploadChatAttachment } from "@/hooks/useAIRequest";
 import { useTypewriter } from "@/hooks/useTypewriter";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -22,6 +21,20 @@ import { useDashboardData } from "@/hooks/useDashboardData";
 import { useDuelPassData } from "@/hooks/useDuelPassData";
 import { useTTSStore } from "@/store/useTTSStore";
 import { AIMessageContent } from "@/components/ai/AIMessageContent";
+import { useMicrophonePermission } from "@/hooks/useMicrophonePermission";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+
+type PendingAttachment = {
+  file: File;
+  kind: 'image';
+  source: 'gallery' | 'camera';
+  previewUrl?: string;
+};
 
 type Message = {
   role: "user" | "assistant";
@@ -190,12 +203,29 @@ const AIWidgetContent = ({
   const [isExpanded, setIsExpanded] = useState(false);
   const [messageRatings, setMessageRatings] = useState<Record<number, 1 | -1>>({});
   const [maxHeight, setMaxHeight] = useState<number | undefined>(undefined);
-  const [isListening, setIsListening] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
+  const [isProcessingVoice, setIsProcessingVoice] = useState(false);
+  const [pendingAttachment, setPendingAttachment] = useState<PendingAttachment | null>(null);
   const [limitModalOpen, setLimitModalOpen] = useState(false);
   const [limitData, setLimitData] = useState({ currentCount: 0, limit: 5, message: '' });
   const openModal = useModalStore((s) => s.openModal);
   const { isPremium } = usePremium();
   const { profileId } = useUserContext();
+  const imageInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
+  const voiceBaselineInputRef = useRef('');
+  const voiceFinalTranscriptRef = useRef('');
+  const speechRecognitionEnabledRef = useRef(false);
+  const speechRecognitionFailedRef = useRef(false);
+  const { refreshPermission: refreshMicrophonePermission, isDenied: isMicrophoneDenied } = useMicrophonePermission();
+  const clearVoiceDraft = useCallback(() => {
+    voiceBaselineInputRef.current = '';
+    voiceFinalTranscriptRef.current = '';
+    speechRecognitionEnabledRef.current = false;
+    speechRecognitionFailedRef.current = false;
+  }, []);
 
   // Personalization context — reads from already-loaded React Query cache, no extra requests
   const { data: dashboardData } = useDashboardData();
@@ -239,78 +269,142 @@ const AIWidgetContent = ({
       ? profileLanguage as 'ru' | 'en'
       : (testLanguage ?? 'es');
 
-  const toggleVoiceInput = () => {
-    if (isListening) {
-      recognitionRef.current?.stop();
-      setIsListening(false);
-      return;
+  const pickRecorderMime = (): string => {
+    const candidates = ['audio/webm;codecs=opus', 'audio/webm', 'audio/ogg;codecs=opus', 'audio/mp4'];
+    const MR: any = typeof window !== 'undefined' && (window as any).MediaRecorder || null;
+    if (MR?.isTypeSupported) {
+      for (const m of candidates) if (MR.isTypeSupported(m)) return m;
     }
-
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    if (!SpeechRecognition) {
-      toast.error("Ваш браузер не поддерживает голосовой ввод");
-      return;
-    }
-
-    const recognition = new SpeechRecognition();
-    recognition.lang = interfaceLanguage === 'ru' ? 'ru-RU' : 'es-ES';
-    recognition.continuous = false;
-    recognition.interimResults = true; // Включаем, чтобы видеть процесс
-    recognition.maxAlternatives = 1;
-
-    recognition.onstart = () => {
-      setIsListening(true);
-      // Haptic feedback start
-      triggerHapticFeedback('light');
-    };
-
-    recognition.onend = () => setIsListening(false);
-
-    recognition.onerror = (event: any) => {
-      console.error("Speech recognition error", event.error);
-      setIsListening(false);
-      if (event.error === 'not-allowed') {
-        toast.error("Доступ к микрофону запрещен");
-      }
-    };
-
-    // Храним текущий ввод до начала диктовки, чтобы корректно добавлять interim результаты
-    let initialInput = input;
-
-    recognition.onresult = (event: any) => {
-      let finalTranscript = '';
-      let interimTranscript = '';
-
-      for (let i = event.resultIndex; i < event.results.length; ++i) {
-        if (event.results[i].isFinal) {
-          finalTranscript += event.results[i][0].transcript;
-        } else {
-          interimTranscript += event.results[i][0].transcript;
-        }
-      }
-
-      const transcript = finalTranscript || interimTranscript;
-
-      if (transcript) {
-        // Обновляем инпут: старый текст + пробел + новый текст
-        setInput((prev) => {
-          // Если это interim обновление, мы хотим заменить только последнюю диктуемую часть?
-          // Простой вариант для чата: просто добавляем.
-          // Но с interim это будет дергаться.
-          // Упростим: покажем interim прямо в input.
-          const prefix = initialInput ? initialInput + ' ' : '';
-          return prefix + transcript;
-        });
-
-        if (finalTranscript) {
-          initialInput = initialInput ? initialInput + ' ' + finalTranscript : finalTranscript;
-        }
-      }
-    };
-
-    recognitionRef.current = recognition;
-    recognition.start();
+    return '';
   };
+
+  const startRecording = async () => {
+    const permission = await refreshMicrophonePermission();
+    if (permission === 'unsupported' || !navigator.mediaDevices?.getUserMedia) {
+      toast.error(interfaceLanguage === 'ru' ? 'Браузер не поддерживает запись голоса' : 'El navegador no soporta grabación de voz');
+      return;
+    }
+    if (permission === 'denied') {
+      toast.error(interfaceLanguage === 'ru'
+        ? 'Доступ к микрофону отключён. Разреши в настройках сайта.'
+        : 'El acceso al micrófono está bloqueado. Permítelo en los ajustes del sitio.');
+      return;
+    }
+
+    let stream: MediaStream;
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } });
+    } catch {
+      toast.error(interfaceLanguage === 'ru' ? 'Нет доступа к микрофону' : 'Sin acceso al micrófono');
+      return;
+    }
+
+    const mimeType = pickRecorderMime();
+    const mediaRecorder = mimeType ? new MediaRecorder(stream, { mimeType }) : new MediaRecorder(stream);
+    mediaRecorderRef.current = mediaRecorder;
+    audioChunksRef.current = [];
+    voiceBaselineInputRef.current = input.trim();
+    voiceFinalTranscriptRef.current = '';
+    speechRecognitionFailedRef.current = false;
+    speechRecognitionEnabledRef.current = false;
+
+    const SpeechRecognitionCtor = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (SpeechRecognitionCtor) {
+      try {
+        const recognition = new SpeechRecognitionCtor();
+        recognition.lang = interfaceLanguage === 'ru' ? 'ru-RU' : interfaceLanguage === 'en' ? 'en-US' : 'es-ES';
+        recognition.continuous = true;
+        recognition.interimResults = true;
+        recognition.onresult = (event: any) => {
+          let interimTranscript = '';
+          let finalDelta = '';
+          for (let i = event.resultIndex; i < event.results.length; ++i) {
+            const t = (event.results[i][0]?.transcript || '').trim();
+            if (!t) continue;
+            if (event.results[i].isFinal) finalDelta = finalDelta ? `${finalDelta} ${t}` : t;
+            else interimTranscript = interimTranscript ? `${interimTranscript} ${t}` : t;
+          }
+          if (finalDelta) {
+            voiceFinalTranscriptRef.current = voiceFinalTranscriptRef.current
+              ? `${voiceFinalTranscriptRef.current} ${finalDelta}` : finalDelta;
+          }
+          const live = [voiceFinalTranscriptRef.current, interimTranscript].filter(Boolean).join(' ').trim();
+          setInput([voiceBaselineInputRef.current, live].filter(Boolean).join(' ').trim());
+        };
+        recognition.onerror = () => { speechRecognitionFailedRef.current = true; };
+        recognition.onend = () => { recognitionRef.current = null; };
+        recognitionRef.current = recognition;
+        speechRecognitionEnabledRef.current = true;
+        recognition.start();
+      } catch { speechRecognitionEnabledRef.current = false; }
+    }
+
+    mediaRecorder.ondataavailable = (e) => { if (e.data.size > 0) audioChunksRef.current.push(e.data); };
+    mediaRecorder.onstop = async () => {
+      const usedMime = mediaRecorder.mimeType || mimeType || 'audio/webm';
+      const audioBlob = new Blob(audioChunksRef.current, { type: usedMime });
+      stream.getTracks().forEach(t => t.stop());
+      recognitionRef.current?.stop?.();
+      recognitionRef.current = null;
+      setIsRecording(false);
+
+      if (audioBlob.size < 2048) {
+        toast.message(interfaceLanguage === 'ru' ? 'Запись слишком короткая' : 'Grabación demasiado corta');
+        return;
+      }
+
+      const liveTranscript = [voiceBaselineInputRef.current, voiceFinalTranscriptRef.current].filter(Boolean).join(' ').trim();
+      const shouldFallback = !speechRecognitionEnabledRef.current || speechRecognitionFailedRef.current || !liveTranscript;
+      if (!shouldFallback) { setInput(liveTranscript); triggerHapticFeedback('success'); return; }
+
+      setIsProcessingVoice(true);
+      try {
+        const ext = usedMime.includes('mp4') ? 'mp4' : usedMime.includes('ogg') ? 'ogg' : 'webm';
+        const formData = new FormData();
+        formData.append('file', audioBlob, `voice.${ext}`);
+        const { data, error } = await supabase.functions.invoke('speech-to-text', { body: formData });
+        if (error) throw error;
+        const recognised = (data?.text || '').trim();
+        if (recognised) {
+          setInput(prev => { const t = prev.trim(); return t ? `${t} ${recognised}` : recognised; });
+          triggerHapticFeedback('success');
+          setTimeout(() => textareaRef.current?.focus(), 150);
+        } else {
+          toast.message(interfaceLanguage === 'ru' ? 'Ничего не услышал — попробуйте ещё раз' : 'No te he entendido, inténtalo de nuevo');
+        }
+      } catch {
+        toast.error(interfaceLanguage === 'ru' ? 'Не удалось распознать речь' : 'No se pudo reconocer la voz');
+      } finally { setIsProcessingVoice(false); }
+    };
+
+    mediaRecorder.start();
+    setIsRecording(true);
+    triggerHapticFeedback('light');
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorderRef.current?.state === 'recording') {
+      mediaRecorderRef.current.stop();
+      triggerHapticFeedback('medium');
+    }
+  };
+
+  const toggleVoiceInput = () => { if (isRecording) stopRecording(); else startRecording(); };
+
+  const handleFileSelect = (source: 'gallery' | 'camera') => (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (pendingAttachment?.previewUrl) URL.revokeObjectURL(pendingAttachment.previewUrl);
+    setPendingAttachment({ file, kind: 'image', source, previewUrl: URL.createObjectURL(file) });
+    e.target.value = '';
+  };
+
+  const removePendingAttachment = () => {
+    if (pendingAttachment?.previewUrl) URL.revokeObjectURL(pendingAttachment.previewUrl);
+    setPendingAttachment(null);
+  };
+
+  const hasComposerContent = Boolean(input.trim() || pendingAttachment);
 
   // Показываем explanation из БД при загрузке
   // Используем правильный язык: приоритет showTranslation, затем explanation (уже зависит от testLanguage)
@@ -443,14 +537,20 @@ const AIWidgetContent = ({
     el.style.height = `${el.scrollHeight}px`;
   }, [input]);
 
-  const askAI = async (userMessage: string) => {
-    // Клиентская пре-проверка: не тратить запрос если лимит уже исчерпан
+  const askAI = async (userMessage: string, imageFile?: File) => {
     if (!isPremium && aiLimitReached) {
       setLimitData({ currentCount: aiUsed, limit: 5, message: '' });
       setLimitModalOpen(true);
       return;
     }
     setIsLoading(true);
+
+    let uploadedImageUrl: string | null = null;
+    if (imageFile && profileId) {
+      if (pendingAttachment?.previewUrl) URL.revokeObjectURL(pendingAttachment.previewUrl);
+      setPendingAttachment(null);
+      uploadedImageUrl = await uploadChatAttachment(imageFile, profileId);
+    }
 
     // Адаптивный контекст и системный промпт в зависимости от страны
     const getRussiaSystemPrompt = () => `
@@ -553,7 +653,7 @@ ${imageUrl ? `\n⚠️ К вопросу есть иллюстрация — о�
         messages: [{ role: 'system', content: context }, ...apiMessages],
         country,
         language: interfaceLanguage,
-        imageUrl: imageUrl || null,
+        imageUrl: uploadedImageUrl || imageUrl || null,
       },
       {
         onChunk: (text) => typewriter.push(text),
@@ -583,11 +683,15 @@ ${imageUrl ? `\n⚠️ К вопросу есть иллюстрация — о�
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!input.trim() || isLoading) return;
+    if (isLoading || isProcessingVoice) return;
+    if (isRecording) { stopRecording(); return; }
+    if (!input.trim() && !pendingAttachment) return;
 
     const userMessage = input.trim();
-    setInput("");
-    askAI(userMessage);
+    const imageFile = pendingAttachment?.file;
+    setInput('');
+    clearVoiceDraft();
+    askAI(userMessage, imageFile);
   };
 
   const submitFeedback = async (messageIndex: number, rating: 1 | -1) => {
@@ -784,17 +888,8 @@ ${imageUrl ? `\n⚠️ К вопросу есть иллюстрация — о�
                   </div>
                 )}
                 {message.role === "assistant" && (
-                  <div className="flex gap-2 xl:gap-3 items-start animate-in fade-in slide-in-from-left-2 duration-300">
-                    <div className="relative flex items-center justify-center w-8 h-8 xl:w-10 xl:h-10 flex-shrink-0 drop-shadow-lg">
-                      {isSpeaking && index === messages.length - 1 && (
-                        <>
-                          <span className="absolute inset-0 rounded-full bg-purple-500/20 animate-ping" />
-                          <span className="absolute inset-[-3px] rounded-full border border-purple-400/40 animate-pulse" />
-                        </>
-                      )}
-                      <SkilyAICharacter size="sm" mood="happy" className="scale-75" />
-                    </div>
-                    <div className="flex-1 min-w-0 mt-0.5 xl:mt-1">
+                  <div className="animate-in fade-in slide-in-from-left-2 duration-300">
+                    <div className="min-w-0">
                       {message.content ? (
                         <div className={cn(
                           "max-w-[90%] p-4 rounded-2xl rounded-tl-none text-xs xl:text-sm leading-relaxed transition-all",
@@ -879,76 +974,129 @@ ${imageUrl ? `\n⚠️ К вопросу есть иллюстрация — о�
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Input Area - стиль Officer Frank */}
+        {/* Input Area */}
         <div className="p-3 xl:p-4 border-t shrink-0 bg-background dark:bg-slate-900/60 dark:border-white/5">
-          <form onSubmit={handleSubmit} className="relative">
-            <textarea
-              ref={textareaRef}
-              value={input}
-              rows={1}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                  e.preventDefault();
-                  if (input.trim() && !isLoading) {
-                    (e.currentTarget.form as HTMLFormElement | null)?.requestSubmit();
+          {/* Image preview */}
+          {pendingAttachment?.previewUrl && (
+            <div className="mb-2 flex items-center gap-2 rounded-2xl border border-slate-200 dark:border-white/8 bg-slate-50 dark:bg-slate-800/60 px-3 py-2">
+              <img
+                src={pendingAttachment.previewUrl}
+                alt=""
+                className="h-10 w-10 rounded-lg object-cover border border-slate-200 dark:border-slate-700 shrink-0"
+              />
+              <p className="flex-1 min-w-0 truncate text-xs text-slate-500 dark:text-slate-400">{pendingAttachment.file.name}</p>
+              <button type="button" onClick={removePendingAttachment} className="shrink-0 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
+                <XCircle className="w-4 h-4" />
+              </button>
+            </div>
+          )}
+
+          <input ref={imageInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileSelect('gallery')} />
+          <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={handleFileSelect('camera')} />
+
+          <form onSubmit={handleSubmit}>
+            <div className={cn(
+              "rounded-[22px] border transition-all duration-200",
+              "border-slate-200 dark:border-white/8",
+              "bg-white dark:bg-slate-800/80",
+              "shadow-sm dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.03),0_8px_20px_rgba(2,6,23,0.18)]",
+              "focus-within:border-blue-300/70 dark:focus-within:border-white/12"
+            )}>
+              <div className="flex min-h-[52px] items-end gap-1 px-3 py-2">
+                {/* Paperclip — opens gallery/camera */}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="shrink-0 h-8 w-8 rounded-full text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors"
+                      title={interfaceLanguage === 'ru' ? 'Прикрепить фото' : 'Adjuntar foto'}
+                    >
+                      <Paperclip className="w-4 h-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start" side="top" sideOffset={8} className="w-48 rounded-xl border-slate-200 dark:border-white/10 bg-white dark:bg-slate-900 p-1 shadow-lg">
+                    <DropdownMenuItem onClick={() => imageInputRef.current?.click()} className="rounded-lg px-3 py-2.5 text-sm cursor-pointer">
+                      <ImagePlus className="mr-2.5 h-4 w-4 text-indigo-500" />
+                      {interfaceLanguage === 'ru' ? 'Выбрать фото' : 'Elegir foto'}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => cameraInputRef.current?.click()} className="rounded-lg px-3 py-2.5 text-sm cursor-pointer">
+                      <Camera className="mr-2.5 h-4 w-4 text-amber-400" />
+                      {interfaceLanguage === 'ru' ? 'Сделать фото' : 'Hacer foto'}
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+
+                <textarea
+                  ref={textareaRef}
+                  value={input}
+                  rows={1}
+                  onChange={(e) => { if (!isRecording) setInput(e.target.value); }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault();
+                      if ((input.trim() || pendingAttachment) && !isLoading) {
+                        (e.currentTarget.form as HTMLFormElement | null)?.requestSubmit();
+                      }
+                    }
+                  }}
+                  placeholder={
+                    isRecording
+                      ? (interfaceLanguage === 'ru' ? '🎙 Слушаю...' : '🎙 Escuchando...')
+                      : isProcessingVoice
+                        ? (interfaceLanguage === 'ru' ? 'Распознаю...' : 'Reconociendo...')
+                        : (interfaceLanguage === 'ru' ? t('lumiPlaceholder') : interfaceLanguage === 'en' ? 'Ask your question here...' : 'Haz tu pregunta aquí...')
                   }
-                }
-              }}
-              placeholder={interfaceLanguage === 'ru' ? t('lumiPlaceholder') : interfaceLanguage === 'en' ? 'Ask your question here...' : 'Haz tu pregunta aquí...'}
-              className="w-full min-h-[40px] xl:min-h-[48px] max-h-28 pr-[100px] xl:pr-[120px] pl-4 py-2.5 xl:py-3 text-xs xl:text-sm rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500/50 transition-all shadow-sm resize-none overflow-y-auto leading-relaxed"
-              disabled={isLoading}
-            />
-            <div className="absolute right-1 bottom-1 flex items-center gap-0.5">
-              <Button
-                type="button"
-                size="icon"
-                variant="ghost"
-                className={cn(
-                  "h-8 w-8 xl:h-10 xl:w-10 shrink-0 transition-all rounded-full",
-                  isListening
-                    ? "bg-red-500 hover:bg-red-600 text-white shadow-md shadow-red-500/20 animate-pulse scale-110"
-                    : "text-slate-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20"
-                )}
-                onClick={toggleVoiceInput}
-                disabled={isLoading}
-                title="Голосовой ввод"
-              >
-                {isListening ? <MicOff className="h-4 w-4 xl:h-5 xl:w-5" /> : <Mic className="h-4 w-4 xl:h-4 xl:w-4" />}
-              </Button>
-              <Button
-                type="button"
-                size="icon"
-                variant="ghost"
-                className="h-8 w-8 xl:h-10 xl:w-10 text-slate-400 hover:text-yellow-600 hover:bg-yellow-50 dark:hover:bg-yellow-900/20 shrink-0 transition-colors rounded-full"
-                disabled={isLoading}
-                onClick={() => {
-                  const hintPrompt = interfaceLanguage === 'ru'
-                    ? "Дай мне подсказку к этому вопросу, но не говори правильный ответ напрямую. Помоги мне подумать самостоятельно."
-                    : interfaceLanguage === 'en'
-                      ? "Give me a hint for this question, but don't tell me the correct answer directly. Help me think independently."
-                      : "Dame una pista para esta pregunta, pero no me digas la respuesta correcta directamente. Ayúdame a pensar por mí mismo.";
-                  askAI(hintPrompt);
-                }}
-                title={interfaceLanguage === 'ru' ? "Получить подсказку" : "Obtener pista"}
-              >
-                <Lightbulb className="h-4 w-4 xl:h-4 xl:w-4" />
-              </Button>
-              <Button
-                type="submit"
-                size="icon"
-                disabled={!input.trim() || isLoading}
-                className={cn(
-                  "h-8 w-8 xl:h-10 xl:w-10 rounded-full shrink-0 shadow-sm transition-all",
-                  !input.trim() && !isLoading ? "bg-blue-500/50 text-white shadow-none" : "bg-blue-500 hover:bg-blue-600 text-white hover:scale-105 shadow-blue-500/30"
-                )}
-              >
-                {isLoading ? (
-                  <Sparkles className="h-4 w-4 animate-spin" />
-                ) : (
-                  <Send className="h-4 w-4" />
-                )}
-              </Button>
+                  readOnly={isRecording || isProcessingVoice}
+                  className="min-w-0 flex-1 h-auto max-h-28 bg-transparent resize-none overflow-y-auto leading-[1.4] py-1.5 px-0 focus:outline-none text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500"
+                  style={{ fontSize: '14px' }}
+                  disabled={isLoading}
+                />
+
+                {/* Combined send / mic button */}
+                <Button
+                  type={isRecording ? 'button' : hasComposerContent ? 'submit' : 'button'}
+                  onClick={isRecording || isProcessingVoice ? toggleVoiceInput : hasComposerContent ? undefined : toggleVoiceInput}
+                  disabled={isLoading || isProcessingVoice}
+                  variant="ghost"
+                  size="icon"
+                  className={cn(
+                    "shrink-0 h-9 w-9 rounded-full border transition-all duration-200 active:scale-[0.97]",
+                    isRecording
+                      ? "border-slate-900/10 dark:border-white/10 bg-slate-900 dark:bg-white/[0.06] text-white shadow-sm"
+                      : hasComposerContent
+                        ? "border-slate-900/10 dark:border-white/10 bg-slate-900 dark:bg-white/[0.05] text-white shadow-sm hover:bg-slate-700 dark:hover:bg-white/[0.08]"
+                        : "border-slate-200 dark:border-white/8 bg-slate-900 dark:bg-white/[0.03] text-white dark:text-white/85 hover:bg-slate-700 dark:hover:bg-white/[0.06]"
+                  )}
+                  title={isRecording
+                    ? (interfaceLanguage === 'ru' ? 'Остановить запись' : 'Detener grabación')
+                    : hasComposerContent
+                      ? (interfaceLanguage === 'ru' ? 'Отправить' : 'Enviar')
+                      : (interfaceLanguage === 'ru' ? 'Голосовой ввод' : 'Entrada por voz')}
+                >
+                  {isRecording && <span className="absolute inset-0 rounded-full animate-pulse bg-red-400/15 pointer-events-none" />}
+                  <AnimatePresence mode="wait" initial={false}>
+                    {isLoading ? (
+                      <motion.span key="loading" initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }} transition={{ duration: 0.14 }} className="relative z-10">
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      </motion.span>
+                    ) : isRecording ? (
+                      <motion.span key="recording" initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }} transition={{ duration: 0.14 }} className="relative z-10">
+                        <MicOff className="w-4 h-4" strokeWidth={2} />
+                      </motion.span>
+                    ) : hasComposerContent ? (
+                      <motion.span key="send" initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }} transition={{ duration: 0.14 }} className="relative z-10">
+                        <Send className="w-4 h-4" strokeWidth={2} />
+                      </motion.span>
+                    ) : (
+                      <motion.span key="mic" initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }} transition={{ duration: 0.14 }} className="relative z-10">
+                        <Mic className="w-4 h-4" strokeWidth={2} />
+                      </motion.span>
+                    )}
+                  </AnimatePresence>
+                </Button>
+              </div>
             </div>
           </form>
         </div>

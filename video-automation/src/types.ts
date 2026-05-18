@@ -1,6 +1,12 @@
 export type Language = "ru" | "es";
 export type Difficulty = "easy" | "medium" | "hard";
 
+export interface WordTiming {
+  word: string;
+  start: number; // seconds from start of this audio clip
+  end: number;
+}
+
 export interface AnswerOption {
   id: string;
   text: string;       // основной язык (es для DGT)
@@ -42,6 +48,13 @@ export interface VideoQuestion {
   explanationRuAudioFile?: string;
   explanationRuAudioDurationSec?: number;
 
+  // Word-level subtitle timings for karaoke subtitles (populated by picker-server before render)
+  hookWords?: WordTiming[];
+  questionWords?: WordTiming[];
+  answerWords?: WordTiming[][];        // one array per answer option
+  explanationWords?: WordTiming[];     // ES explanation
+  explanationRuWords?: WordTiming[];   // RU explanation
+
   // Hook intro voiceover
   hookAudioFile?: string;
   hookAudioDurationSec?: number;
@@ -75,15 +88,15 @@ export interface DynamicTiming {
 
 const HOOK_DUR        = 2;
 const COUNTDOWN_DUR   = 0;
-const SUSPENSE_DUR    = 3;
-const REVEAL_DUR      = 3;
-const CTA_DUR_DEFAULT = 4;
-const ANSWER_GAP      = 0.35; // seconds between answers
+const SUSPENSE_DUR    = 1.5;
+const REVEAL_DUR      = 1.5;
+const CTA_DUR_DEFAULT = 2.5;
+const ANSWER_GAP      = 0.15; // seconds between answers
 
 export function buildDynamicTiming(q: VideoQuestion): DynamicTiming {
-  // Question window: at least 5s or however long the TTS takes
+  // Question window: at least 3.5s or however long the TTS takes
   const qAudioDur   = q.questionAudioDurationSec ?? 5;
-  const questionDur = Math.max(5, qAudioDur + 0.5);
+  const questionDur = Math.max(3.5, qAudioDur + 0.5);
 
   const hookAudioDur   = q.hookAudioDurationSec ?? HOOK_DUR;
   const hookEnd        = Math.max(HOOK_DUR, hookAudioDur + 0.3); // ждём конца hook-озвучки + 0.3с зазор
@@ -109,12 +122,12 @@ export function buildDynamicTiming(q: VideoQuestion): DynamicTiming {
   const revealStart      = suspenseStart + SUSPENSE_DUR;
   const explanationStart = revealStart + REVEAL_DUR;
 
-  // Explanation: at least 6s or however long the audio is
+  // Explanation: at least 4s or however long the audio is
   // RU video → use RU audio duration; ES video → use ES audio duration
   const expAudioDur   = (q.language === "ru" && q.explanationRuAudioFile)
     ? (q.explanationRuAudioDurationSec ?? 8)
     : (q.explanationAudioDurationSec   ?? 8);
-  const explanationDur = Math.max(6, expAudioDur + 1);
+  const explanationDur = Math.max(4, expAudioDur + 0.5);
 
   const ctaStart = explanationStart + explanationDur;
   const ctaDur   = q.outroAudioDurationSec

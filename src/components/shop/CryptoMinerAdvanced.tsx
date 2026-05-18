@@ -205,7 +205,7 @@ export function CryptoMinerAdvanced({ className, onRewardClaimed }: CryptoMinerA
                         <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 mb-0.5">
                                 <span className="text-white font-black text-sm sm:text-base tracking-widest uppercase">
-                                    Crypto Miner
+                                    {t('dashboard.rewardedAds.placements.cryptoMiner.bannerTitle')}
                                 </span>
                                 {canWatch && (
                                     <motion.span
@@ -213,16 +213,16 @@ export function CryptoMinerAdvanced({ className, onRewardClaimed }: CryptoMinerA
                                         animate={{ opacity: [1, 0.6, 1] }}
                                         transition={{ duration: 1.8, repeat: Infinity }}
                                     >
-                                        READY
+                                        {t('dashboard.rewardedAds.placements.cryptoMiner.ready')}
                                     </motion.span>
                                 )}
                             </div>
                             <p className="text-white/50 text-[11px] font-medium leading-tight">
                                 {isDailyLimitReached
-                                    ? 'Лимит исчерпан — вернись завтра'
+                                    ? t('dashboard.rewardedAds.placements.cryptoMiner.limitReached')
                                     : isOnCooldown
-                                        ? `Доступно через ${timeUntilAvailable}`
-                                        : 'Смотри рекламу — получай монеты'
+                                        ? t('dashboard.rewardedAds.placements.cryptoMiner.cooldown', { time: timeUntilAvailable })
+                                        : t('dashboard.rewardedAds.placements.cryptoMiner.watchAd')
                                 }
                             </p>
 
@@ -266,7 +266,7 @@ export function CryptoMinerAdvanced({ className, onRewardClaimed }: CryptoMinerA
                                     transition={{ duration: 1.5, repeat: Infinity }}
                                 >
                                     <Play className="w-2.5 h-2.5 fill-current" />
-                                    <span>Смотреть</span>
+                                    <span>{t('dashboard.rewardedAds.placements.cryptoMiner.watchButton')}</span>
                                 </motion.div>
                             )}
                         </div>

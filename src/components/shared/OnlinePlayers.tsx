@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { NumberTicker } from '@/components/ui/NumberTicker';
 import { AvatarGroup } from './AvatarGroup';
 import { useOnlinePlayers } from '@/hooks/useGamesData';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface OnlinePlayer {
     id: string;
@@ -30,6 +31,7 @@ export const OnlinePlayers: React.FC<OnlinePlayersProps> = ({
     className,
     variant = 'default'
 }) => {
+    const { t } = useLanguage();
     const [count, setCount] = useState(baseCount);
 
     // Если players не переданы снаружи — загружаем сами
@@ -124,7 +126,7 @@ export const OnlinePlayers: React.FC<OnlinePlayersProps> = ({
                         "text-[10px] font-black tracking-wider uppercase",
                         variant === 'default' ? "text-blue-600/70 dark:text-blue-300/50" : "text-white/70"
                     )}>
-                        В СЕТИ
+                        {t('online')}
                     </span>
                 </div>
             </div>

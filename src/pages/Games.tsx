@@ -115,8 +115,8 @@ const Games = () => {
     },
     {
       id: 12,
-      title: "Знай скорости",
-      description: "Проверь знание лимитов скорости Испании: от магистралей до жилых зон.",
+      title: t('gamesPage.gameTitles.speedQuiz'),
+      description: t('gamesPage.gameDescriptions.speedQuiz'),
       icon: Gauge,
       color: "primary",
       premium: false,

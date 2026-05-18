@@ -4,6 +4,8 @@ import { VideoTemplate } from "./VideoTemplate";
 import { TOTAL_FRAMES, FPS, buildDynamicTiming } from "./types";
 import type { VideoQuestion } from "./types";
 
+type VideoTemplateProps = { question: VideoQuestion };
+
 const DEMO_ES: VideoQuestion = {
   id: "demo-es-001",
   question: "¿A qué velocidad máxima puede circular un vehículo en autopista?",
@@ -31,30 +33,33 @@ const DEMO_RU: VideoQuestion = {
   explanationRu: "На автострадах максимальная скорость — 120 км/ч. Превышение этого лимита является серьёзным нарушением.",
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const AnyComp = VideoTemplate as React.ComponentType<any>;
+
 export const RemotionRoot: React.FC = () => (
   <>
     <Composition
       id="VideoTemplate"
-      component={VideoTemplate}
+      component={AnyComp}
       durationInFrames={TOTAL_FRAMES}
       fps={FPS}
       width={1080}
       height={1920}
       defaultProps={{ question: DEMO_ES }}
       calculateMetadata={({ props }) => ({
-        durationInFrames: Math.ceil(buildDynamicTiming(props.question).totalSec * FPS),
+        durationInFrames: Math.ceil(buildDynamicTiming((props as VideoTemplateProps).question).totalSec * FPS),
       })}
     />
     <Composition
       id="VideoTemplateRU"
-      component={VideoTemplate}
+      component={AnyComp}
       durationInFrames={TOTAL_FRAMES}
       fps={FPS}
       width={1080}
       height={1920}
       defaultProps={{ question: DEMO_RU }}
       calculateMetadata={({ props }) => ({
-        durationInFrames: Math.ceil(buildDynamicTiming(props.question).totalSec * FPS),
+        durationInFrames: Math.ceil(buildDynamicTiming((props as VideoTemplateProps).question).totalSec * FPS),
       })}
     />
   </>

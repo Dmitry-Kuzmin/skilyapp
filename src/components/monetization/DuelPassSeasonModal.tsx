@@ -378,7 +378,15 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
   const { t, language } = useLanguage();
   const { isPremium: isPremiumFromHook } = usePremium();
   const isMobile = useIsMobile();
-  const [currentView, setCurrentView] = useState<'main' | 'hall_of_fame' | 'onboarding'>('main');
+  const [currentView, setCurrentView] = useState<'main' | 'hall_of_fame' | 'onboarding'>(() => {
+    try {
+      if (localStorage.getItem('duel_pass_onboarding_v1')) return 'main';
+      localStorage.setItem('duel_pass_onboarding_v1', 'true');
+      return 'onboarding';
+    } catch {
+      return 'main';
+    }
+  });
 
   const [showFullLeaderboard, setShowFullLeaderboard] = useState(false);
   const [top3Leaders, setTop3Leaders] = useState<any[]>([]);
@@ -420,13 +428,6 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
       }
     };
     loadTop3();
-
-    // Onboarding check — флаг сохраняем сразу, чтобы закрытие через X тоже считалось "ознакомлен"
-    const hasSeenOnboarding = localStorage.getItem('duel_pass_onboarding_v1');
-    if (!hasSeenOnboarding) {
-      localStorage.setItem('duel_pass_onboarding_v1', 'true');
-      setCurrentView('onboarding');
-    }
 
     return () => { cancelled = true; };
   }, [open, profileId]);

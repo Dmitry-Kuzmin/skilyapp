@@ -18,10 +18,18 @@ import { spawn } from 'child_process';
 import dotenv from 'dotenv';
 import { createClient } from '@supabase/supabase-js';
 import { processImageForUpload } from './scripts/utils/image-processor.js';
+import {
+    uploadGeneratedImage,
+    uploadApprovedImage,
+    deleteByPublicUrl,
+    getImageState,
+    shouldOverwriteImage
+} from './scripts/utils/question-image-store.js';
 import { v5 as uuidv5 } from 'uuid';
 import chokidar from 'chokidar';
 import Fuse from 'fuse.js';
 import crypto from 'crypto';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
 const NAMESPACE = '1b671a64-40d5-491e-99b0-da01ff1f3341'; // Deterministic Namespace
 
@@ -99,7 +107,7 @@ app.use((req, res, next) => {
     next();
 });
 
-app.use(express.json());
+app.use(express.json({ limit: '25mb' }));
 
 // CRITICAL: Set MIME types BEFORE serving static files
 app.use((req, res, next) => {
@@ -2448,43 +2456,43 @@ async function deployTestToDb(testId) {
         try {
             const questionId = q.external_id || q.id;
 
-            // 1. Upload Image (Smart Logic SAFE MODE)
+            // 1. Read current DB state — approved images are protected from overwrite
+            const currentState = await getImageState(supabase, questionId).catch(() => ({ exists: false }));
+            const canOverwrite = shouldOverwriteImage(currentState);
+
             let finalImageUrl = null;
-            try {
-                const generatedDir = path.join(process.cwd(), 'data/generated-images', testId);
-                const files = await fs.readdir(generatedDir).catch(() => []);
-                const localImage = files.find(f => f.startsWith(questionId) && (f.endsWith('.png') || f.endsWith('.jpg')));
+            let finalImageStatus = null;
 
-                if (localImage) {
-                    const imageBuffer = await fs.readFile(path.join(generatedDir, localImage));
+            if (!canOverwrite) {
+                // Approved image — keep existing URL & status, skip upload
+                finalImageUrl = currentState.image_url;
+                finalImageStatus = currentState.image_status;
+            } else {
+                // 2. Upload local generated image (if exists) to generated/ path
+                try {
+                    const generatedDir = path.join(process.cwd(), 'data/generated-images', testId);
+                    const files = await fs.readdir(generatedDir).catch(() => []);
+                    const localImage = files.find(f => f.startsWith(questionId) && /\.(png|jpe?g)$/i.test(f));
 
-                    // ✨ PROCESS IMAGE
-                    const processedBuffer = await processImageForUpload(imageBuffer, q, testId);
-                    const webpFilename = localImage.replace(/\.(png|jpg|jpeg)$/i, '.webp');
-                    const storagePath = `generated/${testId}/${webpFilename}`;
-
-                    const { error: uploadError } = await supabase.storage
-                        .from('dgt-images')
-                        .upload(storagePath, processedBuffer, {
-                            contentType: 'image/webp',
-                            upsert: true
+                    if (localImage) {
+                        const buffer = await fs.readFile(path.join(generatedDir, localImage));
+                        finalImageUrl = await uploadGeneratedImage(supabase, {
+                            buffer,
+                            questionId,
+                            testId,
+                            question: q
                         });
-
-                    if (!uploadError) {
-                        const { data: { publicUrl } } = supabase.storage
-                            .from('dgt-images')
-                            .getPublicUrl(storagePath);
-                        finalImageUrl = publicUrl;
+                        finalImageStatus = 'generated';
                     }
+                } catch (imgErr) {
+                    console.warn(`[Deploy Core] Image error for ${questionId}:`, imgErr.message);
                 }
-            } catch (imgErr) {
-                console.warn(`[Deploy Core] Image error for ${questionId}:`, imgErr.message);
-            }
 
-            // ⛔ SAFETY CHECK: If no unique image, SKIP.
-            if (!finalImageUrl) {
-                console.warn(`[Deploy Core] ⛔ SKIP ${questionId}: No unique generated image found (Copyright Safety).`);
-                continue;
+                // ⛔ SAFETY CHECK: no image = skip question (copyright)
+                if (!finalImageUrl) {
+                    console.warn(`[Deploy Core] ⛔ SKIP ${questionId}: No unique generated image found.`);
+                    continue;
+                }
             }
 
             // 2. Format Answers (STABLE IDs)
@@ -2543,6 +2551,7 @@ async function deployTestToDb(testId) {
                     explanation_es: q.explanation?.es || q.explanation_es || '',
                     explanation_en: q.explanation?.en || q.explanation_en || '',
                     image_url: finalImageUrl,
+                    image_status: finalImageStatus,
                     source: 'practicavial',
                     metadata: {
                         test_id: testId,
@@ -2589,120 +2598,94 @@ app.post('/api/db/deploy-test', async (req, res) => {
     }
 });
 
-// Upload local generated image to Supabase and update record
+// ==========================================
+// APPROVE IMAGE — Manual approval from Mission Control
+// ==========================================
+// Flow:
+//   1. Validate inputs + verify question exists in DB (fail loud — no silent success)
+//   2. Upload to approved/{testId}/{id}_{ts}.webp (unique path = no CDN staleness)
+//   3. Mark image_status = 'approved' (protects from sync overwrite)
+//   4. Sync answers (best-effort)
+//   5. Cleanup old Storage object (best-effort, full path)
+//   6. Local promotion: save as UUID.png in source dir
 app.post('/api/db/upload-image', async (req, res) => {
+    const { id, generatedPath, table, questionData, testId } = req.body;
+    const tableName = table || 'questions_new';
+
     try {
-        const { id, generatedPath, table, questionData, testId } = req.body;
+        if (!id || !generatedPath) return res.status(400).json({ error: 'Missing id or generatedPath' });
+        if (!questionData) return res.status(400).json({ error: 'Missing questionData' });
+        if (!testId) return res.status(400).json({ error: 'Missing testId' });
 
-        if (!id || !generatedPath) throw new Error('Missing id or path');
-        if (!questionData) throw new Error('Missing questionData for UPSERT');
+        // 1. Verify question exists — fail loud
+        const currentState = await getImageState(supabase, id, tableName);
+        if (!currentState.exists) {
+            console.warn(`[Approve Image] ❌ Question ${id} not found in ${tableName}`);
+            return res.status(404).json({
+                error: `Question ${id} not found in ${tableName}. Deploy the test first.`
+            });
+        }
 
-        // Read original generated file
+        // 2. Read + upload to approved/ path
         const fullPath = path.resolve(process.cwd(), generatedPath);
-        const originalBuffer = await fs.readFile(fullPath);
+        const buffer = await fs.readFile(fullPath);
 
-        console.log(`[Upload Image] Processing ${id}...`);
+        console.log(`[Approve Image] Uploading approved image for ${id}...`);
+        const publicUrl = await uploadApprovedImage(supabase, {
+            buffer,
+            questionId: id,
+            testId,
+            question: questionData
+        });
 
-        // PROCESS IMAGE: Watermark + Compression + Metadata
-        const optimizedBuffer = await processImageForUpload(originalBuffer, questionData, testId);
-        console.log(`[Upload Image] ✅ Processed (${(originalBuffer.length / 1024 / 1024).toFixed(2)}MB -> ${(optimizedBuffer.length / 1024 / 1024).toFixed(2)}MB)`);
-
-        // Upload to Storage (as .webp)
-        const fileName = `${id}_${Date.now()}.webp`;
-        const { data: uploadData, error: uploadError } = await supabase.storage
-            .from('dgt-images')
-            .upload(fileName, optimizedBuffer, {
-                contentType: 'image/webp',
-                upsert: false
-            });
-
-        if (uploadError) throw uploadError;
-
-        // Get Public URL
-        const { data: { publicUrl } } = supabase.storage
-            .from('dgt-images')
-            .getPublicUrl(fileName);
-
-        // Check if question exists first
-        const { data: existingQuestion } = await supabase
-            .from(table || 'questions_new')
-            .select('id, image_url')
-            .eq('id', id)
-            .single();
-
-        if (!existingQuestion) {
-            console.log(`[Upload Image] ⚠️ Question ${id} not found in DB. Skipping DB update (only storage upload).`);
-            res.json({
-                success: true,
-                publicUrl,
-                warning: 'Question not in DB yet. Image uploaded to storage only.'
-            });
-            return;
-        }
-
-        // CLEANUP: If existing image is different, delete it to save space
-        const oldUrl = existingQuestion.image_url;
-        if (oldUrl && oldUrl !== publicUrl && oldUrl.includes('dgt-images')) {
-            try {
-                const oldFileName = oldUrl.split('/').pop();
-                if (oldFileName) {
-                    console.log(`[Upload Image] 🧹 Removing old image: ${oldFileName}`);
-                    await supabase.storage.from('dgt-images').remove([oldFileName]);
-                }
-            } catch (cleanupError) {
-                console.warn(`[Upload Image] Cleanup warning: ${cleanupError.message}`);
-            }
-        }
-
-        // Update image_url for existing question
+        // 3. Update DB — image_url + image_status='approved'
         const { error: dbError } = await supabase
-            .from(table || 'questions_new')
+            .from(tableName)
             .update({
                 image_url: publicUrl,
+                image_status: 'approved',
                 updated_at: new Date().toISOString()
             })
             .eq('id', id);
+        if (dbError) throw dbError;
 
-        if (dbError) {
-            console.error('[Upload Image] DB Update Error:', dbError);
-            throw dbError;
+        // 4. Sync answers (best-effort — don't fail the whole request)
+        if (tableName === 'questions_new' && Array.isArray(questionData.answers)) {
+            try {
+                await supabase.from('answer_options').delete().eq('question_id', id);
+                const rows = questionData.answers.map((ans, idx) => ({
+                    question_id: id,
+                    text_ru: ans.text?.ru || ans.text_ru || ans.text || '',
+                    text_es: ans.text?.es || ans.text_es || ans.text || '',
+                    text_en: ans.text?.en || ans.text_en || '',
+                    is_correct: !!(ans.is_correct || ans.isCorrect),
+                    position: ans.position || idx + 1
+                }));
+                const { error: ansErr } = await supabase.from('answer_options').insert(rows);
+                if (ansErr) console.error('[Approve Image] Answer sync failed:', ansErr.message);
+            } catch (ansEx) {
+                console.error('[Approve Image] Answer sync exception:', ansEx.message);
+            }
         }
 
-        // UPDATE ANSWERS
-        if ((table === 'questions_new' || !table) && questionData.answers && Array.isArray(questionData.answers)) {
-            // Delete old answers
-            await supabase.from('answer_options').delete().eq('question_id', id);
-
-            // Insert new answers
-            const answersToInsert = questionData.answers.map((ans, index) => ({
-                question_id: id,
-                text_ru: ans.text?.ru || ans.text_ru || ans.text || '',
-                text_es: ans.text?.es || ans.text_es || ans.text || '',
-                text_en: ans.text?.en || ans.text_en || '',
-                is_correct: ans.is_correct || ans.isCorrect || false,
-                position: ans.position || index + 1
-            }));
-
-            const { error: insertError } = await supabase.from('answer_options').insert(answersToInsert);
-            if (insertError) console.error('[Upload Image] Answer insert failed:', insertError);
-            else console.log(`[Upload Image] ✅ Updated ${answersToInsert.length} answers`);
+        // 5. Cleanup old Storage object (best-effort, doesn't block success)
+        if (currentState.image_url && currentState.image_url !== publicUrl) {
+            await deleteByPublicUrl(supabase, currentState.image_url);
         }
 
-        // LOCAL PROMOTION: Save as UUID.png
+        // 6. Local promotion: save as UUID.png in source dir
         try {
-            const approvedPath = path.join(path.dirname(fullPath), `${id}.png`);
-            // We copy original buffer (PNG) to be the master source, NOT the webp
-            await fs.copyFile(fullPath, approvedPath);
-            console.log(`[Upload Image] 🏆 Local Promotion: Saved as ${id}.png`);
-        } catch (promoError) {
-            console.warn(`[Upload Image] Failed to create local confirmed copy: ${promoError.message}`);
+            const approvedLocal = path.join(path.dirname(fullPath), `${id}.png`);
+            await fs.copyFile(fullPath, approvedLocal);
+        } catch (e) {
+            console.warn(`[Approve Image] Local promotion failed: ${e.message}`);
         }
 
-        console.log(`[Upload Image] ✅ PUBLISH COMPLETE for ${id}`);
-        res.json({ success: true, publicUrl });
+        console.log(`[Approve Image] ✅ ${id} → ${publicUrl}`);
+        res.json({ success: true, publicUrl, image_status: 'approved' });
 
     } catch (error) {
-        console.error('Error uploading image:', error);
+        console.error('[Approve Image] Error:', error);
         res.status(500).json({ error: error.message });
     }
 });
@@ -3459,6 +3442,303 @@ app.get('/api/proxy-image', async (req, res) => {
         res.send(Buffer.from(buffer));
     } catch (e) {
         console.error('[proxy-image] Error:', e.message);
+        res.status(500).json({ error: e.message });
+    }
+});
+
+// ============================================================
+// COURSE BUILDER — Image Generation & Storage
+// ============================================================
+
+const COURSE_VISION_PROMPT = `You are an expert traffic safety educator analyzing a Spanish DGT driving course image.
+
+Your task: Create a DETAILED scene description so this exact image can be FAITHFULLY RECREATED in a clean educational style.
+
+## ANALYZE AND DESCRIBE EVERYTHING YOU SEE:
+
+1. **View Angle**: Exact perspective (isometric top-down 45°, driver's POV, side view, front view, diagram)
+
+2. **Vehicles** (CRITICAL):
+   - Type: car/turismo, motorcycle, truck, bus, bicycle, scooter
+   - EXACT color (specify hex if possible)
+   - Position on road and direction of movement
+   - Distinctive visual details
+
+3. **Road Infrastructure**:
+   - Road type (autopista, carretera, urban street, intersection, roundabout)
+   - Number of lanes, markings color and type
+   - Special features (signs, barriers, pedestrian crossings, traffic lights)
+
+4. **Traffic Signs** (list ALL visible):
+   - DGT code if visible (P-, R-, S- series)
+   - Shape, color, symbol
+
+5. **People / Pedestrians**:
+   - Position, clothing, action
+
+6. **Environment**:
+   - Lighting, weather, setting (urban/rural/highway)
+   - Background elements
+
+7. **Diagrams / Arrows**:
+   - Color of trajectory arrows
+   - Path and direction shown
+
+8. **Text visible in image** (if any):
+   - Signs, labels, numbers
+
+OUTPUT: Plain structured English text describing every element. Be precise and exhaustive — the goal is to recreate this SAME scene faithfully.`;
+
+const COURSE_STYLE_PROMPT = `You are recreating an educational illustration for a Spanish DGT driving course app called Skily.
+
+## MISSION: Faithfully redraw the reference scene in a clean educational style.
+Do NOT invent new content. Reproduce EXACTLY what was described from the reference image.
+
+## VISUAL STYLE:
+- 3D isometric bird's-eye view (45-60°) for road scenes, OR match the original perspective
+- Clean educational diagram aesthetic — professional driving school quality
+- Bright daylight, soft shadows
+- Photorealistic but simplified geometry (not a photo, but not a cartoon)
+
+## ROAD ELEMENTS (Spanish DGT standard):
+- Asphalt: realistic gray texture (#404040 to #555555)
+- Center line: yellow (#FFD700) — continuous or dashed as described
+- Lane markings: white (#FFFFFF) dashed
+- Edge lines: white continuous
+- Lane width: ~3.5 m
+
+## VEHICLES (Spanish/European fleet):
+- Modern European cars (Seat, Citroën, Renault, Peugeot proportions)
+- EXACT colors as described in reference analysis
+- Realistic 3D models, visible wheels and windshield
+- Proper proportions and scale
+
+## RULES:
+- NO text, labels, or watermarks ON the image
+- NO branding or logos
+- Square 1:1 aspect ratio
+- Keep all vehicles, signs, arrows, and layout from the reference — just cleaner and more polished
+
+## REFERENCE SCENE DESCRIPTION:
+{ANALYSIS}
+
+## ADDITIONAL INSTRUCTION FROM USER:
+{INSTRUCTION}
+
+Recreate this scene faithfully in Skily's clean educational style.`;
+
+app.post('/api/course/generate-image', express.json({ limit: '20mb' }), async (req, res) => {
+    const { referenceImageBase64, mimeType = 'image/png', instruction = '', lessonStepId, language = 'es' } = req.body;
+
+    if (!referenceImageBase64) return res.status(400).json({ error: 'Missing referenceImageBase64' });
+
+    const geminiKey = process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY;
+    if (!geminiKey) return res.status(500).json({ error: 'GEMINI_API_KEY not set' });
+
+    try {
+        const genAI = new GoogleGenerativeAI(geminiKey);
+        // gemini-3.1-flash-image-preview accepts image input AND outputs an image in one call
+        const model = genAI.getGenerativeModel({ model: 'gemini-3.1-flash-image-preview' });
+
+        const prompt = `You are recreating an educational illustration for a Spanish DGT driving course app.
+
+TASK: Redraw the reference image in a clean, modern educational style.
+- Keep the SAME scene, composition, vehicles, signs, and layout as the reference
+- Style: clean 3D isometric educational diagram, bright daylight, professional quality
+- Spanish road markings (white lanes, European signs)
+- NO text or watermarks on the image
+- Landscape 16:9 aspect ratio (wide, horizontal)
+
+${instruction ? `Additional instruction: ${instruction}` : ''}`;
+
+        console.log('[Course Gen] 🎨 Generating with gemini-3.1-flash-image-preview...');
+        const result = await model.generateContent({
+            contents: [{
+                role: 'user',
+                parts: [
+                    { text: prompt },
+                    { inlineData: { data: referenceImageBase64, mimeType } }
+                ]
+            }],
+            generationConfig: { responseModalities: ['IMAGE', 'TEXT'] }
+        });
+
+        const parts = result.response.candidates?.[0]?.content?.parts || [];
+        const imagePart = parts.find(p => p.inlineData?.mimeType?.startsWith('image/'));
+        if (!imagePart) throw new Error('Model did not return an image');
+
+        const generatedBuffer = Buffer.from(imagePart.inlineData.data, 'base64');
+
+        // Save locally
+        const localDir = path.resolve(process.cwd(), 'data/course-images');
+        await fs.mkdir(localDir, { recursive: true });
+        const fileName = `course_${Date.now()}.png`;
+        const localPath = path.join(localDir, fileName);
+        await fs.writeFile(localPath, generatedBuffer);
+        console.log(`[Course Gen] 💾 Saved locally: ${fileName}`);
+
+        // Upload to Supabase Storage
+        const uploadName = `${Date.now()}.png`;
+        const { error: uploadError } = await supabase.storage
+            .from('course-images')
+            .upload(uploadName, generatedBuffer, { contentType: 'image/png', upsert: false });
+
+        if (uploadError) throw new Error(`Storage upload failed: ${uploadError.message}`);
+
+        const { data: { publicUrl } } = supabase.storage.from('course-images').getPublicUrl(uploadName);
+        console.log(`[Course Gen] ✅ Uploaded: ${publicUrl}`);
+
+        // Optionally update lesson_steps if lessonStepId provided
+        if (lessonStepId) {
+            const col = language === 'ru' ? 'content_ru' : 'content_es';
+            const { data: step } = await supabase
+                .from('lesson_steps')
+                .select('id, content_es, content_ru')
+                .eq('id', lessonStepId)
+                .single();
+            if (step) {
+                const currentContent = step[col] || {};
+                await supabase
+                    .from('lesson_steps')
+                    .update({ [col]: { ...currentContent, image_url: publicUrl } })
+                    .eq('id', lessonStepId);
+                console.log(`[Course Gen] 🔗 Updated lesson_steps.${col}.image_url`);
+            }
+        }
+
+        res.json({ success: true, imageUrl: publicUrl, localPath });
+
+    } catch (e) {
+        console.error('[Course Gen] ❌ Error:', e.message);
+        res.status(500).json({ error: e.message });
+    }
+});
+
+// List all images from course-images Supabase Storage bucket
+app.get('/api/course/gallery', async (req, res) => {
+    try {
+        const { data: files, error } = await supabase.storage
+            .from('course-images')
+            .list('', { limit: 500, sortBy: { column: 'created_at', order: 'desc' } });
+
+        if (error) throw error;
+
+        const images = (files || [])
+            .filter(f => f.name && !f.name.endsWith('/'))
+            .map(f => ({
+                name: f.name,
+                size: f.metadata?.size || 0,
+                created_at: f.created_at,
+                url: supabase.storage.from('course-images').getPublicUrl(f.name).data.publicUrl,
+            }));
+
+        res.json({ images });
+    } catch (e) {
+        console.error('[Course Gallery]', e.message);
+        res.status(500).json({ error: e.message });
+    }
+});
+
+// List course modules and lessons for Course Studio
+app.get('/api/course/modules', async (req, res) => {
+    try {
+        const { data: modules } = await supabase
+            .from('course_modules')
+            .select('id, number, slug, title_es, title_ru, emoji, order_index')
+            .order('order_index');
+
+        const { data: lessons } = await supabase
+            .from('course_lessons')
+            .select('id, module_id, code, title_es, title_ru, order_index')
+            .order('order_index');
+
+        res.json({ modules: modules || [], lessons: lessons || [] });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+// Get lesson steps for Course Studio
+app.get('/api/course/lesson/:lessonId/steps', async (req, res) => {
+    try {
+        const { data: steps } = await supabase
+            .from('lesson_steps')
+            .select('*')
+            .eq('lesson_id', req.params.lessonId)
+            .order('order_index');
+        res.json({ steps: steps || [] });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+// Paginated list of existing quiz images from data/generated-images
+app.get('/api/course/existing-images', async (req, res) => {
+    const { page = '0', limit = '48', search = '' } = req.query;
+    const pageNum = parseInt(page);
+    const limitNum = parseInt(limit);
+    const q = (search + '').toLowerCase();
+
+    try {
+        const imagesRoot = path.join(process.cwd(), 'data', 'generated-images');
+        const skip = new Set(['Old', 'originals', 'rejected-pool', 'rejected-images', 'single-gen']);
+        const testDirs = (await fs.readdir(imagesRoot).catch(() => [])).filter(d => !d.startsWith('.') && !skip.has(d));
+
+        let allImages = [];
+        for (const dir of testDirs) {
+            const testDir = path.join(imagesRoot, dir);
+            try {
+                const stat = await fs.stat(testDir);
+                if (!stat.isDirectory()) continue;
+                const files = await fs.readdir(testDir);
+                for (const file of files) {
+                    if (!file.endsWith('.png')) continue;
+                    if (q && !file.toLowerCase().includes(q) && !dir.toLowerCase().includes(q)) continue;
+                    allImages.push({ name: file, testId: dir, url: `http://localhost:3030/generated-images/${dir}/${encodeURIComponent(file)}` });
+                }
+            } catch { /* skip */ }
+        }
+
+        const total = allImages.length;
+        const images = allImages.slice(pageNum * limitNum, (pageNum + 1) * limitNum);
+        res.json({ images, total, page: pageNum, limit: limitNum });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+// Create a new lesson (or return existing by title) in a module
+app.post('/api/course/lesson/create', express.json(), async (req, res) => {
+    try {
+        const { module_id, title_es, title_ru, order_index = 1 } = req.body;
+        if (!module_id || !title_es) return res.status(400).json({ error: 'module_id and title_es required' });
+        const { data, error } = await supabase
+            .from('course_lessons')
+            .insert({ module_id, title_es, title_ru: title_ru || title_es, order_index, xp_reward: 10 })
+            .select()
+            .single();
+        if (error) throw error;
+        res.json({ lesson: data });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+// Upsert a lesson step from Course Studio
+app.post('/api/course/step/save', express.json({ limit: '1mb' }), async (req, res) => {
+    try {
+        const { id, lesson_id, order_index, type, content_es, content_ru } = req.body;
+        const payload = { lesson_id, order_index, type: type || 'theory', content_es: content_es || {}, content_ru: content_ru || {} };
+
+        let result;
+        if (id) {
+            result = await supabase.from('lesson_steps').update(payload).eq('id', id).select().single();
+        } else {
+            result = await supabase.from('lesson_steps').insert(payload).select().single();
+        }
+        if (result.error) throw result.error;
+        res.json({ success: true, step: result.data });
+    } catch (e) {
         res.status(500).json({ error: e.message });
     }
 });

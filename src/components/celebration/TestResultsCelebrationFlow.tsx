@@ -172,6 +172,7 @@ const SLIDE_STYLES: Record<SlideId, { bg: string; glow: string; sparkle: string 
 // ─── Individual slides ───────────────────────────────────────────────────────
 
 function SlideResult({ data }: { data: CelebrationData }) {
+  const { t } = useLanguage();
   const scoreCount = useCountUp(data.correctCount, 600, 1000);
   const isPassed = data.isPassed;
   

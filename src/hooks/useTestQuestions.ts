@@ -92,7 +92,8 @@ export function useTestQuestions(options: {
     staleTime: 5 * 60 * 1000, // 5 минут - вопросы редко меняются
     gcTime: 10 * 60 * 1000, // 10 минут
     refetchOnWindowFocus: false,
-    refetchOnMount: false,
+    // refetchOnMount: true (default) — re-fetch on mount only if stale.
+    // After admin approves an image, invalidation marks cache stale → next mount refetches.
     retry: 1,
   });
 }
@@ -178,7 +179,7 @@ export function useSequentialTestQuestions(testId: string | null) {
     staleTime: 5 * 60 * 1000, // 5 минут
     gcTime: 10 * 60 * 1000, // 10 минут
     refetchOnWindowFocus: false,
-    refetchOnMount: false,
+    // refetchOnMount: true (default) — pick up new image_url after admin approves
     retry: 1,
   });
 }

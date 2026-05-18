@@ -892,37 +892,37 @@
     },
     "answers": [
       {
-        "id": "a",
+        "id": "opt_0",
         "text": {
-          "es": "El conductor del vehículo rojo porque tiene preferencia de paso.",
-          "en": "The driver of the red vehicle because they have the right of way.",
-          "ru": "Водитель красного легкового автомобиля, потому что у него преимущество проезда."
+          "ru": "Водитель легкового автомобиля, потому что у него преимущество проезда.",
+          "es": "El conductor del vehículo porque tiene preferencia de paso.",
+          "en": "The driver of the vehicle because they have the right of way."
         },
         "is_correct": true
       },
       {
-        "id": "b",
+        "id": "opt_1",
         "text": {
+          "ru": "Водитель автобуса, потому что ему сложнее маневрировать.",
           "es": "El conductor del autobús porque tiene mayor dificultad de maniobra.",
-          "en": "The driver of the bus because it has greater difficulty maneuvering.",
-          "ru": "Водитель автобуса, потому что ему сложнее маневрировать."
+          "en": "The driver of the bus because it has greater difficulty maneuvering."
         },
         "is_correct": false
       },
       {
-        "id": "c",
+        "id": "opt_2",
         "text": {
+          "ru": "Водитель автобуса, потому что применяется общее правило приоритета проезда.",
           "es": "El conductor del autobús porque se aplica la regla general de prioridad de paso.",
-          "en": "The driver of the bus because the general rule of right-of-way applies.",
-          "ru": "Водитель автобуса, потому что применяется общее правило приоритета проезда."
+          "en": "The driver of the bus because the general rule of right-of-way applies."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": "En una intersección señalizada con ceda el paso para ambos vehículos, la prioridad de paso se determina aplicando la norma general. Esta norma establece que, en ausencia de señales que indiquen lo contrario, tiene preferencia el vehículo que se aproxima por la derecha. Por lo tanto, el vehículo rojo tiene preferencia sobre el autobús.",
-      "en": "At an intersection marked with a yield sign for both vehicles, the right-of-way is determined by applying the general rule. This rule states that, in the absence of signs indicating otherwise, the vehicle approaching from the right has priority. Therefore, the red vehicle has priority over the bus.",
-      "ru": "🎓 На перекрестке, где для обоих транспортных средств установлены знаки «Уступи дорогу», очередность проезда определяется общим правилом. Это правило гласит, что при отсутствии знаков, указывающих иное, преимущество имеет транспортное средство, приближающееся справа. Следовательно, легковой автомобиль красного цвета имеет приоритет перед автобусом."
+      "es": "En una intersección señalizada con ceda el paso para ambos vehículos, la prioridad de paso se determina aplicando la norma general. Esta norma establece que, en ausencia de señales que indiquen lo contrario, tiene preferencia el vehículo que se aproxima por la derecha. Por lo tanto, el vehículo tiene preferencia sobre el autobús.",
+      "en": "At an intersection marked with a yield sign for both vehicles, the right-of-way is determined by applying the general rule. This rule states that, in the absence of signs indicating otherwise, the vehicle approaching from the right has priority. Therefore, the vehicle has priority over the bus.",
+      "ru": "🎓 На перекрестке, где для обоих транспортных средств установлены знаки «Уступи дорогу», очередность проезда определяется общим правилом. Это правило гласит, что при отсутствии знаков, указывающих иное, преимущество имеет транспортное средство, приближающееся справа. Следовательно, легковой автомобиль имеет приоритет перед автобусом."
     },
     "image_url": "https://teorica.practicavial.com/question/774a32ca-87a2-4ffa-9971-73ae7988f790-0000000000-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/774a32ca-87a2-4ffa-9971-73ae7988f790-s-1.jpg",

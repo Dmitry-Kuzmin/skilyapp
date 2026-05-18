@@ -46,6 +46,8 @@ const SubtopicDetail = lazy(() => import("../pages/SubtopicDetail"));
 const StaticTopicMaterialPage = lazy(() => import("../pages/StaticTopicMaterialPage"));
 const Tests = lazy(() => import("../pages/Tests"));
 const Learning = lazy(() => import("../pages/Learning"));
+const ModuleLessons = lazy(() => import("../pages/ModuleLessons"));
+const LessonPlayer = lazy(() => import("../pages/LessonPlayer"));
 const Games = lazy(() => import("../pages/Games"));
 const NotFound = lazy(() => import("../pages/NotFound"));
 const AdminLayout = lazy(() =>
@@ -246,6 +248,16 @@ export function AppRoutes() {
       <Route path="/learning" element={
         <Suspense fallback={<PageSkeleton />}>
           <Learning />
+        </Suspense>
+      } />
+      <Route path="/learning/module/:moduleId" element={
+        <Suspense fallback={<PageSkeleton />}>
+          <ModuleLessons />
+        </Suspense>
+      } />
+      <Route path="/learning/lesson/:lessonId" element={
+        <Suspense fallback={null}>
+          <LessonPlayer />
         </Suspense>
       } />
       {/* Skily Lingo — авто-испанский курс */}

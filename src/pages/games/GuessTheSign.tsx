@@ -51,6 +51,119 @@ export default function GuessTheSign() {
   const { language } = useLanguage();
   const { profileId } = useUserContext();
 
+  const lang = (language === 'ru' || language === 'es' || language === 'en') ? language : 'es';
+
+  const LABELS = {
+    ru: {
+      title: "Угадай Знак",
+      description: "Проверь свои знания дорожных знаков в премиум игре с красивым дизайном",
+      beginnerTitle: "Режим Новичка",
+      beginnerDesc: "Изучай знаки в своем темпе без ограничений по времени",
+      noTimer: "Без таймера",
+      expertTitle: "Режим Эксперта",
+      expertDesc: "Проверь свои навыки с ограничением по времени и бонусами за скорость",
+      withTimer: "С таймером",
+      backToGames: "Назад к играм",
+      gameOver: "Игра завершена!",
+      score: "Очки",
+      accuracy: "Точность",
+      correct: "Правильно",
+      mistakes: "Ошибок",
+      perfectResult: "Идеальный результат! 🎉",
+      excellentResult: "Отличный результат! ⭐",
+      playAgain: "Играть ещё",
+      otherGames: "Другие игры",
+      menu: "Меню",
+      sec: "с",
+      questionTitle: "Что означает этот знак?",
+      imageUnavailable: "Изображение недоступно",
+      noImage: "Нет изображения",
+      hint: "Подсказка:",
+      timeOut: "Время вышло!",
+      correctToast: "Правильно!",
+      incorrectToast: "Неправильно",
+      pts: "пунктов",
+      noBooster: "У вас нет этого бустера",
+      fiftyFiftyToast: "⚡ 50/50: Две опции удалены!",
+      timeExtendToast: "⏱️ +30 секунд добавлено!",
+      hintToast: "💡 Подсказка открыта!",
+      skipToast: "⏭️ Вопрос пропущен!",
+      boostError: "Ошибка при использовании бустера"
+    },
+    es: {
+      title: "Adivina la Señal",
+      description: "Pon a prueba tus conocimientos de señales de tráfico en un juego premium con un diseño increíble",
+      beginnerTitle: "Modo Principiante",
+      beginnerDesc: "Estudia las señales a tu propio ritmo sin límites de tiempo",
+      noTimer: "Sin temporizador",
+      expertTitle: "Modo Experto",
+      expertDesc: "Pon a prueba tus habilidades con límites de tiempo y bonificaciones de velocidad",
+      withTimer: "Con temporizador",
+      backToGames: "Volver a juegos",
+      gameOver: "¡Juego completado!",
+      score: "Puntos",
+      accuracy: "Precisión",
+      correct: "Correcto",
+      mistakes: "Errores",
+      perfectResult: "¡Resultado perfecto! 🎉",
+      excellentResult: "¡Excelente resultado! ⭐",
+      playAgain: "Jugar de nuevo",
+      otherGames: "Otros juegos",
+      menu: "Menú",
+      sec: "s",
+      questionTitle: "¿Qué significa esta señal?",
+      imageUnavailable: "Imagen no disponible",
+      noImage: "Sin imagen",
+      hint: "Pista:",
+      timeOut: "¡Tiempo agotado!",
+      correctToast: "¡Correcto!",
+      incorrectToast: "Incorrecto",
+      pts: "puntos",
+      noBooster: "No tienes este booster",
+      fiftyFiftyToast: "⚡ 50/50: ¡Dos opciones eliminadas!",
+      timeExtendToast: "⏱️ ¡+30 segundos añadidos!",
+      hintToast: "💡 ¡Pista abierta!",
+      skipToast: "⏭️ ¡Pregunta saltada!",
+      boostError: "Error al usar el boost"
+    },
+    en: {
+      title: "Guess the Sign",
+      description: "Test your knowledge of road signs in a premium game with a beautiful design",
+      beginnerTitle: "Beginner Mode",
+      beginnerDesc: "Learn signs at your own pace without time limits",
+      noTimer: "No timer",
+      expertTitle: "Expert Mode",
+      expertDesc: "Test your skills with time limits and speed bonuses",
+      withTimer: "With timer",
+      backToGames: "Back to games",
+      gameOver: "Game Completed!",
+      score: "Score",
+      accuracy: "Accuracy",
+      correct: "Correct",
+      mistakes: "Mistakes",
+      perfectResult: "Perfect result! 🎉",
+      excellentResult: "Excellent result! ⭐",
+      playAgain: "Play Again",
+      otherGames: "Other Games",
+      menu: "Menu",
+      sec: "s",
+      questionTitle: "What does this sign mean?",
+      imageUnavailable: "Image unavailable",
+      noImage: "No image",
+      hint: "Hint:",
+      timeOut: "Time out!",
+      correctToast: "Correct!",
+      incorrectToast: "Incorrect",
+      pts: "points",
+      noBooster: "You don't have this booster",
+      fiftyFiftyToast: "⚡ 50/50: Two options removed!",
+      timeExtendToast: "⏱️ +30 seconds added!",
+      hintToast: "💡 Hint revealed!",
+      skipToast: "⏭️ Question skipped!",
+      boostError: "Error using boost"
+    }
+  }[lang];
+
   const [gameState, setGameState] = useState<GameState>("menu");
   const [gameMode, setGameMode] = useState<GameMode>("beginner");
   const [allSigns, setAllSigns] = useState<RoadSign[]>([]);
@@ -173,7 +286,7 @@ export default function GuessTheSign() {
     setIsAnswerRevealed(true);
     sounds.wrongAnswer();
     haptics.wrongAnswer();
-    toast.error("¡Tiempo agotado!");
+    toast.error(LABELS.timeOut);
 
     setTimeout(() => {
       nextQuestion();
@@ -209,11 +322,11 @@ export default function GuessTheSign() {
       setCorrectAnswers((prev) => prev + 1);
       sounds.correctAnswer();
       haptics.correctAnswer();
-      toast.success(`¡Correcto! +${points} puntos`);
+      toast.success(`${LABELS.correctToast} +${points} ${LABELS.pts}`);
     } else {
       sounds.wrongAnswer();
       haptics.wrongAnswer();
-      toast.error("Incorrecto");
+      toast.error(LABELS.incorrectToast);
     }
 
     setTimeout(() => {
@@ -225,7 +338,7 @@ export default function GuessTheSign() {
     if (usedBoosts.includes(type) || isAnswerRevealed || !profileId) return;
 
     if (boosts[type] <= 0) {
-      toast.error("У вас нет этого бустера");
+      toast.error(LABELS.noBooster);
       return;
     }
 
@@ -248,22 +361,22 @@ export default function GuessTheSign() {
         setHiddenOptions(wrongOptions);
         sounds.boostFiftyFifty();
         haptics.boostActivated();
-        toast.success('⚡ 50/50: Dos opciones eliminadas!', { duration: 3000 });
+        toast.success(LABELS.fiftyFiftyToast, { duration: 3000 });
       } else if (type === 'time_extend' && gameMode === 'expert') {
         setTimeLeft(prev => Math.min(prev + 30, 60));
         sounds.boostTimeExtend();
         haptics.boostActivated();
-        toast.success('⏱️ +30 segundos añadidos!', { duration: 3000 });
+        toast.success(LABELS.timeExtendToast, { duration: 3000 });
       } else if (type === 'hint') {
         setHintText(currentQuestion.sign.description_es);
         setShowHint(true);
         sounds.boostHint();
         haptics.boostActivated();
-        toast.success('💡 Pista abierta!', { duration: 3000 });
+        toast.success(LABELS.hintToast, { duration: 3000 });
       } else if (type === 'skip') {
         sounds.boostSkip();
         haptics.boostActivated();
-        toast.success('⏭️ Pregunta saltada!', { duration: 2000 });
+        toast.success(LABELS.skipToast, { duration: 2000 });
         setTimeout(() => {
           nextQuestion();
         }, 1000);
@@ -273,7 +386,7 @@ export default function GuessTheSign() {
       setUsedBoosts(prev => [...prev, type]);
       setBoosts(prev => ({ ...prev, [type]: Math.max(0, prev[type] - 1) }));
     } catch (error: any) {
-      toast.error(error.message || 'Error al usar el boost', { duration: 4000 });
+      toast.error(error.message || LABELS.boostError, { duration: 4000 });
     }
   };
 
@@ -350,11 +463,11 @@ export default function GuessTheSign() {
               </motion.div>
 
               <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-4">
-                Угадай Знак
+                {LABELS.title}
               </h1>
 
               <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-                Проверь свои знания дорожных знаков в премиум игре с красивым дизайном
+                {LABELS.description}
               </p>
             </motion.div>
 
@@ -373,12 +486,12 @@ export default function GuessTheSign() {
                     <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-success/20 mb-4">
                       <Star className="w-8 h-8 text-success" />
                     </div>
-                    <h3 className="text-2xl font-bold">Режим Новичка</h3>
+                    <h3 className="text-2xl font-bold">{LABELS.beginnerTitle}</h3>
                     <p className="text-muted-foreground">
-                      Изучай знаки в своем темпе без ограничений по времени
+                      {LABELS.beginnerDesc}
                     </p>
                     <Badge className="bg-success/20 text-success border-success/30">
-                      Без таймера
+                      {LABELS.noTimer}
                     </Badge>
                   </div>
                 </Card>
@@ -398,12 +511,12 @@ export default function GuessTheSign() {
                     <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-secondary/20 mb-4">
                       <Zap className="w-8 h-8 text-secondary" />
                     </div>
-                    <h3 className="text-2xl font-bold">Режим Эксперта</h3>
+                    <h3 className="text-2xl font-bold">{LABELS.expertTitle}</h3>
                     <p className="text-muted-foreground">
-                      Проверь свои навыки с ограничением по времени и бонусами за скорость
+                      {LABELS.expertDesc}
                     </p>
                     <Badge className="bg-secondary/20 text-secondary border-secondary/30">
-                      С таймером
+                      {LABELS.withTimer}
                     </Badge>
                   </div>
                 </Card>
@@ -422,7 +535,7 @@ export default function GuessTheSign() {
                 className="text-muted-foreground hover:text-foreground"
               >
                 <ArrowLeft className="w-4 h-4 mr-2" />
-                Назад к играм
+                {LABELS.backToGames}
               </Button>
             </motion.div>
           </div>
@@ -463,7 +576,7 @@ export default function GuessTheSign() {
               </motion.div>
 
               <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-4">
-                Игра завершена!
+                {LABELS.gameOver}
               </h2>
 
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8 mb-8">
@@ -474,7 +587,7 @@ export default function GuessTheSign() {
                 >
                   <Card className="p-6 text-center gradient-card border-primary/30">
                     <div className="text-4xl font-bold text-primary mb-2">{score}</div>
-                    <div className="text-sm text-muted-foreground">Очки</div>
+                    <div className="text-sm text-muted-foreground">{LABELS.score}</div>
                   </Card>
                 </motion.div>
 
@@ -485,7 +598,7 @@ export default function GuessTheSign() {
                 >
                   <Card className="p-6 text-center gradient-card border-success/30">
                     <div className="text-4xl font-bold text-success mb-2">{accuracy}%</div>
-                    <div className="text-sm text-muted-foreground">Точность</div>
+                    <div className="text-sm text-muted-foreground">{LABELS.accuracy}</div>
                   </Card>
                 </motion.div>
 
@@ -496,7 +609,7 @@ export default function GuessTheSign() {
                 >
                   <Card className="p-6 text-center gradient-card border-primary/30">
                     <div className="text-4xl font-bold text-primary mb-2">{correctAnswers}</div>
-                    <div className="text-sm text-muted-foreground">Правильно</div>
+                    <div className="text-sm text-muted-foreground">{LABELS.correct}</div>
                   </Card>
                 </motion.div>
 
@@ -507,7 +620,7 @@ export default function GuessTheSign() {
                 >
                   <Card className="p-6 text-center gradient-card border-muted/30">
                     <div className="text-4xl font-bold text-foreground mb-2">{questions.length - correctAnswers}</div>
-                    <div className="text-sm text-muted-foreground">Ошибок</div>
+                    <div className="text-sm text-muted-foreground">{LABELS.mistakes}</div>
                   </Card>
                 </motion.div>
               </div>
@@ -522,7 +635,7 @@ export default function GuessTheSign() {
                     <div className="flex items-center justify-center gap-3">
                       <Award className="w-8 h-8 text-success" />
                       <span className="text-xl font-bold text-success">
-                        {isPerfect ? "Идеальный результат! 🎉" : "Отличный результат! ⭐"}
+                        {isPerfect ? LABELS.perfectResult : LABELS.excellentResult}
                       </span>
                     </div>
                   </Card>
@@ -535,7 +648,7 @@ export default function GuessTheSign() {
                   className="flex-1 h-14 text-lg gradient-primary shadow-lg hover:shadow-xl transition-all"
                 >
                   <RotateCcw className="w-5 h-5 mr-2" />
-                  Играть ещё
+                  {LABELS.playAgain}
                 </Button>
 
                 <Button
@@ -543,7 +656,7 @@ export default function GuessTheSign() {
                   variant="outline"
                   className="flex-1 h-14 text-lg"
                 >
-                  Другие игры
+                  {LABELS.otherGames}
                 </Button>
               </div>
             </motion.div>
@@ -569,7 +682,7 @@ export default function GuessTheSign() {
                   className="text-muted-foreground hover:text-foreground"
                 >
                   <ArrowLeft className="w-4 h-4 mr-2" />
-                  Меню
+                  {LABELS.menu}
                 </Button>
                 <Badge className="bg-primary/10 text-primary border-primary/30 text-base px-4 py-2">
                   {currentQuestionIndex + 1} / {questions.length}
@@ -585,7 +698,7 @@ export default function GuessTheSign() {
                     )}
                   >
                     <Clock className="w-4 h-4 mr-2" />
-                    {timeLeft}с
+                    {timeLeft}{LABELS.sec}
                   </Badge>
                 )}
               </div>
@@ -613,7 +726,7 @@ export default function GuessTheSign() {
               <Card className="p-6 md:p-8 bg-card border-primary/30 shadow-xl mb-6">
                 <div className="text-center space-y-6">
                   <h3 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-                    ¿Qué significa esta señal?
+                    {LABELS.questionTitle}
                   </h3>
 
                   {/* Sign Image */}
@@ -645,14 +758,14 @@ export default function GuessTheSign() {
                           if (parent) {
                             const fallback = document.createElement('div');
                             fallback.className = "w-48 h-48 md:w-64 md:h-64 mx-auto flex items-center justify-center bg-muted rounded-lg text-muted-foreground";
-                            fallback.innerText = "Изображение недоступно";
+                            fallback.innerText = LABELS.imageUnavailable;
                             parent.appendChild(fallback);
                           }
                         }}
                       />
                     ) : (
                       <div className="w-48 h-48 md:w-64 md:h-64 mx-auto flex items-center justify-center bg-muted rounded-lg">
-                        <span className="text-muted-foreground">Нет изображения</span>
+                        <span className="text-muted-foreground">{LABELS.noImage}</span>
                       </div>
                     )}
 
@@ -673,7 +786,7 @@ export default function GuessTheSign() {
                       <div className="flex items-start gap-3">
                         <HelpCircle className="w-5 h-5 text-primary mt-0.5 shrink-0" />
                         <div>
-                          <p className="text-sm font-semibold text-primary mb-1">Pista:</p>
+                          <p className="text-sm font-semibold text-primary mb-1">{LABELS.hint}</p>
                           <p className="text-sm text-foreground">{hintText}</p>
                         </div>
                       </div>
@@ -693,7 +806,7 @@ export default function GuessTheSign() {
                       {gameMode === 'expert' && (
                         <BoostButton
                           type="time_extend"
-                          name="+30s"
+                          name={lang === 'ru' ? '+30с' : '+30s'}
                           available={boosts.time_extend}
                           onUse={handleUseBoost}
                           disabled={isAnswerRevealed || usedBoosts.includes('time_extend')}
@@ -701,14 +814,14 @@ export default function GuessTheSign() {
                       )}
                       <BoostButton
                         type="hint"
-                        name="Pista"
+                        name={lang === 'ru' ? 'Подсказка' : (lang === 'en' ? 'Hint' : 'Pista')}
                         available={boosts.hint}
                         onUse={handleUseBoost}
                         disabled={isAnswerRevealed || usedBoosts.includes('hint') || showHint}
                       />
                       <BoostButton
                         type="skip"
-                        name="Saltar"
+                        name={lang === 'ru' ? 'Пропустить' : (lang === 'en' ? 'Skip' : 'Saltar')}
                         available={boosts.skip}
                         onUse={handleUseBoost}
                         disabled={isAnswerRevealed || usedBoosts.includes('skip')}
