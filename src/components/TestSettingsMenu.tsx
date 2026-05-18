@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { X, Volume2, TrendingUp, Music, Type, Keyboard, Pause, Sparkles, MessageSquare, MoreVertical } from "lucide-react";
+import { X, Volume2, TrendingUp, Music, Type, Sparkles, MessageSquare, MoreVertical } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
@@ -350,22 +350,6 @@ export const TestSettingsMenu = ({
                 className="flex-1"
               />
               <span className="text-base text-muted-foreground">A</span>
-            </div>
-          </div>
-
-          {/* Keyboard shortcuts - инфо */}
-          <div className="flex items-center justify-between px-2 py-1.5 rounded-lg hover:bg-muted/20 transition-colors">
-            <div className="flex items-center gap-2">
-              <Keyboard className="w-4 h-4 text-muted-foreground" />
-              <div className="flex flex-col">
-                <span className="font-medium text-sm">{t('test.keys')}</span>
-                <span className="text-[9px] text-muted-foreground leading-none">{t('test.keysDesc')}</span>
-              </div>
-            </div>
-            <div className="flex items-center gap-1 text-xs">
-              <kbd className="px-1.5 py-0.5 bg-muted border border-border/30 rounded text-foreground font-mono text-[10px]">Shift</kbd>
-              <span className="text-muted-foreground">+</span>
-              <kbd className="px-1.5 py-0.5 bg-muted border border-border/30 rounded text-foreground font-mono text-[10px]">?</kbd>
             </div>
           </div>
 
