@@ -127,40 +127,21 @@ export const useTestInteraction = ({
 
         try {
             // 1. Challenge Bank (только при ошибке и не в режиме mastery/russia)
+            // Атомарный UPSERT через RPC — один запрос вместо SELECT + INSERT/UPDATE (N+1).
             if (!isCorrect && mode !== "mastery") {
-                const { data: existing, error: selectError } = await (supabase as any)
-                    .from('user_challenge_questions')
-                    .select('id, times_wrong')
-                    .eq('user_id', profileId)
-                    .eq('question_id', questionId)
-                    .maybeSingle();
+                const { data: rpcResult, error: rpcError } = await (supabase as any).rpc(
+                    'upsert_challenge_question',
+                    { p_user_id: profileId, p_question_id: questionId }
+                );
 
-                if (!selectError) {
-                    if (existing) {
-                        await (supabase as any).from('user_challenge_questions')
-                            .update({
-                                times_wrong: (existing as any).times_wrong + 1,
-                                last_wrong_at: new Date().toISOString(),
-                                mastered: false,
-                                updated_at: new Date().toISOString(),
-                            })
-                            .eq('id', (existing as any).id);
-                    } else {
-                        await (supabase as any).from('user_challenge_questions')
-                            .insert({
-                                user_id: profileId,
-                                question_id: questionId,
-                                times_wrong: 1,
-                                last_wrong_at: new Date().toISOString(),
-                            });
-
-                        // Уведомление о первом добавлении (кроме Блица и РФ)
-                        if (isFirstWrongAnswer && mode !== 'blitz' && mode !== 'exam-russia') {
-                            const isNotificationHidden = localStorage.getItem('challenge-bank-notification-hidden') === 'true';
-                            if (!isNotificationHidden) {
-                                setIsFirstWrongAnswer(false);
-                                setShowChallengeBankNotification(true);
-                            }
+                if (!rpcError) {
+                    const wasNew = Array.isArray(rpcResult) ? rpcResult[0]?.was_new : (rpcResult as any)?.was_new;
+                    // Уведомление о первом добавлении (кроме Блица и РФ)
+                    if (wasNew && isFirstWrongAnswer && mode !== 'blitz' && mode !== 'exam-russia') {
+                        const isNotificationHidden = localStorage.getItem('challenge-bank-notification-hidden') === 'true';
+                        if (!isNotificationHidden) {
+                            setIsFirstWrongAnswer(false);
+                            setShowChallengeBankNotification(true);
                         }
                     }
                     queryClient.invalidateQueries({ queryKey: ["challenge-bank-count"] });

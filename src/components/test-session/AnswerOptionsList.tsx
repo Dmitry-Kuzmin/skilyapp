@@ -1,4 +1,4 @@
-import { memo, useCallback, useMemo } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef } from 'react';
 import { motion } from "@/components/optimized/Motion";
 import { Check, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -237,8 +237,18 @@ export const AnswerOptionsList = memo(function AnswerOptionsList({
         [options.map(o => o.id).join(',')]
     );
 
+    // Синхронная блокировка против двойного тапа (Zustand state обновляется через
+    // микротаск ~10-50ms — за это время второй тап может проскочить).
+    const processingRef = useRef(false);
+
+    // Сброс лока при смене вопроса (новый options массив = новый вопрос)
+    useEffect(() => {
+        processingRef.current = false;
+    }, [options]);
+
     const handleClick = useCallback((optionId: string) => {
-        if (selectedOption) return; // Already answered
+        if (processingRef.current || selectedOption) return;
+        processingRef.current = true;
 
         onSelect(optionId);
         onAnswer?.(optionId);

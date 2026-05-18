@@ -6,6 +6,7 @@ import { QuestionProgressBar } from '@/components/QuestionProgressBar';
 import { TestSettingsMenu } from '@/components/TestSettingsMenu';
 import { Trophy } from 'lucide-react';
 import { ExamTimer } from '@/components/test-session/ExamTimer';
+import { AnswerStreakBadge } from '@/components/test-session/AnswerStreakBadge';
 import type { TestMode } from '@/store/examStore';
 import type { RussiaExamState } from '@/types/pddExam';
 
@@ -188,6 +189,12 @@ export const TestSessionHeader = ({
                                     timeLeft={timeLeft}
                                     maxTime={mode === "exam-russia" ? 1200 : mode === "exam" ? 1800 : 600}
                                 />
+                            )}
+
+                            {/* Streak бейдж — мотивирует серию правильных ответов.
+                                Скрыт в экзаменах (не подсказывает что было верно). */}
+                            {mode !== "exam" && mode !== "exam-russia" && streak >= 3 && (
+                                <AnswerStreakBadge streak={streak} />
                             )}
 
                             {/* Mastery / Marathon Round Indicator */}
