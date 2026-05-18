@@ -19,6 +19,7 @@ import {
     Copy
 } from "lucide-react";
 import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
 import { Textarea } from "@/components/ui/textarea";
 import { useActivityLog } from "@/contexts/ActivityLogContext";
 import { cn } from "@/lib/utils";
@@ -51,6 +52,7 @@ interface Candidate {
 export const MissionImageControl = forwardRef<MissionImageControlHandle, MissionImageControlProps>(
     ({ questionId, serverOnline, onImageReady, onGenerationStart, onGenerationEnd }, ref) => {
         const { addLog } = useActivityLog();
+        const queryClient = useQueryClient();
         const [originalUrl, setOriginalUrl] = useState<string | null>(null);
 
         // Candidates State
@@ -349,6 +351,12 @@ export const MissionImageControl = forwardRef<MissionImageControlHandle, Mission
                         addLog(`Published successfully!`, 'success');
                         toast.success("Image Deployed to Production!");
                         fetchData();
+                        // Invalidate question caches so end-users see the new image on next mount
+                        queryClient.invalidateQueries({ queryKey: ['test-questions'] });
+                        queryClient.invalidateQueries({ queryKey: ['sequential-test-questions'] });
+                        queryClient.invalidateQueries({ queryKey: ['dgt-exam-questions'] });
+                        queryClient.invalidateQueries({ queryKey: ['dgt-questions'] });
+                        queryClient.invalidateQueries({ queryKey: ['smart-test-questions'] });
                         return true;
                     } else {
                         const errData = await res.json().catch(() => ({}));
@@ -500,9 +508,9 @@ export const MissionImageControl = forwardRef<MissionImageControlHandle, Mission
                                     </Badge>
                                 </div>
                                 <img
-                                    src={fixUrl(selectedCandidate.url)}
+                                    src={`${fixUrl(selectedCandidate.url)}?t=${selectedCandidate.timestamp}`}
                                     className="flex-1 w-full h-full object-contain cursor-zoom-in bg-zinc-900/50"
-                                    onClick={() => setZoomedImage(fixUrl(selectedCandidate.url))}
+                                    onClick={() => setZoomedImage(`${fixUrl(selectedCandidate.url)}?t=${selectedCandidate.timestamp}`)}
                                     loading="lazy"
                                 // onError={(e) => { e.currentTarget.style.opacity = '0.3'; }}
                                 />
@@ -593,7 +601,7 @@ export const MissionImageControl = forwardRef<MissionImageControlHandle, Mission
                             )}
                         >
                             <img
-                                src={fixUrl(cand.url)}
+                                src={`${fixUrl(cand.url)}?t=${cand.timestamp}`}
                                 className="w-full h-full object-cover"
                                 loading="lazy"
                                 onError={(e) => { e.currentTarget.style.filter = 'grayscale(100%) blur(2px)'; }}
@@ -626,7 +634,7 @@ export const MissionImageControl = forwardRef<MissionImageControlHandle, Mission
                 {/* ZOOM & PROMPT OVERLAYS */}
                 {zoomedImage && (
                     <div className="fixed inset-0 z-[150] bg-black/95 backdrop-blur-xl flex items-center justify-center p-8 animate-in fade-in" onClick={() => setZoomedImage(null)}>
-                        <img src={fixUrl(zoomedImage)} className="max-w-full max-h-full object-contain shadow-2xl rounded-lg" onClick={e => e.stopPropagation()} />
+                        <img src={zoomedImage} className="max-w-full max-h-full object-contain shadow-2xl rounded-lg" onClick={e => e.stopPropagation()} />
                         <Button className="absolute top-4 right-4 rounded-full w-12 h-12 bg-zinc-800/50" onClick={() => setZoomedImage(null)}>
                             <X className="w-6 h-6" />
                         </Button>
