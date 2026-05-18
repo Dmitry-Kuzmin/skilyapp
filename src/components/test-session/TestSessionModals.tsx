@@ -182,6 +182,7 @@ export const TestSessionModals = memo(function TestSessionModals({
                 open={showExitConfirm}
                 onOpenChange={setShowExitConfirm}
                 language={userLanguage === 'es' ? 'es' : 'ru'}
+                mode={mode}
             />
         </>
     );
