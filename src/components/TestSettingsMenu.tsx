@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { X, Volume2, TrendingUp, Music, Type, Keyboard, Pause, Sparkles, MessageSquare } from "lucide-react";
+import { X, Volume2, TrendingUp, Music, Type, Keyboard, Pause, Sparkles, MessageSquare, MoreVertical } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
@@ -133,12 +133,10 @@ export const TestSettingsMenu = ({
     <DropdownMenu open={open} onOpenChange={onOpenChange}>
       <DropdownMenuTrigger asChild>
         <button
-          className="flex items-center justify-center w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-background shadow-sm hover:shadow-md hover:bg-muted/50 transition-all active:scale-95 backdrop-blur-sm border-2 border-border/50"
+          className="flex items-center justify-center w-9 h-9 sm:w-11 sm:h-11 rounded-xl bg-background/80 shadow-sm hover:bg-muted/50 transition-all active:scale-95 backdrop-blur-sm border border-border/40"
           title={t('test.settings')}
         >
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-more-vertical">
-            <circle cx="12" cy="12" r="1" /><circle cx="12" cy="5" r="1" /><circle cx="12" cy="19" r="1" />
-          </svg>
+          <MoreVertical className="w-4 h-4 sm:w-5 sm:h-5" />
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent

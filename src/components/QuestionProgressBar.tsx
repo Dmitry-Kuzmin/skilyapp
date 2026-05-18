@@ -145,19 +145,12 @@ export function QuestionProgressBar({
       )}>
         {/* Close button (Always on left) */}
         {showClose && onClose && (
-          <Button
-            variant="ghost"
-            size="icon"
+          <button
             onClick={onClose}
-            className={cn(
-              "shrink-0 rounded-xl hover:bg-destructive/10 hover:text-destructive transition-colors shadow-sm border border-border/30 h-9 w-9 sm:h-11 sm:w-11",
-            )}
+            className="shrink-0 flex items-center justify-center h-9 w-9 sm:h-11 sm:w-11 rounded-xl bg-background/80 border border-border/40 hover:bg-destructive/10 hover:text-destructive shadow-sm transition-all active:scale-95"
           >
-            <X className={cn(
-              "transition-transform duration-300",
-              layout === 'focus' ? "h-5 w-5 sm:h-6 sm:h-6 group-hover:rotate-90" : "h-4 w-4 sm:h-5 sm:h-5"
-            )} />
-          </Button>
+            <X className="w-4 h-4 sm:w-5 sm:h-5" />
+          </button>
         )}
 
         {/* Custom left content (e.g. timer) */}
@@ -277,10 +270,10 @@ export function QuestionProgressBar({
               onClick={onToggleBookmark}
               disabled={bookmarkLoading}
               className={cn(
-                "flex items-center justify-center w-9 h-9 sm:w-11 sm:h-11 rounded-xl transition-all active:scale-95 backdrop-blur-sm border-2",
+                "flex items-center justify-center w-9 h-9 sm:w-11 sm:h-11 rounded-xl transition-all active:scale-95 backdrop-blur-sm border border-border/40",
                 isBookmarked
-                  ? "bg-blue-500 border-blue-400 text-white shadow-lg shadow-blue-500/30 ring-2 ring-blue-500/10"
-                  : "bg-background border-border/50 hover:bg-muted/50 shadow-sm dark:shadow-[0_4px_12px_rgba(0,0,0,0.5)]"
+                  ? "bg-blue-500 border-blue-400 text-white shadow-lg shadow-blue-500/30"
+                  : "bg-background/80 hover:bg-muted/50 shadow-sm"
               )}
               title={isBookmarked ? t('test.removeFromBookmarks') : t('test.addToBookmarks')}
             >
@@ -304,10 +297,10 @@ export function QuestionProgressBar({
             <button
               onClick={onToggleSmartVocabulary}
               className={cn(
-                "flex items-center justify-center w-9 h-9 sm:w-11 sm:h-11 rounded-full transition-all duration-500 active:scale-90 border",
+                "flex items-center justify-center w-9 h-9 sm:w-11 sm:h-11 rounded-xl transition-all duration-500 active:scale-90 border border-border/40",
                 smartVocabularyEnabled
-                  ? "bg-amber-100 dark:bg-amber-500/10 border-amber-300 dark:border-amber-500/30 text-amber-600 dark:text-amber-400 shadow-lg shadow-amber-500/10 ring-4 ring-amber-500/5 animate-pulse"
-                  : "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-400 dark:text-slate-500 hover:border-slate-300 dark:hover:border-slate-700 shadow-sm"
+                  ? "bg-amber-100 dark:bg-amber-500/10 border-amber-300 dark:border-amber-500/30 text-amber-600 dark:text-amber-400 shadow-lg shadow-amber-500/10"
+                  : "bg-background/80 hover:bg-muted/50 text-muted-foreground shadow-sm"
               )}
               title={smartVocabularyEnabled ? t('lumiCollapse') : t('test.wordHints')}
             >
