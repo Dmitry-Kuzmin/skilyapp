@@ -70,11 +70,14 @@ export const VoiceAIButton: React.FC<VoiceAIButtonProps> = ({
     const [bubbleCoords, setBubbleCoords] = useState<{ top: number; left: number; arrowLeft: number; placement: 'top' | 'bottom' }>({ top: 0, left: 0, arrowLeft: 50, placement: 'top' });
     const [isMuted, setIsMuted] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
+    const [isPressing, setIsPressing] = useState(false);
+    const [showFirstTimeHint, setShowFirstTimeHint] = useState(false);
 
     const openModal = useModalStore((s) => s.openModal);
 
     const buttonRef = useRef<HTMLButtonElement>(null);
     const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const hintTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const recordingInterval = useRef<ReturnType<typeof setInterval> | null>(null);
     const mediaRecorderRef = useRef<MediaRecorder | null>(null);
     const audioChunksRef = useRef<Blob[]>([]);
@@ -103,6 +106,20 @@ export const VoiceAIButton: React.FC<VoiceAIButtonProps> = ({
     }, [stopTTS]);
 
     useEffect(() => () => { cleanup(); typewriter.cancel(); }, [cleanup]);
+
+    useEffect(() => {
+        const seen = localStorage.getItem('skily-voice-hint-seen');
+        if (!seen) {
+            hintTimerRef.current = setTimeout(() => {
+                setShowFirstTimeHint(true);
+                hintTimerRef.current = setTimeout(() => {
+                    setShowFirstTimeHint(false);
+                    localStorage.setItem('skily-voice-hint-seen', '1');
+                }, 3500);
+            }, 800);
+        }
+        return () => { if (hintTimerRef.current) clearTimeout(hintTimerRef.current); };
+    }, []);
 
     const updateBubbleCoords = useCallback(() => {
         if (!buttonRef.current) return;
@@ -292,11 +309,18 @@ export const VoiceAIButton: React.FC<VoiceAIButtonProps> = ({
         e.preventDefault();
         if (voiceState !== 'idle') return;
         didLongPressRef.current = false;
+        setIsPressing(true);
+        if (showFirstTimeHint) {
+            setShowFirstTimeHint(false);
+            localStorage.setItem('skily-voice-hint-seen', '1');
+            if (hintTimerRef.current) clearTimeout(hintTimerRef.current);
+        }
         longPressTimer.current = setTimeout(() => startRecording(), LONG_PRESS_MS);
     };
 
     const handlePointerUp = (e: React.PointerEvent) => {
         e.preventDefault();
+        setIsPressing(false);
         if (longPressTimer.current) { clearTimeout(longPressTimer.current); longPressTimer.current = null; }
         if (voiceState === 'recording') {
             stopRecording();
@@ -306,6 +330,7 @@ export const VoiceAIButton: React.FC<VoiceAIButtonProps> = ({
     };
 
     const handlePointerCancel = () => {
+        setIsPressing(false);
         if (longPressTimer.current) { clearTimeout(longPressTimer.current); longPressTimer.current = null; }
         if (voiceState === 'recording') stopRecording();
     };
@@ -551,6 +576,37 @@ export const VoiceAIButton: React.FC<VoiceAIButtonProps> = ({
                     )}
                 </AnimatePresence>
 
+                {voiceState === 'idle' && (() => {
+                    const r = 24;
+                    const circ = 2 * Math.PI * r;
+                    return (
+                        <svg
+                            className="absolute pointer-events-none"
+                            style={{ width: 56, height: 56, top: '50%', left: '50%', transform: 'translate(-50%, -50%) rotate(-90deg)', zIndex: 5 }}
+                            viewBox="0 0 56 56"
+                        >
+                            <motion.circle
+                                cx="28" cy="28" r={r}
+                                fill="none"
+                                stroke="rgb(99,102,241)"
+                                strokeWidth="2.5"
+                                strokeLinecap="round"
+                                initial={false}
+                                animate={{
+                                    strokeDashoffset: isPressing ? 0 : circ,
+                                    opacity: isPressing ? 1 : 0,
+                                }}
+                                transition={
+                                    isPressing
+                                        ? { strokeDashoffset: { duration: LONG_PRESS_MS / 1000, ease: 'linear' }, opacity: { duration: 0.1 } }
+                                        : { duration: 0.15 }
+                                }
+                                style={{ strokeDasharray: circ }}
+                            />
+                        </svg>
+                    );
+                })()}
+
                 {voiceState === 'idle' && (
                     <div className="absolute -top-1.5 -right-1.5 flex h-4 w-4 z-20">
                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-60" />
@@ -560,6 +616,31 @@ export const VoiceAIButton: React.FC<VoiceAIButtonProps> = ({
                     </div>
                 )}
             </motion.button>
+
+            {showFirstTimeHint && voiceState === 'idle' && typeof document !== 'undefined' && createPortal(
+                <motion.div
+                    key="first-hint"
+                    initial={{ opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.25 }}
+                    className="fixed pointer-events-none z-[10001]"
+                    style={{
+                        top: (buttonRef.current?.getBoundingClientRect().top ?? 0) - 52,
+                        left: Math.max(16, Math.min(
+                            (buttonRef.current?.getBoundingClientRect().left ?? 0) + (buttonRef.current?.getBoundingClientRect().width ?? 0) / 2,
+                            (typeof window !== 'undefined' ? window.innerWidth : 400) - 180
+                        )),
+                        transform: 'translateX(-50%)',
+                    }}
+                >
+                    <div className="bg-indigo-600 text-white text-[11px] font-semibold px-3 py-1.5 rounded-xl border border-indigo-400/40 shadow-xl shadow-indigo-500/40 whitespace-nowrap flex items-center gap-1.5">
+                        <Mic className="w-3 h-3 shrink-0" />
+                        <span>{lang === 'ru' ? 'Зажми — голосовой вопрос' : 'Mantén pulsado — pregunta por voz'}</span>
+                    </div>
+                    <div className="absolute left-1/2 -translate-x-1/2 -bottom-1.5 w-3 h-3 bg-indigo-600 rotate-45 border-b border-r border-indigo-400/40" />
+                </motion.div>,
+                document.body
+            )}
 
             {voiceState === 'idle' && isHovered && typeof document !== 'undefined' && createPortal(
                 <AnimatePresence>
