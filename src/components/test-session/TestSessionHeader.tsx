@@ -5,6 +5,8 @@ import { BlitzHeader } from '@/components/blitz';
 import { QuestionProgressBar } from '@/components/QuestionProgressBar';
 import { TestSettingsMenu } from '@/components/TestSettingsMenu';
 import { Trophy } from 'lucide-react';
+import { ExamTimer } from '@/components/test-session/ExamTimer';
+import { AnswerStreakBadge } from '@/components/test-session/AnswerStreakBadge';
 import type { TestMode } from '@/store/examStore';
 import type { RussiaExamState } from '@/types/pddExam';
 
@@ -181,61 +183,19 @@ export const TestSessionHeader = ({
                     onReportProblem={onReportProblem}
                     customLeftContent={
                         <>
-                            {/* ─── Ring Timer (экзамены: DGT 30м / ГИБДД 20м / marathon) ─── */}
-                            {(mode === "exam" || mode === "exam-russia" || mode === "marathon") && (() => {
-                                const maxTime = mode === "exam-russia" ? 1200 : mode === "exam" ? 1800 : 600;
-                                const isWarning = timeLeft > 0 && timeLeft <= 120;
-                                const isCritical = timeLeft > 0 && timeLeft <= 30;
-                                const progress = Math.max(0, Math.min(100, (timeLeft / maxTime) * 100));
-                                const radius = 20;
-                                const circumference = 2 * Math.PI * radius;
-                                const offset = circumference - (progress / 100) * circumference;
-                                const displayValue = timeLeft >= 60
-                                    ? `${Math.floor(timeLeft / 60)}м`
-                                    : `${timeLeft}с`;
-                                const ringColor = isCritical ? '#ef4444' : isWarning ? '#f97316' : '#60a5fa';
+                            {/* Современный pill-таймер для экзаменов и марафона */}
+                            {(mode === "exam" || mode === "exam-russia" || mode === "marathon") && (
+                                <ExamTimer
+                                    timeLeft={timeLeft}
+                                    maxTime={mode === "exam-russia" ? 1200 : mode === "exam" ? 1800 : 600}
+                                />
+                            )}
 
-                                return (
-                                    <div className="relative shrink-0" style={{ width: 52, height: 52 }}>
-                                        {isCritical && (
-                                            <div
-                                                className="absolute inset-0 rounded-full animate-ping"
-                                                style={{ background: 'rgba(239,68,68,0.25)' }}
-                                            />
-                                        )}
-                                        <svg width="52" height="52" viewBox="0 0 52 52" style={{ transform: 'rotate(-90deg)' }}>
-                                            <circle cx="26" cy="26" r={radius} fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="4" />
-                                            <circle
-                                                cx="26" cy="26" r={radius} fill="none"
-                                                stroke={ringColor}
-                                                strokeWidth="4"
-                                                strokeDasharray={circumference}
-                                                strokeDashoffset={offset}
-                                                strokeLinecap="round"
-                                                style={{
-                                                    transition: 'stroke-dashoffset 1s linear, stroke 0.5s ease',
-                                                    filter: isCritical ? `drop-shadow(0 0 4px ${ringColor})` : undefined,
-                                                }}
-                                            />
-                                        </svg>
-                                        <div
-                                            className="absolute inset-0 flex items-center justify-center"
-                                            style={{ color: isCritical ? '#ef4444' : isWarning ? '#f97316' : 'white' }}
-                                        >
-                                            <span
-                                                className="font-bold leading-none"
-                                                style={{
-                                                    fontSize: timeLeft >= 60 ? '11px' : '13px',
-                                                    fontVariantNumeric: 'tabular-nums',
-                                                    animation: isCritical ? 'pulse 1s ease-in-out infinite' : undefined,
-                                                }}
-                                            >
-                                                {displayValue}
-                                            </span>
-                                        </div>
-                                    </div>
-                                );
-                            })()}
+                            {/* Streak бейдж — мотивирует серию правильных ответов.
+                                Скрыт в экзаменах (не подсказывает что было верно). */}
+                            {mode !== "exam" && mode !== "exam-russia" && streak >= 3 && (
+                                <AnswerStreakBadge streak={streak} />
+                            )}
 
                             {/* Mastery / Marathon Round Indicator */}
                             {(mode === "mastery" || mode === "marathon") && masteryRound > 1 && (

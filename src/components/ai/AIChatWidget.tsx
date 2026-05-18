@@ -161,7 +161,12 @@ export function AIChatWidget() {
             return data?.[0] ?? null;
         },
         enabled: !!profileId && isOpen && !isPremium && !premiumLoading,
-        staleTime: 0,
+        // 5 минут — лимит дневной, нет смысла дёргать RPC на каждое открытие чата.
+        // После отправки сообщения вручную делаем refetchUsage().
+        staleTime: 5 * 60 * 1000,
+        gcTime: 10 * 60 * 1000,
+        refetchOnMount: false,
+        refetchOnWindowFocus: false,
     });
 
     const FREE_DAILY_LIMIT = 5;

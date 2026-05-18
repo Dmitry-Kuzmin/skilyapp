@@ -76,6 +76,8 @@ import { useRussiaExamAdapter } from "@/hooks/test-session/useRussiaExamAdapter"
 
 import { useTestInteraction } from "@/hooks/test-session/useTestInteraction";
 import { useTestCompletion } from "@/hooks/test-session/useTestCompletion";
+import { useServerTestSession } from "@/hooks/test-session/useServerTestSession";
+import type { TestMode as ServerTestMode } from "@/lib/testManager";
 import { GameBackground } from "@/components/test-session/GameBackground";
 import { useModalStore } from "@/store/modalStore";
 import { useDailyTestLimit, isFullTestMode } from "@/hooks/useDailyTestLimit";
@@ -653,6 +655,38 @@ const TestSession = () => {
 
   // Derived testInfo merged above
 
+  // === SERVER-VALIDATED SESSION (test-manager) ===
+  // Включаем серверную валидацию для всех режимов КРОМЕ exam-russia
+  // (там динамические extra-questions, требуется отдельная серверная поддержка).
+  const SERVER_MODES: ServerTestMode[] = [
+    'practice', 'exam', 'blitz', 'module', 'mastery', 'marathon',
+    'pdd-ticket', 'pdd-random', 'pdd-sequential', 'pdd-topic',
+    'sequential', 'redemption', 'round-retry',
+  ];
+  const useServerValidation = SERVER_MODES.includes(mode as ServerTestMode);
+  const serverQuestionIds = useMemo(
+    () => (useServerValidation ? questions.map((q) => q.id) : []),
+    [useServerValidation, questions]
+  );
+
+  const serverSession = useServerTestSession({
+    enabled: useServerValidation && serverQuestionIds.length > 0,
+    questionIds: serverQuestionIds,
+    mode: mode as ServerTestMode,
+    testId: testId || null,
+    country: pddCountry === 'russia' ? 'ru' : pddCountry === 'spain' ? 'es' : null,
+    topicId: topicId || null,
+  });
+
+  // Map: questionId → test_session_question_id для O(1) lookup при submit.
+  const serverQuestionIdByQuestionId = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const sq of serverSession.serverQuestions) {
+      map.set(sq.question_id, sq.test_session_question_id);
+    }
+    return map;
+  }, [serverSession.serverQuestions]);
+
   // === IMAGE PRELOADING ===
   const firstImageUrl = questions[0]?.image_url;
 
@@ -1166,7 +1200,10 @@ const TestSession = () => {
     redemptionFailedQuestions,
     navigate,
     answers,
-    isAnswerLocked: !!isAnswerLocked
+    isAnswerLocked: !!isAnswerLocked,
+    // Server-validated session (test-manager). Если questionId есть в map — вердикт от сервера.
+    serverSubmit: serverSession.submit,
+    getServerQuestionId: (qid: string) => serverQuestionIdByQuestionId.get(qid) ?? null,
   });
 
   const { finishTest } = useTestCompletion({
@@ -1196,7 +1233,10 @@ const TestSession = () => {
     russiaExamQuestions: russiaExam.questions,
     isRussia,
     answers,
-    setAnswers
+    setAnswers,
+    // Server-validated session (test-manager) — авторитетный complete
+    serverSessionId: serverSession.sessionId,
+    serverComplete: serverSession.complete,
   });
 
   // === KEYBOARD NAVIGATION ===

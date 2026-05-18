@@ -36,6 +36,24 @@ interface UseTestCompletionParams {
     isRussia: boolean;
     answers?: any[];
     setAnswers: (a: any[]) => void;
+
+    // Server-validated session (test-manager). Если есть — авторитетный финал.
+    serverSessionId?: string | null;
+    serverComplete?: (params: {
+        client_correct_count?: number;
+        test_duration_seconds?: number;
+        premium_flag?: boolean;
+        double_sp_active?: boolean;
+    }) => Promise<{
+        success: true;
+        score: number;
+        correct_count: number;
+        questions_count: number;
+        test_duration_seconds: number;
+        speed_cheat_detected: boolean;
+        already_completed?: boolean;
+        reward?: Record<string, unknown> | null;
+    } | null>;
 }
 
 interface TestRewardResult {
@@ -78,7 +96,9 @@ export const useTestCompletion = ({
     russiaExamQuestions,
     isRussia,
     answers = [],
-    setAnswers
+    setAnswers,
+    serverSessionId,
+    serverComplete,
 }: UseTestCompletionParams) => {
     const navigate = useNavigate();
     const queryClient = useQueryClient();
@@ -302,6 +322,62 @@ export const useTestCompletion = ({
             }
         } catch (error) {
             console.error("Error saving results:", error);
+        }
+
+        // === SERVER-VALIDATED COMPLETE (приоритетный путь) ===
+        // Если серверная сессия активна — это авторитетный финал.
+        // Сервер сам пересчитает score из test_session_answers и вызовет
+        // complete-test-and-award внутри (см. handlers/gameplay.ts).
+        if (serverSessionId && serverComplete) {
+            try {
+                const realOnline = await checkOnlineStatus();
+                if (realOnline) {
+                    const serverResult = await serverComplete({
+                        client_correct_count: correctCount,
+                        test_duration_seconds: Math.max(timeSpent, 0),
+                        premium_flag: Boolean(isPremium),
+                        double_sp_active: false,
+                    });
+
+                    if (serverResult) {
+                        const reward = (serverResult.reward ?? {}) as Record<string, unknown>;
+                        rewardResult = {
+                            coins_awarded: (reward.coins_awarded as number | undefined) ?? 0,
+                            sp_awarded: (reward.sp_awarded as number | undefined) ?? 0,
+                            base_coins: reward.base_coins as number | undefined,
+                            base_sp: reward.sp_base as number | undefined,
+                            abuse_penalty: reward.abuse_penalty as number | undefined,
+                            diminishing_factor: reward.diminishing_factor as number | undefined,
+                            message: reward.message as string | undefined,
+                            level_up: reward.level_up as boolean | undefined,
+                            new_level: reward.new_level as number | undefined,
+                            tests_today: reward.tests_today as number | undefined,
+                        };
+
+                        try { sessionStorage.setItem('last_test_reward', JSON.stringify(rewardResult)); } catch {}
+
+                        navigate("/test/results", {
+                            state: {
+                                score: serverResult.score,
+                                total: serverResult.questions_count,
+                                correctCount: serverResult.correct_count,
+                                wrongAnswers: currentAnswers.filter((a: any) => !a.isCorrect).map((a: any) => a.questionId),
+                                answers: currentAnswers,
+                                questions: currentQuestions,
+                                timeSpent: serverResult.test_duration_seconds,
+                                mode,
+                                rewardResult,
+                                masteryRound,
+                                country: pddCountry,
+                                speedCheatDetected: serverResult.speed_cheat_detected,
+                            },
+                        });
+                        return;
+                    }
+                }
+            } catch (err) {
+                console.error('[useTestCompletion] serverComplete failed, fallback to legacy flow:', err);
+            }
         }
 
         if (profileId) {
