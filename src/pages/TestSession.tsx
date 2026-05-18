@@ -1398,7 +1398,7 @@ const TestSession = () => {
                 topic={currentQuestion.topics?.title_es}
                 imageUrl={currentQuestion.image_url}
                 showTranslation={showTranslation}
-                onToggleTranslation={toggleTranslation}
+                onToggleTranslation={testLanguage !== 'es' ? toggleTranslation : undefined}
                 testLanguage={effectiveLanguage}
                 country={isRussia ? 'russia' : 'spain'}
                 questionIndex={currentIndex}
@@ -1452,7 +1452,7 @@ const TestSession = () => {
           isQuestionBookmarked={isQuestionBookmarked}
           bookmarkLoading={bookmarkLoading}
           profileId={profileId || ""}
-          toggleTranslation={toggleTranslation}
+          toggleTranslation={testLanguage !== 'es' ? toggleTranslation : undefined}
           showTranslation={showTranslation}
           masteryRound={masteryRound}
           onReportProblem={() => setShowReportModal(true)}
@@ -1563,7 +1563,7 @@ const TestSession = () => {
                 mode={mode}
                 testLanguage={effectiveLanguage}
                 showTranslation={showTranslation}
-                toggleTranslation={toggleTranslation}
+                toggleTranslation={testLanguage !== 'es' ? toggleTranslation : undefined}
                 answerPopularity={answerPopularity || false}
                 selectOption={selectOption}
                 handleAnswer={handleAnswer}
