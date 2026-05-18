@@ -685,7 +685,7 @@ export const ru = {
   lumiWelcome: "Нужна подсказка или быстрое объяснение? Просто нажми кнопку или задай свой вопрос, и я помогу на месте. Готов, когда ты готов!",
   lumiHintButton: "Дай подсказку",
   lumiHelpButton: "Объясни правило",
-  lumiPlaceholder: "Задай свой вопрос здесь...",
+  lumiPlaceholder: "Спроси что-нибудь...",
   streakCounter: "Серия побед",
   skilyChat: {
     title: "Skily AI",

@@ -673,7 +673,7 @@ export const es = {
   lumiWelcome: "¿Necesitas una pista o una explicación rápida? Simplemente presiona el botón o haz tu pregunta, y te ayudaré en el acto. ¡Listo cuando tú lo estés!",
   lumiHintButton: "Dame una pista",
   lumiHelpButton: "Ayúdame a entender esto",
-  lumiPlaceholder: "Haz tu pregunta aquí...",
+  lumiPlaceholder: "Pregúntame algo...",
   skilyChat: {
     title: "Skily AI",
     subtitle: "Pregúntame sobre la DGT",

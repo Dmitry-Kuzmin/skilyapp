@@ -2297,3 +2297,95 @@ div:has(> iframe[src*="checkout.paddle"]) {
 @media (prefers-reduced-motion: reduce) {
   .hero-word-in, .hero-word-out { animation: none !important; }
 }
+
+/* ── Animated AI gradient border — Google AI Studio style ────────────────── */
+
+/* Горизонтальное движение по top-линии */
+@keyframes skily-ai-glow {
+  0%, 100% { background-position: 0% 50%; }
+  50%       { background-position: 100% 50%; }
+}
+
+@keyframes skily-ai-glow-h {
+  0%, 100% { opacity: 0.55; background-position: 0% 0%; }
+  50%       { opacity: 1;    background-position: 100% 0%; }
+}
+
+/*
+  Полный периметр (для AIChatWidget drawer — там нет border-radius issue)
+  Используется в мобильном чате.
+*/
+.skily-glow-wrap {
+  padding: 1.5px;
+  background: linear-gradient(90deg, #3b82f688, #8b5cf666, #06b6d488, #3b82f688);
+  background-size: 300% 300%;
+  animation: skily-ai-glow 5s ease infinite;
+  position: relative;
+  transition: filter 0.3s ease;
+}
+.skily-glow-wrap:focus-within {
+  background: linear-gradient(90deg, #60a5fa, #a78bfa, #22d3ee, #60a5fa);
+  background-size: 300% 300%;
+  animation: skily-ai-glow 3.5s ease infinite;
+  filter: drop-shadow(0 0 6px rgba(96,165,250,0.35));
+}
+
+/*
+  Только верхняя линия — стиль Google AI Studio.
+  Используется в AIWidget (десктопный сайдбар).
+*/
+.skily-glow-top {
+  position: relative;
+}
+.skily-glow-top::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 8%;
+  right: 8%;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    #3b82f6 25%,
+    #8b5cf6 50%,
+    #22d3ee 75%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: skily-ai-glow-h 4s ease infinite;
+  border-radius: 1px;
+  pointer-events: none;
+  z-index: 2;
+}
+.skily-glow-top:focus-within::before {
+  opacity: 1 !important;
+  height: 1.5px;
+  filter: drop-shadow(0 0 4px rgba(139,92,246,0.5));
+  animation-duration: 2.8s;
+}
+
+/* Резерв */
+.skily-glow-wrap-always {
+  padding: 1.5px;
+  background: linear-gradient(90deg, #3b82f655, #8b5cf650, #06b6d455, #3b82f655);
+  background-size: 300% 300%;
+  animation: skily-ai-glow 6s ease infinite;
+  position: relative;
+}
+
+/* ── SkilyAICharacter (Engine button aesthetic) ───────────────────────────── */
+@keyframes skily-pulse-expand {
+  0%   { transform: scale(1);   opacity: 0.38; }
+  60%  { opacity: 0.08; }
+  100% { transform: scale(1.7); opacity: 0; }
+}
+@keyframes skily-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+@keyframes skily-celebrate {
+  0%, 100% { transform: scale(1) rotate(0deg); }
+  25%       { transform: scale(1.06) rotate(-4deg); }
+  75%       { transform: scale(1.06) rotate(4deg); }
+}

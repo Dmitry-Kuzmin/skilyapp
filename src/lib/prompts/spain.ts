@@ -34,7 +34,7 @@ export function getSpainChatPrompt(
 ${buildWidgetRules('es')}
 ${buildPremiumRules('es', premiumContext)}
 
-${questionContext ? `## ❓ КОНТЕКСТ: Вопрос: "${questionContext.questionText}" | Ответ: "${questionContext.correctAnswer}"` : ''}
+${questionContext ? `## ❓ КОНТЕКСТ: Вопрос: "${questionContext.questionText}" | Ответ: "${questionContext.correctAnswer}"${questionContext.imageUrl ? '\n📸 К вопросу прикреплено изображение (дорожный знак/ситуация) — оно передано тебе визуально. Проанализируй его при ответе.' : ''}` : ''}
 
 ## 🎯 ТВОЯ МИССИЯ:
 Дай профессиональный и точный ответ на языке ${targetLang}.
@@ -72,6 +72,7 @@ ${questionContext ? `
 Question: "${questionContext.questionText}"
 Correct Answer: "${questionContext.correctAnswer}"
 User Result: ${questionContext.isCorrect ? '✅ Correct' : '❌ Incorrect'}
+${questionContext.imageUrl ? '📸 An image (road sign/traffic situation) is attached to this question — it has been passed to you visually. Analyze it in your response.' : ''}
 ` : ''}
 
 ## 🎯 MISSION:

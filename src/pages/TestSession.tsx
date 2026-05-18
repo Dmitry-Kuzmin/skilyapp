@@ -79,6 +79,7 @@ import { useTestCompletion } from "@/hooks/test-session/useTestCompletion";
 import { useServerTestSession } from "@/hooks/test-session/useServerTestSession";
 import type { TestMode as ServerTestMode } from "@/lib/testManager";
 import { GameBackground } from "@/components/test-session/GameBackground";
+import { StreakEdgeGlow } from "@/components/test-session/StreakEdgeGlow";
 import { useModalStore } from "@/store/modalStore";
 import { useDailyTestLimit, isFullTestMode } from "@/hooks/useDailyTestLimit";
 
@@ -1369,6 +1370,7 @@ const TestSession = () => {
   return (
     <Layout hideNavigation={true}>
       <GameBackground mode={mode} timeLeft={timeLeft} streak={streak} />
+      <StreakEdgeGlow streak={streak} />
       <TestContentLayout
         mode={mode}
         isTelegramApp={!!isTelegramApp}
@@ -1398,7 +1400,7 @@ const TestSession = () => {
                 topic={currentQuestion.topics?.title_es}
                 imageUrl={currentQuestion.image_url}
                 showTranslation={showTranslation}
-                onToggleTranslation={testLanguage !== 'es' ? toggleTranslation : undefined}
+                onToggleTranslation={!shouldUsePDD && (testLanguage !== 'es' || userLanguage !== 'es') ? toggleTranslation : undefined}
                 testLanguage={effectiveLanguage}
                 country={isRussia ? 'russia' : 'spain'}
                 questionIndex={currentIndex}
@@ -1452,7 +1454,7 @@ const TestSession = () => {
           isQuestionBookmarked={isQuestionBookmarked}
           bookmarkLoading={bookmarkLoading}
           profileId={profileId || ""}
-          toggleTranslation={testLanguage !== 'es' ? toggleTranslation : undefined}
+          toggleTranslation={!shouldUsePDD && (testLanguage !== 'es' || userLanguage !== 'es') ? toggleTranslation : undefined}
           showTranslation={showTranslation}
           masteryRound={masteryRound}
           onReportProblem={() => setShowReportModal(true)}
@@ -1563,7 +1565,7 @@ const TestSession = () => {
                 mode={mode}
                 testLanguage={effectiveLanguage}
                 showTranslation={showTranslation}
-                toggleTranslation={testLanguage !== 'es' ? toggleTranslation : undefined}
+                toggleTranslation={!shouldUsePDD && (testLanguage !== 'es' || userLanguage !== 'es') ? toggleTranslation : undefined}
                 answerPopularity={answerPopularity || false}
                 selectOption={selectOption}
                 handleAnswer={handleAnswer}

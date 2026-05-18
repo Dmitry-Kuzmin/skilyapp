@@ -413,7 +413,7 @@ export function AIChatWidget() {
         );
 
         await sendRequest(
-            { messages: apiMessages, country: selectedCountry, language: replyLang, mode: 'chat', showComparison: false, imageUrl: imageUrl ?? null },
+            { messages: apiMessages, country: selectedCountry, language: replyLang, mode: 'chat', showComparison: false, imageUrl: imageUrl ?? context?.imageUrl ?? null },
             {
                 onChunk: (text) => typewriter.push(text),
                 onDone: () => {

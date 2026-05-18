@@ -679,7 +679,7 @@ export const en = {
   lumiWelcome: "Need a hint or a quick explanation? Just press the button or ask your question, and I'll help on the spot. Ready when you are ready!",
   lumiHintButton: "Give me a hint",
   lumiHelpButton: "Help me understand this",
-  lumiPlaceholder: "Ask your question here...",
+  lumiPlaceholder: "Ask me anything...",
   skilyChat: {
     title: "AI Assistant",
     subtitle: "Intelligent assistant",
