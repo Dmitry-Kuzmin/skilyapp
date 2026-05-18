@@ -6,7 +6,7 @@ import type { Database } from './types';
 // Vite replaces import.meta.env.VITE_* at build time
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL ||
   import.meta.env.PUBLIC_SUPABASE_URL ||
-  'https://yffjnqegeiorunyvcxkn.supabase.co';
+  '';
 
 const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ||
   import.meta.env.PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
@@ -49,6 +49,9 @@ if (import.meta.env.DEV) {
 
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
+
+const _supabaseRef = SUPABASE_URL.startsWith('https://') ? SUPABASE_URL.split('//')[1].split('.')[0] : '';
+export const SUPABASE_AUTH_KEY = `sb-${_supabaseRef}-auth-token`;
 
 export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
   auth: {

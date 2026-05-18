@@ -30,7 +30,7 @@ async function fetchServerTime(): Promise<number | null> {
     // Получаем URL и ключ из env переменных
     const supabaseUrl = import.meta.env.VITE_SUPABASE_URL ||
       import.meta.env.PUBLIC_SUPABASE_URL ||
-      'https://yffjnqegeiorunyvcxkn.supabase.co';
+      '';
     const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ||
       import.meta.env.PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
       import.meta.env.VITE_SUPABASE_ANON_KEY ||

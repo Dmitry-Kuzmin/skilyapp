@@ -32,7 +32,7 @@ export function validateEnv(): EnvConfig {
   // Критичные переменные (Supabase)
   const supabaseUrl = import.meta.env.VITE_SUPABASE_URL ||
     import.meta.env.PUBLIC_SUPABASE_URL ||
-    'https://yffjnqegeiorunyvcxkn.supabase.co';
+    '';
 
   const supabaseAnonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ||
     import.meta.env.PUBLIC_SUPABASE_PUBLISHABLE_KEY ||

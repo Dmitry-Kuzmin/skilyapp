@@ -1411,7 +1411,7 @@ const CourseLanding = () => {
                       }
                       const formData = new FormData(e.currentTarget);
                       try {
-                        await fetch("https://yffjnqegeiorunyvcxkn.supabase.co/functions/v1/curso-lead", {
+                        await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/curso-lead`, {
                           method: "POST",
                           headers: { "Content-Type": "application/json" },
                           body: JSON.stringify({

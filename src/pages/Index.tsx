@@ -11,6 +11,7 @@ import { PageLoader } from "@/components/PageLoader";
 import { isTelegramMiniApp } from "@/lib/telegram";
 import { useExamReadiness } from "@/hooks/useExamReadiness";
 import { getSupabaseClient } from "@/integrations/supabase/lazyClient";
+import { SUPABASE_AUTH_KEY } from "@/integrations/supabase/client";
 import { useDashboardData } from "@/hooks/useDashboardData";
 import { useStreak } from "@/hooks/useStreak";
 import { useDailyBonusDefinitions } from "@/hooks/useStaticData";
@@ -518,7 +519,7 @@ const Index = memo(function Index() {
           </button>
           <button
             onClick={async () => {
-              localStorage.removeItem('sb-yffjnqegeiorunyvcxkn-auth-token');
+              localStorage.removeItem(SUPABASE_AUTH_KEY);
               localStorage.removeItem('telegram_token');
               localStorage.removeItem('puzzle_user');
               document.cookie.split(";").forEach((c) => {

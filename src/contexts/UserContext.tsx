@@ -8,7 +8,7 @@ const devLog = (...args: Parameters<typeof console.log>) => {
 import { TelegramUser } from "@/types/window";
 import { getTelegramUser, getPlatform } from "@/core/TelegramInit";
 import { isTelegramMiniApp } from "@/lib/telegram";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase, SUPABASE_AUTH_KEY } from "@/integrations/supabase/client";
 import type { User, Session } from "@supabase/supabase-js";
 import { useTelegram } from "@/contexts/TelegramContext";
 import { setGlobalProfileId } from "@/hooks/useRequireProfile";
@@ -489,7 +489,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
                 console.error('[UserContext] setSession error:', sessionError);
                 if (!cachedTgProfileId && (sessionError.message.includes('refresh_token_not_found') || sessionError.status === 400)) {
                   console.warn('[UserContext] Invalid session, clearing and falling back...');
-                  localStorage.removeItem('sb-yffjnqegeiorunyvcxkn-auth-token');
+                  localStorage.removeItem(SUPABASE_AUTH_KEY);
                   await login(telegramUser).catch(err => console.error('[UserContext] Fallback login failed:', err));
                 }
               } else {

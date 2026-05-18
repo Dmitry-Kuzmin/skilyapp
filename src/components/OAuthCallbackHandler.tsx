@@ -6,7 +6,7 @@ import { supabase } from '@/integrations/supabase/client';
 // Импортируем SUPABASE_URL для проверки localStorage
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL ||
   import.meta.env.PUBLIC_SUPABASE_URL ||
-  'https://yffjnqegeiorunyvcxkn.supabase.co';
+  '';
 
 /**
  * Компонент для обработки OAuth callback (Google, etc.)

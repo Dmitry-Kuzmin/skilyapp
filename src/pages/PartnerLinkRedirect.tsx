@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+const _supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
 import { Loader2 } from "lucide-react";
 import { getFingerprint } from "@/lib/fingerprint";
 
@@ -32,7 +33,7 @@ export default function PartnerLinkRedirect() {
       } catch (_rpcErr) {
         // Если RPC упал (CORS, network, content blocker) — уходим на серверный редирект
         window.location.replace(
-          `https://yffjnqegeiorunyvcxkn.supabase.co/functions/v1/partner-redirect/${code}`
+          `${_supabaseUrl}/functions/v1/partner-redirect/${code}`
         );
         return;
       }

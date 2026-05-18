@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase, SUPABASE_AUTH_KEY } from '@/integrations/supabase/client';
 
 /**
  * Хук для управления сессией Supabase с обработкой ошибок
@@ -23,7 +23,7 @@ export function useSession() {
             // Если это 400 ошибка, значит токен в localStorage протух окончательно
             if ((error as any).status === 400) {
               console.warn('[useSession] 🚨 Invalid refresh token (400), clearing auth storage...');
-              localStorage.removeItem('sb-yffjnqegeiorunyvcxkn-auth-token');
+              localStorage.removeItem(SUPABASE_AUTH_KEY);
               // Можно не перезагружать, Supabase клиент сам обновит состояние
             }
 

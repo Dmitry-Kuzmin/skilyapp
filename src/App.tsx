@@ -255,7 +255,7 @@ const LandingRedirect = () => {
 
   // Ключ supabase auth в localStorage (sb-<project-ref>-auth-token)
   const authStorageKey = useMemo(() => {
-    const fallbackRef = "yffjnqegeiorunyvcxkn";
+    const fallbackRef = "";
     const url = import.meta.env.VITE_SUPABASE_URL || import.meta.env.PUBLIC_SUPABASE_URL || "";
     const ref = url.startsWith("https://") ? url.replace("https://", "").split(".")[0] : fallbackRef;
     return `sb-${ref}-auth-token`;

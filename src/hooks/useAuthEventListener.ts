@@ -7,7 +7,7 @@
 import { useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'https://yffjnqegeiorunyvcxkn.supabase.co';
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || '';
 
 /**
  * Hook для отслеживания Auth событий и отправки уведомлений
