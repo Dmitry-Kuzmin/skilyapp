@@ -447,7 +447,7 @@ export const VoiceAIButton: React.FC<VoiceAIButtonProps> = ({
                     'transition-colors duration-300',
                     isRecording
                         ? 'bg-red-500/15 border border-red-500/50 shadow-[0_0_20px_rgba(239,68,68,0.2)]'
-                        : 'bg-zinc-900/50 dark:bg-black/50 backdrop-blur-md shadow-lg',
+                        : 'bg-transparent',
                     isProcessing && 'pointer-events-none opacity-75'
                 )}
                 style={{ WebkitTapHighlightColor: 'transparent' }}
@@ -554,7 +554,7 @@ export const VoiceAIButton: React.FC<VoiceAIButtonProps> = ({
                 {voiceState === 'idle' && (
                     <div className="absolute -top-1.5 -right-1.5 flex h-4 w-4 z-20">
                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-60" />
-                        <span className="relative inline-flex rounded-full h-4 w-4 bg-indigo-500 border-2 border-zinc-900 dark:border-black items-center justify-center shadow-sm">
+                        <span className="relative inline-flex rounded-full h-4 w-4 bg-indigo-500 border-2 border-background items-center justify-center shadow-sm">
                             <Mic className="w-2 h-2 text-white" />
                         </span>
                     </div>
