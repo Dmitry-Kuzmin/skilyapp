@@ -217,13 +217,6 @@ export function AIChatWidget() {
     // Стабильная высота viewport + offset клавиатуры (решает iOS + Telegram + keyboard)
     const { layoutHeight, keyboardOffset } = useStableViewportHeight(isOpen);
 
-    const { isRecording, isProcessingVoice, toggleVoiceInput, stopRecording, clearDraft, isDenied: isMicrophoneDenied, isUnsupported: isMicrophoneUnsupported } = useVoiceRecording({
-        lang: interfaceLanguage,
-        onTranscript: setInput,
-        onLiveTranscript: setInput,
-        inputRef,
-    });
-
     // Фокус на input при открытии (с задержкой для анимации)
     useEffect(() => {
         if (isOpen && inputRef.current) {
@@ -265,6 +258,13 @@ export function AIChatWidget() {
         if (questionContext?.testLanguage) return questionContext.testLanguage;
         return currentProfileCountry === 'russia' ? 'ru' : 'es';
     })();
+
+    const { isRecording, isProcessingVoice, toggleVoiceInput, stopRecording, clearDraft, isDenied: isMicrophoneDenied, isUnsupported: isMicrophoneUnsupported } = useVoiceRecording({
+        lang: interfaceLanguage,
+        onTranscript: setInput,
+        onLiveTranscript: setInput,
+        inputRef,
+    });
 
     /**
      * Per-turn override: если пользователь пишет кириллицей — отвечаем на русском,
