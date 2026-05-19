@@ -64,7 +64,7 @@ export async function handleStartSession({ supabase, profileId, ipHash, params }
     .from('questions_new')
     .select(`
       id, question_ru, question_es, question_en, image_url, difficulty,
-      explanation_ru, explanation_es, explanation_en, topic_id,
+      explanation_ru, explanation_es, explanation_en, topic_id, is_honeypot,
       answer_options (
         id, text_ru, text_es, text_en, is_correct, position
       )
@@ -75,7 +75,28 @@ export async function handleStartSession({ supabase, profileId, ipHash, params }
     return errorResponse('Failed to load questions', 500, { details: qError?.message });
   }
 
-  if (questions.length !== question_ids.length) {
+  // Honeypot detection: если клиент попытался запросить honeypot — логируем
+  const honeypotHits = questions.filter((q: { is_honeypot?: boolean }) => q.is_honeypot);
+  if (honeypotHits.length > 0) {
+    console.warn('[test-manager][honeypot] 🚨 Honeypot question requested', {
+      user_id: profileId,
+      question_ids: honeypotHits.map((q: { id: string }) => q.id),
+      ip_hash: ipHash,
+    });
+    // Логируем в honeypot_access_log
+    await supabase.from('honeypot_access_log').insert(
+      honeypotHits.map((q: { id: string }) => ({
+        question_id: q.id,
+        accessed_by: profileId,
+        ip_hash: ipHash,
+        context: { source: 'test-manager.start_session', mode },
+      }))
+    );
+    // Молча отбрасываем honeypot из сессии
+    questions.splice(0, questions.length, ...questions.filter((q: { is_honeypot?: boolean }) => !q.is_honeypot));
+  }
+
+  if (questions.length !== question_ids.length - honeypotHits.length) {
     return errorResponse('Some question IDs not found', 400, {
       requested: question_ids.length,
       found: questions.length,
