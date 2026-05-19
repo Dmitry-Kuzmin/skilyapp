@@ -122,16 +122,29 @@ serve(async (req) => {
       });
     }
 
-    // Клиентский вызов может писать события только за себя
-    if (!isServiceRole && authenticatedUserId !== user_id) {
-      console.warn('[EventDispatcher] User mismatch:', { authenticated: authenticatedUserId, requested: user_id });
-      return new Response(JSON.stringify({ error: 'Forbidden: user_id mismatch' }), {
-        status: 403,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
-
     const supabase = createPooledSupabaseClient(SUPABASE_SERVICE_ROLE_KEY);
+
+    // Клиентский вызов может писать события только за себя.
+    // body.user_id is the profile_id (matches profiles.id), while authenticatedUserId
+    // is auth.uid(). Resolve via profiles.user_id to compare them.
+    if (!isServiceRole) {
+      const { data: profileOwner } = await supabase
+        .from('profiles')
+        .select('user_id')
+        .eq('id', user_id)
+        .maybeSingle();
+      if (!profileOwner || profileOwner.user_id !== authenticatedUserId) {
+        console.warn('[EventDispatcher] Profile/auth mismatch:', {
+          authenticated: authenticatedUserId,
+          requestedProfileId: user_id,
+          profileOwner: profileOwner?.user_id ?? null,
+        });
+        return new Response(JSON.stringify({ error: 'Forbidden: user_id mismatch' }), {
+          status: 403,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+    }
 
     // КРИТИЧНО: Дедупликация по event_id
     if (event_id) {

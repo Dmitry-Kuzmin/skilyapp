@@ -510,7 +510,7 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
             });
 
             // КРИТИЧНО: Проверяем, не был ли этот exploit уже resolved
-            if (newExploit.id && resolvedExploitIdsRef.current.has(newExploit.id)) {
+            if (newExploit.id && exploitsManager.resolvedExploitIdsRef.current.has(newExploit.id)) {
               log('[useDuelRealtime] ⚠️ Ignoring already resolved exploit from realtime:', newExploit.id);
               return;
             }

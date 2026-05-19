@@ -288,18 +288,24 @@ export default function Duel() {
     }, [betAmount]);
 
     // Define handleDuelStarted early so it can be used in useEffect dependencies
+    const startedDuelIdRef = useRef<string | null>(null);
     const handleDuelStarted = useCallback((targetDuelId?: string) => {
         debugFetch({ location: 'Duel.tsx:156', message: 'handleDuelStarted called', data: { targetDuelId, currentDuelId: duelId, currentMode: mode }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'C' });
         const activeDuelId = targetDuelId || duelId;
-        console.log('[Duel] ⚡ DUEL STARTED! Switching to battle mode. DuelId:', activeDuelId);
 
         if (!activeDuelId) {
             console.error('[Duel] ❌ Cannot start battle: no duelId');
-            // #region agent log
-            debugFetch({ location: 'Duel.tsx:160', message: 'Cannot start - no duelId', data: { targetDuelId, currentDuelId: duelId }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'C' });
-            // #endregion
             return;
         }
+
+        // Idempotent: realtime + polling fallback both fire this. Skip if we've
+        // already promoted this duel to battle mode.
+        if (startedDuelIdRef.current === activeDuelId) {
+            return;
+        }
+        startedDuelIdRef.current = activeDuelId;
+
+        console.log('[Duel] ⚡ DUEL STARTED! Switching to battle mode. DuelId:', activeDuelId);
 
         // Убеждаемся, что duelId установлен
         if (targetDuelId && targetDuelId !== duelId) {
@@ -542,6 +548,7 @@ export default function Duel() {
     }, [isLoadingProfile, isAuthenticated, isTelegramUser, navigate]);
 
     const handleDuelCreated = (id: string, code: string) => {
+        startedDuelIdRef.current = null;
         setDuelId(id);
         setDuelCode(code);
         setCreatedCode(code);
@@ -673,6 +680,7 @@ export default function Duel() {
         setCopied(false);
         setDuelMode(null);
         hasAutoJoinedRef.current = false;
+        startedDuelIdRef.current = null;
     }, [clearActiveDuel, setSearchParams]);
 
     // Check if user needs to login
