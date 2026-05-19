@@ -113,10 +113,28 @@ export function getImageUrl(imageUrl: string | null | undefined, bucket: string 
 
     const transformOptions = getOptimalSize();
 
-    // Получаем базовый публичный URL
+    // FIX (2026-05-18): используем второй аргумент getPublicUrl с transform options.
+    // supabase-js сам сгенерирует URL на render endpoint:
+    //   storage/v1/render/image/public/{bucket}/{path}?width=...&format=webp
+    // Раньше params добавлялись к object/public/* URL и Supabase их игнорировал.
+    const transformParam: {
+      width?: number;
+      height?: number;
+      quality?: number;
+      format?: 'origin';
+      resize?: 'cover' | 'contain' | 'fill';
+    } = {};
+    if (transformOptions.width) transformParam.width = transformOptions.width;
+    if (transformOptions.height) transformParam.height = transformOptions.height;
+    if (transformOptions.quality) transformParam.quality = transformOptions.quality;
+    // format: 'origin' значит "оставь исходный формат, не конвертируй".
+    // Supabase автоматически отдаёт WebP/AVIF через Accept-заголовок браузера
+    // если transform-параметры заданы.
+
+    const hasTransform = Boolean(transformOptions.width || transformOptions.height);
     const { data, error } = supabase.storage
       .from(bucket)
-      .getPublicUrl(normalizedPath);
+      .getPublicUrl(normalizedPath, hasTransform ? { transform: transformParam } : undefined);
 
     if (error) {
       console.error(`[getImageUrl] Error getting public URL (bucket: ${bucket}, path: ${normalizedPath}):`, error);
@@ -128,26 +146,7 @@ export function getImageUrl(imageUrl: string | null | undefined, bucket: string 
       return null;
     }
 
-    // ОПТИМИЗАЦИЯ: Добавляем параметры трансформации через URL (если нужно)
-    // Supabase Storage поддерживает трансформации через URL параметры
-    let finalUrl = data.publicUrl;
-    if (transformOptions.width || transformOptions.height) {
-      const params = new URLSearchParams();
-      if (transformOptions.width) params.set('width', transformOptions.width.toString());
-      if (transformOptions.height) params.set('height', transformOptions.height.toString());
-      if (transformOptions.quality) params.set('quality', transformOptions.quality.toString());
-
-      // CRITICAL: Используем формат WebP для трансформации, если поддерживается
-      // Это дает лучшее качество при меньшем размере, даже если исходник JPEG
-      if (supportsWebP()) {
-        params.set('format', 'webp');
-        // Для WebP можно использовать чуть более агрессивный ресайз без потери качества, 
-        // но оставим настройки getOptimalSize как есть
-      }
-
-      // Добавляем параметры к URL
-      finalUrl = `${data.publicUrl}?${params.toString()}`;
-    }
+    const finalUrl = data.publicUrl;
 
     // Сохраняем URL в кэш для быстрого доступа в будущем
     // Даже если изображение еще не загружено, URL уже известен
