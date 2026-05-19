@@ -54,7 +54,7 @@ import { MidTestAITeaser } from "@/components/test-session/MidTestAITeaser";
 import { useTestState } from "@/hooks/test-session/useTestState";
 // Lazy: blitz card только в blitz, universal только в exam-russia (см. ниже)
 // TestSettingsMenu лениво подгружается в TestSessionHeader
-const WrongAnswerExplanation = lazy(() => import("@/components/test-session/WrongAnswerExplanation").then(m => ({ default: m.WrongAnswerExplanation })));
+// Note: AI explanation уже работает в боковом виджете (Skily AI), отдельная модалка не нужна
 
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 
@@ -340,13 +340,6 @@ const TestSession = () => {
   const [showChallengeBankNotification, setShowChallengeBankNotification] = useState(false);
   const [isFirstWrongAnswer, setIsFirstWrongAnswer] = useState(true);
   const [blitzShaking, setBlitzShaking] = useState(false); // Screen shake for Blitz wrong answers
-
-  // Принудительное объяснение после неверного ответа (педагогически)
-  const [forcedExplanationOpen, setForcedExplanationOpen] = useState(false);
-  const [forcedExplanationData, setForcedExplanationData] = useState<{
-    explanation: string | null;
-    correctAnswerText: string | null;
-  }>({ explanation: null, correctAnswerText: null });
 
   // ============================================
   // REDEMPTION SESSION CONFIG & STATE
@@ -1111,51 +1104,6 @@ const TestSession = () => {
   const isBlitzMode = mode === 'blitz';
   const isExamMode = mode === 'exam' || mode === 'exam-russia';
 
-  // === FORCED EXPLANATION ===
-  // В обучающих режимах (без блица и экзамена) при неверном ответе на ТЕКУЩИЙ
-  // вопрос показываем модалку с объяснением и минимальным временем чтения.
-  // Срабатывает один раз на вопрос, после acknowledge сбрасывается.
-  const lastShownExplanationForRef = useRef<string | null>(null);
-  const currentAnswerForExplanation = answers.find((a) => a.questionId === currentQuestion?.id);
-  useEffect(() => {
-    if (isExamMode || isBlitzMode) return;
-    if (!isPracticeLikeMode) return;
-    if (!currentQuestion?.id) return;
-    if (!currentAnswerForExplanation) return;
-    if (currentAnswerForExplanation.isCorrect !== false) return;
-    if (lastShownExplanationForRef.current === currentQuestion.id) return;
-
-    const correctOpt = (sortedOptions || []).find((o) => o.is_correct);
-    const correctText = correctOpt
-      ? (showTranslation || testLanguage === 'ru'
-          ? (correctOpt.text_ru || correctOpt.text_es || '')
-          : (testLanguage === 'en'
-              ? (correctOpt.text_en || correctOpt.text_es || '')
-              : (correctOpt.text_es || '')))
-      : null;
-
-    const explanationText = showTranslation || testLanguage === 'ru'
-      ? (currentQuestion.explanation_ru || currentQuestion.explanation_es || null)
-      : (testLanguage === 'en'
-          ? (currentQuestion.explanation_en || currentQuestion.explanation_es || null)
-          : (currentQuestion.explanation_es || null));
-
-    // Не показываем модалку если нет ни correct text ни explanation — бесполезно
-    if (!correctText && !explanationText) return;
-
-    lastShownExplanationForRef.current = currentQuestion.id;
-    setForcedExplanationData({ explanation: explanationText, correctAnswerText: correctText });
-    // Небольшая задержка, чтобы UI успел показать состояние "неверно"
-    const t = setTimeout(() => setForcedExplanationOpen(true), 600);
-    return () => clearTimeout(t);
-  }, [
-    currentAnswerForExplanation?.isCorrect,
-    currentQuestion?.id,
-    isExamMode,
-    isBlitzMode,
-    isPracticeLikeMode,
-  ]);
-
   // ============================================
   // NAVIGATION WRAPPERS (Moved up for hook dependency)
   // ============================================
@@ -1728,20 +1676,6 @@ const TestSession = () => {
             </div>
           );
         })()}
-
-        {/* Принудительное объяснение после неверного ответа (обучающие режимы) */}
-        {forcedExplanationOpen && (
-          <Suspense fallback={null}>
-            <WrongAnswerExplanation
-              open={forcedExplanationOpen}
-              onAcknowledge={() => setForcedExplanationOpen(false)}
-              explanation={forcedExplanationData.explanation}
-              correctAnswerText={forcedExplanationData.correctAnswerText}
-              language={(effectiveLanguage as 'ru' | 'es' | 'en') ?? 'ru'}
-              minReadTimeMs={2500}
-            />
-          </Suspense>
-        )}
 
         {/* Question Map Bottom Sheet */}
         <TestSessionModals
