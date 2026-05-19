@@ -89,7 +89,30 @@ const playFallback = (text: string, language: TTSLang) => {
 
 let apiFailed = false;
 let apiFailedAt = 0;
-const API_RETRY_AFTER_MS = 30_000;
+const API_RETRY_AFTER_MS = 10_000; // 10 s — быстро восстанавливаемся после единичного сбоя
+
+/**
+ * Обрезаем длинный текст до первых ~1 000 символов по границе предложения.
+ * Это предотвращает таймаут WebSocket соединения к Microsoft Edge TTS
+ * при озвучке длинных AI-ответов (500–2 000 символов).
+ */
+const MAX_TTS_CHARS = 1_000;
+const truncateForTTS = (text: string): string => {
+    if (text.length <= MAX_TTS_CHARS) return text;
+    // Обрезаем по ближайшей точке/восклицанию/вопросу до лимита
+    const slice = text.slice(0, MAX_TTS_CHARS);
+    const lastBreak = Math.max(
+        slice.lastIndexOf('. '),
+        slice.lastIndexOf('! '),
+        slice.lastIndexOf('? '),
+        slice.lastIndexOf('.\n'),
+        slice.lastIndexOf('!\n'),
+        slice.lastIndexOf('?\n'),
+    );
+    return lastBreak > MAX_TTS_CHARS * 0.5
+        ? slice.slice(0, lastBreak + 1).trim()
+        : slice.trim() + '…';
+};
 
 const fetchAudioBuffer = async (
     text: string,
@@ -136,15 +159,16 @@ export const stopTTS = (): void => {
  * (или сразу после старта fallback'а, т.к. SpeechSynthesis асинхронен).
  */
 export const speakTTS = async (rawText: string, language: TTSLang): Promise<void> => {
-    const text = stripEmoji((rawText || '').trim());
+    const text = truncateForTTS(stripEmoji((rawText || '').trim()));
     if (!text) return;
 
     stopTTS();
 
     if (apiFailed) {
         if (Date.now() - apiFailedAt > API_RETRY_AFTER_MS) {
-            apiFailed = false;
+            apiFailed = false; // retry window passed — try API again
         } else {
+            console.warn('[TTS] API previously failed, using browser fallback (retries in', Math.ceil((API_RETRY_AFTER_MS - (Date.now() - apiFailedAt)) / 1000), 's)');
             playFallback(text, language);
             return;
         }
