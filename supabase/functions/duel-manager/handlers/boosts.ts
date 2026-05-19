@@ -161,7 +161,7 @@ export async function handleUseBoost(params: any, profileId: string, supabase: S
     };
     console.log('[use_boost] Cryptolocker activated');
   } else if (boost_type === 'fog_screen') {
-    boostEffect = { success: true, duration_ms: 25000 }; // 25с — успеть протереть 25 пятен
+    boostEffect = { success: true, duration_ms: 600000 }; // 10min DB TTL — player must complete all 16
     console.log('[use_boost] Fog Screen activated');
   } else if (boost_type === 'ice_screen') {
     boostEffect = { success: true, duration_ms: 20000 };
@@ -788,7 +788,7 @@ export async function handleBotUseBoost(params: any, profileId: string, supabase
       duration_ms: 30000,
     };
   } else if (boostType === 'fog_screen') {
-    boostEffect = { success: true, boost_type: 'fog_screen', duration_ms: 25000 };
+    boostEffect = { success: true, boost_type: 'fog_screen', duration_ms: 600000 }; // 10min DB TTL — player must complete all 16
   } else if (boostType === 'ice_screen') {
     boostEffect = { success: true, boost_type: 'ice_screen', duration_ms: 20000 };
   } else if (boostType === 'sun_glare') {

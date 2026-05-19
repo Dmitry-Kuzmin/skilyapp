@@ -69,15 +69,6 @@ export const SchulteTableAttack: React.FC<SchulteTableAttackProps> = ({ isActive
     return () => clearTimeout(t);
   }, [showIntro]);
 
-  // Auto-expire safety net
-  useEffect(() => {
-    if (!expiresAt) return;
-    const remaining = expiresAt - Date.now();
-    if (remaining <= 0) { onCleaned(); return; }
-    const id = setTimeout(onCleaned, remaining);
-    return () => clearTimeout(id);
-  }, [expiresAt, onCleaned]);
-
   const spawnBurst = useCallback((value: number) => {
     const el = tileRefs.current.get(value);
     const root = containerRef.current;

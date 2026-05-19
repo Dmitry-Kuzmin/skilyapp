@@ -49,7 +49,8 @@ export const ArenaEffects: React.FC<ArenaEffectsProps> = ({ feedbackEffect, remo
         const sunGlare = findExploit(['sun_glare']);
         const rainStorm = findExploit(['rain_storm']);
         const bugSplat = findExploit(['bug_splat']);
-        const fogScreen = findExploit(['fog_screen']);
+        // Fog screen must be completed manually — ignore expiresAt
+        const fogScreen = exploits.find(e => e.type === 'fog_screen');
 
         // Check passed status
         const screenInjectorPassed =
