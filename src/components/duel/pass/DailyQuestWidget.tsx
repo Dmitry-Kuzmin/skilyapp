@@ -118,9 +118,7 @@ export function DailyQuestWidget() {
     if (!clientSession) return;
     try {
       setLoading(true);
-      const { data, error } = await supabase.rpc('get_or_assign_daily_quests', {
-        p_user_id: profileId
-      });
+      const { data, error } = await supabase.rpc('get_or_assign_daily_quests');
 
       if (error) {
         console.error("[DailyQuestWidget] Error fetching quests:", error);
