@@ -71,3 +71,4 @@ tmp_*
 *.tmp_*
 sdadim-eu/
 .claude/worktrees/
+Supabase Performance Security Lints*.csv
