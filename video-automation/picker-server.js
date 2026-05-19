@@ -723,7 +723,9 @@ Escribe SOLO el script final. Sin comillas, sin explicaciones.
 // Возвращает { title, audio } — title на экран (коротко), audio — голосовой (1-2 предложения)
 async function generateViralHook(question, lang, percentCorrect = 50) {
   const isRu = lang === "ru";
-  const wrongPct = 100 - percentCorrect;
+  const rawWrong = 100 - Math.max(0, Math.min(100, percentCorrect));
+  // Clamp: never say "0%" or "100%" — round to nearest 5 for clean marketing numbers
+  const wrongPct = Math.max(15, Math.min(97, Math.round(rawWrong / 5) * 5));
 
   const prompt = isRu ? `
 Ты копирайтер для TikTok и Instagram Reels (правила дорожного движения Испании, русскоязычная аудитория).
@@ -772,10 +774,10 @@ Devuelve SOLO JSON válido, sin markdown, sin explicaciones:
     return parsed;
   } catch(e) {
     // Fallback to static
-    const wrongPctRounded = Math.round(wrongPct / 10) * 10;
+    // wrongPct is already clamped (min 15, max 97) and rounded to nearest 5
     return isRu
-      ? { title: `${wrongPctRounded}% водителей ошибаются`, audio: `Вопрос по правилам дорожного движения Испании. ${wrongPctRounded} процентов водителей ответили неправильно.` }
-      : { title: `El ${wrongPctRounded}% falla aquí`, audio: `Pregunta DGT. El ${wrongPctRounded} por ciento de conductores responde mal.` };
+      ? { title: `${wrongPct}% водителей ошибаются`, audio: `Вопрос по правилам дорожного движения Испании. ${wrongPct} процентов водителей ответили неправильно.` }
+      : { title: `El ${wrongPct}% falla aquí`, audio: `Pregunta DGT. El ${wrongPct} por ciento de conductores responde mal.` };
   }
 }
 
@@ -1589,17 +1591,17 @@ const OUTRO_TEMPLATES = {
     { id:"subscribe", label:"Подпишись",    text:"Подпишись! Каждый день новый вопрос ПДД Испании 🇪🇸" },
     { id:"tag",       label:"Skilyapp.com", text:"Переходи на Skilyapp.com — и готовься к экзамену на права в Испании бесплатно! 🚀" },
     { id:"comment",   label:"Угадал?",      text:"Угадал? Пиши ✅ или ❌ в комментарии!" },
-    { id:"skily",     label:"Skily",        text:"Готовишься к испанским правам? 2000+ вопросов на Skily 🚀" },
+    { id:"skily",     label:"Skily",        text:"Готовишься к испанским правам? 3000+ вопросов на Скилиапп 🚀" },
     { id:"save",      label:"Сохрани",      text:"Сохрани видео — пригодится на экзамене! 📌" },
-    { id:"challenge", label:"Челлендж",     text:"Сдашь DGT с первого раза? Проверь себя на Skily! 🏆" },
+    { id:"challenge", label:"Челлендж",     text:"Сдашь DGT с первого раза? Проверь себя на Скилиапп! 🏆" },
   ],
   es: [
     { id:"subscribe", label:"Suscríbete",   text:"Suscríbete — nueva pregunta DGT cada día 🇪🇸" },
     { id:"tag",       label:"Skilyapp.com", text:"¡Entra en Skilyapp.com y prepárate para el DGT gratis! 🚀" },
     { id:"comment",   label:"¿Acertaste?",  text:"¿Acertaste? ¡Comenta ✅ o ❌!" },
-    { id:"skily",     label:"Skily",        text:"¿Preparando el DGT? +2000 preguntas en Skily 🚀" },
+    { id:"skily",     label:"Skily",        text:"¿Preparando el DGT? +3000 preguntas en Skilyapp 🚀" },
     { id:"save",      label:"Guarda",       text:"¡Guarda este video para repasar antes del examen! 📌" },
-    { id:"challenge", label:"Desafío",      text:"¿Aprobarás el DGT a la primera? ¡Demuéstralo en Skily! 🏆" },
+    { id:"challenge", label:"Desafío",      text:"¿Aprobarás el DGT a la primera? ¡Demuéstralo en Skilyapp! 🏆" },
   ],
 };
 
@@ -2098,8 +2100,8 @@ const server = http.createServer(async (req, res) => {
             "Подпишись — каждый день новый вопрос ПДД Испании 🇪🇸",
             "Отметь того, кто едет в Испанию! 👇",
             "Сохрани видео — пригодится перед экзаменом 📌",
-            "Готовишься к испанским правам? 2000+ вопросов на Skily 🚀",
-            "Сдашь DGT с первого раза? Проверь себя на Skily! 🏆",
+            "Готовишься к испанским правам? 3000+ вопросов на Скилиапп 🚀",
+            "Сдашь DGT с первого раза? Проверь себя на Скилиапп! 🏆",
             "Угадал? Напиши сколько попыток потребовалось 👇",
             "Покажи другу — пусть тоже попробует!",
           ],
@@ -2108,8 +2110,8 @@ const server = http.createServer(async (req, res) => {
             "Suscríbete — nueva pregunta DGT cada día 🇪🇸",
             "¡Etiqueta al que no sabe las normas! 👇",
             "¡Guarda este video para repasar antes del examen! 📌",
-            "¿Preparando el DGT? +2000 preguntas en Skily 🚀",
-            "¿Aprobarás el DGT a la primera? ¡Demuéstralo en Skily! 🏆",
+            "¿Preparando el DGT? +3000 preguntas en Skilyapp 🚀",
+            "¿Aprobarás el DGT a la primera? ¡Demuéstralo en Skilyapp! 🏆",
             "¿Lo sabías? ¡Dinos en los comentarios! 👇",
             "¡Comparte con alguien que prepare el DGT!",
           ],

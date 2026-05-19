@@ -304,8 +304,9 @@ export function BoostShopModal({
       const instance = paddle ?? getPaddleInstanceSync() ?? await getPaddleInstance();
       if (cancelled || !instance) return;
 
-      // Wait for the container to mount in DOM after the React commit
-      await new Promise(r => setTimeout(r, 300));
+      // Wait for the container to mount in DOM after the React commit.
+      // rAF is enough — React commit + layout finishes within one frame.
+      await new Promise<void>(r => requestAnimationFrame(() => r()));
       if (cancelled) return;
 
       const container = document.getElementsByClassName(BOOST_PADDLE_FRAME_ID)[0];
@@ -317,8 +318,8 @@ export function BoostShopModal({
         settings: {
           displayMode: 'inline',
           frameTarget: BOOST_PADDLE_FRAME_ID,
-          frameInitialHeight: 450,
-          frameStyle: 'width: 100%; border: none;',
+          frameInitialHeight: 360,
+          frameStyle: 'width: 100%; min-width: 100%; border: none; background: transparent;',
           theme: 'light',
           locale,
         },
@@ -1295,129 +1296,28 @@ export function BoostShopModal({
           return;
         }
 
-        // ONLINE: Обычная покупка
-        // Проверяем существование профиля перед покупкой
-        const { data: profileCheck, error: profileCheckError } =
-          await supabaseClient
-            .from("profiles")
-            .select("id, coins")
-            .eq("id", profileId)
-            .single();
-
-        if (profileCheckError || !profileCheck) {
-          console.error("[BoostShop] Профиль не найден:", profileCheckError);
-          throw new Error(
-            `Профиль не найден: ${profileCheckError?.message || "Неизвестная ошибка"}. Пожалуйста, обновите страницу и войдите снова.`,
-          );
-        }
-
-        console.log(
-          "[BoostShop] Профиль найден, текущий баланс:",
-          profileCheck.coins,
-        );
-
-        // Используем функцию increment_profile_value для списания монет
-        // Она использует SECURITY DEFINER и обходит RLS проблемы
-        const { data: coinsData, error: coinsError } = await supabaseClient.rpc(
-          "increment_profile_value",
-          {
-            p_profile_id: profileId,
-            p_column: "coins",
-            p_amount: -boost.cost_coins,
-          },
-        );
-
-        if (coinsError) {
-          console.error("[BoostShop] Ошибка списания монет:", coinsError);
-          console.error("[BoostShop] Детали ошибки списания:", {
-            code: coinsError.code,
-            message: coinsError.message,
-            details: coinsError.details,
-            hint: coinsError.hint,
-          });
-          throw new Error(
-            `Не удалось списать монеты: ${coinsError.message || coinsError.code || "Неизвестная ошибка"}`,
-          );
-        }
-
-        console.log(
-          "[BoostShop] Монеты списаны успешно, результат:",
-          coinsData,
-        );
-
-        // Добавляем буст в инвентарь используя функцию modify_boost_inventory
-        // Это более надежный способ, который обходит RLS проблемы
-        const { data: inventoryData, error: inventoryError } =
-          await supabaseClient.rpc("modify_boost_inventory", {
-            p_user_id: profileId,
+        // ONLINE: Атомарная покупка через purchase_boost RPC
+        // Одна транзакция: проверка баланса, списание монет, +1 в инвентарь, лог transaction.
+        // Использует auth.uid() внутри функции — клиент не может купить за чужого юзера.
+        const { data: purchaseData, error: purchaseError } =
+          await supabaseClient.rpc("purchase_boost", {
             p_boost_type: boost.type,
-            p_change: 1,
           });
 
-        if (inventoryError) {
-          console.error(
-            "[BoostShop] Ошибка добавления буста в инвентарь:",
-            inventoryError,
-          );
-          console.error("[BoostShop] Детали ошибки инвентаря:", {
-            code: inventoryError.code,
-            message: inventoryError.message,
-            details: inventoryError.details,
-            hint: inventoryError.hint,
+        if (purchaseError) {
+          console.error("[BoostShop] Ошибка покупки:", purchaseError);
+          console.error("[BoostShop] Детали ошибки покупки:", {
+            code: purchaseError.code,
+            message: purchaseError.message,
+            details: purchaseError.details,
+            hint: purchaseError.hint,
           });
-
-          // Откатываем списание монет при ошибке
-          const { error: rollbackError } = await supabaseClient.rpc(
-            "increment_profile_value",
-            {
-              p_profile_id: profileId,
-              p_column: "coins",
-              p_amount: boost.cost_coins,
-            },
-          );
-
-          if (rollbackError) {
-            console.error("[BoostShop] Ошибка отката монет:", rollbackError);
-          }
-
           throw new Error(
-            `Не удалось добавить буст в инвентарь: ${inventoryError.message || inventoryError.code || "Неизвестная ошибка"}`,
+            `Не удалось купить буст: ${purchaseError.message || purchaseError.code || "Неизвестная ошибка"}`,
           );
         }
 
-        console.log(
-          "[BoostShop] Буст добавлен в инвентарь успешно, результат:",
-          inventoryData,
-        );
-
-        // Создаем транзакцию о покупке буста через RPC (обходит RLS для Telegram)
-        try {
-          const { error: transactionError } = await supabaseClient.rpc(
-            "create_transaction",
-            {
-              p_user_id: profileId,
-              p_transaction_type: "coins_spent_boost",
-              p_amount: -boost.cost_coins,
-              p_metadata: { boost_type: boost.type, boost_name: boost.name_ru },
-            },
-          );
-
-          if (transactionError) {
-            console.warn(
-              "[BoostShop] Ошибка создания транзакции (не критично):",
-              transactionError,
-            );
-          } else {
-            console.log(
-              "[BoostShop] Транзакция о покупке буста создана успешно",
-            );
-          }
-        } catch (txError) {
-          console.warn(
-            "[BoostShop] Исключение при создании транзакции (не критично):",
-            txError,
-          );
-        }
+        console.log("[BoostShop] Покупка успешна, результат:", purchaseData);
 
         trackOfflineAction("boost-purchase", true);
 
@@ -2207,7 +2107,7 @@ export function BoostShopModal({
           <VaulDrawer.Portal>
             <VaulDrawer.Overlay className="fixed inset-0 z-[99998] bg-black/40 backdrop-blur-[6px]" />
             <VaulDrawer.Content
-              className="fixed bottom-0 left-0 right-0 z-[99999] flex flex-col bg-white rounded-t-[32px] overflow-hidden outline-none shadow-[0_-12px_48px_rgba(0,0,0,0.25)]"
+              className="fixed bottom-0 left-0 right-0 z-[99999] flex flex-col bg-white rounded-t-[32px] outline-none shadow-[0_-12px_48px_rgba(0,0,0,0.25)] max-h-[92vh]"
               onContextMenu={e => e.stopPropagation()}
               onPointerOut={e => e.stopPropagation()}
             >
@@ -2234,8 +2134,8 @@ export function BoostShopModal({
               </div>
 
               <div
-                className={cn(BOOST_PADDLE_FRAME_ID, "px-2 pt-2 min-h-[460px]")}
-                style={{ paddingBottom: 'max(20px, env(safe-area-inset-bottom))' }}
+                className={cn(BOOST_PADDLE_FRAME_ID, "px-2 pt-1 flex-1 min-h-0 overflow-y-auto")}
+                style={{ paddingBottom: 'max(12px, env(safe-area-inset-bottom))' }}
               />
             </VaulDrawer.Content>
           </VaulDrawer.Portal>
@@ -2252,12 +2152,12 @@ export function BoostShopModal({
               setCheckoutTransactionId(null);
             }
           }}
-          className="bg-white sm:max-w-[560px] sm:rounded-3xl flex flex-col sm:max-h-[640px] sm:min-h-[640px]"
+          className="bg-white sm:max-w-[560px] sm:rounded-3xl flex flex-col sm:max-h-[85vh]"
           contentClassName="p-0"
           hideCloseButton={true}
           hideHandle={true}
         >
-          <div className="flex flex-col bg-white sm:min-h-[640px]">
+          <div className="flex flex-col bg-white">
             <div className="flex items-center justify-between px-4 py-2.5 border-b border-slate-100 shrink-0">
               <button
                 onClick={() => {
@@ -2275,8 +2175,7 @@ export function BoostShopModal({
               </div>
             </div>
             <div
-              className={cn(BOOST_PADDLE_FRAME_ID, "px-4 pt-2 min-h-[450px] flex-1")}
-              style={{ paddingBottom: '24px' }}
+              className={cn(BOOST_PADDLE_FRAME_ID, "px-4 pt-1 pb-4 flex-1 min-h-0 overflow-y-auto")}
             />
           </div>
         </ResponsiveModal>

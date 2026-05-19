@@ -10,7 +10,7 @@ const IceScreenAttack = lazy(() => import('../../attacks/IceScreenAttack').then(
 const SunGlareAttack = lazy(() => import('../../attacks/SunGlareAttack').then(m => ({ default: m.SunGlareAttack })));
 const RainStormAttack = lazy(() => import('../../attacks/RainStormAttack').then(m => ({ default: m.RainStormAttack })));
 const BugSplatAttack = lazy(() => import('../../attacks/BugSplatAttack').then(m => ({ default: m.BugSplatAttack })));
-const FogScreenAttack = lazy(() => import('../../attacks/FogScreenAttack').then(m => ({ default: m.FogScreenAttack })));
+const SchulteTableAttack = lazy(() => import('../../attacks/SchulteTableAttack').then(m => ({ default: m.SchulteTableAttack })));
 
 interface ArenaEffectsProps {
     feedbackEffect: 'correct' | 'wrong' | null;
@@ -183,10 +183,10 @@ export const ArenaEffects: React.FC<ArenaEffectsProps> = ({ feedbackEffect, remo
                 </Suspense>
             )}
 
-            {/* Fog Screen */}
+            {/* Fog Screen → Schulte Table (1→16 focus minigame) */}
             {fogScreen && !fogScreenPassed && (
                 <Suspense fallback={null}>
-                    <FogScreenAttack
+                    <SchulteTableAttack
                         isActive={true}
                         expiresAt={fogScreen.expiresAt}
                         exploitId={fogScreen.id}

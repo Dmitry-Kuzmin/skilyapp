@@ -837,6 +837,8 @@ export const es = {
   boostShop: {
     title: "Tienda",
     subtitle: "Impulsos, monedas y Premium",
+    back: "Atrás",
+    protectedByPaddle: "Protegido por Paddle",
     header: {
       title: "MERCADO NEGRO",
       subtitle: "ACCESO SEGURO CONCEDIDO",

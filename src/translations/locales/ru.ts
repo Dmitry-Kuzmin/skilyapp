@@ -849,6 +849,8 @@ export const ru = {
   boostShop: {
     title: "Магазин",
     subtitle: "Бусты, монеты и Premium",
+    back: "Назад",
+    protectedByPaddle: "Защищено Paddle",
     header: {
       title: "ЧЕРНЫЙ РЫНОК",
       subtitle: "БЕЗОПАСНЫЙ ДОСТУП РАЗРЕШЕН",

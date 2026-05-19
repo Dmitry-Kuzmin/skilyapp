@@ -295,7 +295,7 @@ function TestCard({
   const expText = cleanText(q.explanation);
 
   return (
-    <div style={{ width:"100%", maxWidth:960, display:"flex", flexDirection:"column", gap:20 }}>
+    <div style={{ width:"100%", maxWidth:880, display:"flex", flexDirection:"column", gap:20 }}>
 
       {/* Image */}
       {q.image_url && (
@@ -420,11 +420,12 @@ function TestCard({
 function QuestionScene({ q, t }: { q: VideoQuestion; t: DynamicTiming }) {
   const frame  = useCurrentFrame();
   const sceneF = frame - t.questionStart * FPS;
-  const op = lerp(sceneF, 0, 12, 0, 1);
-  const ty = lerp(sceneF, 0, 14, 60, 0);
+  // Always fully visible from frame 0 — platforms use frame 0 as thumbnail
+  const op = 1;
+  const ty = 0;
   return (
     <div style={{ position:"absolute", inset:0, display:"flex", flexDirection:"column",
-      alignItems:"center", justifyContent:"center", padding:"60px 60px",
+      alignItems:"center", justifyContent:"center", padding:"60px 100px 380px",
       opacity: op, transform:`translateY(${ty}px)` }}>
       <TestCard q={q} t={t} showOptions={false} revealFrame={0} showExplanation={false} />
     </div>
@@ -438,7 +439,7 @@ function AnswersScene({ q, t }: { q: VideoQuestion; t: DynamicTiming }) {
   const op     = lerp(sceneF, 0, 4, 0, 1);
   return (
     <div style={{ position:"absolute", inset:0, display:"flex", flexDirection:"column",
-      alignItems:"center", justifyContent:"center", padding:"60px 60px", opacity: op }}>
+      alignItems:"center", justifyContent:"center", padding:"60px 100px 380px", opacity: op }}>
       <TestCard q={q} t={t} showOptions={true} revealFrame={0} showExplanation={false} />
     </div>
   );
@@ -597,7 +598,7 @@ function RevealScene({ q, t }: { q: VideoQuestion; t: DynamicTiming }) {
   const op     = lerp(sceneF, 0, 8, 0, 1);
   return (
     <div style={{ position:"absolute", inset:0, display:"flex", flexDirection:"column",
-      alignItems:"center", justifyContent:"center", padding:"60px 60px", opacity: op }}>
+      alignItems:"center", justifyContent:"center", padding:"60px 100px 380px", opacity: op }}>
       <TestCard q={q} t={t} showOptions={true} revealFrame={sceneF} showExplanation={false} />
     </div>
   );
@@ -610,7 +611,7 @@ function ExplanationScene({ q, t }: { q: VideoQuestion; t: DynamicTiming }) {
   const op     = lerp(sceneF, 0, 10, 0, 1);
   return (
     <div style={{ position:"absolute", inset:0, display:"flex", flexDirection:"column",
-      alignItems:"center", justifyContent:"center", padding:"60px 60px", opacity: op }}>
+      alignItems:"center", justifyContent:"center", padding:"60px 100px 380px", opacity: op }}>
       <TestCard q={q} t={t} showOptions={true} revealFrame={999} showExplanation={false} />
     </div>
   );
@@ -743,8 +744,8 @@ function ThumbnailScene({ q }: { q: VideoQuestion }) {
       {q.image_url && (
         <div style={{
           position:"absolute",
-          top:56, left:52, right:52,
-          height:490,
+          top:60, left:80, right:80,
+          height:460,
           borderRadius:28,
           overflow:"hidden",
           boxShadow:[
@@ -782,7 +783,7 @@ function ThumbnailScene({ q }: { q: VideoQuestion }) {
       <div style={{
         position:"absolute",
         bottom:0, left:0, right:0,
-        padding:"32px 56px 130px",   // 130px снизу — не обрезается кнопками Instagram/TikTok
+        padding:"32px 80px 140px",   // 140px снизу — не обрезается кнопками Instagram/TikTok
         display:"flex", flexDirection:"column", gap:20,
       }}>
 
@@ -838,6 +839,7 @@ const SUBTITLE_CHUNK = 5;
 function SubtitleOverlay({ words, audioStartSec }: { words: WordTiming[] | undefined; audioStartSec: number }) {
   const frame = useCurrentFrame();
   if (!words?.length) return null;
+  if (frame < FPS) return null; // 1-sec delay: subtitles not visible in thumbnail frame
 
   const currentSec = frame / FPS - audioStartSec;
   if (currentSec < -0.1) return null;
@@ -861,9 +863,9 @@ function SubtitleOverlay({ words, audioStartSec }: { words: WordTiming[] | undef
   return (
     <div style={{
       position: "absolute",
-      bottom: 185,
-      left: 40,
-      right: 40,
+      bottom: 300,
+      left: 80,
+      right: 80,
       display: "flex",
       justifyContent: "center",
       flexWrap: "wrap",
@@ -879,7 +881,7 @@ function SubtitleOverlay({ words, audioStartSec }: { words: WordTiming[] | undef
         return (
           <span key={chunkStart + i} style={{
             fontSize: 50,
-            fontWeight: isActive ? 900 : 600,
+            fontWeight: isActive ? 800 : 400,
             color: isActive
               ? "#2F81F7"
               : isPast

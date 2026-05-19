@@ -843,6 +843,8 @@ export const en = {
   boostShop: {
     title: "Shop",
     subtitle: "Boosts, coins & Premium",
+    back: "Back",
+    protectedByPaddle: "Secured by Paddle",
     header: {
       title: "BLACK MARKET",
       subtitle: "SECURE ACCESS GRANTED",

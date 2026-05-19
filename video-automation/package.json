@@ -14,6 +14,7 @@
     "tts:test": "npx ts-node --esm scripts/generate-tts.ts"
   },
   "dependencies": {
+    "@andresaya/edge-tts": "^1.8.0",
     "@remotion/bundler": "^4.0.0",
     "@remotion/cli": "^4.0.0",
     "@remotion/renderer": "^4.0.0",
