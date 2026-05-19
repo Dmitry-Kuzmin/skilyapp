@@ -1,6 +1,6 @@
 /**
  * Structured logger — zero-dep обёртка над console с уровнями и контекстом.
- * Готов к интеграции с Sentry: см. `attachSink()`.
+ * В production warn/error автоматически летят в Rollbar (если инициализирован).
  *
  * Использование:
  *   import { logger } from '@/lib/logger';
@@ -9,8 +9,8 @@
  *   logger.error('payment_failed', err, { orderId });
  *
  * В production:
- *   - debug/info глушатся (если LOG_LEVEL=warn)
- *   - warn/error всегда летят в sinks (например Sentry)
+ *   - debug/info глушатся в консоли но идут в sinks как breadcrumbs
+ *   - warn/error всегда летят в Rollbar через reportError
  */
 
 type LogLevel = 'debug' | 'info' | 'warn' | 'error';
@@ -27,19 +27,8 @@ type LogSink = (level: LogLevel, event: string, context: LogContext) => void;
 const sinks: LogSink[] = [];
 
 /**
- * Подключить дополнительный sink (например Sentry).
- * Sentry-интеграция (когда DSN добавлен в env):
- *
- *   import * as Sentry from '@sentry/react';
- *   attachSink((level, event, ctx) => {
- *     if (level === 'error' && ctx.error instanceof Error) {
- *       Sentry.captureException(ctx.error, { tags: { event }, extra: ctx });
- *     } else if (level === 'warn') {
- *       Sentry.captureMessage(event, { level: 'warning', extra: ctx });
- *     } else {
- *       Sentry.addBreadcrumb({ category: event, level, data: ctx });
- *     }
- *   });
+ * Подключить дополнительный sink. Rollbar подключается автоматически
+ * (см. attachRollbarSink ниже) — этот метод для дополнительных интеграций.
  */
 export function attachSink(sink: LogSink): () => void {
   sinks.push(sink);
@@ -47,6 +36,31 @@ export function attachSink(sink: LogSink): () => void {
     const idx = sinks.indexOf(sink);
     if (idx >= 0) sinks.splice(idx, 1);
   };
+}
+
+/**
+ * Привязать logger к Rollbar. Вызывается из main.tsx после initRollbar().
+ * Lazy-import чтобы не тащить rollbar в bundle, если он ещё не подгружен.
+ */
+export async function attachRollbarSink(): Promise<void> {
+  try {
+    const { reportError } = await import('./rollbar');
+    attachSink((level, event, ctx) => {
+      if (level === 'error') {
+        // Если в ctx есть оригинальный Error — передаём его, иначе строку события
+        const error = ctx.error instanceof Error
+          ? ctx.error
+          : new Error(`${event}: ${ctx.error_message ?? 'unknown'}`);
+        reportError(error, { event, ...ctx });
+      } else if (level === 'warn') {
+        // Warning'и тоже отправляем, но как сообщения
+        reportError(`[WARN] ${event}`, { event, level, ...ctx });
+      }
+      // debug/info — только в консоль, в Rollbar не шлём (избегаем 5K/мес лимит)
+    });
+  } catch {
+    // Rollbar не доступен — это OK, logger продолжает работать без него
+  }
 }
 
 function emit(level: LogLevel, event: string, context: LogContext): void {

@@ -96,6 +96,9 @@ if (!isPrerenderMode && !isMarketingRoute) {
     import('./lib/rollbar').then(({ initRollbar, reportError }) => {
       initRollbar();
 
+      // Привязываем structured logger к Rollbar — logger.error/warn автоматически летят туда
+      import('./lib/logger').then(({ attachRollbarSink }) => attachRollbarSink());
+
       if (earlyErrors.length > 0) {
         console.log(`[Main] Reporting ${earlyErrors.length} early errors to Rollbar`);
         earlyErrors.forEach(({ error, context }) => {
