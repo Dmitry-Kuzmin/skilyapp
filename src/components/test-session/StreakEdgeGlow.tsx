@@ -59,6 +59,19 @@ function flameKeyframes(tier: Exclude<Tier, "off">): string[] {
     return boosts.map((b) => makeFlame(tier, b));
 }
 
+// Colors for theme-color meta tag to tint browser chrome per tier
+const THEME_COLORS: Record<Exclude<Tier, "off">, string> = {
+    low:   "#7c2d12",
+    mid:   "#7f1d1d",
+    high:  "#6b0000",
+    ultra: "#450a0a",
+};
+const THEME_DEFAULT = "#09090b";
+
+// Extend fixed div this far beyond the viewport so the inset shadow
+// is full-strength at the visible edge (looks like glow goes under browser chrome)
+const OVERFLOW = "120px";
+
 export const StreakEdgeGlow = ({ streak }: StreakEdgeGlowProps) => {
     const prevStreakRef = useRef(streak);
     const justIncremented = streak > prevStreakRef.current;
@@ -85,14 +98,31 @@ export const StreakEdgeGlow = ({ streak }: StreakEdgeGlowProps) => {
 
     const isOff = tier === "off";
 
+    // Tint browser chrome (status bar + address bar on Android Chrome, status bar on iOS Safari)
+    useEffect(() => {
+        const meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
+        if (!meta) return;
+        meta.content = isOff ? THEME_DEFAULT : THEME_COLORS[tier as Exclude<Tier, "off">];
+        return () => { meta.content = THEME_DEFAULT; };
+    }, [tier, isOff]);
+
     const flickerDuration = tier === "ultra" ? 4.0 : tier === "high" ? 5.0 : tier === "mid" ? 6.0 : 7.5;
+
+    // Positioning that extends beyond the viewport so the glow is full-strength
+    // at the visible edge, making it appear to bleed under browser chrome
+    const overflowStyle = {
+        top: `-${OVERFLOW}`,
+        bottom: `-${OVERFLOW}`,
+        left: `-${OVERFLOW}`,
+        right: `-${OVERFLOW}`,
+    } as const;
 
     return (
         <>
             {/* Flickering flame glow */}
             <motion.div
-                className="fixed inset-0 pointer-events-none"
-                style={{ zIndex: 199 }}
+                className="fixed pointer-events-none"
+                style={{ zIndex: 199, ...overflowStyle }}
                 animate={{
                     boxShadow: isOff
                         ? makeFlame("off")
@@ -118,8 +148,8 @@ export const StreakEdgeGlow = ({ streak }: StreakEdgeGlowProps) => {
             {!isOff && (
                 <motion.div
                     key={streak}
-                    className="fixed inset-0 pointer-events-none"
-                    style={{ zIndex: 200 }}
+                    className="fixed pointer-events-none"
+                    style={{ zIndex: 200, ...overflowStyle }}
                     initial={{
                         boxShadow: makeFlame(tier as Exclude<Tier, "off">, justIncremented ? 2.6 : 1),
                         opacity: justIncremented ? 1 : 0,
