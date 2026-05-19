@@ -258,7 +258,7 @@ export const useTestCompletion = ({
             }
             // Для sequential тестов с UUID: используем RPC функцию
             else if (effectiveTestId && profileId && testId) {
-                const { error: progressError } = await (supabase as any).rpc('update_test_progress', {
+                const { error: progressError } = await supabase.rpc('update_test_progress', {
                     p_user_id: profileId,
                     p_test_id: effectiveTestId,
                     p_correct_answers: correctCount,
@@ -274,7 +274,7 @@ export const useTestCompletion = ({
             // Для module-теста сохраняем прогресс по теме с мягким порогом (>= 70%)
             if (mode === "module" && profileId && topic) {
                 try {
-                    await (supabase as any)
+                    await supabase
                         .from("user_topic_progress")
                         .upsert(
                             {
@@ -294,7 +294,7 @@ export const useTestCompletion = ({
             // Сохраняем в game_sessions для совместимости
             const { data: { user } } = await supabase.auth.getUser();
             if (user) {
-                const { data: profile } = await (supabase as any)
+                const { data: profile } = await supabase
                     .from("profiles")
                     .select("id")
                     .eq("user_id", user.id)
@@ -318,7 +318,7 @@ export const useTestCompletion = ({
                         duration_seconds: Math.min(Math.max(0, duration), 7200), // Ensure 0-7200 range
                     };
 
-                    await (supabase as any).from("game_sessions").insert(sessionData);
+                    await supabase.from("game_sessions").insert(sessionData);
                 }
             }
         } catch (error) {

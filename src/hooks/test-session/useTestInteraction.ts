@@ -106,7 +106,7 @@ export const useTestInteraction = ({
     const markQuestionAsMastered = async (questionId: string) => {
         if (!profileId) return;
         try {
-            const { error } = await (supabase as any)
+            const { error } = await supabase
                 .from('user_challenge_questions')
                 .update({ mastered: true, updated_at: new Date().toISOString() })
                 .eq('user_id', profileId)
@@ -129,7 +129,7 @@ export const useTestInteraction = ({
             // 1. Challenge Bank (только при ошибке и не в режиме mastery/russia)
             // Атомарный UPSERT через RPC — один запрос вместо SELECT + INSERT/UPDATE (N+1).
             if (!isCorrect && mode !== "mastery") {
-                const { data: rpcResult, error: rpcError } = await (supabase as any).rpc(
+                const { data: rpcResult, error: rpcError } = await supabase.rpc(
                     'upsert_challenge_question',
                     { p_user_id: profileId, p_question_id: questionId }
                 );
@@ -149,7 +149,7 @@ export const useTestInteraction = ({
             }
 
             // 2. Общий прогресс — атомарный SM-2 апдейт через RPC
-            const { error } = await (supabase as any).rpc('record_answer', {
+            const { error } = await supabase.rpc('record_answer', {
                 p_user_id: profileId,
                 p_question_id: questionId,
                 p_is_correct: isCorrect,
