@@ -1,14 +1,19 @@
+import { lazy, Suspense } from 'react';
 import { cn } from '@/lib/utils';
 import { isTelegramMobilePlatformName } from '@/lib/telegram';
 import { ExamHeader } from '@/components/exam/ExamHeader';
 import { BlitzHeader } from '@/components/blitz';
 import { QuestionProgressBar } from '@/components/QuestionProgressBar';
-import { TestSettingsMenu } from '@/components/TestSettingsMenu';
 import { Trophy } from 'lucide-react';
 import { ExamTimer } from '@/components/test-session/ExamTimer';
 import { AnswerStreakBadge } from '@/components/test-session/AnswerStreakBadge';
 import type { TestMode } from '@/store/examStore';
 import type { RussiaExamState } from '@/types/pddExam';
+
+// Settings menu открывается редко (тап на иконку) — ленивая загрузка
+const TestSettingsMenu = lazy(() =>
+    import('@/components/TestSettingsMenu').then(m => ({ default: m.TestSettingsMenu }))
+);
 
 type HeaderAnswer = { isCorrect: boolean } | null;
 
@@ -209,27 +214,31 @@ export const TestSessionHeader = ({
                         </>
                     }
                     SettingsMenuComponent={
-                        <TestSettingsMenu
-                            open={showTestSettings}
-                            onOpenChange={setShowTestSettings}
-                            voiceOver={voiceOver}
-                            onVoiceOverChange={setVoiceOver}
-                            answerPopularity={answerPopularity}
-                            onAnswerPopularityChange={setAnswerPopularity}
-                            ambientMusic={ambientMusic}
-                            onAmbientMusicChange={setAmbientMusic}
-                            selectedMusicTrack={selectedMusicTrack}
-                            onMusicTrackChange={(track: string | null) => setSelectedMusicTrack(track)}
-                            fontSize={fontSize}
-                            onFontSizeChange={setFontSize}
-                            language={testLanguage as any}
-                            onLanguageChange={(lang: any) => setTestLanguage(lang)}
-                            hideLanguageSelector={mode === 'pdd-ticket' || mode === 'exam-russia'}
-                            smartVocabulary={smartVocabularyEnabled}
-                            onSmartVocabularyChange={(val) => setSettings({ smartVocabularyEnabled: val })}
-                            autoExplain={autoExplainEnabled}
-                            onAutoExplainChange={toggleAutoExplain}
-                        />
+                        showTestSettings ? (
+                            <Suspense fallback={null}>
+                                <TestSettingsMenu
+                                    open={showTestSettings}
+                                    onOpenChange={setShowTestSettings}
+                                    voiceOver={voiceOver}
+                                    onVoiceOverChange={setVoiceOver}
+                                    answerPopularity={answerPopularity}
+                                    onAnswerPopularityChange={setAnswerPopularity}
+                                    ambientMusic={ambientMusic}
+                                    onAmbientMusicChange={setAmbientMusic}
+                                    selectedMusicTrack={selectedMusicTrack}
+                                    onMusicTrackChange={(track: string | null) => setSelectedMusicTrack(track)}
+                                    fontSize={fontSize}
+                                    onFontSizeChange={setFontSize}
+                                    language={testLanguage as any}
+                                    onLanguageChange={(lang: any) => setTestLanguage(lang)}
+                                    hideLanguageSelector={mode === 'pdd-ticket' || mode === 'exam-russia'}
+                                    smartVocabulary={smartVocabularyEnabled}
+                                    onSmartVocabularyChange={(val) => setSettings({ smartVocabularyEnabled: val })}
+                                    autoExplain={autoExplainEnabled}
+                                    onAutoExplainChange={toggleAutoExplain}
+                                />
+                            </Suspense>
+                        ) : null
                     }
                 />
             )}

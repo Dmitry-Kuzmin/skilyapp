@@ -52,7 +52,9 @@ import { TestSessionHeader } from "@/components/test-session/TestSessionHeader";
 import { QuestionCard } from "@/components/test-session/QuestionCard";
 import { MidTestAITeaser } from "@/components/test-session/MidTestAITeaser";
 import { useTestState } from "@/hooks/test-session/useTestState";
-import { TestSettingsMenu } from "@/components/TestSettingsMenu";
+// Lazy: blitz card только в blitz, universal только в exam-russia (см. ниже)
+// TestSettingsMenu лениво подгружается в TestSessionHeader
+const WrongAnswerExplanation = lazy(() => import("@/components/test-session/WrongAnswerExplanation").then(m => ({ default: m.WrongAnswerExplanation })));
 
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 
@@ -60,10 +62,10 @@ import { useTestSettings } from "@/hooks/test-session/useTestSettings";
 import { useTestAudio } from "@/hooks/test-session/useTestAudio";
 import { useTestAmbientMusic } from "@/hooks/test-session/useTestAmbientMusic";
 import { useTestDataLoader, type TestMode } from "@/hooks/test-session/useTestDataLoader";
-import { BlitzQuestionCard } from "@/components/test-session/BlitzQuestionCard";
+const BlitzQuestionCard = lazy(() => import("@/components/test-session/BlitzQuestionCard").then(m => ({ default: m.BlitzQuestionCard })));
 import { PageLoader } from "@/components/PageLoader";
 import { SubmitButton } from "@/components/test/SubmitButton";
-import { UniversalQuestionCard } from "@/components/shared/question/UniversalQuestionCard";
+const UniversalQuestionCard = lazy(() => import("@/components/shared/question/UniversalQuestionCard").then(m => ({ default: m.UniversalQuestionCard })));
 import { getCachedImageAspectRatio, getImageUrl } from "@/utils/imageUtils";
 import { checkOnlineStatus } from "@/hooks/useOnlineStatus";
 import { trackOfflineAction } from "@/utils/offlineAnalytics";
@@ -338,6 +340,13 @@ const TestSession = () => {
   const [showChallengeBankNotification, setShowChallengeBankNotification] = useState(false);
   const [isFirstWrongAnswer, setIsFirstWrongAnswer] = useState(true);
   const [blitzShaking, setBlitzShaking] = useState(false); // Screen shake for Blitz wrong answers
+
+  // Принудительное объяснение после неверного ответа (педагогически)
+  const [forcedExplanationOpen, setForcedExplanationOpen] = useState(false);
+  const [forcedExplanationData, setForcedExplanationData] = useState<{
+    explanation: string | null;
+    correctAnswerText: string | null;
+  }>({ explanation: null, correctAnswerText: null });
 
   // ============================================
   // REDEMPTION SESSION CONFIG & STATE
@@ -1102,6 +1111,51 @@ const TestSession = () => {
   const isBlitzMode = mode === 'blitz';
   const isExamMode = mode === 'exam' || mode === 'exam-russia';
 
+  // === FORCED EXPLANATION ===
+  // В обучающих режимах (без блица и экзамена) при неверном ответе на ТЕКУЩИЙ
+  // вопрос показываем модалку с объяснением и минимальным временем чтения.
+  // Срабатывает один раз на вопрос, после acknowledge сбрасывается.
+  const lastShownExplanationForRef = useRef<string | null>(null);
+  const currentAnswerForExplanation = answers.find((a) => a.questionId === currentQuestion?.id);
+  useEffect(() => {
+    if (isExamMode || isBlitzMode) return;
+    if (!isPracticeLikeMode) return;
+    if (!currentQuestion?.id) return;
+    if (!currentAnswerForExplanation) return;
+    if (currentAnswerForExplanation.isCorrect !== false) return;
+    if (lastShownExplanationForRef.current === currentQuestion.id) return;
+
+    const correctOpt = (sortedOptions || []).find((o) => o.is_correct);
+    const correctText = correctOpt
+      ? (showTranslation || testLanguage === 'ru'
+          ? (correctOpt.text_ru || correctOpt.text_es || '')
+          : (testLanguage === 'en'
+              ? (correctOpt.text_en || correctOpt.text_es || '')
+              : (correctOpt.text_es || '')))
+      : null;
+
+    const explanationText = showTranslation || testLanguage === 'ru'
+      ? (currentQuestion.explanation_ru || currentQuestion.explanation_es || null)
+      : (testLanguage === 'en'
+          ? (currentQuestion.explanation_en || currentQuestion.explanation_es || null)
+          : (currentQuestion.explanation_es || null));
+
+    // Не показываем модалку если нет ни correct text ни explanation — бесполезно
+    if (!correctText && !explanationText) return;
+
+    lastShownExplanationForRef.current = currentQuestion.id;
+    setForcedExplanationData({ explanation: explanationText, correctAnswerText: correctText });
+    // Небольшая задержка, чтобы UI успел показать состояние "неверно"
+    const t = setTimeout(() => setForcedExplanationOpen(true), 600);
+    return () => clearTimeout(t);
+  }, [
+    currentAnswerForExplanation?.isCorrect,
+    currentQuestion?.id,
+    isExamMode,
+    isBlitzMode,
+    isPracticeLikeMode,
+  ]);
+
   // ============================================
   // NAVIGATION WRAPPERS (Moved up for hook dependency)
   // ============================================
@@ -1463,6 +1517,7 @@ const TestSession = () => {
 
         {/* Question Card - используем UniversalQuestionCard для exam-russia */}
         {mode === 'exam-russia' && russiaExam.currentQuestion ? (
+          <Suspense fallback={null}>
           <motion.div
             key={russiaExam.currentQuestion.id}
             initial={{ opacity: 0, y: 20 }}
@@ -1518,7 +1573,9 @@ const TestSession = () => {
               }
             />
           </motion.div>
+          </Suspense>
         ) : mode === 'blitz' ? (
+          <Suspense fallback={null}>
           <AnimatePresence mode="wait" initial={false}>
             <motion.div
               key={currentQuestion?.id ?? currentIndex}
@@ -1542,6 +1599,7 @@ const TestSession = () => {
               />
             </motion.div>
           </AnimatePresence>
+          </Suspense>
         ) : (
           <AnimatePresence mode="wait" initial={false}>
             <motion.div
@@ -1670,6 +1728,20 @@ const TestSession = () => {
             </div>
           );
         })()}
+
+        {/* Принудительное объяснение после неверного ответа (обучающие режимы) */}
+        {forcedExplanationOpen && (
+          <Suspense fallback={null}>
+            <WrongAnswerExplanation
+              open={forcedExplanationOpen}
+              onAcknowledge={() => setForcedExplanationOpen(false)}
+              explanation={forcedExplanationData.explanation}
+              correctAnswerText={forcedExplanationData.correctAnswerText}
+              language={(effectiveLanguage as 'ru' | 'es' | 'en') ?? 'ru'}
+              minReadTimeMs={2500}
+            />
+          </Suspense>
+        )}
 
         {/* Question Map Bottom Sheet */}
         <TestSessionModals
