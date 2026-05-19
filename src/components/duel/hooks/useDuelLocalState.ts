@@ -12,6 +12,7 @@ export function useDuelLocalState() {
     // UI Overlays & Feedback States
     const [toastNotifications, setToastNotifications] = useState<Array<{
         id: string;
+        type?: 'opponent-correct' | 'opponent-wrong' | 'opponent-skip' | 'points' | 'combo' | 'info';
         title: string;
         message: string;
         icon?: string;

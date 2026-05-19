@@ -6,6 +6,7 @@ import { useDuelLocalState } from './useDuelLocalState';
 import { useDuelTimer } from './useDuelTimer';
 import { useDuelBetting } from './useDuelBetting';
 import { useDuelOpponentEvents } from './useDuelOpponentEvents';
+import { useDuelToasts, composeOpponentMessage, composeMyPointsMessage } from './useDuelToasts';
 import { useDuelSafety } from './useDuelSafety';
 import { useDuelStore } from '@/store/duelStore';
 import { useDuelData } from '@/hooks/useDuelData';
@@ -164,6 +165,9 @@ export function useDuelBattleCoordinator({
     nextQuestion();
   }, [nextQuestion]);
 
+  // Toast lifecycle (timers managed in refs, not effect cleanup — see useDuelToasts)
+  const { pushToast, claimKey } = useDuelToasts({ toastNotifications, setToastNotifications });
+
   // 🔄 LOGIC: Result Snapshots and Transitions
   const { transitionToResults } = useDuelResultLogic({
     duelId,
@@ -199,12 +203,16 @@ export function useDuelBattleCoordinator({
     },
     onCorrectAnswer: (points) => {
       setFeedbackEffect('correct');
-      setToastNotifications(prev => [...prev, {
-        id: Date.now().toString(),
-        type: 'points',
-        title: `+${points} очков`,
-        message: 'Верный ответ!'
-      }]);
+      const currentCombo = useDuelStore.getState().combo;
+      const msg = composeMyPointsMessage({ points, combo: currentCombo });
+      pushToast({
+        id: `me-${Date.now()}`,
+        type: currentCombo >= 3 ? 'combo' : 'points',
+        title: msg.title,
+        message: msg.message,
+        icon: msg.icon,
+        ttlMs: 2200,
+      });
       setTimeout(() => setFeedbackEffect(null), 1000);
     },
     isFinishingRef,
@@ -374,82 +382,69 @@ export function useDuelBattleCoordinator({
     }
   }, [realtimeState.myScore, realtimeState.opponentScore, myScore, opponentScore, setMyScore, setOpponentScore]);
 
-  // 🔔 МОТИВАШКИ: уведомления о ходах соперника
-  // Срабатывает при изменении opponentAnswerData.id (rising edge — каждый новый ответ).
-  // Тост попадает в существующий toastNotifications layer (см. DuelOverlays.tsx).
-  const lastOpponentAnswerIdRef = useRef<string | null>(null);
+  // 🔔 Opponent answer toasts — fully gated, deduped, auto-dismissing.
+  // Effect cleanup is a no-op here on purpose: dismiss timers live inside
+  // useDuelToasts (refs), so re-runs of this effect cannot kill them.
   useEffect(() => {
     const answerData = realtimeState.opponentAnswerData as any;
     if (!answerData) return;
 
-    // Уникальный идентификатор ответа — id уведомления или duel_answer.
-    const answerId = answerData.id ? String(answerData.id) : null;
-    if (!answerId || answerId === lastOpponentAnswerIdRef.current) return;
-    lastOpponentAnswerIdRef.current = answerId;
-
-    // Игнорируем когда я ещё не дошёл до боя или дуэль завершена
+    // Strict gating — don't surface anything before the player is in the arena
+    if (showStartScreen) return;
     if (!realtimeState.duelStarted || realtimeState.duelFinished) return;
-    if (hasFinishedMyQuestions) return; // на экране ожидания мотивашки не нужны
+    if (hasFinishedMyQuestions) return;
+    if (!storeQuestions || storeQuestions.length === 0) return;
 
+    // Stable dedup key per answer row (same id from duel_answers INSERT regardless of channel)
+    const answerId = answerData.id ? String(answerData.id) : null;
+    if (!answerId) return;
+    const dedupKey = `opp-answer-${answerId}`;
+    if (!claimKey(dedupKey)) return;
+
+    // Reject malformed: we need a clear correct/wrong/skip signal
+    const isSkipped = answerData.is_skipped === true;
     const isCorrect = answerData.is_correct === true;
-    const opponentPoints = Number(answerData.points_awarded) || 0;
-    const name = (opponentName || 'Соперник').split(' ')[0];
+    if (!isSkipped && typeof answerData.is_correct !== 'boolean') return;
 
-    // Текущий разрыв в очках (после обновления opponentScore из realtime он уже актуален)
+    const opponentPoints = Number(answerData.points_awarded) || 0;
+    const combo = Number(answerData.combo_at_time) || 0;
+    const name = (opponentName || 'Соперник').split(' ')[0];
     const liveOpponentScore = typeof realtimeState.opponentScore === 'number'
       ? realtimeState.opponentScore
       : opponentScore;
     const gap = liveOpponentScore - myScore;
 
-    let title: string;
-    let message: string;
-    let icon: string;
-
-    if (isCorrect) {
-      icon = '⚡';
-      title = `${name} +${opponentPoints}`;
-      if (gap > 0) {
-        message = `Соперник впереди на ${gap}. Не сдавайся!`;
-      } else if (gap === 0) {
-        message = 'Равный счёт — давай вырвемся вперёд!';
-      } else {
-        message = `Ты ведёшь на ${Math.abs(gap)}. Держи темп!`;
-      }
-    } else {
-      icon = '🎯';
-      title = `${name} ошибся!`;
-      if (gap > 0) {
-        message = 'Твой шанс сократить разрыв!';
-      } else if (gap === 0) {
-        message = 'Твой шанс выйти вперёд!';
-      } else {
-        message = `Отрывайся ещё дальше — ты ведёшь на ${Math.abs(gap)}!`;
-      }
-    }
-
-    const toastId = `opp-${answerId}`;
-    setToastNotifications((prev: any[]) => {
-      // Не плодим одинаковые тосты — режем хвост до 3 штук
-      const next = [...prev, { id: toastId, type: isCorrect ? 'opponent-correct' : 'opponent-wrong', title, message, icon }];
-      return next.slice(-3);
+    const msg = composeOpponentMessage({
+      isCorrect,
+      isSkipped,
+      name,
+      points: opponentPoints,
+      gap,
+      combo,
+      errorStreak: 0, // not currently surfaced in duel_answers row
     });
 
-    // Авто-скрытие через 3 секунды (правильный) / 2.5 сек (ошибка) — без накопления на экране
-    const dismissAfter = isCorrect ? 3000 : 2500;
-    const timer = setTimeout(() => {
-      setToastNotifications((prev: any[]) => prev.filter((n: any) => n.id !== toastId));
-    }, dismissAfter);
-    return () => clearTimeout(timer);
+    pushToast({
+      id: dedupKey,
+      type: isSkipped ? 'opponent-skip' : (isCorrect ? 'opponent-correct' : 'opponent-wrong'),
+      title: msg.title,
+      message: msg.message,
+      icon: msg.icon,
+      ttlMs: isCorrect ? 2800 : 2400,
+    });
   }, [
     realtimeState.opponentAnswerData,
     realtimeState.opponentScore,
     realtimeState.duelStarted,
     realtimeState.duelFinished,
     hasFinishedMyQuestions,
+    showStartScreen,
+    storeQuestions,
     opponentName,
     opponentScore,
     myScore,
-    setToastNotifications,
+    pushToast,
+    claimKey,
   ]);
 
   // Загружаем код дуэли при монтировании

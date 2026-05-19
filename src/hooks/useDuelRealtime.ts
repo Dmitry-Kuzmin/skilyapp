@@ -291,42 +291,20 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
 
           log('[useDuelRealtime] 🔔 Notification received:', notification);
 
-          // КРИТИЧНО: Только для прогресса бота или соперника
+          // Notifications only flip the "opponentAnswered" flash flag here.
+          // The authoritative source for toast generation is the duel_answers
+          // INSERT handler below — having both write opponentAnswerData caused
+          // duplicate toasts (different id per channel defeated dedup).
           if (notification.type === 'answer' || notification.type === 'progress') {
             log('[useDuelRealtime] 🤖 Bot/Opponent progress notification:', notification.metadata);
-
-            // Триггерим состояние "соперник ответил"
-            // Важно: points_awarded из уведомления используем ДЛЯ СОПЕРНИКА
-            setState(prev => {
-              const newOpponentScore = typeof notification.metadata?.score === 'number'
-                ? notification.metadata.score
-                : prev.opponentScore;
-
-              return {
-                ...prev,
-                opponentAnswered: true,
-                opponentScore: newOpponentScore,
-                opponentAnswerData: {
-                  id: notification.id,
-                  is_correct: notification.metadata?.is_correct,
-                  points_awarded: notification.metadata?.points_awarded || 0,
-                  opponent_name: notification.metadata?.opponent_name,
-                  ...notification.metadata
-                }
-              };
-            });
-
-            // Сбрасываем флаг через полторы секунды (немного дольше для фидбека)
-            setTimeout(() => {
-              setState(prev => ({ ...prev, opponentAnswered: false, opponentAnswerData: null }));
-            }, 1500);
+            setState(prev => ({ ...prev, opponentAnswered: true }));
           }
         }
       )
       .on(
         'postgres_changes',
         {
-          event: '*',
+          event: 'INSERT',
           schema: 'public',
           table: 'duel_answers',
           filter: `duel_id=eq.${duelId}`,
@@ -334,18 +312,25 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
         (payload) => {
           markEvent();
 
-          // Проверяем, что это ответ соперника, а не мой
-          const answerPlayerId = (payload.new as any)?.player_id;
+          // Only fire for opponent answers, never our own
+          const newRow = payload.new as any;
+          const answerPlayerId = newRow?.player_id;
           const currentMyPlayerId = myPlayerIdRef.current;
+          if (!answerPlayerId || !currentMyPlayerId || answerPlayerId === currentMyPlayerId) return;
 
-          if (answerPlayerId && currentMyPlayerId && answerPlayerId !== currentMyPlayerId) {
-            setState(prev => ({ ...prev, opponentAnswered: true, opponentAnswerData: payload.new }));
+          // Sole source of truth for opponent answer toasts. The row's id is
+          // stable per-answer so downstream dedup works correctly.
+          setState(prev => ({
+            ...prev,
+            opponentAnswered: true,
+            opponentAnswerData: newRow,
+          }));
 
-            // Reset after 1 second
-            setTimeout(() => {
-              setState(prev => ({ ...prev, opponentAnswered: false, opponentAnswerData: null }));
-            }, 1000);
-          }
+          // Reset the flash flag only — leave opponentAnswerData in place until
+          // the next answer overwrites it, so late consumers can still read it.
+          setTimeout(() => {
+            setState(prev => ({ ...prev, opponentAnswered: false }));
+          }, 1000);
         }
       )
       // 🆕 Подписка на новые exploits через postgres_changes
