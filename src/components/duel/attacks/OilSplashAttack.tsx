@@ -1218,8 +1218,11 @@ export const OilSplashAttack: React.FC<OilSplashAttackProps> = ({ isActive, onCl
             </div>
             )}
 
-            {/* Progress Bar */}
-            <div className="absolute top-10 left-0 right-0 flex justify-center pointer-events-none z-30">
+            {/* Progress Bar — safe-area-aware top */}
+            <div
+                className="absolute left-0 right-0 flex justify-center pointer-events-none z-30"
+                style={{ top: 'calc(max(var(--tg-content-safe-area-inset-top, 0px), var(--tg-safe-area-inset-top, 0px), env(safe-area-inset-top, 0px), 88px) + 16px)' }}
+            >
                 <div className="bg-zinc-950/80 backdrop-blur-md border border-red-500/30 px-8 py-4 rounded-xl shadow-2xl flex flex-col items-center gap-2">
                     <div className="flex justify-between w-full text-xs font-mono text-emerald-400 mb-1">
                         <span>ВИДИМОСТЬ</span>

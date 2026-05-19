@@ -369,6 +369,11 @@ export function useDuelGame({
         data = null;
       }
 
+      // Compute local correctness as a fallback so the progress bar always gets marked,
+      // even if the server submission failed.
+      const localIsCorrect = question.question_snapshot?.answer_options
+        ?.find((opt: any) => opt.id === optionId)?.is_correct === true;
+
       if (data && data.new_score !== undefined) {
         const currentScore = useDuelStore.getState().myScore;
         // КРИТИЧНО: Обновляем только если счет увеличился или это первый вопрос (счет 0)
@@ -411,7 +416,17 @@ export function useDuelGame({
           onWrongAnswer?.();
         }
       } else {
-        // Fallback
+        // Server response missing — still mark the progress dot from local data
+        // so the bar doesn't stay grey, then resync players.
+        addAnswerToHistory(localIsCorrect);
+        if (localIsCorrect) {
+          sounds.correctAnswer();
+          haptics.correctAnswer();
+        } else {
+          sounds.wrongAnswer();
+          haptics.wrongAnswer();
+          onWrongAnswer?.();
+        }
         await syncPlayers();
       }
 

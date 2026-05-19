@@ -1936,6 +1936,15 @@ export const es = {
     timeoutCorrectHighlight: "La respuesta correcta está resaltada",
     russian: "Ruso",
     english: "Inglés",
+    schulte: {
+      title: "Rejilla de desorientación",
+      introHeadline: "Encuentra los números del 1 al 16",
+      introSub: "Toca en orden — la niebla se disipará",
+      introGo: "¡Vamos!",
+      find: "Encuentra",
+      success: "¡Concentración restaurada!",
+      progress: "{{done}}/{{total}}",
+    },
   },
   duelMenu: {
     title: "Duelo",

@@ -67,8 +67,11 @@ export const IceScreenAttack: React.FC<IceScreenAttackProps> = ({ isActive, onCl
             }}
           />
 
-          {/* Counter */}
-          <div className="absolute top-8 left-1/2 -translate-x-1/2 z-10">
+          {/* Counter — safe-area-aware top */}
+          <div
+            className="absolute left-1/2 -translate-x-1/2 z-10"
+            style={{ top: 'calc(max(var(--tg-content-safe-area-inset-top, 0px), var(--tg-safe-area-inset-top, 0px), env(safe-area-inset-top, 0px), 88px) + 12px)' }}
+          >
             <div className="bg-black/60 backdrop-blur-sm rounded-full px-4 py-2 text-white text-sm font-bold">
               ❄️ Разбей лёд! {crackedCount}/9
             </div>

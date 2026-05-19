@@ -374,6 +374,84 @@ export function useDuelBattleCoordinator({
     }
   }, [realtimeState.myScore, realtimeState.opponentScore, myScore, opponentScore, setMyScore, setOpponentScore]);
 
+  // 🔔 МОТИВАШКИ: уведомления о ходах соперника
+  // Срабатывает при изменении opponentAnswerData.id (rising edge — каждый новый ответ).
+  // Тост попадает в существующий toastNotifications layer (см. DuelOverlays.tsx).
+  const lastOpponentAnswerIdRef = useRef<string | null>(null);
+  useEffect(() => {
+    const answerData = realtimeState.opponentAnswerData as any;
+    if (!answerData) return;
+
+    // Уникальный идентификатор ответа — id уведомления или duel_answer.
+    const answerId = answerData.id ? String(answerData.id) : null;
+    if (!answerId || answerId === lastOpponentAnswerIdRef.current) return;
+    lastOpponentAnswerIdRef.current = answerId;
+
+    // Игнорируем когда я ещё не дошёл до боя или дуэль завершена
+    if (!realtimeState.duelStarted || realtimeState.duelFinished) return;
+    if (hasFinishedMyQuestions) return; // на экране ожидания мотивашки не нужны
+
+    const isCorrect = answerData.is_correct === true;
+    const opponentPoints = Number(answerData.points_awarded) || 0;
+    const name = (opponentName || 'Соперник').split(' ')[0];
+
+    // Текущий разрыв в очках (после обновления opponentScore из realtime он уже актуален)
+    const liveOpponentScore = typeof realtimeState.opponentScore === 'number'
+      ? realtimeState.opponentScore
+      : opponentScore;
+    const gap = liveOpponentScore - myScore;
+
+    let title: string;
+    let message: string;
+    let icon: string;
+
+    if (isCorrect) {
+      icon = '⚡';
+      title = `${name} +${opponentPoints}`;
+      if (gap > 0) {
+        message = `Соперник впереди на ${gap}. Не сдавайся!`;
+      } else if (gap === 0) {
+        message = 'Равный счёт — давай вырвемся вперёд!';
+      } else {
+        message = `Ты ведёшь на ${Math.abs(gap)}. Держи темп!`;
+      }
+    } else {
+      icon = '🎯';
+      title = `${name} ошибся!`;
+      if (gap > 0) {
+        message = 'Твой шанс сократить разрыв!';
+      } else if (gap === 0) {
+        message = 'Твой шанс выйти вперёд!';
+      } else {
+        message = `Отрывайся ещё дальше — ты ведёшь на ${Math.abs(gap)}!`;
+      }
+    }
+
+    const toastId = `opp-${answerId}`;
+    setToastNotifications((prev: any[]) => {
+      // Не плодим одинаковые тосты — режем хвост до 3 штук
+      const next = [...prev, { id: toastId, type: isCorrect ? 'opponent-correct' : 'opponent-wrong', title, message, icon }];
+      return next.slice(-3);
+    });
+
+    // Авто-скрытие через 3 секунды (правильный) / 2.5 сек (ошибка) — без накопления на экране
+    const dismissAfter = isCorrect ? 3000 : 2500;
+    const timer = setTimeout(() => {
+      setToastNotifications((prev: any[]) => prev.filter((n: any) => n.id !== toastId));
+    }, dismissAfter);
+    return () => clearTimeout(timer);
+  }, [
+    realtimeState.opponentAnswerData,
+    realtimeState.opponentScore,
+    realtimeState.duelStarted,
+    realtimeState.duelFinished,
+    hasFinishedMyQuestions,
+    opponentName,
+    opponentScore,
+    myScore,
+    setToastNotifications,
+  ]);
+
   // Загружаем код дуэли при монтировании
   useEffect(() => {
     if (duelId) {

@@ -319,15 +319,16 @@ export default function Duel() {
         setMode('battle');
         setRematchOpponent(null);
 
-        // Multiple retries for Telegram reliability
+        // Multiple retries for Telegram reliability — но НЕ перетираем, если пользователь
+        // уже ушёл на 'result' (быстрая дуэль / реванш / гонка с realtime).
         const retries = [50, 150, 300];
         retries.forEach((delay, index) => {
             setTimeout(() => {
-                console.log(`[Duel] Battle mode retry #${index + 1}`);
-                // #region agent log
-                debugFetch({ location: 'Duel.tsx:181', message: 'Battle mode retry', data: { retryIndex: index + 1, delay, activeDuelId }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'C' });
-                // #endregion
-                setMode('battle');
+                setMode(currentMode => {
+                    if (currentMode === 'result' || currentMode === 'menu') return currentMode;
+                    console.log(`[Duel] Battle mode retry #${index + 1}`);
+                    return 'battle';
+                });
             }, delay);
         });
     }, [duelId]);
@@ -633,57 +634,27 @@ export default function Duel() {
         }
     };
 
-    // 🆕 CRITICAL FIX: Принимаем snapshot напрямую из памяти (минуя localStorage)
-    const handleDuelFinished = (snapshot?: DuelResultSnapshot) => {
-        console.log('[Duel] 🎯🎯🎯 handleDuelFinished called - transitioning to results', {
-            currentMode: mode,
-            duelId,
-            willSetMode: 'result',
-            hasSnapshot: !!snapshot
-        });
-
-        // 🆕 CRITICAL FIX: Сохраняем snapshot в ref для передачи в DuelResult (минуя localStorage)
-        if (snapshot) {
-            duelResultSnapshotRef.current = snapshot;
-            console.log('[Duel] ✅ Snapshot saved to ref (direct memory transfer)');
-        }
-
-        // КРИТИЧНО: Проверяем, что duelId установлен перед переходом к результатам
+    // Переход к экрану результатов. Snapshot передаётся напрямую через ref
+    // (без localStorage), activeDuel не очищается — данные нужны DuelResult,
+    // очистка произойдёт при выходе с экрана результатов.
+    const handleDuelFinished = useCallback((snapshot?: DuelResultSnapshot) => {
         if (!duelId) {
-            console.error('[Duel] ❌ ERROR: handleDuelFinished called but duelId is null! Cannot show results.');
+            console.error('[Duel] handleDuelFinished called without duelId');
             toast.error('Ошибка: ID дуэли не найден');
             return;
         }
 
-        // 🆕 CRITICAL FIX: "Delayed Cleanup" Strategy
-        // НЕ очищаем activeDuel при переходе к результатам - данные должны остаться
-        // Очистка произойдет только когда пользователь уйдет с экрана результатов
-        // Это гарантирует 100% наличие данных для useDuelResults и устраняет race condition
-        console.log('[Duel] ✅ Keeping activeDuel data for results screen (will be cleared on exit)');
+        console.log('[Duel] → transitioning to result', { duelId, hasSnapshot: !!snapshot });
 
-        // 🆕 CRITICAL FIX: Обновляем статус в localStorage чтобы скрыть меню "Дуэль"
+        if (snapshot) {
+            duelResultSnapshotRef.current = snapshot;
+        }
+
+        // Помечаем дуэль как 'result' в localStorage чтобы при F5 пользователь
+        // вернулся на экран результатов, а не на битву.
         updateActiveDuel({ mode: 'result' });
-
-        console.log('[Duel] ✅ duelId is valid, proceeding with mode change...');
-
-        // Устанавливаем режим результата - используем функциональное обновление для гарантии
-        setMode((currentMode) => {
-            console.log('[Duel] 🔄 setMode callback executing. Current mode:', currentMode);
-            if (currentMode !== 'result') {
-                console.log('[Duel] ✅✅✅ Setting mode to result (was:', currentMode, ')');
-                return 'result';
-            }
-            console.log('[Duel] ⚠️ Mode already set to result, no change needed');
-            return currentMode;
-        });
-
-        console.log('[Duel] ✅ Mode transition initiated, duelId:', duelId);
-
-        // Force re-render check after small delay
-        setTimeout(() => {
-            console.log('[Duel] 🔍 Post-transition check - current mode should be "result"');
-        }, 100);
-    };
+        setMode('result');
+    }, [duelId, updateActiveDuel]);
 
     const handleBackToMenu = useCallback(() => {
         // Очищаем активную дуэль при выходе в меню
@@ -1442,6 +1413,8 @@ export default function Duel() {
         return <PageLoader />;
     }
 
+    // mode === 'result' имеет приоритет над всем: если переход к результатам
+    // инициирован, никакие отложенные setMode('battle') не должны вернуть нас в битву.
     if (mode === 'battle' && duelId && !isBattleHidden) {
         return (
             <DuelBattleFullscreen

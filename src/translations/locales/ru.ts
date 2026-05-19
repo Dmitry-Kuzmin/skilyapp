@@ -1951,6 +1951,15 @@ export const ru = {
     timeoutCorrectHighlight: "Правильный ответ выделен",
     russian: "русский",
     english: "английский",
+    schulte: {
+      title: "Сетка дезориентации",
+      introHeadline: "Найди числа от 1 до 16",
+      introSub: "Тапай по порядку — туман будет таять",
+      introGo: "Поехали",
+      find: "Найди",
+      success: "Концентрация восстановлена!",
+      progress: "{{done}}/{{total}}",
+    },
   },
   duelMenu: {
     title: "Дуэль",

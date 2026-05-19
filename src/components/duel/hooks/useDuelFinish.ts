@@ -29,8 +29,9 @@ export function useDuelFinish({
     const finishDuel = useCallback(async (callerHasFinished?: boolean) => {
         log('[DuelFinish] Finishing duel - I completed all questions');
 
-        // Artificial delay for better UX
-        await new Promise(resolve => setTimeout(resolve, 300));
+        // Защита от двойного перехода — если Realtime/другой источник уже инициировал переход,
+        // ничего не делаем.
+        const alreadyTransitioning = !!(hasTransitionedRef && hasTransitionedRef.current);
 
         try {
             const { data, error } = await supabase.functions.invoke('duel-manager', {
@@ -42,46 +43,47 @@ export function useDuelFinish({
             log('[DuelFinish] Finish duel response:', {
                 finished: data?.finished,
                 reason: data?.reason,
-                message: data?.message,
-                success: data?.success
+                success: data?.success,
             });
 
-            // If both players finished (server says so)
             if (data?.finished === true) {
-                log('[DuelFinish] ✅ Both players finished, going to results');
-
-                // FIX: Защита от двойного перехода — Realtime может также вызвать transitionToResults
-                if (hasTransitionedRef && hasTransitionedRef.current) {
-                    log('[DuelFinish] ⏭️ Already transitioning (Realtime beat us), skipping');
+                if (alreadyTransitioning) {
+                    log('[DuelFinish] ⏭️ Already transitioning, skipping');
                     return;
                 }
                 if (hasTransitionedRef) hasTransitionedRef.current = true;
 
-                setIsWaitingForOpponent(false);
                 sounds.victory();
                 toast.success('🏁 Финиш! Подводим итоги...', { duration: 2000 });
-
-                setTimeout(() => {
-                    transitionToResults(data);
-                }, 300);
-            } else {
-                // If opponent is still playing
-                if (callerHasFinished) {
-                    log('[DuelFinish] ⏳ Opponent still playing - showing waiting screen');
-
-                    setIsWaitingForOpponent(true);
-                    const getFirstName = (fullName: string) => fullName.split(' ')[0];
-                    toast.info(`⏳ Ждём соперника (${getFirstName(opponentName)})...`, { duration: 3000 });
-                } else {
-                    log('[DuelFinish] ⚠️ finish_duel returned not finished, but I still have questions. Ignoring.');
-                }
+                // Переход синхронный — без setTimeout, чтобы не было "флэша" битвы.
+                // setIsWaitingForOpponent(false) НЕ вызываем здесь: transitionToResults
+                // приведёт к смене mode на 'result' и размонтирует battle-вью целиком.
+                transitionToResults(data);
+                return;
             }
-        } catch (error) {
-            logError('[DuelFinish] ❌ Error finishing duel:', error);
-            toast.error('Ошибка завершения дуэли');
-            // On error, we keep the user on the waiting screen (if they were waiting) or current screen
+
+            // Сервер ещё не считает дуэль законченной
+            if (callerHasFinished) {
+                log('[DuelFinish] ⏳ Opponent still playing - showing waiting screen');
+                setIsWaitingForOpponent(true);
+                const firstName = opponentName.split(' ')[0];
+                toast.info(`⏳ Ждём соперника (${firstName})...`, { duration: 3000 });
+            } else {
+                log('[DuelFinish] ⚠️ finish_duel returned not finished, ignoring (still have questions)');
+            }
+        } catch (err) {
+            logError('[DuelFinish] ❌ Error finishing duel:', err);
+            toast.error('Ошибка завершения дуэли, переходим к результатам');
+
+            // КРИТИЧНО: даже при ошибке переходим к результатам, иначе пользователь
+            // навсегда застрянет на экране ожидания. transitionToResults упадёт
+            // обратно на fetch снапшота из БД.
+            if (callerHasFinished && !alreadyTransitioning) {
+                if (hasTransitionedRef) hasTransitionedRef.current = true;
+                transitionToResults();
+            }
         }
-    }, [duelId, profileId, opponentName, setIsWaitingForOpponent, transitionToResults]);
+    }, [duelId, profileId, opponentName, setIsWaitingForOpponent, transitionToResults, hasTransitionedRef]);
 
     return { finishDuel };
 }

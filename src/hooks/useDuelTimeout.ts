@@ -2,6 +2,7 @@ import { useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { sounds } from '@/lib/sounds';
 import { withRetry } from '@/hooks/useRetryableCall';
+import { useDuelStore } from '@/store/duelStore';
 
 // ОПТИМИЗАЦИЯ: Условное логирование только в development
 const isDev = import.meta.env.DEV;
@@ -54,6 +55,9 @@ export function useDuelTimeout({
 
     setIsAnswered(true);
     sounds.wrongAnswer();
+
+    // Timeout is always wrong — mark progress dot immediately so it doesn't stay grey
+    useDuelStore.getState().addAnswerToHistory(false);
 
     try {
       let data: any = null;

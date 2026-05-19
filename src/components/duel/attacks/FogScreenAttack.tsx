@@ -124,8 +124,13 @@ export const FogScreenAttack: React.FC<FogScreenAttackProps> = ({ isActive, onCl
             }}
           />
 
-          {/* Hint */}
-          <div className="absolute top-8 left-1/2 -translate-x-1/2 z-10">
+          {/* Hint — учитывает Telegram-notch и iOS safe area */}
+          <div
+            className="absolute left-1/2 -translate-x-1/2 z-10"
+            style={{
+              top: 'calc(max(var(--tg-content-safe-area-inset-top, 0px), var(--tg-safe-area-inset-top, 0px), env(safe-area-inset-top, 0px), 88px) + 12px)',
+            }}
+          >
             <div className="bg-black/60 backdrop-blur-sm rounded-full px-4 py-2 text-white text-sm font-bold">
               🌫️ Протри стекло пальцем! ({Math.min(100, Math.round(clearSpots.length / 25 * 100))}%)
             </div>

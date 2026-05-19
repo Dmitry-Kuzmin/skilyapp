@@ -160,6 +160,24 @@ export async function handleUseBoost(params: any, profileId: string, supabase: S
       duration_ms: 30000, // 30 секунд шифрования
     };
     console.log('[use_boost] Cryptolocker activated');
+  } else if (boost_type === 'fog_screen') {
+    boostEffect = { success: true, duration_ms: 25000 }; // 25с — успеть протереть 25 пятен
+    console.log('[use_boost] Fog Screen activated');
+  } else if (boost_type === 'ice_screen') {
+    boostEffect = { success: true, duration_ms: 20000 };
+    console.log('[use_boost] Ice Screen activated');
+  } else if (boost_type === 'sun_glare') {
+    boostEffect = { success: true, duration_ms: 18000 };
+    console.log('[use_boost] Sun Glare activated');
+  } else if (boost_type === 'rain_storm') {
+    boostEffect = { success: true, duration_ms: 20000 };
+    console.log('[use_boost] Rain Storm activated');
+  } else if (boost_type === 'bug_splat') {
+    boostEffect = { success: true, duration_ms: 20000 };
+    console.log('[use_boost] Bug Splat activated');
+  } else if (boost_type === 'oil_spill') {
+    boostEffect = { success: true, duration_ms: 18000 };
+    console.log('[use_boost] Oil Spill activated');
   }
 
   // 🆕 Получаем информацию о бусте из БД для определения target_type
@@ -769,6 +787,18 @@ export async function handleBotUseBoost(params: any, profileId: string, supabase
       encrypted: true,
       duration_ms: 30000,
     };
+  } else if (boostType === 'fog_screen') {
+    boostEffect = { success: true, boost_type: 'fog_screen', duration_ms: 25000 };
+  } else if (boostType === 'ice_screen') {
+    boostEffect = { success: true, boost_type: 'ice_screen', duration_ms: 20000 };
+  } else if (boostType === 'sun_glare') {
+    boostEffect = { success: true, boost_type: 'sun_glare', duration_ms: 18000 };
+  } else if (boostType === 'rain_storm') {
+    boostEffect = { success: true, boost_type: 'rain_storm', duration_ms: 20000 };
+  } else if (boostType === 'bug_splat') {
+    boostEffect = { success: true, boost_type: 'bug_splat', duration_ms: 20000 };
+  } else if (boostType === 'oil_spill') {
+    boostEffect = { success: true, boost_type: 'oil_spill', duration_ms: 18000 };
   }
 
   // Получаем информацию о бусте из БД

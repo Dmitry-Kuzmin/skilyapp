@@ -1929,6 +1929,15 @@ export const en = {
     timeoutCorrectHighlight: "The correct answer is highlighted",
     russian: "Russian",
     english: "English",
+    schulte: {
+      title: "Disorientation grid",
+      introHeadline: "Find numbers from 1 to 16",
+      introSub: "Tap in order — the fog will clear",
+      introGo: "Let's go",
+      find: "Find",
+      success: "Focus restored!",
+      progress: "{{done}}/{{total}}",
+    },
   },
   duelMenu: {
     title: "Duel",
