@@ -54,7 +54,7 @@ export function ReminderConnectModal({ open, onOpenChange }: ReminderConnectModa
               </div>
               <div className="flex items-start gap-2 text-sm">
                 <Trophy className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
-                <span>Уведомления о новых наградах Duel Pass</span>
+                <span>Уведомления о новых наградах Skily Pass</span>
               </div>
               <div className="flex items-start gap-2 text-sm">
                 <Zap className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />

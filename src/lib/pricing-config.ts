@@ -34,7 +34,7 @@ export interface CoinPack {
 export const DUEL_PASS_PRICE = {
     price: "€4.99",
     priceValue: 4.99,
-    title: "Duel Pass"
+    title: "Skily Pass"
 };
 
 export const PRICING_PLANS: PricingPlan[] = [
@@ -51,7 +51,7 @@ export const PRICING_PLANS: PricingPlan[] = [
             "9,500+ актуальных вопросов",
             "Безлимитные тесты и темы",
             "AI-разбор каждой ошибки",
-            "x2 опыт и Duel Pass PRO",
+            "x2 опыт и Skily Pass PRO",
             "Полное отсутствие рекламы"
         ],
         highlight: false,

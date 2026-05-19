@@ -546,8 +546,8 @@ export function DuelPassLeaderboardView({
               </div>
             </Card>
 
-            {/* ТОП-3 — Премиальный подиум */}
-            {absoluteTop3.length >= 3 && (
+            {/* ТОП-3 — Премиальный подиум (скрыт в embedded-режиме, т.к. родитель уже показывает его) */}
+            {!embedded && absoluteTop3.length >= 3 && (
               <div className="flex items-end justify-center gap-3 md:gap-8 pb-8 pt-10 px-4 relative">
                 {/* Фоновое свечение для всего блока */}
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full max-w-2xl bg-primary/5 blur-[100px] -z-10" />
@@ -846,7 +846,7 @@ export function DuelPassLeaderboardView({
                       </div>
                       <p className="text-[10px] text-white/80 font-bold mt-1.5 uppercase tracking-wider flex items-center gap-1">
                         <Flame className="w-3 h-3 text-orange-400" />
-                        {lp("sticky.toTop10")} <span className="text-white font-black">1.2k XP</span>
+                        #{userPositionData.position} / {formatNumber(userPositionData.total_players)}
                       </p>
                     </div>
                   </div>

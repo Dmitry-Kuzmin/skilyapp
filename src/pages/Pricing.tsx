@@ -15,15 +15,15 @@ export default function Pricing() {
   const seoByLanguage = {
     ru: {
       title: "Тарифы Skily | Premium доступ для подготовки к экзамену DGT",
-      description: "Сравните тарифы Skily для подготовки к экзамену DGT: Premium-функции, AI-помощник, Duel Pass и пакеты монет для более быстрой подготовки.",
+      description: "Сравните тарифы Skily для подготовки к экзамену DGT: Premium-функции, AI-помощник, Skily Pass и пакеты монет для более быстрой подготовки.",
     },
     es: {
       title: "Precios Skily | Acceso premium para preparar el examen DGT",
-      description: "Compara los planes de Skily para preparar el examen DGT: funciones premium, asistente IA, Duel Pass y paquetes de monedas.",
+      description: "Compara los planes de Skily para preparar el examen DGT: funciones premium, asistente IA, Skily Pass y paquetes de monedas.",
     },
     en: {
       title: "Skily Pricing | Premium access for DGT theory test prep",
-      description: "Compare Skily plans for the Spanish DGT theory exam: premium features, AI tutor support, Duel Pass and coin bundles.",
+      description: "Compare Skily plans for the Spanish DGT theory exam: premium features, AI tutor support, Skily Pass and coin bundles.",
     },
   };
 
@@ -149,16 +149,16 @@ export default function Pricing() {
             })}
           </div>
 
-          {/* Secondary Offers (Duel Pass & Coins) */}
+          {/* Secondary Offers (Skily Pass & Coins) */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
-            {/* Duel Pass Card */}
+            {/* Skily Pass Card */}
             <div className="group relative overflow-hidden rounded-[2.5rem] bg-[#11141D] border border-white/5 p-10 flex flex-col sm:flex-row items-center gap-10 hover:border-amber-500/30 transition-all duration-500">
               <div className="absolute top-[-10%] right-[-10%] w-64 h-64 bg-amber-500/10 blur-[80px] pointer-events-none group-hover:bg-amber-500/20 transition-colors" />
 
               <div className="flex-1 text-center sm:text-left relative z-10">
                 <div className="inline-flex items-center gap-2 mb-4 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20">
                   <Trophy className="w-3.5 h-3.5 text-amber-400" />
-                  <span className="text-[10px] font-black text-amber-400 uppercase tracking-widest">Duel Pass</span>
+                  <span className="text-[10px] font-black text-amber-400 uppercase tracking-widest">Skily Pass</span>
                 </div>
                 <div className="flex items-baseline justify-center sm:justify-start gap-1 mb-4">
                   <span className="text-4xl font-black text-white">{DUEL_PASS_PRICE.price}</span>

@@ -381,7 +381,7 @@ export const LevelUpCelebrationModal: React.FC = () => {
                       {pending.newLevel}
                     </span>
                   </div>
-                  <p className="text-sm text-white/60 mt-2 font-semibold">Duel Pass</p>
+                  <p className="text-sm text-white/60 mt-2 font-semibold">Skily Pass</p>
                 </motion.div>
 
                 {/* ── НАГРАДА ─────────────────────────────────────────── */}

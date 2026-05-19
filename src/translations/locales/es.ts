@@ -966,7 +966,7 @@ export const es = {
       benefits: {
         unlimitedTests: "Acceso ilimitado a todos los tests",
         bonusCoins: "+50% de monedas al estudiar",
-        duelPassRewards: "Recompensas Premium de Duel Pass",
+        duelPassRewards: "Recompensas Premium de Skily Pass",
         instantHints: "Sin anuncios y pistas instantáneas",
       },
       plans: {
@@ -1015,13 +1015,13 @@ export const es = {
       activeButton: "Activa",
     },
     duelPass: {
-      title: "Duel Pass",
+      title: "Skily Pass",
       subtitle: "Compite y gana recompensas exclusivas",
       season: "Temporada {{number}}",
       description: "Camino de progreso único: abre cofres, obtén aspectos raros y domina en los duelos.",
-      button: "Abrir Duel Pass",
-      toastTitle: "Duel Pass",
-      toastDescription: "Abre Duel Pass en la página principal",
+      button: "Abrir Skily Pass",
+      toastTitle: "Skily Pass",
+      toastDescription: "Abre Skily Pass en la página principal",
       oneTime: "pago único",
       features: {
         rareSkins: "Skins raras",
@@ -1059,7 +1059,7 @@ export const es = {
         },
         reward: {
           title: "Sin recompensas",
-          description: "Consigue recompensas por Duel Pass, referidos y logros.",
+          description: "Consigue recompensas por Skily Pass, referidos y logros.",
         },
       },
       tryOtherFilter: "Prueba otro filtro",
@@ -1105,8 +1105,8 @@ export const es = {
         forever: "para siempre",
         trial: "prueba de 3 días",
       },
-      duelPassPurchase: "Compra de Duel Pass",
-      duelPassReward: "Recompensa de Duel Pass{{level}}{{premium}}",
+      duelPassPurchase: "Compra de Skily Pass",
+      duelPassReward: "Recompensa de Skily Pass{{level}}{{premium}}",
       duelPassRewardLevelSuffix: " (nivel {{level}})",
       duelPassRewardPremiumSuffix: " [Premium]",
       referralReward: "Recompensa de referidos: {{name}}",
@@ -1258,12 +1258,12 @@ export const es = {
     disconnect: "Desconectar Billetera",
     copied: "¡Copiado!",
     connect: "Conectar",
-    duelPassTooltipMobile: "Nivel Duel Pass {{level}} — {{xp}} SP",
-    duelPassTooltipDesktop: "Nivel Duel Pass {{level}} — clic para ver temporada",
+    duelPassTooltipMobile: "Nivel Skily Pass {{level}} — {{xp}} SP",
+    duelPassTooltipDesktop: "Nivel Skily Pass {{level}} — clic para ver temporada",
     duelPassRewardReady: "¡Recompensa Lista! Clic para reclamar",
   },
   duelPass: {
-    title: "Duel Pass",
+    title: "Skily Pass",
     widget: {
       level: "Nivel",
       toNext: "Al sig. nivel:",
@@ -1365,10 +1365,10 @@ export const es = {
       lockedBadge: "Bloqueado",
     },
     premiumBanner: {
-      title: "Premium Duel Pass",
+      title: "Premium Skily Pass",
       freeBadge: "Gratis",
       descriptionForever: "Ya tienes Premium Forever: ¡el Pase está desbloqueado!",
-      descriptionQuestion: "¿Qué es Duel Pass?",
+      descriptionQuestion: "¿Qué es Skily Pass?",
       descriptionText: "Sistema de temporada con recompensas extra. La versión Premium duplica todo.",
       buyCta: "Comprar por 7.99€",
       benefits: {
@@ -1380,7 +1380,7 @@ export const es = {
     },
     premiumForever: {
       title: "Premium Forever activo",
-      description: "Duel Pass desbloqueado para todas las temporadas",
+      description: "Skily Pass desbloqueado para todas las temporadas",
     },
     upcomingSeason: {
       title: "La nueva temporada llega pronto",
@@ -1462,7 +1462,7 @@ export const es = {
     },
     onboarding: {
       slide1: {
-        title: "¡Bienvenido a<br />Duel Pass!",
+        title: "¡Bienvenido a<br />Skily Pass!",
         description: "Sistema de temporadas con recompensas por tu actividad. Gana SP, sube de nivel y obtén recompensas exclusivas!",
       },
       slide2: {
@@ -1514,10 +1514,10 @@ export const es = {
       next: "Siguiente",
       back: "Atrás",
       dontShowAgain: "No mostrar de nuevo",
-      dialogDescription: "Bienvenido a Duel Pass - sistema de recompensas por actividad",
+      dialogDescription: "Bienvenido a Skily Pass - sistema de recompensas por actividad",
     },
     migration: {
-      title: "Duel Pass",
+      title: "Skily Pass",
       description: "Sistema de temporadas",
       warningTitle: "⚠️ Falta ejecutar la migración",
       warningDescription: "Aplica la migración en Supabase para activar la temporada:",
@@ -2461,7 +2461,7 @@ export const es = {
       "coins.desc": "Cómo ganar y gastar monedas",
       premium: "Suscripción Premium",
       "premium.desc": "Beneficios de la suscripción de pago",
-      duelPass: "Duel Pass",
+      duelPass: "Skily Pass",
       "duelPass.desc": "Sistema de progreso estacional y recompensas",
       cosmetics: "Cosméticos",
       "cosmetics.desc": "Skins, insignias y pegatinas",

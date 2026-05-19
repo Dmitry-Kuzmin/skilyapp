@@ -226,7 +226,7 @@ export function DuelPassProgress() {
     ? Math.min((xpInCurrentLevel / xpNeededForNextLevel) * 100, 100)
     : profile.duel_pass_level >= totalLevels ? 100 : 0;
 
-  // Общий процент прогресса по всему Duel Pass
+  // Общий процент прогресса по всему Skily Pass
   const totalXPNeeded = rewards[rewards.length - 1]?.xp_required || 3000;
   const progressPercent = Math.min((profile.duel_pass_xp / totalXPNeeded) * 100, 100);
 
@@ -240,7 +240,7 @@ export function DuelPassProgress() {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Trophy className="w-5 h-5 text-yellow-500" />
-            <h3 className="text-lg font-semibold">Duel Pass</h3>
+            <h3 className="text-lg font-semibold">Skily Pass</h3>
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -250,7 +250,7 @@ export function DuelPassProgress() {
                 </TooltipTrigger>
                 <TooltipContent className="max-w-xs">
                   <div className="space-y-2">
-                    <p className="font-semibold">Что такое Duel Pass?</p>
+                    <p className="font-semibold">Что такое Skily Pass?</p>
                     <p className="text-sm">
                       Это система наград за активность! Занимайтесь обучением, проходите тесты и получайте XP.
                       За каждый уровень вы получаете награды: монеты, скины и другие бонусы.

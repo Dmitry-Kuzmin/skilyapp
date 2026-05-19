@@ -181,7 +181,7 @@ export function HallOfFameView({ onBack }: { onBack: () => void }) {
               Зал славы
             </h1>
             <p className="text-sm text-muted-foreground max-w-md">
-              История чемпионов и элитных игроков, которые достигли вершин в Duel Pass
+              История чемпионов и элитных игроков, которые достигли вершин в Skily Pass
             </p>
           </div>
         </header>
@@ -201,7 +201,7 @@ export function HallOfFameView({ onBack }: { onBack: () => void }) {
           <Card className="p-5 space-y-3 bg-white/5 border-white/10 backdrop-blur-sm rounded-3xl">
             <div className="flex items-center gap-2">
               <TrendingUp className="w-5 h-5 text-emerald-500" />
-              <h3 className="font-bold text-lg">Элита Duel Pass</h3>
+              <h3 className="font-bold text-lg">Элита Skily Pass</h3>
             </div>
             <p className="text-sm text-muted-foreground">
               В Зал славы попадают только 10 лучших игроков каждого сезона. Их имена навсегда вписываются в историю, а аватары украшаются знаками отличия.

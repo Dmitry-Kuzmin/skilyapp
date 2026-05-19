@@ -196,7 +196,7 @@ export function CosmeticsInventory() {
     }
 
     if ('category' in item && item.category === 'seasonal') {
-      return { icon: Calendar, text: "Duel Pass", color: "text-blue-500" };
+      return { icon: Calendar, text: "Skily Pass", color: "text-blue-500" };
     }
 
     if ('category' in item && item.category === 'achievement') {

@@ -290,7 +290,7 @@ export function CosmeticsCatalog() {
     }
     
     if ('category' in item && item.category === 'seasonal') {
-      return { icon: Calendar, text: "Duel Pass", color: "text-blue-500" };
+      return { icon: Calendar, text: "Skily Pass", color: "text-blue-500" };
     }
     
     if ('category' in item && item.category === 'achievement') {
@@ -350,7 +350,7 @@ export function CosmeticsCatalog() {
       <div>
         <h2 className="text-2xl font-bold mb-2">Каталог косметики</h2>
         <p className="text-sm text-muted-foreground">
-          Кликните на любой элемент, чтобы примерить его на ваш аватар в хедере в реальном времени. Получайте косметику через Duel Pass, достижения и Premium подписку!
+          Кликните на любой элемент, чтобы примерить его на ваш аватар в хедере в реальном времени. Получайте косметику через Skily Pass, достижения и Premium подписку!
         </p>
         {(previewSkin || previewBadges.length > 0 || previewSticker) && (
           <div className="mt-3 inline-flex items-center gap-2 rounded-lg bg-primary/10 border border-primary/20 px-3 py-1.5 text-xs text-primary">
