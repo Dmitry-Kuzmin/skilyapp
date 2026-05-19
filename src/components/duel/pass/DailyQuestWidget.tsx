@@ -97,7 +97,7 @@ const CircularProgress = ({ progress, size = 32, strokeWidth = 2.5, completed = 
 };
 
 export function DailyQuestWidget() {
-  const { profileId, session } = useUserContext();
+  const { profileId } = useUserContext();
   const { language } = useLanguage();
   const queryClient = useQueryClient();
   const [quests, setQuests] = useState<DailyQuest[]>([]);
@@ -110,7 +110,12 @@ export function DailyQuestWidget() {
     quest.description;
 
   const fetchQuests = useCallback(async () => {
-    if (!profileId || !session) return;
+    if (!profileId) return;
+    // Explicitly wait for the supabase client's own session before making
+    // an authenticated RPC call. UserContext.session is a React state copy
+    // that can be set slightly before the client attaches the auth header.
+    const { data: { session: clientSession } } = await supabase.auth.getSession();
+    if (!clientSession) return;
     try {
       setLoading(true);
       const { data, error } = await supabase.rpc('get_or_assign_daily_quests', {
@@ -133,7 +138,7 @@ export function DailyQuestWidget() {
     } finally {
       setLoading(false);
     }
-  }, [profileId, session]);
+  }, [profileId]);
 
   useEffect(() => {
     fetchQuests();
