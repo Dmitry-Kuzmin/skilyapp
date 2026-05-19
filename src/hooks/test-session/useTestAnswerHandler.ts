@@ -361,7 +361,7 @@ async function handleChallengeBankUpdate(
         }
 
         // Check if question already exists in Challenge Bank
-        const { data: existing, error: selectError } = await (supabase as any)
+        const { data: existing, error: selectError } = await supabase
             .from('user_challenge_questions')
             .select('id, times_wrong')
             .eq('user_id', profileId)
@@ -375,7 +375,7 @@ async function handleChallengeBankUpdate(
 
         if (existing) {
             // Update existing record
-            await (supabase as any)
+            await supabase
                 .from('user_challenge_questions')
                 .update({
                     times_wrong: existing.times_wrong + 1,
@@ -387,7 +387,7 @@ async function handleChallengeBankUpdate(
                 .eq('id', existing.id);
         } else {
             // Create new record
-            await (supabase as any)
+            await supabase
                 .from('user_challenge_questions')
                 .insert({
                     user_id: profileId,
@@ -410,7 +410,7 @@ async function handleChallengeBankSuccess(
 ): Promise<void> {
     try {
         // Fetch current streak and favorite status
-        const { data: existing, error: fetchError } = await (supabase as any)
+        const { data: existing, error: fetchError } = await supabase
             .from('user_challenge_questions')
             .select('id, correct_streak, is_favorite')
             .eq('user_id', profileId)
@@ -424,7 +424,7 @@ async function handleChallengeBankSuccess(
         // Mark as mastered (removes from Errors list)
         // If it was favorite, it stays favorite (is_favorite is untouched).
         // If it was error, it is resolved.
-        await (supabase as any)
+        await supabase
             .from('user_challenge_questions')
             .update({
                 mastered: true,
@@ -442,7 +442,7 @@ async function handleChallengeBankSuccess(
                 action: {
                     label: "Удалить",
                     onClick: async () => {
-                        const { error: deleteError } = await (supabase as any)
+                        const { error: deleteError } = await supabase
                             .from('user_challenge_questions')
                             .update({ is_favorite: false, updated_at: new Date().toISOString() })
                             .eq('user_id', profileId)
@@ -469,7 +469,7 @@ async function saveUserProgress(questionId: string, isCorrect: boolean): Promise
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;
 
-        const { data: profile } = await (supabase as any)
+        const { data: profile } = await supabase
             .from("profiles")
             .select("id")
             .eq("user_id", user.id)
@@ -477,7 +477,7 @@ async function saveUserProgress(questionId: string, isCorrect: boolean): Promise
 
         if (!profile) return;
 
-        await (supabase as any).rpc('record_answer', {
+        await supabase.rpc('record_answer', {
             p_user_id: (profile as any).id,
             p_question_id: questionId,
             p_is_correct: isCorrect,

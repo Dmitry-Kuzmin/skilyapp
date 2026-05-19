@@ -213,14 +213,14 @@ export function useDashboardData() {
       try {
         const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('TIMEOUT')), 10000));
 
-        const promiseV3 = (supabase as any).rpc('get_dashboard_super_v3', { p_user_id: profileId });
+        const promiseV3 = supabase.rpc('get_dashboard_super_v3', { p_user_id: profileId });
         const responseV3: any = await Promise.race([promiseV3, timeoutPromise]);
         if (!responseV3.error && responseV3.data && !responseV3.data.error) {
           return responseV3.data as DashboardData;
         }
 
         // Fallback to v2 (deployed) if v3 hasn't been migrated yet.
-        const promiseV2 = (supabase as any).rpc('get_dashboard_super_v2', { p_user_id: profileId });
+        const promiseV2 = supabase.rpc('get_dashboard_super_v2', { p_user_id: profileId });
         const responseV2: any = await Promise.race([promiseV2, timeoutPromise]);
         if (!responseV2.error && responseV2.data && !responseV2.data.error) {
           return responseV2.data as DashboardData;
@@ -230,7 +230,7 @@ export function useDashboardData() {
 
       // Fallback на обычный RPC
       try {
-        const promise = (supabase as any).rpc('get_dashboard_complete', { p_user_id: profileId });
+        const promise = supabase.rpc('get_dashboard_complete', { p_user_id: profileId });
         const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('TIMEOUT')), 10000));
 
         const response: any = await Promise.race([promise, timeoutPromise]);

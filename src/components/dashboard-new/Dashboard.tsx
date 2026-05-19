@@ -165,7 +165,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
   const handleRehabComplete = async () => {
     try {
-      const { error } = await (supabase as any).rpc('process_license_event', {
+      const { error } = await supabase.rpc('process_license_event', {
         p_user_id: profileId,
         p_event_type: 'rehabilitation_pass'
       });

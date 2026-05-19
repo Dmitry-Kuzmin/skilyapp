@@ -54,7 +54,7 @@ export class RussiaLegacyStrategy implements PDDDataStrategy {
       return [];
     }
 
-    const { data, error } = await (supabase as any)
+    const { data, error } = await supabase
       .from('pdd_russia_questions')
       .select('ticket_number')
       .order('ticket_number', { ascending: true });
@@ -94,7 +94,7 @@ export class RussiaLegacyStrategy implements PDDDataStrategy {
     }
 
     // Получаем вопросы билета
-    const { data: questions, error: questionsError } = await (supabase as any)
+    const { data: questions, error: questionsError } = await supabase
       .from('pdd_russia_questions')
       .select('*')
       .eq('ticket_number', ticketNumber)
@@ -139,7 +139,7 @@ export class RussiaLegacyStrategy implements PDDDataStrategy {
     // ВАЖНО: В текущей конфигурации Supabase нет RPC для ORDER BY random(),
     // поэтому для 800 вопросов берем все (они фильтруются/перемешиваются в UI если нужно).
     // Перемешивание происходит на клиенте в конце функции.
-    const { data: questions, error: questionsError } = await (supabase as any)
+    const { data: questions, error: questionsError } = await supabase
       .from('pdd_russia_questions')
       .select('*')
       .order('id', { ascending: true })
@@ -349,7 +349,7 @@ export class RussiaLegacyStrategy implements PDDDataStrategy {
     }
 
     // Получаем все уникальные темы и считаем количество вопросов
-    const { data: questions, error } = await (supabase as any)
+    const { data: questions, error } = await supabase
       .from('pdd_russia_questions')
       .select('topics');
 

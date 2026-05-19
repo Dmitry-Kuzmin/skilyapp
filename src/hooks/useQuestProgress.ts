@@ -30,7 +30,7 @@ export function useQuestProgress(): UseQuestProgressResult {
     try {
       const results = await Promise.all(
         params.map(({ userId, category, delta = 1, setAbsolute = false }) =>
-          (supabase as any).rpc('update_daily_quest_progress', {
+          supabase.rpc('update_daily_quest_progress', {
             p_user_id:      userId,
             p_category:     category,
             p_delta:        delta,

@@ -149,7 +149,7 @@ export const LoadoutSelector: React.FC<LoadoutSelectorProps> = ({ onLoadoutChang
     const loadData = async () => {
       try {
         // Загружаем профиль (coins, ram_slots_unlocked)
-        const { data: profile } = await (supabase as any)
+        const { data: profile } = await supabase
           .from('profiles')
           .select('coins, ram_slots_unlocked')
           .eq('id', profileId)
@@ -161,7 +161,7 @@ export const LoadoutSelector: React.FC<LoadoutSelectorProps> = ({ onLoadoutChang
         }
 
         // Загружаем доступные бусты (только Root Mode для дуэлей)
-        const { data: boosts } = await (supabase as any)
+        const { data: boosts } = await supabase
           .from('boost_definitions')
           .select('type, name_ru, name_en, name_es, description_ru, description_en, description_es, icon, mode, category, target_type')
           .eq('mode', 'root')
@@ -173,13 +173,13 @@ export const LoadoutSelector: React.FC<LoadoutSelectorProps> = ({ onLoadoutChang
 
         // Загружаем текущий loadout через RPC функцию (обходит RLS)
         try {
-          const { data: rpcData, error: rpcError } = await (supabase as any)
+          const { data: rpcData, error: rpcError } = await supabase
             .rpc('get_user_loadout', { p_user_id: profileId });
 
           if (rpcError) {
             console.warn('[LoadoutSelector] RPC failed, trying direct query:', rpcError);
             // Fallback: прямой запрос
-            const { data: currentLoadout } = await (supabase as any)
+            const { data: currentLoadout } = await supabase
               .from('user_loadouts')
               .select('slot_1_boost_type, slot_2_boost_type, slot_3_boost_type')
               .eq('user_id', profileId)
@@ -288,7 +288,7 @@ export const LoadoutSelector: React.FC<LoadoutSelectorProps> = ({ onLoadoutChang
         }
 
         // Обновляем профиль (разблокируем слот)
-        const { error: updateError } = await (supabase as any)
+        const { error: updateError } = await supabase
           .from('profiles')
           .update({ ram_slots_unlocked: 2 })
           .eq('id', profileId);
@@ -330,7 +330,7 @@ export const LoadoutSelector: React.FC<LoadoutSelectorProps> = ({ onLoadoutChang
 
       // Разблокируем бесплатно для Premium
       try {
-        await (supabase as any)
+        await supabase
           .from('profiles')
           .update({ ram_slots_unlocked: 3 })
           .eq('id', profileId);
@@ -369,7 +369,7 @@ export const LoadoutSelector: React.FC<LoadoutSelectorProps> = ({ onLoadoutChang
 
     // Сохраняем в БД через RPC функцию (обходит RLS)
     try {
-      const { error: rpcError } = await (supabase as any).rpc('save_user_loadout', {
+      const { error: rpcError } = await supabase.rpc('save_user_loadout', {
         p_user_id: profileId,
         p_slot_1_boost_type: newLoadout.slot_1_boost_type,
         p_slot_2_boost_type: newLoadout.slot_2_boost_type,
@@ -379,7 +379,7 @@ export const LoadoutSelector: React.FC<LoadoutSelectorProps> = ({ onLoadoutChang
       if (rpcError) {
         console.error('[LoadoutSelector] Error saving loadout via RPC:', rpcError);
         // Fallback: пробуем через прямой запрос
-        const { error: directError } = await (supabase as any)
+        const { error: directError } = await supabase
           .from('user_loadouts')
           .upsert({
             user_id: profileId,
@@ -647,7 +647,7 @@ export const LoadoutSelector: React.FC<LoadoutSelectorProps> = ({ onLoadoutChang
             if (!profileId) return;
 
             try {
-              const { data, error } = await (supabase as any).functions.invoke('ad-reward', {
+              const { data, error } = await supabase.functions.invoke('ad-reward', {
                 body: {
                   user_id: profileId,
                   reward_type: 'slot_unlock',

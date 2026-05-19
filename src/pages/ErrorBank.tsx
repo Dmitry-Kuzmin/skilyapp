@@ -131,7 +131,7 @@ export default function ErrorBank() {
     if (!profileId) return;
     setLoading(true);
     try {
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from("user_challenge_questions")
         .select(`
           question_id,

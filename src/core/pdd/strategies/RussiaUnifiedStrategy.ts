@@ -220,7 +220,7 @@ export class RussiaUnifiedStrategy implements PDDDataStrategy {
         // Определяем фильтр категории
         const isCD = (category === 'C' || category === 'D' || category === 'CE' || category === 'DE' || category === 'C_D');
 
-        let query = (supabase as any)
+        let query = supabase
             .from('questions_new')
             .select('*')
             .eq('country', this.COUNTRY);

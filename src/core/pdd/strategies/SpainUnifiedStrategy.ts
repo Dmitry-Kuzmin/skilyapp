@@ -165,7 +165,7 @@ export class SpainUnifiedStrategy implements PDDDataStrategy {
             // Dedupe concurrent requests
             if (!this.idsFetchPromise) {
                 this.idsFetchPromise = (async () => {
-                    let query = (supabase as any)
+                    let query = supabase
                         .from('questions_new')
                         .select('id')
                         .eq('country', this.COUNTRY);
@@ -212,7 +212,7 @@ export class SpainUnifiedStrategy implements PDDDataStrategy {
 
         for (let i = 0; i < selectedIds.length; i += batchSize) {
             const batch = selectedIds.slice(i, i + batchSize);
-            const { data: batchQuestions, error: questionsError } = await (supabase as any)
+            const { data: batchQuestions, error: questionsError } = await supabase
                 .from('questions_new')
                 .select('*')
                 .in('id', batch);

@@ -107,8 +107,8 @@ export function AdminPricing() {
   const loadData = async () => {
     setLoading(true);
     const [plansRes, addonsRes] = await Promise.all([
-      (supabase as any).from("course_plans").select("*").order("sort_order"),
-      (supabase as any).from("course_addons").select("*").order("sort_order"),
+      supabase.from("course_plans").select("*").order("sort_order"),
+      supabase.from("course_addons").select("*").order("sort_order"),
     ]);
     if (plansRes.data) setPlans(plansRes.data);
     if (addonsRes.data) setAddons(addonsRes.data);
@@ -123,7 +123,7 @@ export function AdminPricing() {
       ? (raw === "" ? null : Number(raw))
       : raw === "" ? null : raw;
 
-    const { error, count } = await (supabase as any)
+    const { error, count } = await supabase
       .from("course_plans")
       .update({ [field]: value, updated_at: new Date().toISOString() })
       .eq("id", id)
@@ -136,7 +136,7 @@ export function AdminPricing() {
   };
 
   const togglePlanActive = async (id: string, current: boolean) => {
-    await (supabase as any).from("course_plans").update({ active: !current }).eq("id", id);
+    await supabase.from("course_plans").update({ active: !current }).eq("id", id);
     setPlans((prev) => prev.map((p) => p.id === id ? { ...p, active: !current } : p));
     toast.success(!current ? "Тариф активирован" : "Тариф скрыт");
   };
@@ -145,7 +145,7 @@ export function AdminPricing() {
   const updateAddon = async (id: number, field: keyof Addon, raw: string) => {
     const value = field === "price_group" || field === "price_individual"
       ? Number(raw) : raw;
-    const { error, count } = await (supabase as any)
+    const { error, count } = await supabase
       .from("course_addons")
       .update({ [field]: value, updated_at: new Date().toISOString() })
       .eq("id", id)
@@ -157,7 +157,7 @@ export function AdminPricing() {
   };
 
   const toggleAddonActive = async (id: number, current: boolean) => {
-    await (supabase as any).from("course_addons").update({ is_active: !current }).eq("id", id);
+    await supabase.from("course_addons").update({ is_active: !current }).eq("id", id);
     setAddons((prev) => prev.map((a) => a.id === id ? { ...a, is_active: !current } : a));
   };
 

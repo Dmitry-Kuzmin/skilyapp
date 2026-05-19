@@ -74,7 +74,7 @@ export function ReferralModal({ open, onOpenChange }: ReferralModalProps) {
 
         // If no referral code, try to generate one
         if (!profileData.referral_code) {
-          const { data: newCode, error: codeError } = await (supabase as any).rpc('generate_referral_code');
+          const { data: newCode, error: codeError } = await supabase.rpc('generate_referral_code');
 
           if (!codeError && newCode) {
             await supabase

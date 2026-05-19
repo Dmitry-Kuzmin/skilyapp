@@ -113,7 +113,7 @@ export function DailyQuestWidget() {
     if (!profileId) return;
     try {
       setLoading(true);
-      const { data, error } = await (supabase as any).rpc('get_or_assign_daily_quests', {
+      const { data, error } = await supabase.rpc('get_or_assign_daily_quests', {
         p_user_id: profileId
       });
 
@@ -150,7 +150,7 @@ export function DailyQuestWidget() {
     setClaimingId(quest.id);
     try {
       // Уровень ДО claim — для детекта level-up
-      const { data: progressBefore } = await (supabase as any)
+      const { data: progressBefore } = await supabase
         .from('user_season_progress')
         .select('level')
         .eq('user_id', profileId)
@@ -159,7 +159,7 @@ export function DailyQuestWidget() {
         .maybeSingle();
       const levelBefore = progressBefore?.level ?? 1;
 
-      const { data, error } = await (supabase as any).rpc('claim_daily_quest_reward', {
+      const { data, error } = await supabase.rpc('claim_daily_quest_reward', {
         p_user_id: profileId,
         p_user_quest_id: quest.id
       });

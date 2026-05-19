@@ -299,7 +299,7 @@ const LearningMap = ({ variant = "full", className }: LearningMapProps) => {
       }
 
       const topicIds = topics.map((t) => t.id);
-      const { data: progressData, error: progressError } = await (supabase as any)
+      const { data: progressData, error: progressError } = await supabase
         .rpc("get_user_topics_progress_batch", {
           p_user_id: profileId,
           p_topic_ids: topicIds,

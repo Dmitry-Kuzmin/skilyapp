@@ -91,7 +91,7 @@ export function ContextSettingsSheet({
     // Сохраняем выбор в базу данных
     if (profileData?.id) {
       try {
-        const { error } = await (supabase as any)
+        const { error } = await supabase
           .from('profiles')
           .update({
             preferred_country: selectedCountry,

@@ -95,7 +95,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
             const refCode = sessionStorage.getItem('referral_code');
             if (refCode) {
               devLog("[UserContext] Processing pending referral code for web user:", refCode);
-              (supabase as any).rpc('create_referral', {
+              supabase.rpc('create_referral', {
                 p_referrer_code: refCode,
                 p_referred_id: actualProfileId
               }).then(({ data, error }: { data: any, error: any }) => {

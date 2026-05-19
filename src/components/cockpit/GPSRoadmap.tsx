@@ -56,7 +56,7 @@ export function GPSRoadmap({
 
         // Загружаем прогресс пользователя
         const topicIds = topicsData.map((t) => t.id);
-        const { data: progressData } = await (supabase as any)
+        const { data: progressData } = await supabase
           .rpc("get_user_topics_progress_batch", {
             p_user_id: userId,
             p_topic_ids: topicIds,

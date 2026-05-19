@@ -188,12 +188,12 @@ const DashboardContent = memo(function DashboardContent() {
           const lootPool = reward.random_loot.pool || 'common';
 
           if (lootType === 'sticker') {
-            const { data: stickerId, error: stickerError } = await (supabase as any).rpc('get_random_sticker_from_pool', {
+            const { data: stickerId, error: stickerError } = await supabase.rpc('get_random_sticker_from_pool', {
               p_pool: lootPool
             });
 
             if (!stickerError && stickerId) {
-              const { data: lootResult } = await (supabase as any).rpc('grant_random_loot', {
+              const { data: lootResult } = await supabase.rpc('grant_random_loot', {
                 p_user_id: profileId,
                 p_loot_data: { type: 'sticker', id: stickerId, quantity: 1 }
               });
@@ -211,7 +211,7 @@ const DashboardContent = memo(function DashboardContent() {
       // Обработка сезонного бейджа (день 7)
       if (reward?.badge === 'seasonal' && weekDay === 7) {
         try {
-          const { data: badgeId } = await (supabase as any).rpc('get_seasonal_weekly_badge');
+          const { data: badgeId } = await supabase.rpc('get_seasonal_weekly_badge');
           if (badgeId) {
             await supabase.from('user_badges').insert({
               user_id: profileId,

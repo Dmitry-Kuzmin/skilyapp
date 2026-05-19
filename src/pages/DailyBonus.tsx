@@ -67,7 +67,7 @@ const DailyBonus = () => {
       }
 
       // Загружаем награды (90 дней)
-      const { data: rewards } = await (supabase as any)
+      const { data: rewards } = await supabase
         .from('daily_bonus_def')
         .select('*')
         .order('day_number', { ascending: true });
@@ -77,7 +77,7 @@ const DailyBonus = () => {
       }
 
       // Загружаем данные ежедневного бонуса
-      const { data: bonus } = await (supabase as any)
+      const { data: bonus } = await supabase
         .from('user_daily_bonus')
         .select('*')
         .eq('user_id', profileId)
@@ -88,7 +88,7 @@ const DailyBonus = () => {
         setCanClaimBonus(checkCanClaim(bonus.last_claimed_date));
       } else {
         // Создаем запись
-        const { data: newBonus } = await (supabase as any)
+        const { data: newBonus } = await supabase
           .from('user_daily_bonus')
           .insert({
             user_id: profileId,
@@ -285,7 +285,7 @@ const DailyBonus = () => {
         );
       }
 
-      await (supabase as any)
+      await supabase
         .from('user_daily_bonus')
         .update({
           last_claimed_date: today,
@@ -387,7 +387,7 @@ const DailyBonus = () => {
       }
 
       // Обновляем streak
-      await (supabase as any)
+      await supabase
         .from('user_daily_bonus')
         .update({
           last_claimed_date: today,

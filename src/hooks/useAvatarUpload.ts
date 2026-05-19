@@ -110,7 +110,7 @@ export function useAvatarUpload() {
                 .from('avatars')
                 .getPublicUrl(filePath);
 
-            const { error: updateError } = await (supabase as any)
+            const { error: updateError } = await supabase
                 .from('profiles')
                 .update({
                     photo_url: publicUrl,

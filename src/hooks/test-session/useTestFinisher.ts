@@ -157,7 +157,7 @@ export function useTestFinisher(options: UseTestFinisherOptions): UseTestFinishe
             try {
                 // Update sequential test progress
                 if (testId && profileId) {
-                    const { error: progressError } = await (supabase as any).rpc('update_test_progress', {
+                    const { error: progressError } = await supabase.rpc('update_test_progress', {
                         p_user_id: profileId,
                         p_test_id: testId,
                         p_correct_answers: correctCount,
@@ -173,7 +173,7 @@ export function useTestFinisher(options: UseTestFinisherOptions): UseTestFinishe
                 // Save module topic progress
                 if (mode === "module" && profileId && topic) {
                     try {
-                        await (supabase as any)
+                        await supabase
                             .from("user_topic_progress")
                             .upsert(
                                 {
@@ -193,7 +193,7 @@ export function useTestFinisher(options: UseTestFinisherOptions): UseTestFinishe
                 // Save to game_sessions
                 const { data: { user } } = await supabase.auth.getUser();
                 if (user) {
-                    const { data: profile } = await (supabase as any)
+                    const { data: profile } = await supabase
                         .from("profiles")
                         .select("id")
                         .eq("user_id", user.id)
@@ -222,7 +222,7 @@ export function useTestFinisher(options: UseTestFinisherOptions): UseTestFinishe
                             duration_seconds: Math.min(Math.max(0, timeSpent), 7200),
                         };
 
-                        await (supabase as any).from("game_sessions").insert(sessionData);
+                        await supabase.from("game_sessions").insert(sessionData);
                     }
                 }
             } catch (error) {

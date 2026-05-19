@@ -126,11 +126,11 @@ export function StarsPaymentButton({
       });
 
       // Создать invoice через Edge Function с получением детальной ошибки
-      const response = await fetch(`${(supabase as any).functions.url}/telegram-stars-payment`, {
+      const response = await fetch(`${supabase.functions.url}/telegram-stars-payment`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${(supabase as any).supabaseKey || ''}`
+          'Authorization': `Bearer ${supabase.supabaseKey || ''}`
         },
         body: JSON.stringify({
           action: 'create_invoice',

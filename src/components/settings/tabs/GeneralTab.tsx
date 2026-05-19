@@ -148,7 +148,7 @@ export const GeneralTab: React.FC = () => {
 
                 const currentSettings = ((currentProfile as any)?.settings as Record<string, any>) || {};
                 
-                await (supabase as any)
+                await supabase
                     .from('profiles')
                     .update({ 
                         settings: { 
@@ -179,7 +179,7 @@ export const GeneralTab: React.FC = () => {
 
                 const currentSettings = ((currentProfile as any)?.settings as Record<string, any>) || {};
                 
-                await (supabase as any)
+                await supabase
                     .from('profiles')
                     .update({ 
                         settings: { 

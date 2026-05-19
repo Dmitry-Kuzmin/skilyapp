@@ -202,7 +202,7 @@ const Favorites = () => {
 
     const handleRemoveFavorite = async (questionId: string) => {
         if (!profileId) return;
-        const { error } = await (supabase as any)
+        const { error } = await supabase
             .from('user_challenge_questions')
             .update({ is_favorite: false })
             .eq('user_id', profileId)

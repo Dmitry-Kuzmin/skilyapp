@@ -236,7 +236,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
 
           const currentSettings = ((currentProfile as any)?.settings as Record<string, any>) || {};
 
-          await (supabase as any)
+          await supabase
             .from('profiles')
             .update({ settings: { ...currentSettings, language: lang } })
             .eq('id', profileId);

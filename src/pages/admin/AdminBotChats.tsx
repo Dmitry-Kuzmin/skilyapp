@@ -280,7 +280,7 @@ export function AdminBotChats() {
   // ── Load users ──────────────────────────────────────────────────────────
   const loadUsers = async () => {
     setLoadingUsers(true);
-    const { data } = await (supabase as any)
+    const { data } = await supabase
       .from("bot_messages")
       .select("telegram_id, username, created_at")
       .order("created_at", { ascending: false });
@@ -305,7 +305,7 @@ export function AdminBotChats() {
 
   // ── Load templates ──────────────────────────────────────────────────────
   const loadTemplates = async () => {
-    const { data } = await (supabase as any)
+    const { data } = await supabase
       .from("bot_reply_templates")
       .select("*")
       .order("sort_order");
@@ -326,7 +326,7 @@ export function AdminBotChats() {
   const loadMessages = async (user: ChatUser) => {
     setLoadingMsgs(true);
     setMessages([]);
-    const { data } = await (supabase as any)
+    const { data } = await supabase
       .from("bot_messages")
       .select("*")
       .eq("telegram_id", user.telegram_id)
@@ -404,20 +404,20 @@ export function AdminBotChats() {
 
   // ── Template CRUD ───────────────────────────────────────────────────────
   const saveTemplate = async (id: number, label: string, text: string) => {
-    await (supabase as any).from("bot_reply_templates").update({ label, text }).eq("id", id);
+    await supabase.from("bot_reply_templates").update({ label, text }).eq("id", id);
     setTemplates(prev => prev.map(t => t.id === id ? { ...t, label, text } : t));
     toast.success("Шаблон сохранён");
   };
 
   const deleteTemplate = async (id: number) => {
-    await (supabase as any).from("bot_reply_templates").delete().eq("id", id);
+    await supabase.from("bot_reply_templates").delete().eq("id", id);
     setTemplates(prev => prev.filter(t => t.id !== id));
     toast.success("Шаблон удалён");
   };
 
   const addTemplate = async () => {
     if (!newTplLabel.trim() || !newTplText.trim()) return;
-    const { data } = await (supabase as any).from("bot_reply_templates")
+    const { data } = await supabase.from("bot_reply_templates")
       .insert({ label: newTplLabel.trim(), text: newTplText.trim(), sort_order: templates.length + 1 })
       .select().single();
     if (data) setTemplates(prev => [...prev, data as Template]);

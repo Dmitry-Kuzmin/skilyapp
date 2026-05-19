@@ -219,7 +219,7 @@ export const SmartOnboardingFlow: React.FC = () => {
 
             if (!profileId) return;
 
-            const { data, error } = await (supabase as any)
+            const { data, error } = await supabase
                 .from('profiles')
                 .select('preferred_country, preferred_license_category, settings')
                 .eq('id', profileId)
@@ -325,7 +325,7 @@ export const SmartOnboardingFlow: React.FC = () => {
                     onboarding_completed_at: new Date().toISOString(),
                 };
 
-                await (supabase as any)
+                await supabase
                     .from('profiles')
                     .update({
                         preferred_country: mappedCountry,
