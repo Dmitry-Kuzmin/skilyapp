@@ -32,6 +32,7 @@ import {
 } from '@/components/ui/drawer';
 import { triggerHapticFeedback, isTelegramMiniApp, TelegramContext } from '@/lib/telegram';
 import { useNavigate } from 'react-router-dom';
+import { useModalStore } from '@/store/modalStore';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { toast } from 'sonner';
 import { getAIInstructionLanguage, getLanguageInstruction, AILanguage } from '@/utils/aiLanguage';
@@ -461,6 +462,7 @@ const SmartDebriefCard = memo(({
   const { isPremium } = usePremium();
   const isMobile = useIsMobile();
   const navigate = useNavigate();
+  const openModal = useModalStore((s) => s.openModal);
   const { profileData } = useProfileData();
   const { language: uiLanguage, t } = useLanguage();
 
@@ -680,7 +682,7 @@ const SmartDebriefCard = memo(({
     return (
       <div className="mb-6 animate-in fade-in slide-in-from-bottom-2 duration-700">
         <div
-          onClick={() => navigate('/auth')}
+          onClick={() => openModal('AUTH', { initialStep: 'email' })}
           className="group relative w-full cursor-pointer overflow-hidden rounded-2xl bg-gradient-to-r from-slate-800 to-slate-900 p-5 shadow-lg border border-slate-700/50 transition-all hover:-translate-y-0.5 hover:shadow-xl"
         >
           <div className="flex items-center gap-4">
