@@ -483,7 +483,23 @@ const AIWidgetContent = ({
 
   const showStaticResponse = (text: string | null | undefined, label: string) => {
     if (!text) return;
-    setMessages([{ role: 'user', content: label }, { role: 'assistant', content: text }]);
+    setMessages([{ role: 'user', content: label }, { role: 'assistant', content: '' }]);
+    setIsLoading(true);
+    typewriter.start(
+      (slice) => {
+        setMessages(prev => {
+          const updated = [...prev];
+          const last = updated[updated.length - 1];
+          if (last?.role === 'assistant') {
+            updated[updated.length - 1] = { role: 'assistant', content: last.content + slice };
+          }
+          return updated;
+        });
+      },
+      () => setIsLoading(false),
+    );
+    typewriter.push(text);
+    typewriter.finish();
   };
 
   const askAI = async (userMessage: string, imageFile?: File) => {
