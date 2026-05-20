@@ -70,39 +70,35 @@ function GuestCTAMessage({ lang, onRegister }: { lang: 'ru' | 'es' | 'en'; onReg
       transition={{ duration: 0.3, ease: 'easeOut' }}
       className="max-w-[92%]"
     >
-      {/* Animated glow border wrapper */}
       <motion.div
         animate={{
           boxShadow: [
-            '0 0 0px 0px rgba(251,191,36,0)',
-            '0 0 22px 4px rgba(251,191,36,0.45)',
-            '0 0 0px 0px rgba(251,191,36,0)',
+            '0 0 0px 0px rgba(99,102,241,0)',
+            '0 0 18px 3px rgba(99,102,241,0.4)',
+            '0 0 0px 0px rgba(99,102,241,0)',
           ],
         }}
-        transition={{ duration: 2.6, repeat: Infinity, ease: 'easeInOut' }}
-        className="rounded-2xl rounded-tl-none p-[1.5px] bg-gradient-to-br from-amber-400/60 via-yellow-300/30 to-orange-500/50"
+        transition={{ duration: 2.8, repeat: Infinity, ease: 'easeInOut' }}
+        className="rounded-2xl rounded-tl-none p-[1px] bg-gradient-to-br from-indigo-500/70 via-violet-500/40 to-indigo-400/60"
       >
-        <div className="rounded-[14px] rounded-tl-none bg-gradient-to-br from-[#1a1400] via-[#0d1526] to-[#1a0d00] px-4 py-3.5">
-          {/* Icon + title */}
+        <div className="rounded-[15px] rounded-tl-none bg-[#0d1120] px-4 py-3.5">
           <div className="flex items-center gap-2 mb-1.5">
-            <span className="text-lg">✨</span>
-            <p className="text-[11px] xl:text-xs font-black text-amber-300 leading-tight tracking-wide uppercase">
+            <Zap className="w-3 h-3 text-indigo-400 shrink-0" />
+            <p className="text-[10px] xl:text-[11px] font-black text-indigo-300 leading-tight tracking-widest uppercase">
               {txt.title}
             </p>
           </div>
-          {/* Body */}
-          <p className="text-[10px] xl:text-[11px] text-amber-100/70 leading-relaxed mb-3">
+          <p className="text-[10px] xl:text-[11px] text-slate-400 leading-relaxed mb-3">
             {txt.sub}
           </p>
-          {/* CTA button */}
           <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.97 }}
             onClick={onRegister}
             className="w-full py-2 rounded-xl text-[10px] xl:text-[11px] font-black
-              bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-400
-              text-amber-950 shadow-[0_4px_16px_rgba(251,191,36,0.35)]
-              hover:shadow-[0_6px_24px_rgba(251,191,36,0.55)] transition-shadow"
+              bg-gradient-to-r from-indigo-600 to-violet-600
+              text-white shadow-[0_4px_16px_rgba(99,102,241,0.3)]
+              hover:shadow-[0_6px_22px_rgba(99,102,241,0.5)] transition-shadow"
           >
             {txt.cta}
           </motion.button>
@@ -790,9 +786,11 @@ ${imageUrl ? `\n⚠️ К вопросу есть иллюстрация — о�
                     text-slate-300 hover:text-white
                     rounded-xl transition-all duration-150 active:scale-[0.97]"
                   onClick={() => {
-                    if (!profileId && staticHint) {
-                      const label = interfaceLanguage === 'ru' ? t('lumiHintButton') : interfaceLanguage === 'en' ? 'Give me a hint' : 'Dame una pista';
-                      showStaticResponse(staticHint, label);
+                    if (!profileId) {
+                      if (staticHint) {
+                        const label = interfaceLanguage === 'ru' ? t('lumiHintButton') : interfaceLanguage === 'en' ? 'Give me a hint' : 'Dame una pista';
+                        showStaticResponse(staticHint, label);
+                      }
                       return;
                     }
                     const hintPrompt = interfaceLanguage === 'ru'
@@ -817,9 +815,11 @@ ${imageUrl ? `\n⚠️ К вопросу есть иллюстрация — о�
                     text-slate-300 hover:text-white
                     rounded-xl transition-all duration-150 active:scale-[0.97]"
                   onClick={() => {
-                    if (!profileId && staticExplanation) {
-                      const label = interfaceLanguage === 'ru' ? t('lumiHelpButton') : interfaceLanguage === 'en' ? 'Help me understand this' : 'Ayúdame a entender esto';
-                      showStaticResponse(staticExplanation, label);
+                    if (!profileId) {
+                      if (staticExplanation) {
+                        const label = interfaceLanguage === 'ru' ? t('lumiHelpButton') : interfaceLanguage === 'en' ? 'Help me understand this' : 'Ayúdame a entender esto';
+                        showStaticResponse(staticExplanation, label);
+                      }
                       return;
                     }
                     if (explanation) {
