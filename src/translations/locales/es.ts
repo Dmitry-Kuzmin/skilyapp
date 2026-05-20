@@ -2494,5 +2494,15 @@ export const es = {
       duels: "Duelos PvP 1vs1 en tiempo real",
       explanations: "Explicaciones de IA en cada pregunta"
     }
+  },
+  exitTrial: {
+    title: "3 días sin riesgo",
+    subtitle: "Prueba todo sin límites. Necesitas una tarjeta, pero solo se cobra el 4.º día — si cambias de idea, cancelas en un segundo.",
+    perk1: "Tests ilimitados",
+    perk2: "La IA explica cada error",
+    perk3: "Acceso instantáneo",
+    perk4: "Solo se cobra el 4.º día",
+    cta: "Registrarme gratis →",
+    skip: "No, gracias"
   }
 } as const;

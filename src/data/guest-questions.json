@@ -37,7 +37,10 @@
         "is_correct": false,
         "position": 3
       }
-    ]
+    ],
+    "hint_es": "Piensa en la norma básica de prioridad en intersecciones sin señalizar: ¿desde qué lado se aproxima el ciclista? Ten en cuenta que los ciclos tienen consideración legal de vehículos.",
+    "hint_ru": "Вспомни базовое правило приоритета на нерегулируемом перекрёстке. Кем является велосипедист по закону — пешеходом или транспортным средством? С какой стороны он подъезжает?",
+    "hint_en": "Think about the basic right-of-way rule at unmarked intersections. Is a cyclist legally a vehicle? Which side are they approaching from?"
   },
   {
     "id": "acc2f2a8-f57c-4bf3-83ad-f477e825f776",
@@ -77,7 +80,10 @@
         "is_correct": false,
         "position": 3
       }
-    ]
+    ],
+    "hint_es": "¿Existe alguna excepción a la obligación de avisar a la autoridad? Piensa en qué condiciones dejan de existir riesgos reales para la seguridad vial y qué puede solicitar alguno de los implicados.",
+    "hint_ru": "Есть ли исключения из обязанности сообщать властям? Подумай: какое условие должно выполниться, чтобы обязательство не возникало, и что могут попросить сами участники?",
+    "hint_en": "Are there exceptions to the duty to notify authorities? Consider what conditions must be met for the obligation not to apply, and what one of the parties involved might request."
   },
   {
     "id": "cf5b747f-c58c-4f27-b820-ef5d61e78fdb",
@@ -117,7 +123,10 @@
         "is_correct": true,
         "position": 3
       }
-    ]
+    ],
+    "hint_es": "Hay situaciones donde dar media vuelta es imposible o peligroso. ¿Qué ocurre en una vía de sentido único si intentas invertir el sentido de la marcha?",
+    "hint_ru": "Есть ситуации, когда разворот физически невозможен. Что произойдёт, если попытаться развернуться на дороге с односторонним движением?",
+    "hint_en": "There are situations where a U-turn is physically impossible. What would happen if you tried to reverse direction on a one-way road?"
   },
   {
     "id": "52dc3d46-3a7a-4226-be43-ad326168887e",
@@ -157,7 +166,10 @@
         "is_correct": false,
         "position": 3
       }
-    ]
+    ],
+    "hint_es": "Los turismos con remolque tienen normas de circulación propias. ¿Se les aplican las mismas restricciones de carril que a los camiones pesados, o tienen más libertad de movimiento?",
+    "hint_ru": "Легковые авто с прицепом имеют особые правила. Распространяются ли на них те же ограничения по полосам, что и на тяжёлые грузовики, или у них больше свободы?",
+    "hint_en": "Cars with trailers have their own rules. Are they subject to the same lane restrictions as heavy trucks, or do they have more freedom of movement?"
   },
   {
     "id": "34d64167-3fb2-4f7f-b704-9f9dd5c2cf7b",
@@ -197,7 +209,10 @@
         "is_correct": false,
         "position": 3
       }
-    ]
+    ],
+    "hint_es": "Los conductores noveles y profesionales tienen tasas de alcohol permitidas distintas a las del conductor general. ¿Cuál es el valor especial para quienes llevan menos de 2 años con el permiso B?",
+    "hint_ru": "Для начинающих и профессиональных водителей нормы алкоголя отличаются. Какое конкретное значение установлено для тех, кто имеет права менее 2 лет?",
+    "hint_en": "New and professional drivers have different alcohol limits than general drivers. What is the specific value for those who have held a B license for less than 2 years?"
   },
   {
     "id": "6c4b689c-b04a-46ca-835a-1a981c00c989",
@@ -237,7 +252,10 @@
         "is_correct": false,
         "position": 3
       }
-    ]
+    ],
+    "hint_es": "El reglamento fija límites exactos para el sobresalimiento de carga en motocicletas. ¿Es el mismo límite por delante y por detrás, o difieren?",
+    "hint_ru": "Правила устанавливают точные нормы выступа груза на мотоцикле. Одинаков ли предел спереди и сзади или они различаются?",
+    "hint_en": "Regulations set exact limits for cargo overhang on motorcycles. Is the limit the same for front and rear, or are they different?"
   },
   {
     "id": "cf078f51-8211-48d6-bbdb-8bb4135f92cd",
@@ -277,7 +295,10 @@
         "is_correct": false,
         "position": 3
       }
-    ]
+    ],
+    "hint_es": "Observa bien la imagen: ¿ves una barrera física o no? ¿Qué tipo de sistema de peaje funciona sin que el vehículo tenga que detenerse?",
+    "hint_ru": "Внимательно посмотри на изображение: есть ли физический шлагбаум? Какая система оплаты проезда позволяет не останавливаться?",
+    "hint_en": "Look carefully at the image: is there a physical barrier or not? What type of toll system works without the vehicle stopping?"
   },
   {
     "id": "0bab8d61-c70c-4933-92de-ab9ddf7e22ea",
@@ -317,7 +338,10 @@
         "is_correct": false,
         "position": 3
       }
-    ]
+    ],
+    "hint_es": "Algunos medicamentos pueden reducir tus reflejos o alterar tu percepción. ¿A quién debes consultar para saber si es seguro conducir mientras los tomas?",
+    "hint_ru": "Некоторые лекарства снижают реакцию или искажают восприятие. К кому нужно обратиться, чтобы узнать, безопасно ли водить во время их приёма?",
+    "hint_en": "Some medications can reduce your reflexes or alter perception. Who should you consult to know if it's safe to drive while taking them?"
   },
   {
     "id": "0e4390e8-e7fb-435f-95b7-ece7323107fc",
@@ -357,7 +381,10 @@
         "is_correct": false,
         "position": 3
       }
-    ]
+    ],
+    "hint_es": "Advertir una maniobra protege a todos los usuarios de la vía, no solo a los conductores. ¿Es la obligación de señalizar selectiva según el tipo de usuario al que se avisa?",
+    "hint_ru": "Предупреждение о манёвре защищает всех участников движения, не только водителей. Ограничена ли обязанность предупреждать каким-то конкретным типом пользователей?",
+    "hint_en": "Signaling a maneuver protects all road users, not just drivers. Is the obligation to signal selective based on the type of user being warned?"
   },
   {
     "id": "c874355f-4ee0-45bf-a771-028b55401c15",
@@ -397,7 +424,10 @@
         "is_correct": false,
         "position": 3
       }
-    ]
+    ],
+    "hint_es": "Cuando llueve, el agua forma una película entre el neumático y el asfalto. ¿Cómo afecta esto a la adherencia y a la distancia que necesitas para frenar?",
+    "hint_ru": "Во время дождя вода образует плёнку между шиной и асфальтом. Как это влияет на сцепление и тормозной путь?",
+    "hint_en": "When it rains, water forms a film between the tire and asphalt. How does this affect grip and the distance you need to stop?"
   },
   {
     "id": "c1e2a979-0a64-48d4-b5dc-73d4ef493bf6",
@@ -437,7 +467,10 @@
         "is_correct": false,
         "position": 3
       }
-    ]
+    ],
+    "hint_es": "Una travesía es un tramo urbano de una carretera interurbana. ¿Qué normas de circulación se aplican en ellas: las urbanas o las interurbanas?",
+    "hint_ru": "Траверса — это городской участок загородной дороги. Какие правила движения на ней применяются: городские или загородные?",
+    "hint_en": "A travesía is an urban stretch of an interurban road. Which traffic rules apply there: urban or interurban?"
   },
   {
     "id": "1ccc9229-ad14-4ad3-bfad-43b60abe3979",
@@ -477,7 +510,10 @@
         "is_correct": true,
         "position": 3
       }
-    ]
+    ],
+    "hint_es": "Las bebidas estimulantes como el café tienen un efecto temporal. ¿Qué suele ocurrir cuando ese efecto desaparece y el cuerpo reclama el descanso que necesitaba?",
+    "hint_ru": "Стимулирующие напитки, например кофе, действуют временно. Что обычно происходит, когда эффект заканчивается и организм требует отдыха?",
+    "hint_en": "Stimulant drinks like coffee have a temporary effect. What usually happens when that effect wears off and the body demands the rest it needs?"
   },
   {
     "id": "25e1cb53-de37-4850-8910-118937034d50",
@@ -517,7 +553,10 @@
         "is_correct": false,
         "position": 3
       }
-    ]
+    ],
+    "hint_es": "La fuerza centrífuga siempre empuja hacia el exterior de la curva. Si la curva gira hacia la izquierda, el exterior está a la derecha: ¿hacia dónde se desplazará el vehículo?",
+    "hint_ru": "Центробежная сила всегда толкает к внешней стороне поворота. Если поворот левый, внешняя сторона находится справа: куда будет смещаться автомобиль?",
+    "hint_en": "Centrifugal force always pushes toward the outside of the curve. If the curve turns left, the outside is to the right — which direction will the vehicle drift?"
   },
   {
     "id": "4e0b0c68-5226-4e76-98d1-f2c66db26fff",
@@ -557,7 +596,10 @@
         "is_correct": false,
         "position": 3
       }
-    ]
+    ],
+    "hint_es": "La distancia de detención suma dos fases: la de percepción-reacción y la de frenado. ¿Desde qué momento exacto empieza a contarse y cuándo termina definitivamente?",
+    "hint_ru": "Тормозной путь включает две фазы: восприятие-реакция и само торможение. С какого конкретного момента он начинает отсчитываться и когда заканчивается?",
+    "hint_en": "Stopping distance combines two phases: perception-reaction and braking. From what exact moment does it begin, and when does it definitively end?"
   },
   {
     "id": "7d9dd415-9516-4f33-8ff9-133683ef155a",
@@ -597,7 +639,10 @@
         "is_correct": false,
         "position": 3
       }
-    ]
+    ],
+    "hint_es": "Antes de dar media vuelta, el principio fundamental es no crear peligro para los demás. ¿Qué debes comprobar sobre los otros usuarios de la vía antes de iniciar la maniobra?",
+    "hint_ru": "Перед разворотом главный принцип — не создавать опасности для других. Что нужно проверить относительно других участников движения перед началом манёвра?",
+    "hint_en": "Before making a U-turn, the fundamental principle is not to endanger others. What must you verify about other road users before starting the maneuver?"
   },
   {
     "id": "8a99fb0c-d65f-44d9-acaf-dfd0aecdd9a2",
@@ -637,7 +682,10 @@
         "is_correct": true,
         "position": 3
       }
-    ]
+    ],
+    "hint_es": "La señal indica el final de una restricción anterior. ¿Qué tipos de restricciones de velocidad tienen una señal de fin? ¿La velocidad máxima o la mínima?",
+    "hint_ru": "Знак обозначает конец предыдущего ограничения. Для каких видов ограничений скорости есть знак отмены — для максимальной или для минимальной?",
+    "hint_en": "The sign marks the end of a previous restriction. Which type of speed restriction has an 'end' sign — maximum or minimum speed?"
   },
   {
     "id": "0636d649-c5cb-4d2e-938e-41055bb72fb0",
@@ -677,7 +725,10 @@
         "is_correct": true,
         "position": 3
       }
-    ]
+    ],
+    "hint_es": "Estás en un paso inferior sin salida inmediata. Los postes de socorro están diseñados para estas situaciones. ¿Cuál es la acción más eficaz para pedir ayuda de forma organizada?",
+    "hint_ru": "Ты застрял в тоннеле без возможности быстро выбраться. Аварийные столбики созданы именно для таких случаев. Какое действие позволит эффективно вызвать помощь?",
+    "hint_en": "You're stuck in an underpass with no immediate exit. Emergency posts are designed for these situations. What is the most effective action to get organized help?"
   },
   {
     "id": "aac29d0b-6f72-40f5-845b-08bee7e9e0de",
@@ -717,7 +768,10 @@
         "is_correct": true,
         "position": 3
       }
-    ]
+    ],
+    "hint_es": "Conducir bajo los efectos del alcohol puede tener consecuencias penales, no solo multas. ¿Está tipificado en el Código Penal como un posible delito contra la seguridad vial?",
+    "hint_ru": "Вождение в нетрезвом состоянии может повлечь уголовные последствия, а не только штраф. Предусмотрено ли это Уголовным кодексом как преступление против безопасности дорожного движения?",
+    "hint_en": "Drunk driving can have criminal consequences, not just fines. Is it defined in the Penal Code as a possible offense against road safety?"
   },
   {
     "id": "c8f92dea-63a6-4383-b875-a3629d439e65",
@@ -757,7 +811,10 @@
         "is_correct": true,
         "position": 3
       }
-    ]
+    ],
+    "hint_es": "Las ruedas motrices son las que reciben la potencia del motor. ¿Depende de cuáles sean del diseño específico del vehículo, o siempre son las mismas en todos los coches?",
+    "hint_ru": "Ведущие колёса получают тягу от двигателя. Определяется ли это конкретной конструкцией автомобиля, или у всех машин одинаково?",
+    "hint_en": "Drive wheels receive power from the engine. Does it depend on the specific design of the vehicle, or is it always the same in all cars?"
   },
   {
     "id": "b4bbc53b-ed3d-4bd4-b7e0-81d461c38124",
@@ -797,7 +854,10 @@
         "is_correct": true,
         "position": 3
       }
-    ]
+    ],
+    "hint_es": "Puede sorprenderte. Piensa en dónde pasan la mayor parte del tiempo conduciendo los conductores. ¿Es más tiempo en curvas y cambios de rasante, o en tramos rectos?",
+    "hint_ru": "Ответ может удивить. Подумай, где водители проводят больше всего времени. На поворотах и подъёмах или на прямых участках?",
+    "hint_en": "The answer might surprise you. Think about where drivers spend most of their time. Is it on curves and crests, or on straight stretches?"
   },
   {
     "id": "c3569102-a478-4f85-b48d-55e8e28334b5",
@@ -837,7 +897,10 @@
         "is_correct": false,
         "position": 3
       }
-    ]
+    ],
+    "hint_es": "La dirección asistida progresiva adapta la asistencia según la velocidad del vehículo. A baja velocidad, al aparcar o maniobrar, ¿qué necesita el conductor: más facilidad para girar o más precisión?",
+    "hint_ru": "Прогрессивный усилитель руля адаптирует помощь в зависимости от скорости. При маневрировании на малой скорости водителю нужна лёгкость вращения или точность?",
+    "hint_en": "Progressive power steering adapts assistance based on vehicle speed. At low speed, when parking or maneuvering, does the driver need ease of turning or more precision?"
   },
   {
     "id": "df2decc0-8e2d-48d3-9ff3-be51df4bf60f",
@@ -877,7 +940,10 @@
         "is_correct": true,
         "position": 3
       }
-    ]
+    ],
+    "hint_es": "En una vía interurbana bien iluminada, las luces largas pueden deslumbrar a otros conductores. ¿Qué combinación de luces usa el Reglamento para vías con iluminación suficiente?",
+    "hint_ru": "На хорошо освещённой загородной трассе дальний свет может слепить. Какую комбинацию фар предписывает использовать регламент на достаточно освещённых дорогах?",
+    "hint_en": "On a well-lit interurban road, high beams can blind other drivers. What combination of lights does the regulation prescribe for roads with sufficient lighting?"
   },
   {
     "id": "52283488-1143-4120-85b1-1b3d5e80ae66",
@@ -917,7 +983,10 @@
         "is_correct": false,
         "position": 3
       }
-    ]
+    ],
+    "hint_es": "Un vehículo que ha señalizado no tiene prioridad automática indefinida. ¿En qué circunstancias concretas y con qué aviso previo podrías adelantarle tú?",
+    "hint_ru": "Автомобиль, включивший поворотник, не имеет бессрочного приоритета. При каких конкретных условиях и с каким предупреждением ты можешь его обогнать?",
+    "hint_en": "A vehicle that has signaled doesn't have automatic indefinite priority. Under what specific circumstances and with what prior warning could you overtake it?"
   },
   {
     "id": "4d8ce533-27c7-4cfa-9d80-ab7a1822d5dc",
@@ -957,7 +1026,10 @@
         "is_correct": false,
         "position": 3
       }
-    ]
+    ],
+    "hint_es": "La distancia de detención no depende de un solo elemento. ¿Qué tres factores —relacionados con el conductor, la vía y el vehículo— la determinan?",
+    "hint_ru": "Тормозной путь зависит не от одного элемента. Какие три фактора — связанные с водителем, дорогой и автомобилем — его определяют?",
+    "hint_en": "Stopping distance doesn't depend on just one element. What three factors — related to the driver, the road, and the vehicle — determine it?"
   },
   {
     "id": "5ff25e9e-34da-4398-b769-174b8586dd76",
@@ -997,7 +1069,10 @@
         "is_correct": true,
         "position": 3
       }
-    ]
+    ],
+    "hint_es": "Los carriles reservados para el transporte público tienen restricciones muy claras. ¿Pueden usarse para estacionar aunque sea fuera del horario de servicio del autobús?",
+    "hint_ru": "Полосы для общественного транспорта имеют строгие ограничения. Можно ли парковаться на них вне рабочих часов маршрута?",
+    "hint_en": "Lanes reserved for public transport have very clear restrictions. Can they be used for parking even outside bus service hours?"
   },
   {
     "id": "5bce0c53-427f-4c61-9f9f-81005ee47073",
@@ -1037,7 +1112,10 @@
         "is_correct": true,
         "position": 3
       }
-    ]
+    ],
+    "hint_es": "El buen estado del vehículo es responsabilidad del conductor. ¿Basta con repararlo cuando ya aparece un problema, o la normativa exige también un mantenimiento preventivo según el fabricante?",
+    "hint_ru": "Исправное состояние автомобиля — ответственность водителя. Достаточно ли ремонтировать по мере возникновения проблем, или нормы требуют также профилактического ТО по регламенту производителя?",
+    "hint_en": "Vehicle condition is the driver's responsibility. Is it enough to repair when a problem appears, or do regulations also require preventive maintenance per the manufacturer's schedule?"
   },
   {
     "id": "3f08c8f6-ab43-4375-afbf-c4c400accddc",
@@ -1077,7 +1155,10 @@
         "is_correct": false,
         "position": 3
       }
-    ]
+    ],
+    "hint_es": "Circular a más velocidad de la permitida tiene un nombre técnico y legal concreto. ¿Cómo se denomina oficialmente esta infracción?",
+    "hint_ru": "Движение со скоростью выше разрешённой имеет конкретное юридическое название. Как официально называется это нарушение?",
+    "hint_en": "Driving above the permitted speed has a specific technical and legal name. What is this infraction officially called?"
   },
   {
     "id": "84b51616-415b-45d4-a77a-fe492d28a80e",
@@ -1117,7 +1198,10 @@
         "is_correct": false,
         "position": 3
       }
-    ]
+    ],
+    "hint_es": "Adelantar por la derecha en carretera está generalmente prohibido, pero existe una excepción concreta. Piensa en qué maniobra está a punto de hacer el vehículo de delante.",
+    "hint_ru": "Обгон справа на дороге обычно запрещён, но есть конкретное исключение. Подумай, какой манёвр собирается совершить передняя машина.",
+    "hint_en": "Overtaking on the right is generally prohibited on roads, but there is a specific exception. Think about what maneuver the vehicle ahead is about to make."
   },
   {
     "id": "f3c1d884-6b06-40ec-9596-280b1cfa4f39",
@@ -1157,7 +1241,10 @@
         "is_correct": true,
         "position": 3
       }
-    ]
+    ],
+    "hint_es": "La carga en un vehículo no puede colocarse de cualquier manera. ¿Qué requisitos de seguridad debe cumplir para no comprometer la estabilidad ni tapar señales luminosas?",
+    "hint_ru": "Груз нельзя размещать как попало. Какие требования безопасности он должен выполнять, чтобы не нарушить устойчивость и не закрыть световые сигналы?",
+    "hint_en": "Cargo in a vehicle can't be placed just any way. What safety requirements must it meet to avoid compromising stability or covering light signals?"
   },
   {
     "id": "6c62c447-3274-48ca-a3e4-cbb55a2b7034",
@@ -1197,6 +1284,9 @@
         "is_correct": false,
         "position": 3
       }
-    ]
+    ],
+    "hint_es": "Entre los accesorios que debes llevar en tu turismo, hay uno que aumenta tu visibilidad ante otros conductores si debes salir del vehículo en una emergencia. ¿Cuál es?",
+    "hint_ru": "Среди аксессуаров, обязательных в легковом авто, есть один, который повышает твою заметность для других водителей при выходе из машины в аварийной ситуации. Что это?",
+    "hint_en": "Among the accessories you must carry in your car, there's one that increases your visibility to other drivers if you have to exit in an emergency. What is it?"
   }
 ]

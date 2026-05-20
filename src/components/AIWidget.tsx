@@ -59,6 +59,9 @@ interface AIWidgetProps {
   country?: 'spain' | 'russia';
   questionIndex?: number;
   totalQuestions?: number;
+  hintEs?: string | null;
+  hintRu?: string | null;
+  hintEn?: string | null;
 }
 
 export const AIWidget = (props: AIWidgetProps) => {
@@ -193,6 +196,9 @@ const AIWidgetContent = ({
   country = 'spain',
   questionIndex,
   totalQuestions,
+  hintEs,
+  hintRu,
+  hintEn,
 }: AIWidgetProps) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -404,6 +410,14 @@ const AIWidgetContent = ({
     el.style.height = 'auto';
     el.style.height = `${el.scrollHeight}px`;
   }, [input]);
+
+  const staticHint = interfaceLanguage === 'ru' ? hintRu : interfaceLanguage === 'en' ? hintEn : hintEs;
+  const staticExplanation = interfaceLanguage === 'ru' ? explanationRu : interfaceLanguage === 'en' ? explanationEn : (explanationEs ?? explanation);
+
+  const showStaticResponse = (text: string | null | undefined, label: string) => {
+    if (!text) return;
+    setMessages([{ role: 'user', content: label }, { role: 'assistant', content: text }]);
+  };
 
   const askAI = async (userMessage: string, imageFile?: File) => {
     if (!isPremium && aiLimitReached) {
@@ -697,6 +711,11 @@ ${imageUrl ? `\n⚠️ К вопросу есть иллюстрация — о�
                     text-slate-300 hover:text-white
                     rounded-xl transition-all duration-150 active:scale-[0.97]"
                   onClick={() => {
+                    if (!profileId && staticHint) {
+                      const label = interfaceLanguage === 'ru' ? t('lumiHintButton') : interfaceLanguage === 'en' ? 'Give me a hint' : 'Dame una pista';
+                      showStaticResponse(staticHint, label);
+                      return;
+                    }
                     const hintPrompt = interfaceLanguage === 'ru'
                       ? "Дай мне подсказку к этому вопросу, но не говори правильный ответ напрямую. Помоги мне подумать самостоятельно."
                       : interfaceLanguage === 'en'
@@ -719,6 +738,11 @@ ${imageUrl ? `\n⚠️ К вопросу есть иллюстрация — о�
                     text-slate-300 hover:text-white
                     rounded-xl transition-all duration-150 active:scale-[0.97]"
                   onClick={() => {
+                    if (!profileId && staticExplanation) {
+                      const label = interfaceLanguage === 'ru' ? t('lumiHelpButton') : interfaceLanguage === 'en' ? 'Help me understand this' : 'Ayúdame a entender esto';
+                      showStaticResponse(staticExplanation, label);
+                      return;
+                    }
                     if (explanation) {
                       setMessages([{
                         role: "assistant",

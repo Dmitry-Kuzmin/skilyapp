@@ -100,7 +100,7 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
   // Принудительно держим пейволл в стеке, пока он открыт (даже если перешли к оплате),
   // чтобы GlobalModalManager не разблокировал скролл фона.
   useModalStack("paywall-global-lock", open, "Paywall");
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
   const [paddle, setPaddle] = useState<Paddle | null>(null);
   const paddleLocale = language === 'ru' ? 'ru' : language === 'es' ? 'es' : 'en';
 
@@ -497,9 +497,9 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
               <div className="w-16 h-16 rounded-3xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center mb-6 shadow-[0_0_40px_-10px_rgba(245,158,11,0.3)]">
                 <ShieldCheck className="w-8 h-8 text-amber-400" />
               </div>
-              <h2 className="text-2xl md:text-3xl font-black text-white mb-3 tracking-tight">3 дня без риска</h2>
+              <h2 className="text-2xl md:text-3xl font-black text-white mb-3 tracking-tight">{t('exitTrial.title')}</h2>
               <p className="text-slate-400 mb-8 max-w-sm mx-auto leading-relaxed text-sm md:text-base">
-                Попробуй всё без ограничений. Нужна карта, но спишется только на 4-й день — если передумаешь, отменишь за секунду.
+                {t('exitTrial.subtitle')}
               </p>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8 w-full max-w-md text-left">
@@ -507,25 +507,25 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
                   <div className="w-8 h-8 rounded-lg bg-violet-500/10 flex items-center justify-center shrink-0">
                     <Infinity className="w-4 h-4 text-violet-400" />
                   </div>
-                  <span className="text-sm font-medium text-slate-200">Безлимит тестов</span>
+                  <span className="text-sm font-medium text-slate-200">{t('exitTrial.perk1')}</span>
                 </div>
                 <div className="flex items-center gap-3 bg-white/5 p-3 rounded-xl border border-white/5">
                   <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center shrink-0">
                     <Brain className="w-4 h-4 text-blue-400" />
                   </div>
-                  <span className="text-sm font-medium text-slate-200">AI объясняет каждую ошибку</span>
+                  <span className="text-sm font-medium text-slate-200">{t('exitTrial.perk2')}</span>
                 </div>
                 <div className="flex items-center gap-3 bg-white/5 p-3 rounded-xl border border-white/5">
                   <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center shrink-0">
                     <Zap className="w-4 h-4 text-emerald-400" />
                   </div>
-                  <span className="text-sm font-medium text-slate-200">Мгновенный доступ</span>
+                  <span className="text-sm font-medium text-slate-200">{t('exitTrial.perk3')}</span>
                 </div>
                 <div className="flex items-center gap-3 bg-white/5 p-3 rounded-xl border border-white/5">
                   <div className="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center shrink-0">
                     <ShieldCheck className="w-4 h-4 text-amber-400" />
                   </div>
-                  <span className="text-sm font-medium text-slate-200">Списание только на 4-й день</span>
+                  <span className="text-sm font-medium text-slate-200">{t('exitTrial.perk4')}</span>
                 </div>
               </div>
 
@@ -541,7 +541,7 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
                     }}
                   >
                     <Sparkles className="w-4 h-4 mr-2" />
-                    Зарегистрироваться бесплатно →
+                    {t('exitTrial.cta')}
                   </Button>
                 )}
                 <button
@@ -551,7 +551,7 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
                   }}
                   className="w-full py-3 text-sm font-medium text-slate-500 hover:text-slate-300 transition-colors"
                 >
-                  Нет, спасибо
+                  {t('exitTrial.skip')}
                 </button>
               </div>
             </div>

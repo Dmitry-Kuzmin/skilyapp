@@ -95,6 +95,9 @@ type QuestionData = {
   explanation_ru: string | null;
   explanation_es: string | null;
   explanation_en: string | null;
+  hint_ru?: string | null;
+  hint_es?: string | null;
+  hint_en?: string | null;
   topics: {
     title_ru: string;
     title_es: string;
@@ -1407,6 +1410,9 @@ const TestSession = () => {
                 country={isRussia ? 'russia' : 'spain'}
                 questionIndex={currentIndex}
                 totalQuestions={questionsState.length || questions.length}
+                hintEs={currentQuestion.hint_es}
+                hintRu={currentQuestion.hint_ru}
+                hintEn={currentQuestion.hint_en}
               />
               </Suspense>
             </div>

@@ -2487,5 +2487,15 @@ export const en = {
       duels: "Real-time 1vs1 PvP duels",
       explanations: "AI explanations for every question"
     }
+  },
+  exitTrial: {
+    title: "3 days risk-free",
+    subtitle: "Try everything without limits. A card is required, but you're only charged on day 4 — cancel anytime in seconds.",
+    perk1: "Unlimited tests",
+    perk2: "AI explains every mistake",
+    perk3: "Instant access",
+    perk4: "Charged only on day 4",
+    cta: "Sign up free →",
+    skip: "No, thanks"
   }
 };
