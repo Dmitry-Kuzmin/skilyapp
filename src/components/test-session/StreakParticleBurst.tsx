@@ -105,6 +105,7 @@ const buildParticles = (burst: Burst): ParticleSpec[] => {
 export const StreakParticleBurst = ({ streak, selectedAnswerId }: StreakParticleBurstProps) => {
     const { t } = useLanguage();
     const prevStreakRef = useRef(streak);
+    const milestoneTimerRef = useRef<ReturnType<typeof window.setTimeout> | null>(null);
     const [bursts, setBursts] = useState<Burst[]>([]);
     const [milestone, setMilestone] = useState<{ key: number; data: typeof MILESTONES[number] } | null>(null);
 
@@ -147,20 +148,18 @@ export const StreakParticleBurst = ({ streak, selectedAnswerId }: StreakParticle
             window.dispatchEvent(new CustomEvent("streak-burst-hit", { detail: { streak, tier } }));
         }, 520);
 
-        // Уборка
+        // Уборка частиц
         const cleanupTimer = window.setTimeout(() => {
             setBursts((prevB) => prevB.filter((b) => b.id !== id));
         }, 1100);
 
-        // Milestone-баннер на 3/5/7/10
+        // Milestone-баннер на 3/5/7/10.
+        // Таймер живёт в ref — cleanup effect его НЕ отменяет,
+        // иначе следующий ответ убивал бы таймер и баннер зависал.
         if (MILESTONES[streak]) {
             setMilestone({ key: streak, data: MILESTONES[streak] });
-            const mTimer = window.setTimeout(() => setMilestone(null), 1600);
-            return () => {
-                window.clearTimeout(hitTimer);
-                window.clearTimeout(cleanupTimer);
-                window.clearTimeout(mTimer);
-            };
+            if (milestoneTimerRef.current) window.clearTimeout(milestoneTimerRef.current);
+            milestoneTimerRef.current = window.setTimeout(() => setMilestone(null), 1600);
         }
 
         return () => {
