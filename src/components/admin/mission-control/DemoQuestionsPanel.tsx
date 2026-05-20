@@ -182,7 +182,7 @@ export function DemoQuestionsPanel() {
                 const { data } = await supabase
                     .from('questions_new')
                     .select('id, question_es, question_ru, image_url')
-                    .eq('country', 'spain')
+                    .eq('country', 'es')
                     .or(`question_es.ilike.%${searchQuery}%,question_ru.ilike.%${searchQuery}%`)
                     .limit(12);
                 setSearchResults((data ?? []) as SearchResult[]);
