@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { AlertTriangle, ShieldCheck, ShieldAlert, TrendingUp, Zap, Info, HelpCircle, X, Calendar } from 'lucide-react';
+import { AlertTriangle, ShieldCheck, ShieldAlert, TrendingUp, Zap, Info, HelpCircle, X, Calendar, LogIn, Clock, Award } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -52,6 +52,33 @@ interface LicenseCardProps {
     }>;
     animatePoints?: boolean;
 }
+
+const EVENT_ICONS: Record<string, React.ElementType> = {
+    daily_login: LogIn,
+    inactivity_decay: Clock,
+    exam_pass: Award,
+    exam_fail: AlertTriangle,
+    rehabilitation_pass: Zap,
+};
+
+const getRelativeDate = (dateStr: string, language: string): string => {
+    const date = new Date(dateStr);
+    const now = new Date();
+    now.setHours(0, 0, 0, 0);
+    const d = new Date(date);
+    d.setHours(0, 0, 0, 0);
+    const diff = Math.round((now.getTime() - d.getTime()) / 86400000);
+    const labels: Record<string, [string, string, string]> = {
+        ru: ['Сегодня', 'Вчера', 'дн. назад'],
+        es: ['Hoy', 'Ayer', 'd. atrás'],
+        en: ['Today', 'Yesterday', 'd. ago'],
+    };
+    const [today, yesterday, ago] = labels[language] ?? labels.en;
+    if (diff === 0) return today;
+    if (diff === 1) return yesterday;
+    if (diff < 30) return `${diff} ${ago}`;
+    return date.toLocaleDateString(language === 'ru' ? 'ru-RU' : language === 'es' ? 'es-ES' : 'en-US', { day: 'numeric', month: 'short' });
+};
 
 const T_MAP = {
     es: {
@@ -261,8 +288,10 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
 
     return (
         <div className={cn(
-            "w-full relative group perspective-[2000px]",
-            isPointsModalOpen && isMobile ? "h-auto" : "h-full"
+            "w-full relative group",
+            isPointsModalOpen && isMobile
+                ? "overflow-hidden rounded-3xl"
+                : "perspective-[2000px] h-full"
         )}>
             <input 
                 type="file" 
@@ -359,7 +388,7 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
                                 : "absolute inset-0 flex items-center justify-center p-4 backdrop-blur-xl bg-[#0a0a0f]/95 rounded-[2.5rem]"
                         )}
                     >
-                        {isMobile && <div className="absolute inset-0 bg-[#0a0a0f]/95 backdrop-blur-3xl" />}
+                        {isMobile && <div className="absolute inset-0 rounded-3xl bg-[#0a0a0f] backdrop-blur-3xl" />}
                         <div className="relative z-10 w-full h-full flex flex-col p-4 md:p-6 overflow-hidden">
                             <div className="flex items-center justify-between mb-4 md:mb-6 shrink-0">
                                 <div className="flex items-center gap-3">
@@ -418,29 +447,74 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
                                             </div>
                                         </div>
  
+                                        {/* Journal — Timeline */}
                                         <div className="flex flex-col gap-2">
-                                            <h4 className="text-[8px] md:text-[10px] font-black text-zinc-500 uppercase tracking-widest text-left">{t('licenseCard.pointsModal.journalTitle')}</h4>
-                                            <div className="space-y-1">
-                                                {licenseAudit.length > 0 ? (
-                                                    licenseAudit.slice(0, 10).map((item, idx) => (
-                                                        <div key={idx} className="flex items-center justify-between p-2 rounded-lg bg-white/[0.01] border border-white/[0.03]">
-                                                            <div className="flex flex-col text-left truncate">
-                                                                <span className="text-[9px] font-black text-zinc-300 uppercase truncate tracking-tighter">
-                                                                    {t(`licenseCard.licenceEvents.${item.event_type}`) || item.event_type.replace(/_/g, ' ')}
-                                                                </span>
-                                                                <span className="text-[7px] text-zinc-500 font-bold">
-                                                                    {new Date(item.created_at).toLocaleDateString()}
-                                                                </span>
-                                                            </div>
-                                                            <span className={cn("text-[9px] font-black", item.delta > 0 ? "text-emerald-400" : "text-rose-400")}>
-                                                                {item.delta > 0 ? `+${item.delta}` : item.delta}
-                                                            </span>
-                                                        </div>
-                                                    ))
-                                                ) : (
-                                                    <div className="py-4 text-center text-zinc-600 text-[8px] uppercase font-black tracking-widest">{t('licenseCard.pointsModal.emptyJournal')}</div>
+                                            <div className="flex items-center justify-between">
+                                                <h4 className="text-[8px] md:text-[10px] font-black text-zinc-500 uppercase tracking-widest text-left">
+                                                    {t('licenseCard.pointsModal.journalTitle')}
+                                                </h4>
+                                                {licenseAudit.length > 0 && (
+                                                    <span className="text-[7px] font-bold text-zinc-700 uppercase tracking-wider">
+                                                        {licenseAudit.length}
+                                                    </span>
                                                 )}
                                             </div>
+
+                                            {licenseAudit.length > 0 ? (
+                                                <div className="relative pl-0.5">
+                                                    {/* Vertical connector */}
+                                                    <div className="absolute left-[13px] top-5 bottom-2 w-px bg-gradient-to-b from-white/[0.07] via-white/[0.03] to-transparent pointer-events-none" />
+
+                                                    <div className="flex flex-col">
+                                                        {licenseAudit.slice(0, 10).map((item, idx) => {
+                                                            const EventIcon = EVENT_ICONS[item.event_type] ?? ShieldCheck;
+                                                            const isPositive = item.delta > 0;
+                                                            return (
+                                                                <div key={idx} className="relative flex items-start gap-2.5 py-[5px]">
+                                                                    {/* Icon dot */}
+                                                                    <div className={cn(
+                                                                        "relative z-10 shrink-0 w-[26px] h-[26px] rounded-lg flex items-center justify-center ring-1",
+                                                                        isPositive
+                                                                            ? "bg-emerald-500/10 ring-emerald-500/20"
+                                                                            : "bg-rose-500/10 ring-rose-500/20"
+                                                                    )}>
+                                                                        <EventIcon size={11} className={isPositive ? "text-emerald-400" : "text-rose-400"} />
+                                                                    </div>
+
+                                                                    {/* Content */}
+                                                                    <div className="flex-1 min-w-0 pt-[2px]">
+                                                                        <div className="flex items-center justify-between gap-1">
+                                                                            <span className="text-[8.5px] font-black text-zinc-200 uppercase tracking-tight truncate leading-none">
+                                                                                {t(`licenseCard.licenceEvents.${item.event_type}`) || item.event_type.replace(/_/g, ' ')}
+                                                                            </span>
+                                                                            <span className={cn(
+                                                                                "shrink-0 text-[8px] font-black px-1.5 py-[2px] rounded-md leading-none",
+                                                                                isPositive
+                                                                                    ? "bg-emerald-500/20 text-emerald-400"
+                                                                                    : "bg-rose-500/20 text-rose-400"
+                                                                            )}>
+                                                                                {isPositive ? `+${item.delta}` : item.delta}
+                                                                            </span>
+                                                                        </div>
+                                                                        <span className="text-[6.5px] text-zinc-600 font-bold tracking-wide uppercase">
+                                                                            {getRelativeDate(item.created_at, language)}
+                                                                        </span>
+                                                                    </div>
+                                                                </div>
+                                                            );
+                                                        })}
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <div className="py-5 flex flex-col items-center gap-2">
+                                                    <div className="w-8 h-8 rounded-full bg-white/[0.03] border border-white/[0.05] flex items-center justify-center">
+                                                        <Clock size={14} className="text-zinc-700" />
+                                                    </div>
+                                                    <p className="text-zinc-600 text-[8px] uppercase font-black tracking-widest">
+                                                        {t('licenseCard.pointsModal.emptyJournal')}
+                                                    </p>
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
 
