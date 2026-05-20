@@ -782,9 +782,11 @@ const TestSession = () => {
   const [testLanguage, setTestLanguage] = useState<'es' | 'en' | 'ru'>(() => {
     const params = new URLSearchParams(window.location.search);
     const urlLang = params.get('lang');
-    if (urlLang === 'es' || urlLang === 'en' || urlLang === 'ru') return urlLang;
+    if (urlLang === 'es' || urlLang === 'en') return urlLang;
     const storedLang = localStorage.getItem('test-language') as 'es' | 'en' | 'ru' | null;
-    if (storedLang) return storedLang;
+    // 'ru' is never a native DGT test language — Russian UX is handled via the translation button.
+    // If 'ru' was stored from a previous session, fall through to the default.
+    if (storedLang === 'es' || storedLang === 'en') return storedLang;
     // No stored preference — will be synced with UI language in useEffect below
     return 'es';
   });
@@ -811,10 +813,12 @@ const TestSession = () => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // run once on mount
 
-  // Handler to save language to localStorage when changed
+  // Handler to save language to localStorage when changed.
+  // 'ru' is not saved as a test language for DGT — Russian translation is via showTranslation.
   const handleLanguageChange = (lang: 'es' | 'en' | 'ru') => {
-    setTestLanguage(lang);
-    localStorage.setItem('test-language', lang);
+    const safeLang: 'es' | 'en' | 'ru' = (!shouldUsePDD && lang === 'ru') ? 'es' : lang;
+    setTestLanguage(safeLang);
+    if (safeLang !== 'ru') localStorage.setItem('test-language', safeLang);
   };
 
   const {
