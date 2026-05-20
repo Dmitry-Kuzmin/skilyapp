@@ -598,6 +598,9 @@ const TestSession = () => {
       explanation_ru?: string;
       explanation_es?: string;
       explanation_en?: string;
+      hint_ru?: string | null;
+      hint_es?: string | null;
+      hint_en?: string | null;
       topics?: Array<string | { title_ru: string; title_es: string }>;
       topic_title_ru?: string;
       topic_title_es?: string;
@@ -644,6 +647,9 @@ const TestSession = () => {
       explanation_ru: q.explanation_ru || (q as any).explanation || (q as any).explanation_es || null,
       explanation_es: (q as any).explanation_es || (q as any).explanation || q.explanation_ru || null,
       explanation_en: (q as any).explanation_en || (q as any).explanation || q.explanation_ru || null,
+      hint_ru: q.hint_ru ?? null,
+      hint_es: q.hint_es ?? null,
+      hint_en: q.hint_en ?? null,
       topics: q.topics && q.topics.length > 0
         ? (typeof q.topics[0] === 'string' ? { title_ru: q.topics[0], title_es: q.topics[0] } : q.topics[0])
         : ((q as any).topic_title_ru ? { title_ru: (q as any).topic_title_ru, title_es: (q as any).topic_title_es } : null),
