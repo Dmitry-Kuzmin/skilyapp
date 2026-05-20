@@ -343,7 +343,8 @@ const Tests = () => {
 
   const handleRandomTestStart = () => {
     const count = isGuest ? guestRandomQuestionCount : randomQuestionCount;
-    handleStartTest(`/test/practice?count=${count}${selectedCountry === 'russia' ? '&country=russia' : ''}&category=${selectedCategory}`);
+    const countryParam = selectedCountry === 'russia' ? 'russia' : 'spain';
+    handleStartTest(`/test/practice?count=${count}&country=${countryParam}&category=${selectedCategory}`);
   };
 
   const handleBannerClick = () => {
@@ -373,7 +374,7 @@ const Tests = () => {
         color: "primary",
         premium: false,
         difficulty: localeText("Средняя", "Media", "Medium"),
-        route: `/test/practice?count=${randomQuestionCount}${selectedCountry === 'russia' ? '&country=russia' : ''}&category=${selectedCategory}`,
+        route: `/test/practice?count=${randomQuestionCount}&country=${selectedCountry === 'russia' ? 'russia' : 'spain'}&category=${selectedCategory}`,
         featured: true,
         gradient: "from-blue-600 via-blue-500 to-cyan-500",
       },
@@ -544,7 +545,7 @@ const Tests = () => {
         return {
           ...mode,
           isLocked: false,
-          route: `/test/practice?count=30&category=${selectedCategory}`,
+          route: `/test/practice?count=30&country=${selectedCountry === 'russia' ? 'russia' : 'spain'}&category=${selectedCategory}`,
           description: localeText(
             'Демо тематической тренировки из 30 вопросов. Темы и прогресс откроются после регистрации.',
             'Demo de práctica temática con 30 preguntas. Temas y progreso se desbloquean al registrarte.',
