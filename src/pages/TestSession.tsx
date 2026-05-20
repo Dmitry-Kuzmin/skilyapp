@@ -783,8 +783,9 @@ const TestSession = () => {
     const params = new URLSearchParams(window.location.search);
     const urlLang = params.get('lang');
     if (urlLang === 'es' || urlLang === 'en' || urlLang === 'ru') return urlLang;
-    // DGT questions are always in Spanish by default — translation is opt-in via the translate button.
-    // Russian PDD mode uses effectiveLanguage='ru' regardless of this value.
+    const storedLang = localStorage.getItem('test-language') as 'es' | 'en' | 'ru' | null;
+    if (storedLang) return storedLang;
+    // No stored preference — will be synced with UI language in useEffect below
     return 'es';
   });
 
@@ -792,6 +793,23 @@ const TestSession = () => {
     if (mode === 'blitz') return 'es';
     return (shouldUsePDD || showTranslation) ? 'ru' : testLanguage;
   }, [shouldUsePDD, showTranslation, testLanguage, mode]);
+
+  // Sync test language with UI language on first visit (no stored preference, not PDD mode).
+  // English UI → English questions (DGT exam is officially available in English).
+  // Russian UI → Spanish questions + translation button (Russian is not an official DGT language).
+  // Spanish UI → Spanish questions.
+  useEffect(() => {
+    if (shouldUsePDD) return; // PDD mode always uses Russian
+    const hasStored = !!localStorage.getItem('test-language');
+    if (hasStored) return; // user has an explicit saved preference — respect it
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('lang')) return; // URL param takes priority
+    if (userLanguage === 'en') {
+      setTestLanguage('en');
+    }
+    // 'ru' and 'es' → keep 'es' (translation button handles Russian UX)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // run once on mount
 
   // Handler to save language to localStorage when changed
   const handleLanguageChange = (lang: 'es' | 'en' | 'ru') => {
@@ -1401,7 +1419,7 @@ const TestSession = () => {
                 topic={currentQuestion.topics?.title_es}
                 imageUrl={currentQuestion.image_url}
                 showTranslation={showTranslation}
-                onToggleTranslation={!shouldUsePDD && (testLanguage !== 'es' || userLanguage !== 'es') ? toggleTranslation : undefined}
+                onToggleTranslation={!shouldUsePDD && userLanguage === 'ru' ? toggleTranslation : undefined}
                 testLanguage={effectiveLanguage}
                 country={isRussia ? 'russia' : 'spain'}
                 questionIndex={currentIndex}
@@ -1458,7 +1476,7 @@ const TestSession = () => {
           isQuestionBookmarked={isQuestionBookmarked}
           bookmarkLoading={bookmarkLoading}
           profileId={profileId || ""}
-          toggleTranslation={!shouldUsePDD && (testLanguage !== 'es' || userLanguage !== 'es') ? toggleTranslation : undefined}
+          toggleTranslation={!shouldUsePDD && userLanguage === 'ru' ? toggleTranslation : undefined}
           showTranslation={showTranslation}
           masteryRound={masteryRound}
           onReportProblem={() => setShowReportModal(true)}
@@ -1573,7 +1591,7 @@ const TestSession = () => {
                 mode={mode}
                 testLanguage={effectiveLanguage}
                 showTranslation={showTranslation}
-                toggleTranslation={!shouldUsePDD && (testLanguage !== 'es' || userLanguage !== 'es') ? toggleTranslation : undefined}
+                toggleTranslation={!shouldUsePDD && userLanguage === 'ru' ? toggleTranslation : undefined}
                 answerPopularity={answerPopularity || false}
                 selectOption={selectOption}
                 handleAnswer={handleAnswer}
