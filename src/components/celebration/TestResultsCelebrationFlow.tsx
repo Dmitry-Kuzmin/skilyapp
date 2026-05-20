@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef, useContext, lazy, Suspense } 
 import { motion, AnimatePresence } from 'framer-motion';
 import Confetti from 'react-confetti';
 import { cn } from '@/lib/utils';
+import { useModalStore } from '@/store/modalStore';
 import {
   playCelebrationSoundFanfare,
   playCelebrationSoundPop,
@@ -65,6 +66,7 @@ export interface CelebrationData {
   failedTopics: string[];  // topic titles of wrong answers
   leveledUp: boolean;
   rankChange?: RankChange;
+  isGuest?: boolean;       // show guest registration CTA instead of SP/XP slides
 }
 
 interface Props {
@@ -157,7 +159,7 @@ function fmtTime(s: number) {
 
 // ─── Slide backgrounds & sounds ──────────────────────────────────────────────
 
-type SlideId = 'result' | 'sp' | 'personal_best' | 'xp' | 'exam_readiness' | 'topics' | 'cta';
+type SlideId = 'result' | 'sp' | 'personal_best' | 'xp' | 'exam_readiness' | 'topics' | 'cta' | 'guest_cta';
 
 const SLIDE_STYLES: Record<SlideId, { bg: string; glow: string; sparkle: string }> = {
   result:          { bg: 'from-[#050505] via-[#0a0a0c] to-[#050505]', glow: '', sparkle: 'transparent' },
@@ -167,6 +169,7 @@ const SLIDE_STYLES: Record<SlideId, { bg: string; glow: string; sparkle: string 
   exam_readiness:  { bg: 'from-zinc-950 via-cyan-950/40 to-zinc-950',  glow: 'bg-cyan-500/20',   sparkle: '#06b6d4' },
   topics:          { bg: 'from-zinc-950 via-orange-950/40 to-zinc-950', glow: 'bg-orange-500/15', sparkle: '#fb923c' },
   cta:             { bg: 'from-zinc-950 via-violet-950/40 to-zinc-950', glow: 'bg-violet-500/15', sparkle: '#a78bfa' },
+  guest_cta:       { bg: 'from-zinc-950 via-blue-950/40 to-zinc-950',  glow: 'bg-blue-500/15',   sparkle: '#60a5fa' },
 };
 
 // ─── Individual slides ───────────────────────────────────────────────────────
@@ -1009,6 +1012,109 @@ function SlideCTA({ data, onRetry, onDetails, todayTestCount }: { data: Celebrat
   );
 }
 
+// ─── Guest CTA slide ─────────────────────────────────────────────────────────
+
+function SlideGuestCTA({ data, onSkip }: { data: CelebrationData; onSkip: () => void }) {
+  const { t, language } = useLanguage();
+  const openModal = useModalStore((s) => s.openModal);
+
+  const perks = [
+    { icon: '🧠', text: language === 'ru' ? 'AI-план по твоим слабым темам' : language === 'en' ? 'AI plan for your weak topics' : 'Plan IA con tus puntos débiles' },
+    { icon: '💾', text: language === 'ru' ? 'Сохрани результаты и прогресс' : language === 'en' ? 'Save your results & progress' : 'Guarda tus resultados y progreso' },
+    { icon: '⚔️', text: language === 'ru' ? 'PvP дуэли в реальном времени' : language === 'en' ? 'PvP duels in real time' : 'Duelos PvP 1vs1 en tiempo real' },
+  ];
+
+  const handleRegister = () => {
+    localStorage.setItem('skily_demo_coins_pending', '100');
+    openModal('AUTH', { initialStep: 'email' });
+  };
+
+  return (
+    <div className="flex flex-col items-center justify-center h-full gap-6 px-6 text-center">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.92, y: 24 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        transition={{ type: 'spring', stiffness: 260, damping: 22 }}
+        className="relative w-full max-w-sm rounded-[2.5rem] bg-white/[0.03] border border-white/10 backdrop-blur-2xl shadow-[0_32px_64px_-16px_rgba(0,0,0,0.5)] overflow-hidden"
+      >
+        {/* Subtle gradient top accent */}
+        <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-blue-500 via-violet-500 to-blue-500 opacity-80" />
+
+        <div className="px-8 pt-9 pb-8 flex flex-col items-center gap-6">
+
+          {/* Score recap pill */}
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.15 }}
+            className={cn(
+              'px-5 py-2 rounded-full text-sm font-black tracking-wide border',
+              data.isPassed
+                ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
+                : 'bg-rose-500/10 border-rose-500/30 text-rose-400',
+            )}
+          >
+            {data.correctCount}/{data.totalQuestions} {language === 'ru' ? 'верных' : language === 'en' ? 'correct' : 'correctas'}
+            {' · '}
+            {data.isPassed
+              ? (language === 'ru' ? '✓ Сдал' : language === 'en' ? '✓ Passed' : '✓ Aprobado')
+              : (language === 'ru' ? '✗ Не сдал' : language === 'en' ? '✗ Failed' : '✗ Suspendido')}
+          </motion.div>
+
+          {/* Headline */}
+          <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }} className="flex flex-col gap-2">
+            <h2 className="text-3xl font-black text-white tracking-tight leading-tight">
+              {language === 'ru' ? 'Зарегистрируйся — получи +100 монет' : language === 'en' ? 'Sign up & get +100 coins' : 'Regístrate y llévate +100 monedas'}
+            </h2>
+            <p className="text-white/40 text-sm font-medium leading-relaxed">
+              {language === 'ru' ? 'Сохрани свой результат и начни готовиться по умному' : language === 'en' ? 'Save your result and study smarter' : 'Guarda tu resultado y prepárate de forma inteligente'}
+            </p>
+          </motion.div>
+
+          {/* Perks list */}
+          <motion.ul
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.38 }}
+            className="w-full space-y-2.5"
+          >
+            {perks.map((p) => (
+              <li key={p.text} className="flex items-center gap-3 text-sm text-white/70 text-left">
+                <span className="text-lg leading-none shrink-0">{p.icon}</span>
+                <span>{p.text}</span>
+              </li>
+            ))}
+          </motion.ul>
+
+          {/* CTA buttons */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+            className="w-full flex flex-col gap-3 mt-1"
+          >
+            <button
+              onClick={handleRegister}
+              className="w-full py-5 rounded-[1.75rem] bg-blue-500 hover:bg-blue-400 text-white font-black text-base tracking-wide active:scale-95 transition-all shadow-[0_16px_32px_-8px_rgba(59,130,246,0.45)] flex items-center justify-center gap-2"
+            >
+              <span>🎉</span>
+              <span>{language === 'ru' ? 'Зарегистрироваться бесплатно' : language === 'en' ? 'Sign up for free' : 'Registrarme gratis'}</span>
+            </button>
+
+            <button
+              onClick={onSkip}
+              className="w-full py-3 rounded-[1.25rem] text-white/35 font-medium text-sm hover:text-white/55 transition-colors"
+            >
+              {language === 'ru' ? 'Посмотреть результаты →' : language === 'en' ? 'View results →' : 'Ver resultados →'}
+            </button>
+          </motion.div>
+
+        </div>
+      </motion.div>
+    </div>
+  );
+}
+
 // ─── Main component ───────────────────────────────────────────────────────────
 
 const SLIDE_SOUNDS: Record<SlideId, () => void> = {
@@ -1019,6 +1125,7 @@ const SLIDE_SOUNDS: Record<SlideId, () => void> = {
   exam_readiness:  playSuccessSound,
   topics:          () => {},
   cta:             () => {},
+  guest_cta:       playCelebrationSoundPop,
 };
 
 export function TestResultsCelebrationFlow({ data, onFinish, onRetry }: Props) {
@@ -1038,15 +1145,21 @@ export function TestResultsCelebrationFlow({ data, onFinish, onRetry }: Props) {
   const [examReadinessData, setExamReadinessData] = useState<{ before: number; after: number } | null>(null);
   const soundFiredRef = useRef<Set<SlideId>>(new Set());
 
-  const slides: SlideId[] = [
-    'result',
-    'sp',
-    ...(data.testId ? ['personal_best' as SlideId] : []),
-    'xp',
-    ...(examReadinessData ? ['exam_readiness' as SlideId] : []),
-    ...(data.failedTopics.length > 0 ? ['topics' as SlideId] : []),
-    'cta',
-  ];
+  const slides: SlideId[] = data.isGuest
+    ? [
+        'result',
+        ...(data.failedTopics.length > 0 ? ['topics' as SlideId] : []),
+        'guest_cta',
+      ]
+    : [
+        'result',
+        'sp',
+        ...(data.testId ? ['personal_best' as SlideId] : []),
+        'xp',
+        ...(examReadinessData ? ['exam_readiness' as SlideId] : []),
+        ...(data.failedTopics.length > 0 ? ['topics' as SlideId] : []),
+        'cta',
+      ];
 
   const handleDone = () => {
     onFinish();
@@ -1241,14 +1354,15 @@ export function TestResultsCelebrationFlow({ data, onFinish, onRetry }: Props) {
             {slideId === 'exam_readiness' && examReadinessData && (
               <SlideExamReadiness before={examReadinessData.before} after={examReadinessData.after} />
             )}
-            {slideId === 'topics' && <SlideTopics topics={data.failedTopics} onPractice={handleDone} />}
-            {slideId === 'cta'    && <SlideCTA data={data} onRetry={handleRetry} onDetails={handleDone} todayTestCount={todayTestCount} />}
+            {slideId === 'topics'     && <SlideTopics topics={data.failedTopics} onPractice={handleDone} />}
+            {slideId === 'cta'        && <SlideCTA data={data} onRetry={handleRetry} onDetails={handleDone} todayTestCount={todayTestCount} />}
+            {slideId === 'guest_cta'  && <SlideGuestCTA data={data} onSkip={handleDone} />}
           </div>
         </motion.div>
       </AnimatePresence>
 
       {/* Bottom CTA — wide, mobile-friendly, safe-area-aware */}
-      {slideId !== 'cta' && (
+      {slideId !== 'cta' && slideId !== 'guest_cta' && (
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}

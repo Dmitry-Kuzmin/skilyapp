@@ -646,6 +646,33 @@ const TestResults = () => {
     );
   }
 
+  // Show simplified celebration for guests (result → topics → register CTA)
+  if (!celebrationDone && isGuest && totalQuestions > 0) {
+    const guestCelebrationData: CelebrationData = {
+      score: Math.round((correctCount / totalQuestions) * 100),
+      correctCount,
+      totalQuestions,
+      timeSeconds: timeSpent,
+      spAwarded: 0,
+      xpAwarded: 0,
+      currentSP: 0,
+      currentLevel: 1,
+      isPassed: passed,
+      mode,
+      testId: undefined,
+      failedTopics,
+      leveledUp: false,
+      isGuest: true,
+    };
+    return (
+      <TestResultsCelebrationFlow
+        data={guestCelebrationData}
+        onFinish={() => setCelebrationDone(true)}
+        onRetry={handleRetry}
+      />
+    );
+  }
+
   return (
     <Layout>
       {showConfetti && <Confetti width={window.innerWidth} height={window.innerHeight} recycle={false} numberOfPieces={200} gravity={0.3} />}
