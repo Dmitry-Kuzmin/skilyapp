@@ -87,10 +87,27 @@ export const useTestDataLoader = ({
 }: UseTestDataLoaderProps): UseTestDataLoaderResult => {
     const isGuestMode = !profileId;
 
-    // Static guest questions — no DB query, shuffle once per mount
-    const guestQuestions = useMemo(() =>
-        isGuestMode ? [...guestQuestionsRaw].sort(() => Math.random() - 0.5) : [],
-    [isGuestMode]);
+    // Guest questions — fetch from app_config (admin-managed), fallback to static JSON
+    const { data: guestQuestionsDB } = useQuery({
+        queryKey: ['demo-questions'],
+        queryFn: async () => {
+            const { data } = await supabase
+                .from('app_config')
+                .select('value')
+                .eq('key', 'demo_questions')
+                .single();
+            return (data?.value as any[] | null) ?? null;
+        },
+        enabled: isGuestMode,
+        staleTime: 24 * 60 * 60 * 1000,
+        gcTime: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    const guestQuestions = useMemo(() => {
+        if (!isGuestMode) return [];
+        const source = guestQuestionsDB ?? (guestQuestionsRaw as any[]);
+        return [...source].sort(() => Math.random() - 0.5);
+    }, [isGuestMode, guestQuestionsDB]);
 
     // Sequential test questions
     const sequentialQuestions = useSequentialTestQuestions(

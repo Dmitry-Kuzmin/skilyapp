@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
-    Download, Trash2, Plus, Save, Search, RefreshCw,
+    Cloud, Trash2, Plus, Save, RefreshCw,
     Image as ImageIcon, Check, X, GripVertical, Loader2
 } from "lucide-react";
 import { toast } from "sonner";
@@ -52,17 +52,27 @@ type SearchResult = {
 
 // ── Persistence ───────────────────────────────────────────────────────────────
 
-const STORAGE_KEY = 'skily_demo_config';
+const DB_KEY = 'demo_questions';
 
-function loadFromStorage(): DemoQuestion[] | null {
-    try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        return raw ? JSON.parse(raw) : null;
-    } catch { return null; }
+async function loadFromDB(): Promise<DemoQuestion[] | null> {
+    const supabase = await getSupabaseClient();
+    const { data } = await supabase
+        .from('app_config')
+        .select('value')
+        .eq('key', DB_KEY)
+        .single();
+    if (!data?.value) return null;
+    try { return data.value as DemoQuestion[]; } catch { return null; }
 }
 
-function saveToStorage(qs: DemoQuestion[]) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(qs));
+async function saveToDB(qs: DemoQuestion[]): Promise<void> {
+    const supabase = await getSupabaseClient();
+    await supabase.from('app_config').upsert({
+        key: DB_KEY,
+        value: qs as any,
+        description: 'Demo/guest questions shown to non-authenticated users',
+        updated_at: new Date().toISOString(),
+    }, { onConflict: 'key' });
 }
 
 // ── Normalize raw JSON → DemoQuestion ─────────────────────────────────────────
@@ -131,25 +141,13 @@ async function fetchQuestion(id: string): Promise<DemoQuestion | null> {
     };
 }
 
-// ── Export helper ─────────────────────────────────────────────────────────────
-
-function exportJSON(questions: DemoQuestion[]) {
-    const blob = new Blob([JSON.stringify(questions, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'guest-questions.json';
-    a.click();
-    URL.revokeObjectURL(url);
-}
-
 // ── Main component ────────────────────────────────────────────────────────────
 
 export function DemoQuestionsPanel() {
-    const [questions, setQuestions] = useState<DemoQuestion[]>(() => {
-        return loadFromStorage() ?? (guestQuestionsRaw as any[]).map(normalizeRaw);
-    });
-    const [selectedId, setSelectedId] = useState<string | null>(questions[0]?.id ?? null);
+    const [questions, setQuestions] = useState<DemoQuestion[]>((guestQuestionsRaw as any[]).map(normalizeRaw));
+    const [dbLoading, setDbLoading] = useState(true);
+    const [saving, setSaving] = useState(false);
+    const [selectedId, setSelectedId] = useState<string | null>(null);
     const [searchOpen, setSearchOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
@@ -158,6 +156,16 @@ export function DemoQuestionsPanel() {
     const [hintDraft, setHintDraft] = useState({ es: '', ru: '', en: '' });
     const [hintSaved, setHintSaved] = useState(false);
     const dragIdx = useRef<number | null>(null);
+
+    // Load from DB on mount
+    useEffect(() => {
+        loadFromDB().then(dbData => {
+            const initial = dbData ?? (guestQuestionsRaw as any[]).map(normalizeRaw);
+            setQuestions(initial);
+            setSelectedId(initial[0]?.id ?? null);
+            setDbLoading(false);
+        });
+    }, []);
 
     const selectedQ = questions.find(q => q.id === selectedId) ?? null;
 
@@ -192,25 +200,25 @@ export function DemoQuestionsPanel() {
         return () => clearTimeout(timer);
     }, [searchQuery]);
 
-    const saveHints = useCallback(() => {
-        setQuestions(prev => {
-            const updated = prev.map(q =>
-                q.id === selectedId
-                    ? { ...q, hint_es: hintDraft.es || null, hint_ru: hintDraft.ru || null, hint_en: hintDraft.en || null }
-                    : q
-            );
-            saveToStorage(updated);
-            return updated;
-        });
+    const saveHints = useCallback(async () => {
+        setSaving(true);
+        const updated = questions.map(q =>
+            q.id === selectedId
+                ? { ...q, hint_es: hintDraft.es || null, hint_ru: hintDraft.ru || null, hint_en: hintDraft.en || null }
+                : q
+        );
+        setQuestions(updated);
+        await saveToDB(updated);
+        setSaving(false);
         setHintSaved(true);
         setTimeout(() => setHintSaved(false), 1500);
-        toast.success('Подсказки сохранены');
-    }, [selectedId, hintDraft]);
+        toast.success('Сохранено в облако — гости увидят сразу');
+    }, [selectedId, hintDraft, questions]);
 
     const removeQuestion = useCallback((id: string) => {
         setQuestions(prev => {
             const updated = prev.filter(q => q.id !== id);
-            saveToStorage(updated);
+            saveToDB(updated);
             if (selectedId === id) setSelectedId(updated[0]?.id ?? null);
             return updated;
         });
@@ -233,7 +241,7 @@ export function DemoQuestionsPanel() {
         if (!q) { toast.error('Не удалось загрузить вопрос'); return; }
         setQuestions(prev => {
             const updated = [...prev, q];
-            saveToStorage(updated);
+            saveToDB(updated);
             return updated;
         });
         setSelectedId(id);
@@ -242,12 +250,14 @@ export function DemoQuestionsPanel() {
         toast.success('Вопрос добавлен в демо');
     }, [questions]);
 
-    const resetToOriginal = useCallback(() => {
+    const resetToOriginal = useCallback(async () => {
         const original = (guestQuestionsRaw as any[]).map(normalizeRaw);
         setQuestions(original);
-        saveToStorage(original);
         setSelectedId(original[0]?.id ?? null);
-        toast.success('Восстановлен оригинальный список');
+        setSaving(true);
+        await saveToDB(original);
+        setSaving(false);
+        toast.success('Восстановлен оригинальный список и опубликован');
     }, []);
 
     // Drag-and-drop reorder
@@ -258,7 +268,7 @@ export function DemoQuestionsPanel() {
             const updated = [...prev];
             const [moved] = updated.splice(dragIdx.current!, 1);
             updated.splice(idx, 0, moved);
-            saveToStorage(updated);
+            saveToDB(updated);
             return updated;
         });
         dragIdx.current = null;
@@ -344,15 +354,21 @@ export function DemoQuestionsPanel() {
                     </div>
                 </ScrollArea>
 
-                {/* Export */}
+                {/* Publish */}
                 <div className="p-3 border-t border-zinc-800">
                     <Button
-                        className="w-full h-8 text-xs gap-2 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/20"
+                        className="w-full h-8 text-xs gap-2 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 disabled:opacity-50"
                         variant="ghost"
-                        onClick={() => { exportJSON(questions); toast.success('guest-questions.json скачан'); }}
+                        disabled={saving || dbLoading}
+                        onClick={async () => {
+                            setSaving(true);
+                            await saveToDB(questions);
+                            setSaving(false);
+                            toast.success('Опубликовано — гости увидят новые вопросы сразу');
+                        }}
                     >
-                        <Download className="w-3.5 h-3.5" />
-                        Скачать guest-questions.json
+                        {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Cloud className="w-3.5 h-3.5" />}
+                        {saving ? 'Сохраняю...' : 'Опубликовать изменения'}
                     </Button>
                 </div>
             </div>
