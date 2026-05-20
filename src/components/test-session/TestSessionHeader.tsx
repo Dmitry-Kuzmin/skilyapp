@@ -215,31 +215,29 @@ export const TestSessionHeader = ({
                         </>
                     }
                     SettingsMenuComponent={
-                        showTestSettings ? (
-                            <Suspense fallback={null}>
-                                <TestSettingsMenu
-                                    open={showTestSettings}
-                                    onOpenChange={setShowTestSettings}
-                                    voiceOver={voiceOver}
-                                    onVoiceOverChange={setVoiceOver}
-                                    answerPopularity={answerPopularity}
-                                    onAnswerPopularityChange={setAnswerPopularity}
-                                    ambientMusic={ambientMusic}
-                                    onAmbientMusicChange={setAmbientMusic}
-                                    selectedMusicTrack={selectedMusicTrack}
-                                    onMusicTrackChange={(track: string | null) => setSelectedMusicTrack(track)}
-                                    fontSize={fontSize}
-                                    onFontSizeChange={setFontSize}
-                                    language={testLanguage as any}
-                                    onLanguageChange={(lang: any) => setTestLanguage(lang)}
-                                    hideLanguageSelector={mode === 'pdd-ticket' || mode === 'exam-russia'}
-                                    smartVocabulary={smartVocabularyEnabled}
-                                    onSmartVocabularyChange={(val) => setSettings({ smartVocabularyEnabled: val })}
-                                    autoExplain={autoExplainEnabled}
-                                    onAutoExplainChange={toggleAutoExplain}
-                                />
-                            </Suspense>
-                        ) : null
+                        <Suspense fallback={null}>
+                            <TestSettingsMenu
+                                open={showTestSettings}
+                                onOpenChange={setShowTestSettings}
+                                voiceOver={voiceOver}
+                                onVoiceOverChange={setVoiceOver}
+                                answerPopularity={answerPopularity}
+                                onAnswerPopularityChange={setAnswerPopularity}
+                                ambientMusic={ambientMusic}
+                                onAmbientMusicChange={setAmbientMusic}
+                                selectedMusicTrack={selectedMusicTrack}
+                                onMusicTrackChange={(track: string | null) => setSelectedMusicTrack(track)}
+                                fontSize={fontSize}
+                                onFontSizeChange={setFontSize}
+                                language={testLanguage as any}
+                                onLanguageChange={(lang: any) => setTestLanguage(lang)}
+                                hideLanguageSelector={mode === 'pdd-ticket' || mode === 'exam-russia'}
+                                smartVocabulary={smartVocabularyEnabled}
+                                onSmartVocabularyChange={(val) => setSettings({ smartVocabularyEnabled: val })}
+                                autoExplain={autoExplainEnabled}
+                                onAutoExplainChange={toggleAutoExplain}
+                            />
+                        </Suspense>
                     }
                 />
             )}
