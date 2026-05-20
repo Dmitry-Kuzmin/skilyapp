@@ -342,7 +342,7 @@ const Tests = () => {
   };
 
   const handleRandomTestStart = () => {
-    const count = isGuest ? guestRandomQuestionCount : randomQuestionCount;
+    const count = randomQuestionCount; // TestSession caps at 30 for guests already
     const countryParam = selectedCountry === 'russia' ? 'russia' : 'spain';
     handleStartTest(`/test/practice?count=${count}&country=${countryParam}&category=${selectedCategory}`);
   };

@@ -504,6 +504,11 @@ export const useTestDataLoader = ({
         ticketNumber,
         redemptionQuestions,
         smartTestQuestions,
+        favoritesQuestions,
+        questionCount,
+        guestQuestions,
+        isGuestMode,
+        pddCountry,
     ]);
 
     return result;
