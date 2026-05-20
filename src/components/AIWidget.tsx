@@ -36,10 +36,81 @@ type PendingAttachment = {
   previewUrl?: string;
 };
 
+const GUEST_CTA = '__GUEST_CTA__';
+
 type Message = {
   role: "user" | "assistant";
   content: string;
 };
+
+const GUEST_CTA_TEXT = {
+  ru: {
+    title: 'Зарегистрируйся бесплатно',
+    sub: 'Получи полный доступ к AI-учителю, объяснениям к каждому вопросу и всем возможностям платформы.',
+    cta: '🚀 Создать аккаунт бесплатно →',
+  },
+  es: {
+    title: 'Regístrate gratis',
+    sub: 'Obtén acceso completo al tutor de IA, explicaciones para cada pregunta y todas las funciones de la plataforma.',
+    cta: '🚀 Crear cuenta gratis →',
+  },
+  en: {
+    title: 'Register for free',
+    sub: 'Get full access to the AI tutor, explanations for every question, and all platform features.',
+    cta: '🚀 Create free account →',
+  },
+};
+
+function GuestCTAMessage({ lang, onRegister }: { lang: 'ru' | 'es' | 'en'; onRegister: () => void }) {
+  const txt = GUEST_CTA_TEXT[lang] || GUEST_CTA_TEXT.en;
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 6, scale: 0.97 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      transition={{ duration: 0.3, ease: 'easeOut' }}
+      className="max-w-[92%]"
+    >
+      {/* Animated glow border wrapper */}
+      <motion.div
+        animate={{
+          boxShadow: [
+            '0 0 0px 0px rgba(251,191,36,0)',
+            '0 0 22px 4px rgba(251,191,36,0.45)',
+            '0 0 0px 0px rgba(251,191,36,0)',
+          ],
+        }}
+        transition={{ duration: 2.6, repeat: Infinity, ease: 'easeInOut' }}
+        className="rounded-2xl rounded-tl-none p-[1.5px] bg-gradient-to-br from-amber-400/60 via-yellow-300/30 to-orange-500/50"
+      >
+        <div className="rounded-[14px] rounded-tl-none bg-gradient-to-br from-[#1a1400] via-[#0d1526] to-[#1a0d00] px-4 py-3.5">
+          {/* Icon + title */}
+          <div className="flex items-center gap-2 mb-1.5">
+            <span className="text-lg">✨</span>
+            <p className="text-[11px] xl:text-xs font-black text-amber-300 leading-tight tracking-wide uppercase">
+              {txt.title}
+            </p>
+          </div>
+          {/* Body */}
+          <p className="text-[10px] xl:text-[11px] text-amber-100/70 leading-relaxed mb-3">
+            {txt.sub}
+          </p>
+          {/* CTA button */}
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.97 }}
+            onClick={onRegister}
+            className="w-full py-2 rounded-xl text-[10px] xl:text-[11px] font-black
+              bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-400
+              text-amber-950 shadow-[0_4px_16px_rgba(251,191,36,0.35)]
+              hover:shadow-[0_6px_24px_rgba(251,191,36,0.55)] transition-shadow"
+          >
+            {txt.cta}
+          </motion.button>
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+}
 
 interface AIWidgetProps {
   id?: string | null;
@@ -420,6 +491,14 @@ const AIWidgetContent = ({
   };
 
   const askAI = async (userMessage: string, imageFile?: File) => {
+    if (!profileId) {
+      setMessages(prev => [
+        ...prev,
+        { role: 'user', content: userMessage },
+        { role: 'assistant', content: GUEST_CTA },
+      ]);
+      return;
+    }
     if (!isPremium && aiLimitReached) {
       setLimitData({ currentCount: aiUsed, limit: 5, message: '' });
       setLimitModalOpen(true);
@@ -776,7 +855,12 @@ ${imageUrl ? `\n⚠️ К вопросу есть иллюстрация — о�
                 {message.role === "assistant" && (
                   <div className="animate-in fade-in slide-in-from-left-2 duration-300">
                     <div className="min-w-0">
-                      {message.content ? (
+                      {message.content === GUEST_CTA ? (
+                        <GuestCTAMessage
+                          lang={interfaceLanguage}
+                          onRegister={() => openModal('AUTH', { initialStep: 'email' })}
+                        />
+                      ) : message.content ? (
                         <div className={cn(
                           "max-w-[90%] p-4 rounded-2xl rounded-tl-none text-xs xl:text-sm leading-relaxed transition-all",
                           "bg-white dark:bg-slate-800/90 backdrop-blur-md border border-indigo-100/30 dark:border-white/5 shadow-[0_8px_30px_rgba(0,0,0,0.04)] dark:shadow-black/20"
