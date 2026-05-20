@@ -102,6 +102,7 @@ export const AnswerButton = memo(function AnswerButton({
         <button
             onClick={onClick}
             disabled={disabled}
+            data-answer-id={option.id}
             className={cn(
                 // Swiss Design - refined padding
                 "group w-full text-left py-3.5 px-4 sm:py-4 sm:px-5",

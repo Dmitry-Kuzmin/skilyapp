@@ -1,0 +1,1584 @@
+[
+  {
+    "topic_number": 1,
+    "question_number": 1,
+    "category": "B",
+    "question": {
+      "es": "¿Qué es el sistema ADAS conocido con las siglas \"AEB\"?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Un sistema avanzado de frenado de emergencia",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Un sistema antibloqueo de frenos electrónico avanzado",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Un sistema que retiene el vehículo en bajadas pronunciadas",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/teo/frontend/img/test-practicavial-default.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/d1e581e8-eda8-4e3c-ad3d-dbc4c5139ec4-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ]
+  },
+  {
+    "topic_number": 1,
+    "question_number": 2,
+    "category": "B",
+    "question": {
+      "es": "En caso de venta de un vehículo, ¿quién tiene que notificarlo a la Jefatura de Tráfico correspondiente?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Tanto el comprador como el vendedor en el plazo más breve posible.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "El comprador, en un plazo máximo de 15 días.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "El vendedor, en el plazo de 10 días.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/cd46749f-0197-4ae7-8891-3882ab302771-0000000000-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/cd46749f-0197-4ae7-8891-3882ab302771-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "cd46749f-0197-4ae7-8891-3882ab302771",
+    "id": "cd46749f-0197-4ae7-8891-3882ab302771"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 3,
+    "category": "B",
+    "question": {
+      "es": "¿Es recomendable la utilización de los reposacabezas en todos los asientos de un turismo?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No, es un elemento que puede ser perjudicial para la seguridad de los ocupantes.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, puede evitar lesiones graves en la zona cervical.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No, al ser un elemento decorativo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/6742ad3d-5d36-443b-8c67-1cf30011c822-1658997977-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/6742ad3d-5d36-443b-8c67-1cf30011c822-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "6742ad3d-5d36-443b-8c67-1cf30011c822",
+    "id": "6742ad3d-5d36-443b-8c67-1cf30011c822"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 4,
+    "category": "B",
+    "question": {
+      "es": "¿Qué sistema ADAS emite una alerta si detecta una frenada brusca del vehículo delante?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Control de velocidad adaptativo (ISA)",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sistema de frenado de emergencia (EBA)",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Aviso de frenada de emergencia (EBD)",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/a782830d-02ba-4f83-a9bf-e6c1bc911c1e-1734536576-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/a782830d-02ba-4f83-a9bf-e6c1bc911c1e-s-1.jpg?t=1768470323",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "a782830d-02ba-4f83-a9bf-e6c1bc911c1e",
+    "id": "a782830d-02ba-4f83-a9bf-e6c1bc911c1e"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 5,
+    "category": "B",
+    "question": {
+      "es": "Debe buscar la ruta en el navegador GPS…",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Cuando el navegador le lleve por una zona desconocida.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Antes de iniciar la marcha.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Deteniéndose donde sea necesario.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/a449e4a3-1bd2-463d-a24a-08b1abcbe6e2-1659335548-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/a449e4a3-1bd2-463d-a24a-08b1abcbe6e2-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "a449e4a3-1bd2-463d-a24a-08b1abcbe6e2",
+    "id": "a449e4a3-1bd2-463d-a24a-08b1abcbe6e2"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 6,
+    "category": "B",
+    "question": {
+      "es": "Con la lluvia se forma una capa de agua que crea un mayor peligro por...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "no se crea ningún peligro porque el agua refrigera los neumáticos y frenan mejor.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "la posible falta de adherencia de los neumáticos al pavimento.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "el calentamiento de los frenos al mojarse.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/ccd871d3-bce9-4838-895e-96b3e14c0d8a-1658943753-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/ccd871d3-bce9-4838-895e-96b3e14c0d8a-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "ccd871d3-bce9-4838-895e-96b3e14c0d8a",
+    "id": "ccd871d3-bce9-4838-895e-96b3e14c0d8a"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 7,
+    "category": "B",
+    "question": {
+      "es": "Si a través del espejo retrovisor observa al vehículo policial que se ve en la fotografía, ¿qué debe hacer?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Aumentar la velocidad, ya que me está indicando que voy despacio.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Detener el vehículo en el lado derecho, delante del vehículo policial, sin provocar riesgos a los demás usuarios.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Detener el vehículo inmediatamente.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/29e8afac-ba96-4189-91e9-c195893e9202-1761025413-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/29e8afac-ba96-4189-91e9-c195893e9202-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "29e8afac-ba96-4189-91e9-c195893e9202",
+    "id": "29e8afac-ba96-4189-91e9-c195893e9202"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 8,
+    "category": "B",
+    "question": {
+      "es": "¿Puede circular por vías interurbanas un vehículo de movilidad personal (VMP o patinete electrónico)?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, si lo hace por el arcén.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No, debe circular solo por vías urbanas y travesías.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/79e29fff-e30a-4da3-b7a9-21b0220f0b85-1734502087-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/79e29fff-e30a-4da3-b7a9-21b0220f0b85-s-1.jpg?t=1768470335",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "79e29fff-e30a-4da3-b7a9-21b0220f0b85",
+    "id": "79e29fff-e30a-4da3-b7a9-21b0220f0b85"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 9,
+    "category": "B",
+    "question": {
+      "es": "Según la situación de la fotografía, ¿Cuál es la velocidad máxima genérica dentro de poblado?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "80 km/h.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "50 km/h.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "45 km/h.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/16953e08-9cca-49e2-9ff3-5181218c0e34-0000000000-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/16953e08-9cca-49e2-9ff3-5181218c0e34-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "16953e08-9cca-49e2-9ff3-5181218c0e34",
+    "id": "16953e08-9cca-49e2-9ff3-5181218c0e34"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 10,
+    "category": "B",
+    "question": {
+      "es": "¿Cuál es la velocidad máxima permitida en vías urbanas con más de un carril por sentido de la marcha?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "20 km/h",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "30 km/h",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "50 km/h",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/0be18b89-6e1f-4915-ad75-b787ba3ef3e5-1734081963-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/0be18b89-6e1f-4915-ad75-b787ba3ef3e5-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "0be18b89-6e1f-4915-ad75-b787ba3ef3e5",
+    "id": "0be18b89-6e1f-4915-ad75-b787ba3ef3e5"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 11,
+    "category": "B",
+    "question": {
+      "es": "En este carril de aceleración, ¿Puede el turismo avanzar más rápido para situarse delante del camión?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No, porque no está permitido adelantar por la derecha.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Si, porque en este caso no se considera adelantamiento.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, porque el turismo tiene prioridad.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/5c2deee2-a5e5-462b-91e3-2e967288e66e-0000000000-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/5c2deee2-a5e5-462b-91e3-2e967288e66e-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "5c2deee2-a5e5-462b-91e3-2e967288e66e",
+    "id": "5c2deee2-a5e5-462b-91e3-2e967288e66e"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 12,
+    "category": "B",
+    "question": {
+      "es": "Cuando se incorporen a la circulación, es obligatorio facilitar la maniobra a...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "los vehículos de transporte público de viajeros, únicamente.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "los taxis, pero únicamente en poblado.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "todos los vehículos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/a3ee202d-5e56-449a-9565-6c748085b794-1659027205-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/a3ee202d-5e56-449a-9565-6c748085b794-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "a3ee202d-5e56-449a-9565-6c748085b794",
+    "id": "a3ee202d-5e56-449a-9565-6c748085b794"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 13,
+    "category": "B",
+    "question": {
+      "es": "En general, las carreteras convencionales son...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "menos seguras que las autopistas y autovías.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "igual de seguras que las autopistas y autovías.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "más seguras que las autopistas y autovías.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/df052aa0-abfa-485f-9cb5-2cfac3ceb434-0000000000-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/df052aa0-abfa-485f-9cb5-2cfac3ceb434-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "df052aa0-abfa-485f-9cb5-2cfac3ceb434",
+    "id": "df052aa0-abfa-485f-9cb5-2cfac3ceb434"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 14,
+    "category": "B",
+    "question": {
+      "es": "La somnolencia hace que...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "resulte más fácil mantener la concentración en el tráfico.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "resulte más difícil mantener la concentración en el tráfico.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "disminuya el tiempo de reacción.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/cc64128f-6137-4eea-96fe-883757d97ea0-1659109204-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/cc64128f-6137-4eea-96fe-883757d97ea0-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "cc64128f-6137-4eea-96fe-883757d97ea0",
+    "id": "cc64128f-6137-4eea-96fe-883757d97ea0"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 15,
+    "category": "B",
+    "question": {
+      "es": "En un túnel, ¿puede cambiar de sentido?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No, está prohibido.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, cuando exista más de un carril para el sentido de la marcha.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, cuando exista espacio suficiente y sin obstaculizar el paso de otros vehículos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/89b994d3-4265-4e82-88bf-d99ae126bad1-1659166100-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/89b994d3-4265-4e82-88bf-d99ae126bad1-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "89b994d3-4265-4e82-88bf-d99ae126bad1",
+    "id": "89b994d3-4265-4e82-88bf-d99ae126bad1"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 16,
+    "category": "B",
+    "question": {
+      "es": "¿Cuál de estos sistemas ADAS ayuda a mantener el vehículo dentro de su carril?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Control de velocidad adaptativo (ISA)",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Asistencia de mantenimiento de carril (LWD)",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Alerta de tráfico cruzado (RCTA)",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/teo/frontend/img/test-practicavial-default.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/ace6460f-1f52-4d67-9157-ec99ba8df027-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ]
+  },
+  {
+    "topic_number": 1,
+    "question_number": 17,
+    "category": "B",
+    "question": {
+      "es": "De acuerdo con las flechas pintadas en la calzada del dibujo, este vehículo...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "puede seguir de frente o girar a la derecha.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "debe seguir de frente.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "debe girar a la derecha.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/aef86627-bc38-4fb2-9200-383ba787f610-1659084436-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/aef86627-bc38-4fb2-9200-383ba787f610-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "aef86627-bc38-4fb2-9200-383ba787f610",
+    "id": "aef86627-bc38-4fb2-9200-383ba787f610"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 18,
+    "category": "B",
+    "question": {
+      "es": "¿Cuál es la distancia ideal a la que debe colocarse con respecto al airbag?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "10 cm.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "25 cm.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "La distancia que le permita conducir en una postura cómoda.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/169d229d-e2cd-48ae-aec9-5ede3f2acea7-1658931413-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/169d229d-e2cd-48ae-aec9-5ede3f2acea7-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "169d229d-e2cd-48ae-aec9-5ede3f2acea7",
+    "id": "169d229d-e2cd-48ae-aec9-5ede3f2acea7"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 19,
+    "category": "B",
+    "question": {
+      "es": "Cuando no exista vía pecuaria, los animales pueden circular...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "únicamente por vías interurbanas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "por todas las vías, excepto por autopistas y autovías.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "por todas las vías sin excepción.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/9157ceea-9abd-4590-9f2a-6973ce530da4-1658917497-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/9157ceea-9abd-4590-9f2a-6973ce530da4-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "9157ceea-9abd-4590-9f2a-6973ce530da4",
+    "id": "9157ceea-9abd-4590-9f2a-6973ce530da4"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 20,
+    "category": "B",
+    "question": {
+      "es": "Los vehículos especiales agrícolas...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "llevan una luz rotativa amarilla, tanto de día como de noche.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "llevan una luz blanca o amarilla.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "llevan una luz intermitente amarilla.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/55a4880f-f5d0-4d0d-b15b-935b49dd1ea4-1659108057-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/55a4880f-f5d0-4d0d-b15b-935b49dd1ea4-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "55a4880f-f5d0-4d0d-b15b-935b49dd1ea4",
+    "id": "55a4880f-f5d0-4d0d-b15b-935b49dd1ea4"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 21,
+    "category": "B",
+    "question": {
+      "es": "¿Por qué las personas mayores corren más peligro en el tráfico?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Porque suelen valorar correctamente la velocidad de los vehículos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Porque suelen ver y oír peor.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Porque son menos ágiles, aunque suelen reaccionar más rápidamente.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/1f4bb30e-eacc-44c7-b834-957066aa86b7-1659112966-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/1f4bb30e-eacc-44c7-b834-957066aa86b7-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "1f4bb30e-eacc-44c7-b834-957066aa86b7",
+    "id": "1f4bb30e-eacc-44c7-b834-957066aa86b7"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 22,
+    "category": "B",
+    "question": {
+      "es": "¿Qué infracción de los conductores está relacionada con los atropellos a peatones?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Estacionar en los pasos para peatones.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Deslumbrar.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Parar en doble fila.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/fb08d0c0-fd34-429c-9984-f4ac5d4829aa-0000000000-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/fb08d0c0-fd34-429c-9984-f4ac5d4829aa-s-1.jpg?t=1768471285",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "fb08d0c0-fd34-429c-9984-f4ac5d4829aa",
+    "id": "fb08d0c0-fd34-429c-9984-f4ac5d4829aa"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 23,
+    "category": "B",
+    "question": {
+      "es": "Si el entorno de la vía es monótono y hay poco tráfico…",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Aumenta el número de distracciones al volante.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Disminuye el número de distracciones al volante.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Aumenta la capacidad de concentración.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/c94926f1-8335-43ab-a8ed-d8b1e2476077-0000000000-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/c94926f1-8335-43ab-a8ed-d8b1e2476077-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "c94926f1-8335-43ab-a8ed-d8b1e2476077",
+    "id": "c94926f1-8335-43ab-a8ed-d8b1e2476077"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 24,
+    "category": "B",
+    "question": {
+      "es": "¿Qué está indicando este conductor?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Que va a girar a la derecha.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Que va a seguir de frente.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Que va a girar a la izquierda.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/68f8b697-86b8-40a6-8ffb-6a9cf96bff60-1659107886-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/68f8b697-86b8-40a6-8ffb-6a9cf96bff60-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "68f8b697-86b8-40a6-8ffb-6a9cf96bff60",
+    "id": "68f8b697-86b8-40a6-8ffb-6a9cf96bff60"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 25,
+    "category": "B",
+    "question": {
+      "es": "Si queda detenido en un túnel por necesidades de la circulación durante un tiempo superior a 2 minutos, ¿qué debe hacer?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Conectar la señal de emergencia, mantener encendidas las luces de posición y apagar el motor.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Encender, solamente, la señal de emergencia.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Detener el vehículo lo más cerca posible del vehículo que circula delante.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/808a61d3-7ded-497b-aab5-10946e3fbaaf-1659019515-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/808a61d3-7ded-497b-aab5-10946e3fbaaf-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "808a61d3-7ded-497b-aab5-10946e3fbaaf",
+    "id": "808a61d3-7ded-497b-aab5-10946e3fbaaf"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 26,
+    "category": "B",
+    "question": {
+      "es": "Si circulamos por una vía donde hay una línea longitudinal continua adosada a otra discontinua...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "nos indica que es un carril reversible.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "no se puede atravesar en ningún caso.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "debemos tener en cuenta solamente la línea más cercana al carril por el que circulamos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/2d5cb3ae-610d-4acf-88a1-e2740bf001b1-1658947961-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/2d5cb3ae-610d-4acf-88a1-e2740bf001b1-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "2d5cb3ae-610d-4acf-88a1-e2740bf001b1",
+    "id": "2d5cb3ae-610d-4acf-88a1-e2740bf001b1"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 27,
+    "category": "B",
+    "question": {
+      "es": "¿Qué aportan a la seguridad vial los sistemas avanzados de ayuda a la conducción también conocidos como ADAS?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Disminuyen el tiempo de reacción del conductor",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Permiten al conductor reducir su nivel de alerta",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Mejoran notablemente la seguridad activa del vehículo",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/teo/frontend/img/test-practicavial-default.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/eeaf4ae6-72c3-47dc-974b-fa8d7ed96928-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ]
+  },
+  {
+    "topic_number": 1,
+    "question_number": 28,
+    "category": "B",
+    "question": {
+      "es": "Siempre que un conductor entre a una vía de uso público por un camino exclusivamente privado...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "tiene preferencia de paso.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "está obligado a detenerse.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "está obligado a cerciorarse de que puede hacerlo sin peligro.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/a2eb1339-7418-44bc-b65d-153858e72548-1658915491-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/a2eb1339-7418-44bc-b65d-153858e72548-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "a2eb1339-7418-44bc-b65d-153858e72548",
+    "id": "a2eb1339-7418-44bc-b65d-153858e72548"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 29,
+    "category": "B",
+    "question": {
+      "es": "Para ahorrar carburante debo...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "mantener la velocidad lo más elevada y constante posible.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "circular más cerca del vehículo que va delante para disminuir la resistencia del aire.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "conducir con suavidad, sin frenazos ni acelerones.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/73707c17-1ef7-43fc-9252-3a6c34fd6015-1659085158-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/73707c17-1ef7-43fc-9252-3a6c34fd6015-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "73707c17-1ef7-43fc-9252-3a6c34fd6015",
+    "id": "73707c17-1ef7-43fc-9252-3a6c34fd6015"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 30,
+    "category": "B",
+    "question": {
+      "es": "¿Qué son los sistemas ADAS (Advanced Driver Assistance Systems)?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Dispositivos de entretenimiento en el vehículo para largos viajes.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sistemas de asistencia al conductor que mejoran la seguridad y facilitan la conducción.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Programas de mantenimiento del vehículo que alertan sobre necesidades de servicio.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/teo/frontend/img/test-practicavial-default.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/ae7ce15f-d718-4392-a03b-f3c27af75ebc-s-1.jpg?t=1768470843",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ]
+  }
+]

@@ -1,0 +1,369 @@
+[
+  {
+    "topic_number": 8,
+    "question_number": 1,
+    "category": "B",
+    "question": {
+      "es": "¿De qué forma entra en funcionamiento el sistema avanzado de frenado de emergencia o \"AEB\"?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Tomando el control del vehículo cuando detecta un aumento de la distancia de seguridad frontal",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Avisando al conductor de que hay riesgo de colisión",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Tomando el control de la dirección del vehículo y realizando una maniobra evasiva",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/teo/frontend/img/test-practicavial-default.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/ebbefc0b-5473-42ed-ab1a-ba4427becdd2-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ]
+  },
+  {
+    "topic_number": 8,
+    "question_number": 2,
+    "category": "B",
+    "question": {
+      "es": "En las autopistas y las autovías, ¿puede utilizar un lugar distinto del arcén derecho para realizar una detención por emergencia?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, en cualquier caso.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, un lugar donde cause menor obstáculo a la circulación.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No, nunca.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/d7145523-3519-4774-b2a8-e6912d89143b-1659023799-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/d7145523-3519-4774-b2a8-e6912d89143b-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "d7145523-3519-4774-b2a8-e6912d89143b",
+    "id": "d7145523-3519-4774-b2a8-e6912d89143b"
+  },
+  {
+    "topic_number": 8,
+    "question_number": 3,
+    "category": "B",
+    "question": {
+      "es": "¿En qué consiste el sistema ADAS \"Aviso de frenada de emergencia o EBD\"?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "El sistema emite un sonido que indica al conductor que debe frenar para evitar una colisión",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "En un rápido parpadeo de las luces de frenado cuando se aplican los frenos de manera potente",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "El pedal del freno tiembla al pisarlo con fuerza",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/teo/frontend/img/test-practicavial-default.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/6ec890b7-ac6e-44d0-9023-709ac0e6fef8-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ]
+  },
+  {
+    "topic_number": 8,
+    "question_number": 4,
+    "category": "B",
+    "question": {
+      "es": "Cuando en el interior de un túnel se produce una detención motivada por una emergencia, es obligatorio...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "que todos los ocupantes permanezcan siempre en el vehículo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "dejar el motor encendido y la llave puesta.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "apagar el motor, conectar la señal de emergencia y mantener encendidas las luces de posición.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/21fa4abc-cdae-421b-beb6-85f8dd9f0d7f-1659109019-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/21fa4abc-cdae-421b-beb6-85f8dd9f0d7f-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "21fa4abc-cdae-421b-beb6-85f8dd9f0d7f",
+    "id": "21fa4abc-cdae-421b-beb6-85f8dd9f0d7f"
+  },
+  {
+    "topic_number": 8,
+    "question_number": 5,
+    "category": "B",
+    "question": {
+      "es": "Si por necesidades de la circulación, un vehículo queda inmovilizado en el interior de un paso inferior, el conductor, entre otros medidas, deberá...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Mantener encendidas las luces de posición y apagar el motor.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Abandonar el vehículo y dirigirse al refugio más próximo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Apagar todos los sistemas eléctricos del vehículo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/839983d0-2560-4793-8ada-73f4d5b30b7a-1731575573-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/839983d0-2560-4793-8ada-73f4d5b30b7a-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "dgt"
+    ],
+    "external_id": "839983d0-2560-4793-8ada-73f4d5b30b7a",
+    "id": "839983d0-2560-4793-8ada-73f4d5b30b7a"
+  },
+  {
+    "topic_number": 8,
+    "question_number": 6,
+    "category": "B",
+    "question": {
+      "es": "A un herido, ¿debe darle de beber?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Como norma general, no.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, pero sólo agua.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, alguna bebida estimulante, café, té, etc.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/fc0f0c9b-1f25-4a72-a30f-e04c8aae3271-1659372654-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/fc0f0c9b-1f25-4a72-a30f-e04c8aae3271-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "dgt"
+    ],
+    "external_id": "fc0f0c9b-1f25-4a72-a30f-e04c8aae3271",
+    "id": "fc0f0c9b-1f25-4a72-a30f-e04c8aae3271"
+  },
+  {
+    "topic_number": 8,
+    "question_number": 7,
+    "category": "B",
+    "question": {
+      "es": "El conductor de un vehículo que por motivos de emergencia queda inmovilizado dentro de un túnel, ¿qué deberá hacer?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Únicamente esperar a que se reanude la marcha.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Solicitar auxilio a través del poste de socorro más próximo, si existe.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No abandonar nunca el vehículo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/0270aaa7-cc7c-4008-817e-a6aab48807f3-1659629813-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/0270aaa7-cc7c-4008-817e-a6aab48807f3-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "dgt"
+    ],
+    "external_id": "0270aaa7-cc7c-4008-817e-a6aab48807f3",
+    "id": "0270aaa7-cc7c-4008-817e-a6aab48807f3"
+  }
+]

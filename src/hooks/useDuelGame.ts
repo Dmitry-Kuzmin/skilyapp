@@ -58,7 +58,7 @@ export function useDuelGame({
   const setSelectedAnswer = useDuelStore(state => state.setAnswer);
   const setCombo = useDuelStore(state => state.setCombo);
   const addAnswerToHistory = useDuelStore(state => state.addAnswerToHistory);
-  const setHasFinishedMyQuestions = useDuelStore(state => state.setFinishedMyQuestions);
+  const setHasFinishedMyQuestions = useDuelStore(state => state.setHasFinishedMyQuestions);
   const setIsWaitingForOpponent = useDuelStore(state => state.setWaitingForOpponent);
   const setCurrentIndex = useDuelStore(state => state.setCurrentIndex);
   const setIsProcessingAnswer = useDuelStore(state => state.setIsProcessingAnswer);

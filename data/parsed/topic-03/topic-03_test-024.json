@@ -1,0 +1,1115 @@
+[
+  {
+    "topic_number": 3,
+    "question_number": 1,
+    "category": "B",
+    "question": {
+      "es": "En una intersección sin señalización expresa, la norma general de preferencia de paso es...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "ceder el paso a los vehículos que circulen por la izquierda.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "ceder el paso a los vehículos más rápidos, ciclistas y peatones.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "ceder el paso a los vehículos que se aproximen por la derecha.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/f803a633-b6ad-440a-87c0-243e8a48e331-1658911382-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/f803a633-b6ad-440a-87c0-243e8a48e331-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "f803a633-b6ad-440a-87c0-243e8a48e331",
+    "id": "f803a633-b6ad-440a-87c0-243e8a48e331"
+  },
+  {
+    "topic_number": 3,
+    "question_number": 2,
+    "category": "B",
+    "question": {
+      "es": "Para obedecer esta señal de stop, ¿dónde hay que detenerse?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Antes de la marca vial de stop.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Inmediatamente antes de la intersección.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Después de la marca vial de stop.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/22deec84-ff69-4b5c-9c41-70a17df021c0-0000000000-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/22deec84-ff69-4b5c-9c41-70a17df021c0-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "22deec84-ff69-4b5c-9c41-70a17df021c0",
+    "id": "22deec84-ff69-4b5c-9c41-70a17df021c0"
+  },
+  {
+    "topic_number": 3,
+    "question_number": 3,
+    "category": "B",
+    "question": {
+      "es": "El agente, ¿a quién ordena detenerse?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "A todos los usuarios de la vía.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "A los que se aproximen desde los lados.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "A los usuarios que se aproximen tanto por delante como por detrás.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/dbed76aa-8848-43dd-bccf-083cd4388668-1659113782-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/dbed76aa-8848-43dd-bccf-083cd4388668-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "dbed76aa-8848-43dd-bccf-083cd4388668",
+    "id": "dbed76aa-8848-43dd-bccf-083cd4388668"
+  },
+  {
+    "topic_number": 3,
+    "question_number": 4,
+    "category": "B",
+    "question": {
+      "es": "Como norma general, ¿en qué vías está prohibido circular marcha atrás?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "En todas las vías, salvo como complemento a determinadas maniobras.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sólo en las autopistas y autovías.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sólo en las vías urbanas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/859feb08-ae29-42e5-89ff-98a9c495252b-0000000000-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/859feb08-ae29-42e5-89ff-98a9c495252b-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "859feb08-ae29-42e5-89ff-98a9c495252b",
+    "id": "859feb08-ae29-42e5-89ff-98a9c495252b"
+  },
+  {
+    "topic_number": 3,
+    "question_number": 5,
+    "category": "B",
+    "question": {
+      "es": "¿En qué circunstancias deben utilizar la señal luminosa V-2 los vehículos especiales que circulan por vías de uso público a una velocidad no superior a 40 km/h?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Circulen entre la puesta y la salida del sol, únicamente.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Trabajen en operaciones de limpieza o conservación de la vía únicamente.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Circulen tanto de día como de noche.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/796fd21b-041f-4ba8-abb9-1d286de10dbe-0000000000-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/796fd21b-041f-4ba8-abb9-1d286de10dbe-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "dgt"
+    ],
+    "external_id": "796fd21b-041f-4ba8-abb9-1d286de10dbe",
+    "id": "796fd21b-041f-4ba8-abb9-1d286de10dbe"
+  },
+  {
+    "topic_number": 3,
+    "question_number": 6,
+    "category": "B",
+    "question": {
+      "es": "La señal indica peligro por la proximidad de un...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "resalte.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "badén.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "tramo de via con pavimento deslizante.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/cf54b3f0-bcca-4816-959e-70de5626ad18-0000000000-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/cf54b3f0-bcca-4816-959e-70de5626ad18-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "dgt"
+    ],
+    "external_id": "cf54b3f0-bcca-4816-959e-70de5626ad18",
+    "id": "cf54b3f0-bcca-4816-959e-70de5626ad18"
+  },
+  {
+    "topic_number": 3,
+    "question_number": 7,
+    "category": "B",
+    "question": {
+      "es": "En esta situación, ¿a qué señal debe obedecer?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "A la señal de prohibido estacionar por ser la menos restrictiva.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "A la señal de prohibido parar y estacionar por ser la más restrictiva.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "A ninguna, ya que en caso de contradicción, las señales se anulan.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/b6df8953-be47-4aaa-81a4-8cb92b264ae3-0000000000-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/b6df8953-be47-4aaa-81a4-8cb92b264ae3-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "dgt"
+    ],
+    "external_id": "b6df8953-be47-4aaa-81a4-8cb92b264ae3",
+    "id": "b6df8953-be47-4aaa-81a4-8cb92b264ae3"
+  },
+  {
+    "topic_number": 3,
+    "question_number": 8,
+    "category": "B",
+    "question": {
+      "es": "Transporta en un turismo una carga que sobresale por la parte trasera, ¿debe señalizarla?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, únicamente de noche y en condiciones meteorológicas adversas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, con un panel colocado en el extremo de la carga.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No, en los turismos no es necesario.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/ad5a7f12-36b8-4356-8fcf-b61d683989cc-1660237805-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/ad5a7f12-36b8-4356-8fcf-b61d683989cc-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "dgt"
+    ],
+    "external_id": "ad5a7f12-36b8-4356-8fcf-b61d683989cc",
+    "id": "ad5a7f12-36b8-4356-8fcf-b61d683989cc"
+  },
+  {
+    "topic_number": 3,
+    "question_number": 9,
+    "category": "B",
+    "question": {
+      "es": "En vías fuera de poblado que no dispongas de espacio especialmente reservado para ellos, ¿qué peatones deben circular por su derecha y obedecer las señales dirigidas a los conductores?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Los que empujen o arrastren una motocicleta de dos ruedas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Los discapacitados que se desplacen en silla de ruedas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Los que conduzcan un rebaño de animales.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/22627db6-01d3-477f-915b-402e144aa474-0000000000-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/22627db6-01d3-477f-915b-402e144aa474-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "dgt"
+    ],
+    "external_id": "22627db6-01d3-477f-915b-402e144aa474",
+    "id": "22627db6-01d3-477f-915b-402e144aa474"
+  },
+  {
+    "topic_number": 3,
+    "question_number": 10,
+    "category": "B",
+    "question": {
+      "es": "Esta línea discontinua, ¿qué indica?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Un carril especial.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "La cercanía a una línea longitudinal continua.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Un carril reversible.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/d5544d00-25b1-46f9-bf88-240ce86ae466-0000000000-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/d5544d00-25b1-46f9-bf88-240ce86ae466-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "dgt"
+    ],
+    "external_id": "d5544d00-25b1-46f9-bf88-240ce86ae466",
+    "id": "d5544d00-25b1-46f9-bf88-240ce86ae466"
+  },
+  {
+    "topic_number": 3,
+    "question_number": 11,
+    "category": "B",
+    "question": {
+      "es": "En caso de inmovilización de un vehículo por emergencia, ¿a qué distancia deben colocarse los dispositivos de preseñalización de peligro?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "A 100 metros y visibles a 150 metros.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "A 50 metros como máximo y visibles a 100 metros.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "A 50 metros como mínimo y visibles a 100 metros.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/b8edbcfe-84b7-4827-bf72-a1a7bfdc6487-0000000000-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/b8edbcfe-84b7-4827-bf72-a1a7bfdc6487-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "dgt"
+    ],
+    "external_id": "b8edbcfe-84b7-4827-bf72-a1a7bfdc6487",
+    "id": "b8edbcfe-84b7-4827-bf72-a1a7bfdc6487"
+  },
+  {
+    "topic_number": 3,
+    "question_number": 12,
+    "category": "B",
+    "question": {
+      "es": "En un tramo de gran pendiente, ¿qué vehículo pasará primero en un estrechamiento en el que no está señalizada la preferencia?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "El que circula en sentido descendente.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "El vehículo con mayor dificultad de maniobra.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "El que circula en sentido ascendente.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/329975ae-d0b9-4a4a-86b0-1ff6b0c5f9fc-0000000000-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/329975ae-d0b9-4a4a-86b0-1ff6b0c5f9fc-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "dgt"
+    ],
+    "external_id": "329975ae-d0b9-4a4a-86b0-1ff6b0c5f9fc",
+    "id": "329975ae-d0b9-4a4a-86b0-1ff6b0c5f9fc"
+  },
+  {
+    "topic_number": 3,
+    "question_number": 13,
+    "category": "B",
+    "question": {
+      "es": "Esta señal advierte el peligro por la proximidad...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "de un carril reservado para autobuses y tranvías.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "de un cruce con una línea de tranvía.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "de un lugar reservado para parada de tranvías.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/57e02d17-8d7f-41d8-9cb8-2ef41f6a8f0b-0000000000-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/57e02d17-8d7f-41d8-9cb8-2ef41f6a8f0b-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "dgt"
+    ],
+    "external_id": "57e02d17-8d7f-41d8-9cb8-2ef41f6a8f0b",
+    "id": "57e02d17-8d7f-41d8-9cb8-2ef41f6a8f0b"
+  },
+  {
+    "topic_number": 3,
+    "question_number": 14,
+    "category": "B",
+    "question": {
+      "es": "Las señales acústicas deben ser...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "de sonido muy agudo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "de sonido no estridente.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "de cualquier sonido.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/867b1d85-a596-4917-bfd7-f05244367a86-1659374566-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/867b1d85-a596-4917-bfd7-f05244367a86-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "dgt"
+    ],
+    "external_id": "867b1d85-a596-4917-bfd7-f05244367a86",
+    "id": "867b1d85-a596-4917-bfd7-f05244367a86"
+  },
+  {
+    "topic_number": 3,
+    "question_number": 15,
+    "category": "B",
+    "question": {
+      "es": "Si existen señales verticales distintas a la derecha y la izquierda de su carril, ¿a qué señal debe obedecer para continuar de frente?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "La señal situada a la derecha.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "La que aconseje la circulación por la vía transversal.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "La señal situada a la izquierda.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/194bf613-c5fb-465a-888d-6213af5d21f9-1659374322-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/194bf613-c5fb-465a-888d-6213af5d21f9-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "dgt"
+    ],
+    "external_id": "194bf613-c5fb-465a-888d-6213af5d21f9",
+    "id": "194bf613-c5fb-465a-888d-6213af5d21f9"
+  },
+  {
+    "topic_number": 3,
+    "question_number": 16,
+    "category": "B",
+    "question": {
+      "es": "El conductor de un turismo averiado colocará un solo triangulo de preseñalización de peligro...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "en calzadas de dos sentidos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "en todo tipo de calzadas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "en calzadas de sentido único o de más de tres carriles.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/d14610d9-9db4-4e71-b238-77305f6af644-0000000000-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/d14610d9-9db4-4e71-b238-77305f6af644-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "dgt"
+    ],
+    "external_id": "d14610d9-9db4-4e71-b238-77305f6af644",
+    "id": "d14610d9-9db4-4e71-b238-77305f6af644"
+  },
+  {
+    "topic_number": 3,
+    "question_number": 17,
+    "category": "B",
+    "question": {
+      "es": "El conductor de un vehículo que se encuentre inmovilizado por avería, fuera de la calzada y del arcén, ¿debe colocar los triángulos de preseñalización de peligro?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No, porque no obstaculiza la circulación.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, porque se trata de una emergencia.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Solo en vías fuera de poblado con un carril para cada sentido de circulación.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/54f4cc53-0df9-4ea1-aa11-2b85e2f3cd06-1689578748-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/54f4cc53-0df9-4ea1-aa11-2b85e2f3cd06-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "dgt"
+    ],
+    "external_id": "54f4cc53-0df9-4ea1-aa11-2b85e2f3cd06",
+    "id": "54f4cc53-0df9-4ea1-aa11-2b85e2f3cd06"
+  },
+  {
+    "topic_number": 3,
+    "question_number": 18,
+    "category": "B",
+    "question": {
+      "es": "En vista de la señal, ¿quién tiene prioridad si en el paso estrecho que tienen que atravesar se encuentra con otro vehículo que circula en sentido contrario?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "El vehículo que tenga mayor dificultad de maniobra.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "El vehículo que circula en sentido contrario.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Su vehículo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/bc374512-ba16-4172-bd7a-1ef9eda0aafc-0000000000-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/bc374512-ba16-4172-bd7a-1ef9eda0aafc-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "dgt"
+    ],
+    "external_id": "bc374512-ba16-4172-bd7a-1ef9eda0aafc",
+    "id": "bc374512-ba16-4172-bd7a-1ef9eda0aafc"
+  },
+  {
+    "topic_number": 3,
+    "question_number": 19,
+    "category": "B",
+    "question": {
+      "es": "A partir de la señal de la fotografía, ¿qué distancia de seguridad es obligatorio mantener, como mínimo, con la motocicleta?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Una separación que permita al vehículo que circula detrás adelantar con seguridad.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "50 metros.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Una separación que permita detenerse, en caso de que ésta frene bruscamente.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/dcd58d01-70b3-4962-abb3-c06dd10dde93-0000000000-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/dcd58d01-70b3-4962-abb3-c06dd10dde93-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "dgt"
+    ],
+    "external_id": "dcd58d01-70b3-4962-abb3-c06dd10dde93",
+    "id": "dcd58d01-70b3-4962-abb3-c06dd10dde93"
+  },
+  {
+    "topic_number": 3,
+    "question_number": 20,
+    "category": "B",
+    "question": {
+      "es": "En una intersección sin señalizar, tienen prioridad de paso los vehículos...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Que circulen por un carril reservado a determinados vehículos sobre el resto de usuarios.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Que se pretendan incorporar a una autopista sobre los que ya circulan por ella.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Que circulen por una glorieta sobre los que pretenden entrar en ella.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/2bd6841d-961c-4b03-8f45-ed9e641bbffb-1659604451-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/2bd6841d-961c-4b03-8f45-ed9e641bbffb-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "dgt"
+    ],
+    "external_id": "2bd6841d-961c-4b03-8f45-ed9e641bbffb",
+    "id": "2bd6841d-961c-4b03-8f45-ed9e641bbffb"
+  },
+  {
+    "topic_number": 3,
+    "question_number": 21,
+    "category": "B",
+    "question": {
+      "es": "Si es necesario avisar a un ciclista con señales acústicas, ¿cómo deben realizarse?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Cerca del ciclista.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "A cierta distancia del ciclista, para evitar que se asuste.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Es indiferente.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/7dbd0d2e-27e2-4a69-a02a-c2387db637b4-0000000000-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/7dbd0d2e-27e2-4a69-a02a-c2387db637b4-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "dgt"
+    ],
+    "external_id": "7dbd0d2e-27e2-4a69-a02a-c2387db637b4",
+    "id": "7dbd0d2e-27e2-4a69-a02a-c2387db637b4"
+  }
+]

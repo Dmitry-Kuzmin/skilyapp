@@ -48,6 +48,7 @@ export const AnswerButton = memo(function AnswerButton({
       key={id}
       onClick={onClick}
       disabled={disabled}
+      data-answer-id={id}
       className={cn(
         "w-full text-left border-2 transition-all duration-300 font-medium",
         isCompact

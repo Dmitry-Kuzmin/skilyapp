@@ -81,6 +81,10 @@ export function initRollbar(): Rollbar | null {
         if (msg.includes('telegramgameproxy')) return true;
         if (msg.includes('telegram.webapp') && msg.includes('is not supported')) return true;
 
+        // Browser wallet extensions (MetaMask, WalletConnect, etc.) — не наш код
+        if (msg.includes('metamask')) return true;
+        if (msg.includes('failed to connect to metamask')) return true;
+
         // Рекурсия из browser extension (canPlayType patch)
         if (msg.includes('maximum call stack size exceeded')) return true;
 
@@ -102,7 +106,11 @@ export function initRollbar(): Rollbar | null {
         if (msg.includes('failed to execute') && msg.includes('removechild')) return true;
 
         // ── Игнорируем по источнику (stack frames) ────────────────────────────
-        const frames: Array<{ filename?: string }> = payload?.body?.trace?.frames || [];
+        // Rollbar может присылать frames в trace или в trace_chain (для chained exceptions)
+        const traceFrames: Array<{ filename?: string }> = payload?.body?.trace?.frames || [];
+        const chainFrames: Array<{ filename?: string }> = (payload?.body?.trace_chain || [])
+          .flatMap((t: any) => t?.frames || []);
+        const frames = [...traceFrames, ...chainFrames];
 
         // Browser extensions
         if (frames.some(f => f.filename && (

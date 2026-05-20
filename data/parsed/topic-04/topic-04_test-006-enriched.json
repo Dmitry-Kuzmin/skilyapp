@@ -1,0 +1,320 @@
+[
+  {
+    "topic_number": 4,
+    "question_number": 1,
+    "category": "B",
+    "question": {
+      "es": "¿Qué indican esta serie de luces amarillas?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Que la calzada está totalmente cerrada al tráfico, tanto si son fijas como si son intermitentes.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Prohíben el paso a través de la línea imaginaria que las une.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Prohíben el paso a través de la línea imaginaria que las une sólo si son fijas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/999f293b-5fc0-4659-a675-bb324c928e8e-0000000000-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/999f293b-5fc0-4659-a675-bb324c928e8e-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "999f293b-5fc0-4659-a675-bb324c928e8e",
+    "id": "999f293b-5fc0-4659-a675-bb324c928e8e"
+  },
+  {
+    "topic_number": 4,
+    "question_number": 2,
+    "category": "B",
+    "question": {
+      "es": "Con lluvia intensa, una motocicleta, ¿puede sufrir aquaplaning?",
+      "en": "In heavy rain, can a motorcycle suffer from aquaplaning?",
+      "ru": "Может ли мотоцикл подвергнуться аквапланированию во время сильного дождя?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No, porque eso sólo les sucede a los turismos.",
+          "en": "No, because that only happens to cars.",
+          "ru": "Нет, потому что это случается только с легковыми автомобилями."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, especialmente al circular a velocidad elevada.",
+          "en": "Yes, especially when traveling at high speeds.",
+          "ru": "Да, особенно при движении на высокой скорости."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No, debido al poco peso de la motocicleta.",
+          "en": "No, due to the light weight of the motorcycle.",
+          "ru": "Нет, из-за небольшого веса мотоцикла."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "🎓 El aquaplaning ocurre cuando el neumático no puede evacuar el agua y flota sobre ella, perdiendo el contacto con el asfalto. Las motocicletas también lo sufren. 💡 ¡Ojo! La velocidad es el factor determinante: a mayor velocidad, menos tiempo tiene el dibujo del neumático para desplazar el agua. Si sientes que la dirección flota, reduce la velocidad suavemente sin frenar a fondo.",
+      "en": "🎓 Aquaplaning occurs when the tire cannot disperse the water fast enough and starts to glide on top of it, losing contact with the road. Motorcycles are not immune to this. 💡 Driving coach tip: Speed is the critical factor. The faster you go, the less time the tire tread has to push the water away. If you encounter heavy rain, slow down to maintain grip!",
+      "ru": "🎓 Аквапланирование возникает, когда протектор шины не успевает отводить воду, и колесо начинает «плыть» по поверхности, теряя контакт с асфальтом. Мотоциклы подвержены этому так же, как и другие транспортные средства."
+    },
+    "image_url": "https://teorica.practicavial.com/question/3a4f41e2-c7f7-4a2b-bfbb-b986e23ea6b9-1658917829-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/3a4f41e2-c7f7-4a2b-bfbb-b986e23ea6b9-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "id": "3a4f41e2-c7f7-4a2b-bfbb-b986e23ea6b9",
+    "external_id": "3a4f41e2-c7f7-4a2b-bfbb-b986e23ea6b9"
+  },
+  {
+    "topic_number": 4,
+    "question_number": 3,
+    "category": "B",
+    "question": {
+      "es": "En un tramo de vía con muchas curvas señalizado con la señal de curvas peligrosas, podrá utilizar la luz antiniebla delantera siempre que...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "el vehículo esté pintado de oscuro y la calzada sea de doble sentido.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "la calzada sea de sentido único.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "la calzada tenga una anchura igual o inferior a 6,50 metros.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/d4743211-bae4-43db-890b-7f03561a22e4-0000000000-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/d4743211-bae4-43db-890b-7f03561a22e4-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "dgt"
+    ],
+    "external_id": "d4743211-bae4-43db-890b-7f03561a22e4",
+    "id": "d4743211-bae4-43db-890b-7f03561a22e4"
+  },
+  {
+    "topic_number": 4,
+    "question_number": 4,
+    "category": "B",
+    "question": {
+      "es": "Para poder circular por un carril adicional, ¿es obligatorio encender, al menos, la luz de cruce?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, a cualquier hora del día.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, solamente durante la noche",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/7f7f4253-53f0-411e-80d7-f855dd600120-0000000000-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/7f7f4253-53f0-411e-80d7-f855dd600120-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "dgt"
+    ],
+    "external_id": "7f7f4253-53f0-411e-80d7-f855dd600120",
+    "id": "7f7f4253-53f0-411e-80d7-f855dd600120"
+  },
+  {
+    "topic_number": 4,
+    "question_number": 5,
+    "category": "B",
+    "question": {
+      "es": "La luz verde en forma de flecha del semáforo significa que los vehículos pueden pasar en...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "cualquier dirección.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "la dirección de la flecha, y tienen prioridad en la intersección.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "la dirección de la flecha, dejando pasar a los vehículos que circulen por la vía transversal.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/905e34b8-8189-4352-a7ba-47a901025018-1659602869-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/905e34b8-8189-4352-a7ba-47a901025018-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "dgt"
+    ],
+    "external_id": "905e34b8-8189-4352-a7ba-47a901025018",
+    "id": "905e34b8-8189-4352-a7ba-47a901025018"
+  },
+  {
+    "topic_number": 4,
+    "question_number": 6,
+    "category": "B",
+    "question": {
+      "es": "El alumbrado que lleva encendido el conductor de este vehículo en un tramo recto de noche y sin condiciones atmosféricas adversas, ¿es correcto?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No, debe apagar las luces antiniebla.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Solo si la anchura de la calzada es inferior a 6,50 metros.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/9b091c91-351b-4f8a-82aa-403d0acbed2e-1659545976-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/9b091c91-351b-4f8a-82aa-403d0acbed2e-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "dgt"
+    ],
+    "external_id": "9b091c91-351b-4f8a-82aa-403d0acbed2e",
+    "id": "9b091c91-351b-4f8a-82aa-403d0acbed2e"
+  }
+]

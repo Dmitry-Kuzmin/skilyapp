@@ -1,0 +1,742 @@
+[
+  {
+    "topic_number": 5,
+    "question_number": 1,
+    "category": "B",
+    "question": {
+      "es": "Los niños suelen tener problemas en el tráfico porque…",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No conocen todos los comportamientos adecuados para circular.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Su visión periférica es mayor.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Su campo visual es mayor.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/f481dfa0-ec3b-41fd-8138-ff45558dafe6-0000000000-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/f481dfa0-ec3b-41fd-8138-ff45558dafe6-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "f481dfa0-ec3b-41fd-8138-ff45558dafe6",
+    "id": "f481dfa0-ec3b-41fd-8138-ff45558dafe6"
+  },
+  {
+    "topic_number": 5,
+    "question_number": 2,
+    "category": "B",
+    "question": {
+      "es": "Preferentemente, ¿dónde debe colocar la carga en su turismo?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "En el maletero.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "En la baca, correctamente señalizada.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "En el interior del vehículo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/873a1eee-9c9f-476c-8360-b58ae5ce78bc-1659110213-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/873a1eee-9c9f-476c-8360-b58ae5ce78bc-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "873a1eee-9c9f-476c-8360-b58ae5ce78bc",
+    "id": "873a1eee-9c9f-476c-8360-b58ae5ce78bc"
+  },
+  {
+    "topic_number": 5,
+    "question_number": 3,
+    "category": "B",
+    "question": {
+      "es": "Los pasajeros de un taxi, ¿pueden viajar sin utilizar el cinturón de seguridad?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, si son trayectos cortos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, pero únicamente los pasajeros de los asientos traseros.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/a6d41a20-8754-4e83-b175-3d0ee5849b09-1659114571-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/a6d41a20-8754-4e83-b175-3d0ee5849b09-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "a6d41a20-8754-4e83-b175-3d0ee5849b09",
+    "id": "a6d41a20-8754-4e83-b175-3d0ee5849b09"
+  },
+  {
+    "topic_number": 5,
+    "question_number": 4,
+    "category": "B",
+    "question": {
+      "es": "Al elegir un casco para conducir una motocicleta, ¿qué debe tener en cuenta?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Que proteja convenientemente de los ruidos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Que tenga buena ventilación para que no se empañe.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Que se pueda sujetar sin tener que llevarlo abrochado.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/a8de9cef-396f-4de2-811f-bb64cdd4cca6-1659030841-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/a8de9cef-396f-4de2-811f-bb64cdd4cca6-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "a8de9cef-396f-4de2-811f-bb64cdd4cca6",
+    "id": "a8de9cef-396f-4de2-811f-bb64cdd4cca6"
+  },
+  {
+    "topic_number": 5,
+    "question_number": 5,
+    "category": "B",
+    "question": {
+      "es": "Los menores de edad, ¿a partir de que estatura pueden utilizar el asiento delantero con el cinturón de seguridad normal?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Cuando tengan más de 1,50 m de estatura.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Cuando tengan más de 1,20 m de estatura.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Cuando tengan más de 1,35 m de estatura.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/3f868a95-95bb-4ede-ba5e-189ecacdf1de-1658992809-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/3f868a95-95bb-4ede-ba5e-189ecacdf1de-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "3f868a95-95bb-4ede-ba5e-189ecacdf1de",
+    "id": "3f868a95-95bb-4ede-ba5e-189ecacdf1de"
+  },
+  {
+    "topic_number": 5,
+    "question_number": 6,
+    "category": "B",
+    "question": {
+      "es": "¿Es aconsejable llevar este tipo de abrigo con el cinturón de seguridad?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No, el cinturón puede perder eficacia al no estar ajustado al cuerpo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Es indiferente.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, es más cómodo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/104f9776-979d-4736-91e1-b45ca6e9a66f-1659006365-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/104f9776-979d-4736-91e1-b45ca6e9a66f-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "104f9776-979d-4736-91e1-b45ca6e9a66f",
+    "id": "104f9776-979d-4736-91e1-b45ca6e9a66f"
+  },
+  {
+    "topic_number": 5,
+    "question_number": 7,
+    "category": "B",
+    "question": {
+      "es": "Durante las operaciones de carga y descarga, ¿está permitido depositar las mercancías en la calzada?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "En la calzada no, pero en los arcenes y en las zonas peatonales sí.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No, como norma general.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/1fbe77de-cfec-48ac-b08a-f6ad55cda858-1659005733-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/1fbe77de-cfec-48ac-b08a-f6ad55cda858-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "1fbe77de-cfec-48ac-b08a-f6ad55cda858",
+    "id": "1fbe77de-cfec-48ac-b08a-f6ad55cda858"
+  },
+  {
+    "topic_number": 5,
+    "question_number": 8,
+    "category": "B",
+    "question": {
+      "es": "El permiso de la clase B, ¿autoriza a conducir motocicletas?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No, solamente ciclomotores.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, las motocicletas que autoriza el permiso de la clase A1, si la antigüedad del permiso de la clase B es superior a 3 años.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, todas las que autoriza a conducir el permiso de la clase A.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/d7ac6606-b799-4599-addc-088697325355-1659005030-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/d7ac6606-b799-4599-addc-088697325355-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "d7ac6606-b799-4599-addc-088697325355",
+    "id": "d7ac6606-b799-4599-addc-088697325355"
+  },
+  {
+    "topic_number": 5,
+    "question_number": 9,
+    "category": "B",
+    "question": {
+      "es": "En un turismo de 9 plazas incluido el conductor, ¿pueden viajar 9 niños?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, cuando los niños tienen edades comprendidas entre los 2 y los 12 años de edad.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No, porque se supera el número de plazas autorizado.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, cuando van al cargo de un adulto.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/e05ef6ca-ffd4-4ffb-acbd-be73e2a2ec35-1659090803-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/e05ef6ca-ffd4-4ffb-acbd-be73e2a2ec35-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "e05ef6ca-ffd4-4ffb-acbd-be73e2a2ec35",
+    "id": "e05ef6ca-ffd4-4ffb-acbd-be73e2a2ec35"
+  },
+  {
+    "topic_number": 5,
+    "question_number": 10,
+    "category": "B",
+    "question": {
+      "es": "En calles con vías ciclistas integradas al nivel de la calzada pero sin separación física, ¿Cuál es la velocidad máxima permitida para los vehículos?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "50 km/h",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "30 km/h",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "20 km/h",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/teo/frontend/img/test-practicavial-default.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/a87e8f2a-86d7-43bb-a2ed-57d018f2d3e3-s-1.jpg?t=1768470856",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ]
+  },
+  {
+    "topic_number": 5,
+    "question_number": 11,
+    "category": "B",
+    "question": {
+      "es": "En una vía urbana de doble sentido de circulación, ¿en qué lado estacionará una motocicleta?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "En el lado izquierdo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "En el lado derecho o izquierdo indistintamente.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "En el lado derecho.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/0c7b37fc-a3a8-45d6-a8d1-91fc0e8a92d8-0000000000-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/0c7b37fc-a3a8-45d6-a8d1-91fc0e8a92d8-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "dgt"
+    ],
+    "external_id": "0c7b37fc-a3a8-45d6-a8d1-91fc0e8a92d8",
+    "id": "0c7b37fc-a3a8-45d6-a8d1-91fc0e8a92d8"
+  },
+  {
+    "topic_number": 5,
+    "question_number": 12,
+    "category": "B",
+    "question": {
+      "es": "Una furgoneta, con una antigüedad de más de 10 años, ¿cuándo debe realizar la inspección técnica (ITV)?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Cada dos años.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "A los cuatro años.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Semestral.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/9363b4e9-74cf-4c04-a401-401aefbabacb-1659367500-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/9363b4e9-74cf-4c04-a401-401aefbabacb-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "dgt"
+    ],
+    "external_id": "9363b4e9-74cf-4c04-a401-401aefbabacb",
+    "id": "9363b4e9-74cf-4c04-a401-401aefbabacb"
+  },
+  {
+    "topic_number": 5,
+    "question_number": 13,
+    "category": "B",
+    "question": {
+      "es": "Si su vehículo dispone de airbag, ¿es obligatorio llevar abrochado el cinturón de seguridad?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sólo fuera de poblado.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/c839d510-9fbd-4e96-bea4-2331ac5faa26-1659521576-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/c839d510-9fbd-4e96-bea4-2331ac5faa26-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "dgt"
+    ],
+    "external_id": "c839d510-9fbd-4e96-bea4-2331ac5faa26",
+    "id": "c839d510-9fbd-4e96-bea4-2331ac5faa26"
+  },
+  {
+    "topic_number": 5,
+    "question_number": 14,
+    "category": "B",
+    "question": {
+      "es": "Colocar una sillita para niños en un asiento con airbag frontal, ¿es correcto?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, para proteger al niño en caso de impacto frontal.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No, es algo que nunca debe hacerse.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, cuando el airbag se ha desconectado previamente y el vehículo no disponga de asientos traseros.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/3d120fa3-df0b-44b2-9221-254ebe0166c3-1659373671-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/3d120fa3-df0b-44b2-9221-254ebe0166c3-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "dgt"
+    ],
+    "external_id": "3d120fa3-df0b-44b2-9221-254ebe0166c3",
+    "id": "3d120fa3-df0b-44b2-9221-254ebe0166c3"
+  }
+]

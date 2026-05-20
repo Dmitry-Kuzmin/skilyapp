@@ -1,0 +1,364 @@
+[
+  {
+    "topic_number": 2,
+    "question_number": 1,
+    "category": "B",
+    "question": {
+      "es": "¿Está permitido estacionar en las zonas de estancia y juego?",
+      "en": "Is parking allowed in residential and play zones?",
+      "ru": "Разрешена ли парковка в жилых зонах (зонах для игр и отдыха)?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No, está siempre prohibido.",
+          "en": "No, it is always prohibited.",
+          "ru": "Нет, всегда запрещена."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, donde no se estorbe a los peatones.",
+          "en": "Yes, where it does not hinder pedestrians.",
+          "ru": "Да, если это не мешает пешеходам."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No, excepto en los lugares señalizados.",
+          "en": "No, except in marked places.",
+          "ru": "Нет, за исключением специально обозначенных мест."
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": "🎓 La señal S-28 (Zona de estancia y juego) indica una calle especial donde los peatones tienen prioridad absoluta y pueden usar toda la calzada para jugar. Por seguridad, la norma es estricta: **los vehículos NO pueden estacionar**, salvo que existan marcas viales o señales que delimiten un lugar específico para ello.\n\n💡 **Truco:** Imagina que esta calle es el 'salón de casa' de los peatones. Tú eres el invitado con el coche, así que solo puedes dejarlo aparcado si hay un sitio explícitamente marcado para ello. Si no hay pintura en el suelo, ¡prohibido aparcar! 🚫🅿️",
+      "en": "🎓 The S-28 sign indicates a 'Residential Zone' (Home Zone). Here, pedestrians have priority and can use the entire width of the street for playing. Because of this, parking is restricted: **vehicles may ONLY park in designated areas** marked by signs or road markings.\n\n💡 **Tip:** Think of this zone as a pedestrian's playground. You cannot just park anywhere even if you aren't blocking anyone. Unless you see a painted parking bay or a sign saying 'P', parking is forbidden! 🚫🅿️",
+      "ru": "🎓 Знак S-28 обозначает 'Жилую зону' (Zona de estancia y juego). Здесь пешеходы — главные, они могут ходить и играть по всей ширине дороги. Правила парковки здесь строже, чем обычно: **стоянка разрешена ТОЛЬКО в специально обозначенных разметкой или знаками местах**."
+    },
+    "image_url": "https://teorica.practicavial.com/question/dde8acbe-9f72-48b7-91a0-d392a0133946-0000000000-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/dde8acbe-9f72-48b7-91a0-d392a0133946-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "id": "dde8acbe-9f72-48b7-91a0-d392a0133946",
+    "external_id": "dde8acbe-9f72-48b7-91a0-d392a0133946"
+  },
+  {
+    "topic_number": 2,
+    "question_number": 2,
+    "category": "B",
+    "question": {
+      "es": "Cuando se circula por una vía donde sólo hay peatones, ¿debe advertir la maniobra de giro a la derecha?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No, sólo debe advertirlas a otros vehículos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, las maniobras deben advertirse a todos los usuarios.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No es obligatorio pero sí muy recomendable.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/60ca8532-2781-4424-a984-d58747b7f336-0000000000-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/60ca8532-2781-4424-a984-d58747b7f336-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "dgt"
+    ],
+    "external_id": "60ca8532-2781-4424-a984-d58747b7f336",
+    "id": "60ca8532-2781-4424-a984-d58747b7f336"
+  },
+  {
+    "topic_number": 2,
+    "question_number": 3,
+    "category": "B",
+    "question": {
+      "es": "Para girar a la izquierda en una vía interurbana en la que no existe un carril especialmente acondicionado para cambiar de dirección, los conductores de ciclos deberá...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Situarse a la derecha, fuera de la calzada si fuera posible e iniciar el giro desde ahí.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Abstenerse de realizar la maniobra.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Ceñirse a la marca longitudinal de separacion entre sentidos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/bc1bea86-f057-4cfb-8060-49f84ac94e41-0000000000-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/bc1bea86-f057-4cfb-8060-49f84ac94e41-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "dgt"
+    ],
+    "external_id": "bc1bea86-f057-4cfb-8060-49f84ac94e41",
+    "id": "bc1bea86-f057-4cfb-8060-49f84ac94e41"
+  },
+  {
+    "topic_number": 2,
+    "question_number": 4,
+    "category": "B",
+    "question": {
+      "es": "Aunque esté prohibido el adelantamiento, un turismo podrá rebasar, incluso invadiendo el sentido contrario, a...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "cualquier camión.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "conductores de bicicletas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "cualquier autobús o camión que circule lentamente.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/6367c4fb-eb82-4d52-a08c-fb02c0169d08-1660062754-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/6367c4fb-eb82-4d52-a08c-fb02c0169d08-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "dgt"
+    ],
+    "external_id": "6367c4fb-eb82-4d52-a08c-fb02c0169d08",
+    "id": "6367c4fb-eb82-4d52-a08c-fb02c0169d08"
+  },
+  {
+    "topic_number": 2,
+    "question_number": 5,
+    "category": "B",
+    "question": {
+      "es": "En una carretera convencional sin separación física de los dos sentidos de circulación, un turismo, ¿puede superar la velocidad máxima genérica para adelantar un vehículo que circula a 90 km/h?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, puede circular a una velocidad máxima de 100 km/h para adelantar.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, puede circular a una velocidad máxima de 110 km/h para adelantar.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No, porque la velocidad máxima no puede superarse en ningún caso, ni siquiera para adelantar.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/1c88f4c1-e689-4af2-888c-945f0a1fee2d-1659516856-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/1c88f4c1-e689-4af2-888c-945f0a1fee2d-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "dgt"
+    ],
+    "external_id": "1c88f4c1-e689-4af2-888c-945f0a1fee2d",
+    "id": "1c88f4c1-e689-4af2-888c-945f0a1fee2d"
+  },
+  {
+    "topic_number": 2,
+    "question_number": 6,
+    "category": "B",
+    "question": {
+      "es": "El vehículo gris quiere adelantar, pero el vehículo negro ya ha encendido el intermitente izquierdo. ¿Quién tiene preferencia?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "El vehículo negro.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "El vehículo gris.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/efacb4b3-951d-46d6-82f3-95c22ca8c6c0-1659629396-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/efacb4b3-951d-46d6-82f3-95c22ca8c6c0-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "dgt"
+    ],
+    "external_id": "efacb4b3-951d-46d6-82f3-95c22ca8c6c0",
+    "id": "efacb4b3-951d-46d6-82f3-95c22ca8c6c0"
+  },
+  {
+    "topic_number": 2,
+    "question_number": 7,
+    "category": "B",
+    "question": {
+      "es": "En esta situación de la fotografía, el conductor del camión, ¿está obligado a apartarse al arcén para facilitar el adelantamiento a otros vehículos?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, cuando el camión circule a menos de 70 km/h.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Como norma general, no.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, cuando el camión es un vehículo pesado.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/16ddce30-407b-49aa-b946-63ee2b60a0c7-0000000000-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/16ddce30-407b-49aa-b946-63ee2b60a0c7-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "dgt"
+    ],
+    "external_id": "16ddce30-407b-49aa-b946-63ee2b60a0c7",
+    "id": "16ddce30-407b-49aa-b946-63ee2b60a0c7"
+  }
+]

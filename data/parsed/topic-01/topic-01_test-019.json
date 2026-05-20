@@ -1,0 +1,1584 @@
+[
+  {
+    "topic_number": 1,
+    "question_number": 1,
+    "category": "B",
+    "question": {
+      "es": "El vehículo azul quiere continuar de frente. ¿Qué debe hacer?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Reducirá la marcha suavemente intentando desplazarse al carril de la derecha.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Continuará la marcha porque el semáforo está verde.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Se detendrá porque el semáforo está rojo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/beb5af3c-acd9-4083-97f5-743683063e60-1658942727-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/beb5af3c-acd9-4083-97f5-743683063e60-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "beb5af3c-acd9-4083-97f5-743683063e60",
+    "id": "beb5af3c-acd9-4083-97f5-743683063e60"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 2,
+    "category": "B",
+    "question": {
+      "es": "Al final de su vida útil, se da de baja definitiva un vehículo, ¿quién está obligado a acreditar que éste ha sido entregado a un centro de tratamiento para su descontaminación?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "El conductor habitual del vehículo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "El titular del vehículo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "El Ayuntamiento donde estuviese dado de alta el vehículo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/teo/frontend/img/test-practicavial-default.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/70c92f64-079d-4d19-869c-1682d64657f8-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ]
+  },
+  {
+    "topic_number": 1,
+    "question_number": 3,
+    "category": "B",
+    "question": {
+      "es": "¿Cuál es la finalidad principal del airbag?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Ninguna, es un elemento decorativo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Disminuir el consumo de combustible.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Evitar, en caso de accidente, el impacto de los ocupantes del vehículo contra los elementos del automóvil.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/3c106b33-ed72-44ee-a5dc-b00545b6dc1e-1659166401-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/3c106b33-ed72-44ee-a5dc-b00545b6dc1e-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "3c106b33-ed72-44ee-a5dc-b00545b6dc1e",
+    "id": "3c106b33-ed72-44ee-a5dc-b00545b6dc1e"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 4,
+    "category": "B",
+    "question": {
+      "es": "En este caso, en el cual usted circula por la vía pavimentada, y según la situación del vehículo de color blanco que se aproxima desde una vía sin pavimentar, ¿cómo debe actuar usted en esta situación?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Facilitarle la incorporación en la medida de lo posible.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No cederle el paso y pasar rápidamente.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Cederle el paso al vehículo de color blanco.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/da267a50-30bd-45dc-8048-76e87e0ab36d-1658991812-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/da267a50-30bd-45dc-8048-76e87e0ab36d-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "da267a50-30bd-45dc-8048-76e87e0ab36d",
+    "id": "da267a50-30bd-45dc-8048-76e87e0ab36d"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 5,
+    "category": "B",
+    "question": {
+      "es": "Ante esta línea de detención, ¿es obligatorio detenernos siempre ?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sólo si no existe visibilidad.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/8109c0f7-1f19-4b9d-b97b-dff6f06325a6-1658994621-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/8109c0f7-1f19-4b9d-b97b-dff6f06325a6-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "8109c0f7-1f19-4b9d-b97b-dff6f06325a6",
+    "id": "8109c0f7-1f19-4b9d-b97b-dff6f06325a6"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 6,
+    "category": "B",
+    "question": {
+      "es": "En esta vía de tres carriles y doble sentido el turismo, ¿circula correctamente por el carril central?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Si, en vías de tres carriles, el de la derecha se reserva para vehículos lentos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No, debe circular siempre por el carril de la derecha.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Si, aunque debe circular por la derecha una vez adelante al camión.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/cbc47473-b785-41e6-86fc-8b3df1b1e2b3-1697013042-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/cbc47473-b785-41e6-86fc-8b3df1b1e2b3-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "cbc47473-b785-41e6-86fc-8b3df1b1e2b3",
+    "id": "cbc47473-b785-41e6-86fc-8b3df1b1e2b3"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 7,
+    "category": "B",
+    "question": {
+      "es": "¿Quién tiene preferencia?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "El turismo que circule a mayor velocidad.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "El turismo número 1.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "El turismo número 2.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/25b28c4a-6585-4ca8-b873-eb31fdc330df-1659165775-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/25b28c4a-6585-4ca8-b873-eb31fdc330df-s-1.jpg?t=1768469892",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "25b28c4a-6585-4ca8-b873-eb31fdc330df",
+    "id": "25b28c4a-6585-4ca8-b873-eb31fdc330df"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 8,
+    "category": "B",
+    "question": {
+      "es": "Al cruzar un arcén por el que transitan peatones, ¿qué debe hacer?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Avisarles con las señales acústicas para que se aparten.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Cederles el paso si no disponen de zona peatonal.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Cederles el paso solamente cuando formen un grupo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/7037dfbc-1706-4467-aef8-c6354d88ad5f-1659110484-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/7037dfbc-1706-4467-aef8-c6354d88ad5f-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "7037dfbc-1706-4467-aef8-c6354d88ad5f",
+    "id": "7037dfbc-1706-4467-aef8-c6354d88ad5f"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 9,
+    "category": "B",
+    "question": {
+      "es": "Un vehículo de servicio de extinción de incendios, en servicio de urgencia, ¿podrá utilizar el carril VAO?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, si va ocupado con al menos tres personas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, siempre.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/1f7ecbdd-a9f4-4b73-8499-6c4bcfad5a28-1659339689-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/1f7ecbdd-a9f4-4b73-8499-6c4bcfad5a28-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "1f7ecbdd-a9f4-4b73-8499-6c4bcfad5a28",
+    "id": "1f7ecbdd-a9f4-4b73-8499-6c4bcfad5a28"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 10,
+    "category": "B",
+    "question": {
+      "es": "¿En qué situación advierte al conductor el sistema avanzado de ayuda a la conducción conocido como \"LDW\"?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "En un desplazamiento lateral indicado con el intermitente",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "En un cambio involuntario de dirección",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Cuando el vehículo abandona involuntariamente el carril por el que circula",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/teo/frontend/img/test-practicavial-default.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/49ea035c-e395-48b5-8781-205b8d0c698b-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ]
+  },
+  {
+    "topic_number": 1,
+    "question_number": 11,
+    "category": "B",
+    "question": {
+      "es": "Si padece una enfermedad crónica, ¿qué debe hacer?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No conducir en ningún caso.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Conducir sólo cuando toma medicamentos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Consultar al médico los posibles riesgos para la conducción.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/bfb07e2e-a2e6-4fff-8ab0-4e0268ab5173-1659026046-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/bfb07e2e-a2e6-4fff-8ab0-4e0268ab5173-s-1.jpg?t=1768470034",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "bfb07e2e-a2e6-4fff-8ab0-4e0268ab5173",
+    "id": "bfb07e2e-a2e6-4fff-8ab0-4e0268ab5173"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 12,
+    "category": "B",
+    "question": {
+      "es": "Al averiarse el vehículo que conduce dentro de un túnel debe...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "esperar dentro del túnel y no abandonar el vehículo en ningún caso.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "abandonar el vehículo dentro del túnel y dirigirse al refugio o salida más próximos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "solicitar el auxilio de otros conductores llegando a ordenar su detención si es preciso.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/269eaf70-fd0b-4329-a86f-2440bdfc24a6-1659004689-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/269eaf70-fd0b-4329-a86f-2440bdfc24a6-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "269eaf70-fd0b-4329-a86f-2440bdfc24a6",
+    "id": "269eaf70-fd0b-4329-a86f-2440bdfc24a6"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 13,
+    "category": "B",
+    "question": {
+      "es": "¿Tiene alguna obligación cuando su vehículo va a ser adelantado?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No, la responsabilidad es del vehículo que adelanta.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, ceñirse al borde derecho de la calzada para facilitar la maniobra.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, señalizar con el intermitente derecho para indicar que puede realizar la maniobra con seguridad.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/250871ed-da40-4718-b527-ef4d732718fd-1659341390-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/250871ed-da40-4718-b527-ef4d732718fd-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "250871ed-da40-4718-b527-ef4d732718fd",
+    "id": "250871ed-da40-4718-b527-ef4d732718fd"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 14,
+    "category": "B",
+    "question": {
+      "es": "¿Es obligatorio llevar cadenas en el vehículo?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sólo en invierno",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/d3a1a5a0-ae9e-47f2-8a2a-20384d68a7fa-0000000000-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/d3a1a5a0-ae9e-47f2-8a2a-20384d68a7fa-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "d3a1a5a0-ae9e-47f2-8a2a-20384d68a7fa",
+    "id": "d3a1a5a0-ae9e-47f2-8a2a-20384d68a7fa"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 15,
+    "category": "B",
+    "question": {
+      "es": "En las autovías, se permite circular…",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Por los arcenes, a conductores de bicicletas mayores de 14 años, salvo que se prohíba por señal.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "A vehículos de tracción animal.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "A peatones.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/4487873f-d7c4-4bc9-b4ec-f325b92fab7a-1658904753-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/4487873f-d7c4-4bc9-b4ec-f325b92fab7a-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "4487873f-d7c4-4bc9-b4ec-f325b92fab7a",
+    "id": "4487873f-d7c4-4bc9-b4ec-f325b92fab7a"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 16,
+    "category": "B",
+    "question": {
+      "es": "¿Qué condición se aplica para los conductores menores de 21 años con permiso D (autocares) según la normativa vigente?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Pueden conducir autocares sin pasajeros y dentro de un radio de 50 kilómetros.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Pueden conducir autocares con pasajeros sin limitación de distancia.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No pueden conducir autocares hasta cumplir 21 años.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/3b8cdd85-6b86-4b7e-b4c4-4c50d76dabfa-1734502638-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/3b8cdd85-6b86-4b7e-b4c4-4c50d76dabfa-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "3b8cdd85-6b86-4b7e-b4c4-4c50d76dabfa",
+    "id": "3b8cdd85-6b86-4b7e-b4c4-4c50d76dabfa"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 17,
+    "category": "B",
+    "question": {
+      "es": "El estrés produce en la conducción...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "menos distracciones por un estado de alerta continuo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "una mayor agresividad.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "menor sensación de fatiga.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/2429cfa6-ee7b-45c1-a047-900c8e861cd5-1659166893-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/2429cfa6-ee7b-45c1-a047-900c8e861cd5-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "2429cfa6-ee7b-45c1-a047-900c8e861cd5",
+    "id": "2429cfa6-ee7b-45c1-a047-900c8e861cd5"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 18,
+    "category": "B",
+    "question": {
+      "es": "En una carretera de tres carriles en cada sentido, ¿Cuándo se puede circular por el carril izquierdo?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Cuando los otros carriles estén ocupados y no obstaculice a los vehículos que circulan detrás.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Nunca.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Solamente para adelantar.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/4aa5515d-b8a0-4e95-a420-8a31f6fbd6a3-0000000000-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/4aa5515d-b8a0-4e95-a420-8a31f6fbd6a3-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "4aa5515d-b8a0-4e95-a420-8a31f6fbd6a3",
+    "id": "4aa5515d-b8a0-4e95-a420-8a31f6fbd6a3"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 19,
+    "category": "B",
+    "question": {
+      "es": "El sistema ADAS conocido como \"EBD\" ayuda a detectar cuándo el vehículo que circula por delante...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "se dispone a realizar un cambio de dirección en la próxima intersección",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "circula a una velocidad inferior a la mínima establecida en la vía",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "está realizando una frenada de emergencia",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/teo/frontend/img/test-practicavial-default.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/3e0831d5-89f7-4dcf-94e5-3d6b2f23beff-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ]
+  },
+  {
+    "topic_number": 1,
+    "question_number": 20,
+    "category": "B",
+    "question": {
+      "es": "El reposacabezas es un elemento de...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "seguridad pasiva.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "confort.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "seguridad activa.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/3d42664b-8fdb-4c44-9d0f-5e414694bfb6-1659165165-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/3d42664b-8fdb-4c44-9d0f-5e414694bfb6-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "3d42664b-8fdb-4c44-9d0f-5e414694bfb6",
+    "id": "3d42664b-8fdb-4c44-9d0f-5e414694bfb6"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 21,
+    "category": "B",
+    "question": {
+      "es": "Hay una marca longitudinal continua adosada a otra discontinua, ¿cuál de las dos se debe tener en cuenta?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "La marca situada en el lado por el que se circula.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "La marca situada en el lado contrario por el que se circula.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Ninguna de las dos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/bced1600-d01d-4634-b768-60cf84939d8d-1659085061-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/bced1600-d01d-4634-b768-60cf84939d8d-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "bced1600-d01d-4634-b768-60cf84939d8d",
+    "id": "bced1600-d01d-4634-b768-60cf84939d8d"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 22,
+    "category": "B",
+    "question": {
+      "es": "La velocidad máxima para un turismo en una carretera convencional con arcén de más de 1,50 metros es...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "90 km/h.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "120 km/h.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "100 km/h.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/fab371ed-8259-4d85-aa78-efef3494f937-1659084137-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/fab371ed-8259-4d85-aa78-efef3494f937-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "fab371ed-8259-4d85-aa78-efef3494f937",
+    "id": "fab371ed-8259-4d85-aa78-efef3494f937"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 23,
+    "category": "B",
+    "question": {
+      "es": "En caso de activarse el sistema avanzado de ayuda a la conducción \"AEB\", ¿de qué forma actuará?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Actuará tomando el control de la dirección del vehículo y realizando una maniobra evasiva",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Emitirá un rápido parpadeo de las luces de frenado cuando se apliquen los frenos de manera potente ante una situación de emergencia",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Avisando al conductor y si este hace caso omiso, tomando el control del vehículo para detenerlo",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/teo/frontend/img/test-practicavial-default.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/1cecef93-23d9-489a-94bf-5b59d79c9710-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ]
+  },
+  {
+    "topic_number": 1,
+    "question_number": 24,
+    "category": "B",
+    "question": {
+      "es": "Para un ajuste óptimo, la altura de la parte superior del reposacabezas debe colocarse…",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "A la misma altura que la parte superior de la cabeza.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Por encima de la nuca.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Por debajo de la nuca.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/443a7c32-21fc-46f6-8eb5-e0a053e62e86-1658998444-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/443a7c32-21fc-46f6-8eb5-e0a053e62e86-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "443a7c32-21fc-46f6-8eb5-e0a053e62e86",
+    "id": "443a7c32-21fc-46f6-8eb5-e0a053e62e86"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 25,
+    "category": "B",
+    "question": {
+      "es": "La marca amarilla continua...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "indica una zona reservada para un uso especial, donde sólo puedo parar.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "indica la zona de la vía donde está prohibido parar y estacionar.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "indica una zona donde la duración del estacionamiento está limitada.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/6bbd5a97-3dcd-4ad6-b8ed-bfb171177b18-0000000000-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/6bbd5a97-3dcd-4ad6-b8ed-bfb171177b18-s-1.jpg?t=1768470206",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "6bbd5a97-3dcd-4ad6-b8ed-bfb171177b18",
+    "id": "6bbd5a97-3dcd-4ad6-b8ed-bfb171177b18"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 26,
+    "category": "B",
+    "question": {
+      "es": "Una fila de escolares está cruzando la calzada. ¿Debe cederles el paso?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No, cuando no llevan paleta de STOP.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Solamente en los pasos para peatones.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/b107a3f8-23c1-4fa3-89d9-3ddd22d431a5-1658914236-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/b107a3f8-23c1-4fa3-89d9-3ddd22d431a5-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "b107a3f8-23c1-4fa3-89d9-3ddd22d431a5",
+    "id": "b107a3f8-23c1-4fa3-89d9-3ddd22d431a5"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 27,
+    "category": "B",
+    "question": {
+      "es": "Cuando un conductor ha tomado bebidas alcohólicas, como norma general...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "no suele ser consciente de que asume más riesgos durante la conducción.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "es consciente de que asume más riesgos durante la conducción.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "percibe mejor los riesgos de la conducción.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/4fc52a7b-fc9d-41c2-9b13-59630a1d28a1-1659085211-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/4fc52a7b-fc9d-41c2-9b13-59630a1d28a1-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "4fc52a7b-fc9d-41c2-9b13-59630a1d28a1",
+    "id": "4fc52a7b-fc9d-41c2-9b13-59630a1d28a1"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 28,
+    "category": "B",
+    "question": {
+      "es": "Los vehículos que circulan por los arcenes de una vía en la que se ha habilitado un carril adicional deberán llevar encendido, al menos...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "el alumbrado de cruce, tanto de día como de noche.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "el alumbrado de cruce durante la noche y el de posición durante el día.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "el alumbrado de cruce, sólo durante el día.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/8d9ce53d-e864-47f3-8eb7-1156bc3ad850-1659006519-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/8d9ce53d-e864-47f3-8eb7-1156bc3ad850-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "8d9ce53d-e864-47f3-8eb7-1156bc3ad850",
+    "id": "8d9ce53d-e864-47f3-8eb7-1156bc3ad850"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 29,
+    "category": "B",
+    "question": {
+      "es": "Si tiene que reducir considerablemente la velocidad del vehículo que conduce, ¿cómo debe avisar a los vehículos que circulan detrás?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Encendiendo las luces de posición.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sólo con el intermitente derecho.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Mediante el empleo reiterado de las luces de frenado.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/cbe6e13d-eea4-42fb-989d-9aa5def6f5dc-1659084935-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/cbe6e13d-eea4-42fb-989d-9aa5def6f5dc-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "cbe6e13d-eea4-42fb-989d-9aa5def6f5dc",
+    "id": "cbe6e13d-eea4-42fb-989d-9aa5def6f5dc"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 30,
+    "category": "B",
+    "question": {
+      "es": "Los vehículos que circulan por un carril de utilización en sentido contrario al habitual, llevarán encendido...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "el alumbrado de cruce, tanto de día como de noche.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "el alumbrado de cruce, durante la noche y el de posición durante el día.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "el alumbrado de cruce, durante el día.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/4298a2f7-49c8-4d7b-9548-2eb2a5d951b3-1659113750-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/4298a2f7-49c8-4d7b-9548-2eb2a5d951b3-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "4298a2f7-49c8-4d7b-9548-2eb2a5d951b3",
+    "id": "4298a2f7-49c8-4d7b-9548-2eb2a5d951b3"
+  }
+]

@@ -1,0 +1,530 @@
+[
+  {
+    "topic_number": 10,
+    "question_number": 1,
+    "category": "B",
+    "question": {
+      "es": "¿Cómo debe conducir con nieve?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Por el arcén.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Con las luces de emergencia encendidas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Frenando y acelerando con suavidad.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/2c1984bc-4aae-452f-a684-1cb880c9df64-1659114621-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/2c1984bc-4aae-452f-a684-1cb880c9df64-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "2c1984bc-4aae-452f-a684-1cb880c9df64",
+    "id": "2c1984bc-4aae-452f-a684-1cb880c9df64"
+  },
+  {
+    "topic_number": 10,
+    "question_number": 2,
+    "category": "B",
+    "question": {
+      "es": "La amortiguación en malas condiciones hace que, en las curvas, el vehículo…",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Se desvíe siempre hacia el lado izquierdo en el sentido de la marcha.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Pierda estabilidad.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Tienda a seguir recto.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/c3e2c087-a223-4bc8-9248-9452592e2bd2-1659107455-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/c3e2c087-a223-4bc8-9248-9452592e2bd2-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "c3e2c087-a223-4bc8-9248-9452592e2bd2",
+    "id": "c3e2c087-a223-4bc8-9248-9452592e2bd2"
+  },
+  {
+    "topic_number": 10,
+    "question_number": 3,
+    "category": "B",
+    "question": {
+      "es": "En un tramo con gran pendiente se encuentran dos vehículos en una zona estrecha donde no pueden cruzarse, tiene preferencia el vehículo que circula...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "con mayor MMA.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "en sentido ascendente.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "en sentido descendente.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/d196748e-ecc9-42b7-ba56-4dd76390a0c3-1767943817-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/d196748e-ecc9-42b7-ba56-4dd76390a0c3-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "d196748e-ecc9-42b7-ba56-4dd76390a0c3",
+    "id": "d196748e-ecc9-42b7-ba56-4dd76390a0c3"
+  },
+  {
+    "topic_number": 10,
+    "question_number": 4,
+    "category": "B",
+    "question": {
+      "es": "El sistema de ayuda de salida en pendiente, ¿Cómo ayudará al conductor?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "A través de un sensor que detecta el ángulo de inclinación del vehículo e impide que se vaya hacia atrás al levantar el pie de freno",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Acelerará rápidamente el motor para evitar que el vehículo se vaya hacia atrás al levantar el pie del freno",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Activará el freno de estacionamiento de manera automática y no lo desactivará hasta que el conductor presione el acelerador, evitando así que el vehículo se vaya hacia atrás",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/teo/frontend/img/test-practicavial-default.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/1b53997b-8b60-4ee2-9cd6-8a1f82bf01d6-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ]
+  },
+  {
+    "topic_number": 10,
+    "question_number": 5,
+    "category": "B",
+    "question": {
+      "es": "Cuando se modifica alguna característica técnica de importancia del vehículo, ¿qué se debe hacer?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Pasar una ITV extraordinaria.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Cuando se hace en un taller autorizado, no debe pasar inspección técnica.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Esperar a la próxima ITV para comunicar la modificación.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/1aaa0d4a-fd44-4e18-9fe1-66e551ad5e09-1658932823-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/1aaa0d4a-fd44-4e18-9fe1-66e551ad5e09-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "1aaa0d4a-fd44-4e18-9fe1-66e551ad5e09",
+    "id": "1aaa0d4a-fd44-4e18-9fe1-66e551ad5e09"
+  },
+  {
+    "topic_number": 10,
+    "question_number": 6,
+    "category": "B",
+    "question": {
+      "es": "Si en un vehículo se realiza una reforma técnica de importancia, ¿es obligatorio pasar una inspección?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No es necesario.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, en un taller autorizado.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, en una estación ITV.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/a88d7cdf-d97e-4469-8211-df037a3ce825-1659343570-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/a88d7cdf-d97e-4469-8211-df037a3ce825-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "a88d7cdf-d97e-4469-8211-df037a3ce825",
+    "id": "a88d7cdf-d97e-4469-8211-df037a3ce825"
+  },
+  {
+    "topic_number": 10,
+    "question_number": 7,
+    "category": "B",
+    "question": {
+      "es": "Cuando estaciono mi turismo en una pendiente descendente tengo obligación de...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "parar el motor y poner freno de estacionamiento, únicamente.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "parar el motor, poner freno de estacionamiento y dejar colocada la marcha atrás si la caja de cambios es manual.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "dejar colocada la primera velocidad, únicamente.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/6e8a04b6-fe57-4cd0-94cc-11d4e0913a20-0000000000-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/6e8a04b6-fe57-4cd0-94cc-11d4e0913a20-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "6e8a04b6-fe57-4cd0-94cc-11d4e0913a20",
+    "id": "6e8a04b6-fe57-4cd0-94cc-11d4e0913a20"
+  },
+  {
+    "topic_number": 10,
+    "question_number": 8,
+    "category": "B",
+    "question": {
+      "es": "En un descenso prolongado con curvas y cuando hayan razones de seguridad que lo aconsejen, ¿podrán circular los ciclistas por la parte derecha de la calzada que necesiten?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Podrán utilizar toda la calzada.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No, siempre utilizarán el arcén.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/57294b9b-7b3c-4cfc-b0d7-73e44155ca1d-1659367081-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/57294b9b-7b3c-4cfc-b0d7-73e44155ca1d-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "dgt"
+    ],
+    "external_id": "57294b9b-7b3c-4cfc-b0d7-73e44155ca1d",
+    "id": "57294b9b-7b3c-4cfc-b0d7-73e44155ca1d"
+  },
+  {
+    "topic_number": 10,
+    "question_number": 9,
+    "category": "B",
+    "question": {
+      "es": "¿Qué puede hacer para evitar el acuaplaning?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No conducir por los surcos que van dejando los vehículos que van delante.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Circular con unos neumáticos inflados adecuadamente y una suficiente profundidad en el dibujo de la banda de rodadura.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Acelerar para pasar cuanto antes sobre el agua embalsada.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/ccb798a8-f172-47ab-bb27-98fcfbe21f75-1659373947-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/ccb798a8-f172-47ab-bb27-98fcfbe21f75-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "dgt"
+    ],
+    "external_id": "ccb798a8-f172-47ab-bb27-98fcfbe21f75",
+    "id": "ccb798a8-f172-47ab-bb27-98fcfbe21f75"
+  },
+  {
+    "topic_number": 10,
+    "question_number": 10,
+    "category": "B",
+    "question": {
+      "es": "En esta curva, ¿puede adelantar al vehículo?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No, porque para adelantar necesito ocupar el carril de sentido contrario.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, porque no hay una señal vertical de prohibido adelantar.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, porque no hay línea continua.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/d6b48b28-1636-4256-9dd4-cb5a7c5584d4-1659424094-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/d6b48b28-1636-4256-9dd4-cb5a7c5584d4-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "dgt"
+    ],
+    "external_id": "d6b48b28-1636-4256-9dd4-cb5a7c5584d4",
+    "id": "d6b48b28-1636-4256-9dd4-cb5a7c5584d4"
+  }
+]

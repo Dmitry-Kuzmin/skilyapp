@@ -71,7 +71,7 @@ export function useDuelBattleCoordinator({
     lastAttackTimestamp, betInfo, opponentActivityStatus, players, answerHistory,
     setMyPlayerId, setPlayers, setQuestions, setCurrentIndex, setTimeLeft,
     setMyScore, setOpponentScore, setCombo, setEliminatedOptions,
-    setFinishedMyQuestions, nextQuestion, setLoading,
+    nextQuestion, setLoading,
     setWaitingForOpponent, setTranslationLanguage,
     setIsAnswered, setSelectedAnswer, setUsedBoosts, addUsedBoost, setHasFinishedMyQuestions,
     syncActiveExploits, cleanupExpiredExploits, setScreenShake,

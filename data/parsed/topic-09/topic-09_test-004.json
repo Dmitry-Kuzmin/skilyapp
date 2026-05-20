@@ -1,0 +1,532 @@
+[
+  {
+    "topic_number": 9,
+    "question_number": 1,
+    "category": "B",
+    "question": {
+      "es": "¿ El vehículo ha advertido correctamente la maniobra de cambio de dirección?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No, debe encender también las luces de emergencia.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No, debe advertirla también con la mano.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/a95395a1-04e1-49f2-91f0-6337a12b73d0-1658915866-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/a95395a1-04e1-49f2-91f0-6337a12b73d0-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "a95395a1-04e1-49f2-91f0-6337a12b73d0",
+    "id": "a95395a1-04e1-49f2-91f0-6337a12b73d0"
+  },
+  {
+    "topic_number": 9,
+    "question_number": 2,
+    "category": "B",
+    "question": {
+      "es": "Buscar y contestar el móvil cuando suena mientras está conduciendo, ¿es una causa de distracción al volante?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí en carretera pero no en poblado.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No, el móvil no provoca distracción.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/c3784dc4-238e-4917-9309-85fff92b967f-0000000000-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/c3784dc4-238e-4917-9309-85fff92b967f-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "c3784dc4-238e-4917-9309-85fff92b967f",
+    "id": "c3784dc4-238e-4917-9309-85fff92b967f"
+  },
+  {
+    "topic_number": 9,
+    "question_number": 3,
+    "category": "B",
+    "question": {
+      "es": "¿Está permitido que una persona en silla de ruedas se desplace por el arcén?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sólo en vías urbanas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, siempre que adopte las debidas precauciones.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/fe037f7a-2c28-49a3-839d-a36cf7e2938c-1659092592-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/fe037f7a-2c28-49a3-839d-a36cf7e2938c-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "fe037f7a-2c28-49a3-839d-a36cf7e2938c",
+    "id": "fe037f7a-2c28-49a3-839d-a36cf7e2938c"
+  },
+  {
+    "topic_number": 9,
+    "question_number": 4,
+    "category": "B",
+    "question": {
+      "es": "Una motocicleta nueva, ¿cuándo tiene que pasar la primera ITV?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "A los 2 años.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "A los 4 años desde la fecha de su primera matriculación.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "A los cinco años contados desde la fecha de su primera matriculación.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/8f782946-f8b3-41ed-bb29-c87cbab26adf-1659105900-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/8f782946-f8b3-41ed-bb29-c87cbab26adf-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "8f782946-f8b3-41ed-bb29-c87cbab26adf",
+    "id": "8f782946-f8b3-41ed-bb29-c87cbab26adf"
+  },
+  {
+    "topic_number": 9,
+    "question_number": 5,
+    "category": "B",
+    "question": {
+      "es": "¿Influye el estado de los neumáticos en la distancia de frenado?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No, porque la distancia de frenado depende sólo de la velocidad.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No, porque la distancia de frenado es siempre la misma.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/48523bb3-6016-4e47-a02f-f4f0adf5e9dd-0000000000-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/48523bb3-6016-4e47-a02f-f4f0adf5e9dd-s-1.jpg?t=1768470903",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "48523bb3-6016-4e47-a02f-f4f0adf5e9dd",
+    "id": "48523bb3-6016-4e47-a02f-f4f0adf5e9dd"
+  },
+  {
+    "topic_number": 9,
+    "question_number": 6,
+    "category": "B",
+    "question": {
+      "es": "Un vehículo de dos ruedas sin sidecar, con una cilindrada superior a 50 centímetros cúbicos, se considera...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "un ciclomotor de dos ruedas",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "una motocicleta.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "un ciclomotor o un cuadriciclo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/65cf76f0-1cd1-45ff-a6ef-92ff77f808ad-1659629541-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/65cf76f0-1cd1-45ff-a6ef-92ff77f808ad-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "dgt"
+    ],
+    "external_id": "65cf76f0-1cd1-45ff-a6ef-92ff77f808ad",
+    "id": "65cf76f0-1cd1-45ff-a6ef-92ff77f808ad"
+  },
+  {
+    "topic_number": 9,
+    "question_number": 7,
+    "category": "B",
+    "question": {
+      "es": "¿Qué cantidad de combustible se puede ahorrar si practica las técnicas de conducción eficiente?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Un 5% del combustible que se consume aproximadamente.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Un 50% del combustible que se consume aproximadamente.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Un 25% del combustible que se consume aproximadamente.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/8c89cf1d-ab0e-4039-a3b3-4647c35585fd-1659629755-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/8c89cf1d-ab0e-4039-a3b3-4647c35585fd-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "dgt"
+    ],
+    "external_id": "8c89cf1d-ab0e-4039-a3b3-4647c35585fd",
+    "id": "8c89cf1d-ab0e-4039-a3b3-4647c35585fd"
+  },
+  {
+    "topic_number": 9,
+    "question_number": 8,
+    "category": "B",
+    "question": {
+      "es": "La depresión es una enfermedad...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "que siempre es leve.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "que puede ser peligrosa para conducir con seguridad.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "que provoca una alteración del estado de ánimo que no es peligrosa para conducir.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/180eddaa-2e92-4472-87ac-c7ba6d473a19-1660153544-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/180eddaa-2e92-4472-87ac-c7ba6d473a19-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "dgt"
+    ],
+    "external_id": "180eddaa-2e92-4472-87ac-c7ba6d473a19",
+    "id": "180eddaa-2e92-4472-87ac-c7ba6d473a19"
+  },
+  {
+    "topic_number": 9,
+    "question_number": 9,
+    "category": "B",
+    "question": {
+      "es": "En condiciones invernales, para mantener buena adherencia de los neumáticos, debemos...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Circular un poco más deprisa que en verano con el fin de asegurarse de que el motor se mantiene caliente.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Bombear siempre los frenos con fuerza cuando sea necesario.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Evitar los movimientos bruscos para reducir la posibilidad de deslizamiento.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/24703fc9-b990-487c-aeec-a433643c2d93-1659368969-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/24703fc9-b990-487c-aeec-a433643c2d93-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "dgt"
+    ],
+    "external_id": "24703fc9-b990-487c-aeec-a433643c2d93",
+    "id": "24703fc9-b990-487c-aeec-a433643c2d93"
+  },
+  {
+    "topic_number": 9,
+    "question_number": 10,
+    "category": "B",
+    "question": {
+      "es": "Los neumáticos, ¿cuándo hay que cambiarlos?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Cuando la profundidad del dibujo sea menor de 2 mm.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Cuando la profundidad del dibujo sea menor de 1,6 mm.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Cuando la profundidad del dibujo sea menor de 3 mm.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/3a0b6bd0-3ebe-4374-a323-aeb4f9e27a2c-1659372136-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/3a0b6bd0-3ebe-4374-a323-aeb4f9e27a2c-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "dgt"
+    ],
+    "external_id": "3a0b6bd0-3ebe-4374-a323-aeb4f9e27a2c",
+    "id": "3a0b6bd0-3ebe-4374-a323-aeb4f9e27a2c"
+  }
+]

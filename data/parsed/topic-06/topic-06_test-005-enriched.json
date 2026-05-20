@@ -1,0 +1,526 @@
+[
+  {
+    "topic_number": 6,
+    "question_number": 1,
+    "category": "B",
+    "question": {
+      "es": "¿Qué permiso de conducción autoriza a conducir motocicletas de potencia superior a 35 kW?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "El permiso de la clase A1.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "El permiso de la clase A.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "El permiso de la clase A2.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/8472ccc3-dc0e-49b2-8bd0-851ff44c5ddb-1659004941-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/8472ccc3-dc0e-49b2-8bd0-851ff44c5ddb-s-1.jpg?t=1768469446",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "8472ccc3-dc0e-49b2-8bd0-851ff44c5ddb",
+    "id": "8472ccc3-dc0e-49b2-8bd0-851ff44c5ddb"
+  },
+  {
+    "topic_number": 6,
+    "question_number": 2,
+    "category": "B",
+    "question": {
+      "es": "¿Qué tipo de sanción conlleva la utilización de dispositivos de intercomunicación no autorizados en las pruebas para la obtención del permiso de conducir?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Multa de 200 euros y la inhabilitación de volver a presentarse a las pruebas en el plazo de tres meses.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Multa de 500 euros y la inhabilitación de volver a presentarse a las pruebas en el plazo de tres meses.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Multa de 500 euros y la inhabilitación de volver a presentarse a las pruebas en el plazo de seis meses.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/teo/frontend/img/test-practicavial-default.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/a53e57c7-2765-4372-900f-9a9dbed5584f-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ]
+  },
+  {
+    "topic_number": 6,
+    "question_number": 3,
+    "category": "B",
+    "question": {
+      "es": "¿Cuál es la sanción por no tener el seguro obligatorio del vehículo?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Una multa, pero sin inmovilización del vehículo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "La autoridad inmoviliza el vehículo, pero no impone multa.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Una multa y la autoridad inmoviliza el vehículo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/bff234ed-864d-4f6e-a1ba-47dc4e5fa793-1659105861-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/bff234ed-864d-4f6e-a1ba-47dc4e5fa793-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "bff234ed-864d-4f6e-a1ba-47dc4e5fa793",
+    "id": "bff234ed-864d-4f6e-a1ba-47dc4e5fa793"
+  },
+  {
+    "topic_number": 6,
+    "question_number": 4,
+    "category": "B",
+    "question": {
+      "es": "Conducir seguro, ¿de qué depende?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Depende del conductor y del buen estado del vehículo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Depende del buen estado del vehículo, del conductor no.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Depende del conductor, del vehículo no.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/2781acc2-92d5-4d57-a4a0-b0119fe08f3c-1659338155-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/2781acc2-92d5-4d57-a4a0-b0119fe08f3c-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "2781acc2-92d5-4d57-a4a0-b0119fe08f3c",
+    "id": "2781acc2-92d5-4d57-a4a0-b0119fe08f3c"
+  },
+  {
+    "topic_number": 6,
+    "question_number": 5,
+    "category": "B",
+    "question": {
+      "es": "¿Qué documento debe consultar para saber cuándo ha de pasar la 1ª inspección técnica a su vehículo?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "El manual del vehículo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "La tarjeta de inspección técnica.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "El permiso de circulación.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/ba010375-b571-4f28-9639-84cdf7e2c4f5-0000000000-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/ba010375-b571-4f28-9639-84cdf7e2c4f5-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "ba010375-b571-4f28-9639-84cdf7e2c4f5",
+    "id": "ba010375-b571-4f28-9639-84cdf7e2c4f5"
+  },
+  {
+    "topic_number": 6,
+    "question_number": 6,
+    "category": "B",
+    "question": {
+      "es": "Con el permiso de conducir de la clase “B”, ¿puede conducir motocicletas de más de 125 centímetros cúbicos?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sólo si tiene una antigüedad superior a 3 años.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No, es necesario obtener el permiso de la clase A2 o el A.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/teo/frontend/img/test-practicavial-default.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/cc841e47-fe15-4e87-ae9a-a67fabcc0884-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ]
+  },
+  {
+    "topic_number": 6,
+    "question_number": 7,
+    "category": "B",
+    "question": {
+      "es": "¿Cuál es la edad mínima para obtener el carnet de tipo C en España si se dispone del Certificado de Aptitud Profesional (CAP)?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "18 años",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "19 años",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "21 años",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/9e426f2b-5bc2-4c93-8c28-7402f087c0be-1734502479-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/9e426f2b-5bc2-4c93-8c28-7402f087c0be-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "9e426f2b-5bc2-4c93-8c28-7402f087c0be",
+    "id": "9e426f2b-5bc2-4c93-8c28-7402f087c0be"
+  },
+  {
+    "topic_number": 6,
+    "question_number": 8,
+    "category": "B",
+    "question": {
+      "es": "Qué requisito es indispensable para que un joven de 18 años pueda conducir camiones rígidos (carnet C) y autocares (carnet D) según la normativa actual?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Poseer el permiso de conducción B con al menos un año de antigüedad.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Haber completado el Certificado de Aptitud Profesional (CAP) de 280 horas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Tener experiencia previa como conductor profesional.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/c99869a2-ff99-4d07-8e2f-d0a9221a865f-1734502768-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/c99869a2-ff99-4d07-8e2f-d0a9221a865f-s-1.jpg?t=1768471373",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "c99869a2-ff99-4d07-8e2f-d0a9221a865f",
+    "id": "c99869a2-ff99-4d07-8e2f-d0a9221a865f"
+  },
+  {
+    "topic_number": 6,
+    "question_number": 9,
+    "category": "B",
+    "question": {
+      "es": "¿Qué sanción se impondrá a un turismo que circula sin seguro?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Solamente multa al conductor del vehículo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Inmovilización inmediata del vehículo siempre.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Una multa al titular del vehículo y los agentes podrán inmovilizar el vehículo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/f7a78382-dae9-4db5-bdda-444db84c624a-1659164738-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/f7a78382-dae9-4db5-bdda-444db84c624a-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "f7a78382-dae9-4db5-bdda-444db84c624a",
+    "id": "f7a78382-dae9-4db5-bdda-444db84c624a"
+  },
+  {
+    "topic_number": 6,
+    "question_number": 10,
+    "category": "B",
+    "question": {
+      "es": "Entre otros, ¿Qué sistemas ADAS están permitidos en las pruebas de control de aptitudes y comportamientos para la obtención del permiso de conducción?",
+      "en": "Among others, which ADAS systems are permitted during the skills and behavior control tests for obtaining a driving license?",
+      "ru": "Какие из систем ADAS, помимо прочих, разрешены при проведении практического экзамена на получение водительского удостоверения?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Asistente de estacionamiento",
+          "en": "Parking assistant",
+          "ru": "Ассистент парковки"
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "TSR o Reconocimiento de señales de tráfico",
+          "en": "TSR or Traffic sign recognition",
+          "ru": "TSR или Система распознавания дорожных знаков"
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "AEB o Frenado de emergencia urbano e interurbano- y •Hill Holder o Sistema de salida en pendiente",
+          "en": "AEB or Urban and interurban emergency braking- and •Hill Holder or Hill start assist system",
+          "ru": "AEB (Автономное экстренное торможение в городе и на трассе) и Hill Holder (Система помощи при трогании на подъеме)"
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": "Según la normativa vigente de la DGT para las pruebas de aptitud, se permite el uso de sistemas ADAS que no sustituyan la actuación del conductor en el control del vehículo. Los sistemas autorizados incluyen: Start-Stop, Hill Holder, cámaras de visión trasera y 360º, frenado de emergencia (AEB/EBD), limitador de velocidad (SLI) y el registrador de datos (EDR). La activación de estos sistemas no supondrá penalización en la calificación del examen.",
+      "en": "According to current DGT regulations for driving tests, the use of ADAS systems that do not replace the driver's control of the vehicle is permitted. Authorized systems include: Start-Stop, Hill Holder, rear-view and 360º cameras, emergency braking (AEB/EBD), speed limiter (SLI), and the event data recorder (EDR). The activation of these systems will not result in a penalty during the exam evaluation.",
+      "ru": "🎓 При сдаче экзамена на легковой автомобиль (Turismo) в Испании официально разрешено использовать ряд систем ADAS. В этот список входят: система Start-Stop, Hill Holder (помощь при трогании на подъеме), камеры заднего вида и кругового обзора, система экстренного торможения (AEB), ограничитель скорости и регистратор данных (EDR). Эти системы считаются инструментами безопасности, и их работа во время теста не считается ошибкой и не влияет на оценку. Важно понимать, что системы, которые полностью берут на себя управление (например, автопарковщик), по-прежнему запрещены."
+    },
+    "image_url": "https://teorica.practicavial.com/teo/frontend/img/test-practicavial-default.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/d6b39dcc-03e4-4429-a3dd-8729dff6b9d2-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ]
+  }
+]

@@ -1,0 +1,1590 @@
+[
+  {
+    "topic_number": 2,
+    "question_number": 1,
+    "category": "B",
+    "question": {
+      "es": "Los animales, ¿cuándo tienen preferencia de paso?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Nunca tienen preferencia de paso.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Cuando hay señal de animales domésticos con el cartel de \"cañada\".",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Cuando van en grupo o rebaño, siempre tienen preferencia de paso.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/7413003f-e703-4a2e-ad3d-112b25dde960-0000000000-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/7413003f-e703-4a2e-ad3d-112b25dde960-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "7413003f-e703-4a2e-ad3d-112b25dde960",
+    "id": "7413003f-e703-4a2e-ad3d-112b25dde960"
+  },
+  {
+    "topic_number": 2,
+    "question_number": 2,
+    "category": "B",
+    "question": {
+      "es": "Si pretende incorporarse a una vía de uso público desde un camino exclusivamente privado, debe hacerlo…",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "lentamente, cediendo el paso sólo a los vehículos que se aproximen por la derecha.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "rápidamente, para no obstaculizar.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "a una velocidad que permita detenerme en el acto, para ceder el paso a los vehículos que circulen por aquélla.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/9cd48396-0acd-4b2f-96ae-6665d9681221-1659092642-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/9cd48396-0acd-4b2f-96ae-6665d9681221-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "9cd48396-0acd-4b2f-96ae-6665d9681221",
+    "id": "9cd48396-0acd-4b2f-96ae-6665d9681221"
+  },
+  {
+    "topic_number": 2,
+    "question_number": 3,
+    "category": "B",
+    "question": {
+      "es": "Al cruzarse con el peatón, la distancia lateral que debe dejar el vehículo es...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "1 metro, al menos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "2 metros, al menos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "1,50 metros, al menos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/74bd6239-eeba-4138-a974-99cb57486f87-0000000000-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/74bd6239-eeba-4138-a974-99cb57486f87-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "74bd6239-eeba-4138-a974-99cb57486f87",
+    "id": "74bd6239-eeba-4138-a974-99cb57486f87"
+  },
+  {
+    "topic_number": 2,
+    "question_number": 4,
+    "category": "B",
+    "question": {
+      "es": "¿Está permitido adelantar en el interior de un túnel?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, si hay más de un carril en el mismo sentido de la marcha.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, cuando los sentidos están separados.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/8d6c5526-6014-4587-a906-f3910be088c3-0000000000-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/8d6c5526-6014-4587-a906-f3910be088c3-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "8d6c5526-6014-4587-a906-f3910be088c3",
+    "id": "8d6c5526-6014-4587-a906-f3910be088c3"
+  },
+  {
+    "topic_number": 2,
+    "question_number": 5,
+    "category": "B",
+    "question": {
+      "es": "En una travesía sin limitación específica, ¿cuál es la velocidad máxima permitida para adelantar?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "70 km/h.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "50 km/h.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "90 km/h.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/6fdf76ce-9bc7-4162-b760-c873ea7ca588-0000000000-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/6fdf76ce-9bc7-4162-b760-c873ea7ca588-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "6fdf76ce-9bc7-4162-b760-c873ea7ca588",
+    "id": "6fdf76ce-9bc7-4162-b760-c873ea7ca588"
+  },
+  {
+    "topic_number": 2,
+    "question_number": 6,
+    "category": "B",
+    "question": {
+      "es": "El vehículo rojo, ¿está obligado a ceder el paso en la intersección?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, a los vehículos que se aproximen por la derecha.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, a todos los vehículos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/525991fb-b4d3-4102-9c7a-9642d51b7176-1659022421-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/525991fb-b4d3-4102-9c7a-9642d51b7176-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "525991fb-b4d3-4102-9c7a-9642d51b7176",
+    "id": "525991fb-b4d3-4102-9c7a-9642d51b7176"
+  },
+  {
+    "topic_number": 2,
+    "question_number": 7,
+    "category": "B",
+    "question": {
+      "es": "En esta carretera convencional de más de 2 carriles para cada uno de los sentidos, ¿qué velocidad máxima pueden alcanzar los turismos para adelantar?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "100 km/h",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "90 km/h",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "120 km/h",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/f9c94386-640d-405f-9982-fb43bd3b11c6-1655737023-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/f9c94386-640d-405f-9982-fb43bd3b11c6-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "f9c94386-640d-405f-9982-fb43bd3b11c6",
+    "id": "f9c94386-640d-405f-9982-fb43bd3b11c6"
+  },
+  {
+    "topic_number": 2,
+    "question_number": 8,
+    "category": "B",
+    "question": {
+      "es": "¿Está permitido realizar una parada en una autovía o autopista?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, en la mediana o en el arcén, indistintamente.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Solo si el arcén es transitable y suficiente y tiene más de 1,5 metros.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No, excepto en las zonas habilitadas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/3f4943e8-8d49-409d-aa6b-90f34d97bb6a-0000000000-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/3f4943e8-8d49-409d-aa6b-90f34d97bb6a-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "3f4943e8-8d49-409d-aa6b-90f34d97bb6a",
+    "id": "3f4943e8-8d49-409d-aa6b-90f34d97bb6a"
+  },
+  {
+    "topic_number": 2,
+    "question_number": 9,
+    "category": "B",
+    "question": {
+      "es": "El arcén de esta carretera convencional mide más de 1,5 m de ancho, ¿a que velocidad máxima se puede circular para adelantar?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "100 km/h",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "90 km/h",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "110 km/h",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/1d490cb6-d2d5-4571-86a8-fd37b16397eb-0000000000-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/1d490cb6-d2d5-4571-86a8-fd37b16397eb-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "1d490cb6-d2d5-4571-86a8-fd37b16397eb",
+    "id": "1d490cb6-d2d5-4571-86a8-fd37b16397eb"
+  },
+  {
+    "topic_number": 2,
+    "question_number": 10,
+    "category": "B",
+    "question": {
+      "es": "¿Está permitido estacionar en la parte transitable del arcén de una vía interurbana?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, para descargar o cargar mercancías.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, pero solamente cuando la línea de borde de la calzada es discontinua.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/28c9246e-f36e-438b-beb8-ab7685c6e64d-1658996926-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/28c9246e-f36e-438b-beb8-ab7685c6e64d-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "28c9246e-f36e-438b-beb8-ab7685c6e64d",
+    "id": "28c9246e-f36e-438b-beb8-ab7685c6e64d"
+  },
+  {
+    "topic_number": 2,
+    "question_number": 11,
+    "category": "B",
+    "question": {
+      "es": "Los peatones deberán cruzar las plazas y glorietas...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "por el centro de la calzada.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "por el recorrido más corto.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "rodeándolas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/470afbd1-7271-42d0-9573-334ab69f3058-1659093373-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/470afbd1-7271-42d0-9573-334ab69f3058-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "470afbd1-7271-42d0-9573-334ab69f3058",
+    "id": "470afbd1-7271-42d0-9573-334ab69f3058"
+  },
+  {
+    "topic_number": 2,
+    "question_number": 12,
+    "category": "B",
+    "question": {
+      "es": "En esta carretera convencional de más de 2 carriles para cada uno de los sentidos, ¿qué velocidad máxima pueden alcanzar los turismos para adelantar?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "90 km/h.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "100 km/h.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "140 km/h.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/22e9f44c-da08-4dd2-bccc-de860d00a0d9-1655737152-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/22e9f44c-da08-4dd2-bccc-de860d00a0d9-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "22e9f44c-da08-4dd2-bccc-de860d00a0d9",
+    "id": "22e9f44c-da08-4dd2-bccc-de860d00a0d9"
+  },
+  {
+    "topic_number": 2,
+    "question_number": 13,
+    "category": "B",
+    "question": {
+      "es": "Para atravesar una glorieta, los peatones están obligados a...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "cruzar por el centro, si pueden hacerlo de forma segura.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "cruzarla por el camino más corto.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "rodearla por la acera o el arcén.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/18019282-8bf6-4e97-b8c3-e722d996b3b6-0000000000-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/18019282-8bf6-4e97-b8c3-e722d996b3b6-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "18019282-8bf6-4e97-b8c3-e722d996b3b6",
+    "id": "18019282-8bf6-4e97-b8c3-e722d996b3b6"
+  },
+  {
+    "topic_number": 2,
+    "question_number": 14,
+    "category": "B",
+    "question": {
+      "es": "Si desea adelantar, ¿cuál de estas líneas deberá tener en cuenta?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Las dos líneas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "La línea continua.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "La línea discontinua.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/77cf3933-b06b-4f80-9907-48360f48300d-1658947997-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/77cf3933-b06b-4f80-9907-48360f48300d-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "77cf3933-b06b-4f80-9907-48360f48300d",
+    "id": "77cf3933-b06b-4f80-9907-48360f48300d"
+  },
+  {
+    "topic_number": 2,
+    "question_number": 15,
+    "category": "B",
+    "question": {
+      "es": "En una parada de transporte público urbano, ¿está permitido parar o estacionar?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No, en ningún caso.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, está permitido parar, pero no estacionar.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, únicamente para subir o bajar pasajeros.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/1a9b9a75-1026-495a-bf7b-3fd6ae89cf41-1658935080-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/1a9b9a75-1026-495a-bf7b-3fd6ae89cf41-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "1a9b9a75-1026-495a-bf7b-3fd6ae89cf41",
+    "id": "1a9b9a75-1026-495a-bf7b-3fd6ae89cf41"
+  },
+  {
+    "topic_number": 2,
+    "question_number": 16,
+    "category": "B",
+    "question": {
+      "es": "¿Qué distancia lateral dejaremos al adelantar a otro turismo?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Como mínimo 1,50 metros.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Proporcional a la velocidad, la anchura y las características de la calzada.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Como mínimo 1,50 metros, teniendo en cuenta la carretera por la que circula.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/0f1c7192-3224-445f-a921-243b1478fed5-1658998342-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/0f1c7192-3224-445f-a921-243b1478fed5-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "0f1c7192-3224-445f-a921-243b1478fed5",
+    "id": "0f1c7192-3224-445f-a921-243b1478fed5"
+  },
+  {
+    "topic_number": 2,
+    "question_number": 17,
+    "category": "B",
+    "question": {
+      "es": "Al salir marcha atrás de un estacionamiento con su vehículo, el cual dispone del sistema de alerta de tráfico cruzado, debe saber que este sistema...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Ayudará al conductor esquivando el obstáculo en el mismo momento en que lo detecte",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Tomará el control del vehículo deteniéndolo inmediatamente cuando detecte un vehículo aproximándose",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Emitirá un aviso sonoro y/o visual cuando detecte un vehículo aproximándose",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/teo/frontend/img/test-practicavial-default.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/f103077c-cf18-495a-b9fb-9d6c192899ef-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ]
+  },
+  {
+    "topic_number": 2,
+    "question_number": 18,
+    "category": "B",
+    "question": {
+      "es": "Como norma general, ¿está permitido realizar la maniobra de marcha atrás?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No, solo excepcionalmente.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No, en ningún caso.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/c7cbe7d3-4d77-4170-9510-ccab29647e83-1658998832-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/c7cbe7d3-4d77-4170-9510-ccab29647e83-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "c7cbe7d3-4d77-4170-9510-ccab29647e83",
+    "id": "c7cbe7d3-4d77-4170-9510-ccab29647e83"
+  },
+  {
+    "topic_number": 2,
+    "question_number": 19,
+    "category": "B",
+    "question": {
+      "es": "¿Está permitido hacer cambios de sentido de la marcha en las glorietas?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, dejando siempre a la izquierda el macizo o isleta central.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No, porque en una intersección está prohibido.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No, salvo que una señal lo autorice expresamente.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/387e41b0-21ae-4735-baac-901dfa487755-1659108520-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/387e41b0-21ae-4735-baac-901dfa487755-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "387e41b0-21ae-4735-baac-901dfa487755",
+    "id": "387e41b0-21ae-4735-baac-901dfa487755"
+  },
+  {
+    "topic_number": 2,
+    "question_number": 20,
+    "category": "B",
+    "question": {
+      "es": "Circulando marcha atrás, ¿está permitido invadir un cruce de vías?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No, está prohibido.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, en cualquier caso.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, mientras no recorra más de 15 metros.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/c41595b5-c68c-45da-b75e-2dfd8ad75202-1658905814-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/c41595b5-c68c-45da-b75e-2dfd8ad75202-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "c41595b5-c68c-45da-b75e-2dfd8ad75202",
+    "id": "c41595b5-c68c-45da-b75e-2dfd8ad75202"
+  },
+  {
+    "topic_number": 2,
+    "question_number": 21,
+    "category": "B",
+    "question": {
+      "es": "Si el turismo quiere girar a la izquierda deberá...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "girar desde su carril invadiendo el sentido contrario.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "girar desde su carril sin invadir el sentido contrario.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "situarse fuera de la calzada y realizarlo desde allí.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/504b2ca9-a1d0-4332-adae-c54dd3625bdb-1658915372-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/504b2ca9-a1d0-4332-adae-c54dd3625bdb-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "504b2ca9-a1d0-4332-adae-c54dd3625bdb",
+    "id": "504b2ca9-a1d0-4332-adae-c54dd3625bdb"
+  },
+  {
+    "topic_number": 2,
+    "question_number": 22,
+    "category": "B",
+    "question": {
+      "es": "¿Se considera adelantamiento el hecho de que los vehículos de un carril circulen más rápidamente que los del otro cuando la vía está saturada?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No, ya que si la vía está saturada no se considera adelantamiento.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, y además se debe adelantar por la izquierda en todo caso.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, y además está prohibido.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/758ef671-59af-415e-9e21-e749d6d67998-1659338291-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/758ef671-59af-415e-9e21-e749d6d67998-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "758ef671-59af-415e-9e21-e749d6d67998",
+    "id": "758ef671-59af-415e-9e21-e749d6d67998"
+  },
+  {
+    "topic_number": 2,
+    "question_number": 23,
+    "category": "B",
+    "question": {
+      "es": "En esta vía urbana, ¿está permitido adelantar por la derecha?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, porque es una vía de sentido único y los carriles están delimitados.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, pero solamente cuando el vehículo de delante va a girar a la izquierda.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No, el adelantamiento siempre se realizará por la izquierda.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/3cab0759-6ba0-4d22-bd82-48aa270f27d7-0000000000-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/3cab0759-6ba0-4d22-bd82-48aa270f27d7-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "3cab0759-6ba0-4d22-bd82-48aa270f27d7",
+    "id": "3cab0759-6ba0-4d22-bd82-48aa270f27d7"
+  },
+  {
+    "topic_number": 2,
+    "question_number": 24,
+    "category": "B",
+    "question": {
+      "es": "¿Están considerados adelantamientos, cuando los vehículos que en una situación de atasco circulan más rápido que los vehículos de otro carril?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sólo si aquellos que están circulando más rápido están en el carril izquierdo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, a no ser que aquellos que circulen más rápido estén en el carril derecho.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/b87df495-2443-401d-8979-aa149678ab6d-1658993574-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/b87df495-2443-401d-8979-aa149678ab6d-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "b87df495-2443-401d-8979-aa149678ab6d",
+    "id": "b87df495-2443-401d-8979-aa149678ab6d"
+  },
+  {
+    "topic_number": 2,
+    "question_number": 25,
+    "category": "B",
+    "question": {
+      "es": "¿Cuándo está permitido adelantar en interior de un túnel?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Cuando existe más de un carril para cada sentido.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Cuando solo existe un carril para cada sentido.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Nunca.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/490eb49a-83ac-4eac-bb02-cc96d8deb147-1659112529-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/490eb49a-83ac-4eac-bb02-cc96d8deb147-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "490eb49a-83ac-4eac-bb02-cc96d8deb147",
+    "id": "490eb49a-83ac-4eac-bb02-cc96d8deb147"
+  },
+  {
+    "topic_number": 2,
+    "question_number": 26,
+    "category": "B",
+    "question": {
+      "es": "En los pasos para peatones y en sus proximidades, ¿está permitido adelantar?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, cuando se haga a velocidad reducida para poder detener el vehículo a tiempo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, siempre que no haya peatones cruzando.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No, nunca.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/f113a947-29c2-4c6b-93ec-18fd23a003e7-0000000000-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/f113a947-29c2-4c6b-93ec-18fd23a003e7-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "f113a947-29c2-4c6b-93ec-18fd23a003e7",
+    "id": "f113a947-29c2-4c6b-93ec-18fd23a003e7"
+  },
+  {
+    "topic_number": 2,
+    "question_number": 27,
+    "category": "B",
+    "question": {
+      "es": "¿Puede adelantar en un túnel con un sólo carril para cada sentido?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No, en los túneles está prohibido adelantar.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, cuando en el sentido contrario no circule ningún vehículo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No, ya que sólo dispone de un carril para mi sentido.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/9b333724-6c92-4802-9569-5ede59cfc5db-1658916035-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/9b333724-6c92-4802-9569-5ede59cfc5db-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "9b333724-6c92-4802-9569-5ede59cfc5db",
+    "id": "9b333724-6c92-4802-9569-5ede59cfc5db"
+  },
+  {
+    "topic_number": 2,
+    "question_number": 28,
+    "category": "B",
+    "question": {
+      "es": "Cuando el autobús circula más rápido que el resto de los vehículos, ¿se considera adelantamiento?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, porque en vía urbana está permitido adelantar por la derecha.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/9af6b91f-e434-4831-96b4-63a3e2b70cf5-1658946487-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/9af6b91f-e434-4831-96b4-63a3e2b70cf5-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "9af6b91f-e434-4831-96b4-63a3e2b70cf5",
+    "id": "9af6b91f-e434-4831-96b4-63a3e2b70cf5"
+  },
+  {
+    "topic_number": 2,
+    "question_number": 29,
+    "category": "B",
+    "question": {
+      "es": "El camión de la fotografía circula muy lentamente y obstaculizando la circulación. En esta circunstancia, ¿se le puede adelantar?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, porque es un obstáculo para los demás vehículos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No, porque se trata de un tramo donde existe una prohibición de adelantamiento.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, si tengo suficiente visibilidad y no se aproxima ningún vehículo en sentido contrario.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/ea020b05-3199-494f-ac1d-8215c2452945-0000000000-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/ea020b05-3199-494f-ac1d-8215c2452945-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "ea020b05-3199-494f-ac1d-8215c2452945",
+    "id": "ea020b05-3199-494f-ac1d-8215c2452945"
+  },
+  {
+    "topic_number": 2,
+    "question_number": 30,
+    "category": "B",
+    "question": {
+      "es": "¿Está permitido adelantar en este cambio de rasante?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No, porque es un cambio de rasante de visibilidad reducida.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, en el tiempo más breve posible.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, porque la línea longitudinal discontinua lo permite.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/0ed50fe0-0ef5-4eaf-9331-b8bd39614bd7-1658905635-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/0ed50fe0-0ef5-4eaf-9331-b8bd39614bd7-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "0ed50fe0-0ef5-4eaf-9331-b8bd39614bd7",
+    "id": "0ed50fe0-0ef5-4eaf-9331-b8bd39614bd7"
+  }
+]

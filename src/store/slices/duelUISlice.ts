@@ -16,13 +16,11 @@ export interface DuelUISlice {
     setLoading: (loading: boolean) => void;
     setIsProcessingAnswer: (processing: boolean) => void;
     setWaitingForOpponent: (waiting: boolean) => void;
-    /** Alias for setHasFinishedMyQuestions kept for backward compat */
-    setFinishedMyQuestions: (finished: boolean) => void;
     setTranslationLanguage: (lang: 'ru' | 'en' | null) => void;
     setDuelStarted: (started: boolean) => void;
 }
 
-export const uiInitialState: Omit<DuelUISlice, 'setLoading' | 'setIsProcessingAnswer' | 'setWaitingForOpponent' | 'setFinishedMyQuestions' | 'setTranslationLanguage' | 'setDuelStarted'> = {
+export const uiInitialState: Omit<DuelUISlice, 'setLoading' | 'setIsProcessingAnswer' | 'setWaitingForOpponent' | 'setTranslationLanguage' | 'setDuelStarted'> = {
     isLoading: true,
     isProcessingAnswer: false,
     isWaitingForOpponent: false,
@@ -36,7 +34,6 @@ export const createDuelUISlice: StateCreator<DuelUISlice, [], [], DuelUISlice> =
         setLoading: (loading) => set({ isLoading: loading }),
         setIsProcessingAnswer: (processing) => set({ isProcessingAnswer: processing }),
         setWaitingForOpponent: (waiting) => set({ isWaitingForOpponent: waiting }),
-        setFinishedMyQuestions: (finished) => set({ isWaitingForOpponent: !finished }),
         setTranslationLanguage: (lang) => set({ translationLanguage: lang }),
         setDuelStarted: (started) => set({ duelStarted: started }),
     });

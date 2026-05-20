@@ -1,0 +1,1692 @@
+[
+  {
+    "topic_number": 1,
+    "question_number": 1,
+    "category": "B",
+    "question": {
+      "es": "¿Qué sistema ADAS detecta vehículos en los ángulos muertos durante la conducción?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Asistencia de mantenimiento de carril (LWD)",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Aviso de ángulo muerto",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Detector de fatiga",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/07db5c4b-ba1a-47d4-8d28-32a7c0a93e6e-1734536838-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/07db5c4b-ba1a-47d4-8d28-32a7c0a93e6e-s-1.jpg?t=1768470843",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "07db5c4b-ba1a-47d4-8d28-32a7c0a93e6e",
+    "id": "07db5c4b-ba1a-47d4-8d28-32a7c0a93e6e"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 2,
+    "category": "B",
+    "question": {
+      "es": "El vehículo gris, ¿puede permanecer en el carril izquierdo?",
+      "en": "Can the grey vehicle stay in the left lane?",
+      "ru": "Может ли серый легковой автомобиль оставаться в левой полосе?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, mientras que no obstaculice el paso a otros vehículos.",
+          "en": "Yes, as long as it does not obstruct other vehicles.",
+          "ru": "Да, при условии, что он не создает помех другим транспортным средствам."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí.",
+          "en": "Yes.",
+          "ru": "Да."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No, debe incorporarse al carril de la derecha si no va a seguir adelantando.",
+          "en": "No, it must move to the right lane if it is not going to continue overtaking.",
+          "ru": "Нет, он должен перестроиться на правую полосу, если не собирается продолжать опережение."
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": "Fuera de poblado, en calzadas con más de un carril para el mismo sentido de la marcha, la norma general establece que se debe circular normalmente por el carril situado más a la derecha. Los demás carriles se utilizarán únicamente cuando las circunstancias del tráfico o de la vía lo aconsejen (como para realizar un adelantamiento), a condición de que no se entorpezca la marcha de otro vehículo que le siga. Una vez finalizada la maniobra, es obligatorio retornar al carril derecho.",
+      "en": "Outside built-up areas, on roads with more than one lane for the same direction of travel, the general rule states that drivers must normally use the right-most lane. The other lanes shall be used only when traffic or road conditions justify it (such as for overtaking), provided that the progress of any following vehicle is not hindered. Once the maneuver is completed, it is mandatory to return to the right-hand lane.",
+      "ru": "🎓 Вне населенного пункта на дорогах с двумя и более полосами в одном направлении (например, Autopista или Autovía) ты обязан вести свой легковой автомобиль (Turismo) по крайней правой полосе. Использовать остальные полосы разрешено только для опережения или если состояние проезжей части того требует, но при условии, что ты не мешаешь тем, кто едет сзади. Как только маневр завершен, ты обязан вернуться в правую полосу. Для ТС с ММА более 3500 кг или длинных составов более 7 метров правила еще строже: им разрешено использовать только правую и вторую полосы, остальные — никогда."
+    },
+    "image_url": "https://teorica.practicavial.com/question/8adaea04-1dcc-4620-a808-e3ccff035b47-0000000000-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/8adaea04-1dcc-4620-a808-e3ccff035b47-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "id": "8adaea04-1dcc-4620-a808-e3ccff035b47",
+    "external_id": "8adaea04-1dcc-4620-a808-e3ccff035b47"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 3,
+    "category": "B",
+    "question": {
+      "es": "Las autovías y las autopistas, en general, son en relación con las carreteras convencionales…",
+      "en": "In general, compared to conventional roads, autovías and autopistas are...",
+      "ru": "Автомагистрали и скоростные дороги, как правило, по сравнению с обычными дорогами..."
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Más seguras.",
+          "en": "Safer.",
+          "ru": "Более безопасные."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Menos seguras.",
+          "en": "Less safe.",
+          "ru": "Менее безопасные."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Igual de seguras.",
+          "en": "Equally safe.",
+          "ru": "Такие же по уровню безопасности."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "Las autopistas y autovías presentan índices de siniestralidad menores que las carreteras convencionales debido a sus características constructivas. Disponen de calzadas separadas para cada sentido de circulación mediante una mediana, carecen de intersecciones al mismo nivel y el acceso está restringido a vehículos que pueden alcanzar velocidades mínimas, prohibiendo la entrada a peatones, animales y vehículos de tracción animal.",
+      "en": "Motorways (autopistas) and dual carriageways (autovías) have lower accident rates than conventional roads due to their design features. They feature separate carriageways for each direction of travel divided by a median, lack same-level intersections, and access is restricted to vehicles capable of maintaining minimum speeds, prohibiting pedestrians, animals, and animal-drawn vehicles.",
+      "ru": "🎓 Автомагистраль и скоростная дорога конструктивно намного безопаснее обычных дорог. Главное отличие — встречные потоки всегда разделены физическим барьером (медианой), что практически исключает самый опасный вид аварий: лобовое столкновение. На таких дорогах нет перекрестков в одном уровне, светофоров и резких поворотов. Кроме того, на них запрещено движение пешеходов, СИМ, мопедов и гужевого транспорта, что убирает из потока самых непредсказуемых участников. Твой легковой автомобиль (Turismo) движется в максимально предсказуемой среде."
+    },
+    "image_url": "https://teorica.practicavial.com/question/c7cefb80-a63a-4a65-8987-001aa596f6c4-0000000000-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/c7cefb80-a63a-4a65-8987-001aa596f6c4-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "id": "c7cefb80-a63a-4a65-8987-001aa596f6c4",
+    "external_id": "c7cefb80-a63a-4a65-8987-001aa596f6c4"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 4,
+    "category": "B",
+    "question": {
+      "es": "En caso de padecer una enfermedad, ¿hay que preguntar al médico sobre las precauciones que se deben tomar para conducir?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sólo cuando la enfermedad es crónica.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/89fde9aa-d815-46ea-ba68-960ce539bc00-0000000000-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/89fde9aa-d815-46ea-ba68-960ce539bc00-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "89fde9aa-d815-46ea-ba68-960ce539bc00",
+    "id": "89fde9aa-d815-46ea-ba68-960ce539bc00"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 5,
+    "category": "B",
+    "question": {
+      "es": "¿Se pueden llevar objetos o paquetes que salgan por las ventanillas de los lados?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, con una tela de color rojo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, hasta 30 centímetros.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/db40124c-b1ec-47d5-955c-6acf3fb65dc8-1658944347-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/db40124c-b1ec-47d5-955c-6acf3fb65dc8-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "db40124c-b1ec-47d5-955c-6acf3fb65dc8",
+    "id": "db40124c-b1ec-47d5-955c-6acf3fb65dc8"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 6,
+    "category": "B",
+    "question": {
+      "es": "Si se queda detenido en el interior de un túnel por un tiempo superior a dos minutos, ¿qué debe hacer?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Apagar el motor.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Apagar el motor y las luces de posición.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Encender, solamente, la señal de emergencia.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/ce7b4d65-ac8f-4bf6-a676-d5482709041c-1659335319-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/ce7b4d65-ac8f-4bf6-a676-d5482709041c-s-1.jpg?t=1768470879",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "ce7b4d65-ac8f-4bf6-a676-d5482709041c",
+    "id": "ce7b4d65-ac8f-4bf6-a676-d5482709041c"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 7,
+    "category": "B",
+    "question": {
+      "es": "Ante la situación que se observa en la fotografía el conductor debe...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "disminuir la velocidad y extremar las precauciones.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "conducir normalmente sin preocuparse por la presencia de la persona puesto que camina por la acera.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "tocar el claxon repetidas veces para avisar a la persona de la presencia del vehículo, pero no reducir la velocidad.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/3da3bf08-d24b-49ba-b4be-e5c603753150-1659119566-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/3da3bf08-d24b-49ba-b4be-e5c603753150-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "external_id": "3da3bf08-d24b-49ba-b4be-e5c603753150",
+    "id": "3da3bf08-d24b-49ba-b4be-e5c603753150"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 8,
+    "category": "B",
+    "question": {
+      "es": "¿Está permitido conducir un camión con el permiso de la clase B?",
+      "en": "Is it allowed to drive a truck with a Class B license?",
+      "ru": "Разрешено ли управлять грузовиком с правами категории B?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, cuando su MMA no sea superior a 3.500 kilogramos.",
+          "en": "Yes, when its MAM does not exceed 3,500 kilograms.",
+          "ru": "Да, если его разрешенная максимальная масса (MMA) не превышает 3500 кг."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No, nunca.",
+          "en": "No, never.",
+          "ru": "Нет, никогда."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, cualquiera que sea la MMA del camión.",
+          "en": "Yes, whatever the MAM of the truck is.",
+          "ru": "Да, независимо от разрешенной максимальной массы (MMA) грузовика."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "🎓 El permiso de la clase B autoriza a conducir automóviles (turismos, furgonetas y camiones) cuya **Masa Máxima Autorizada (MMA)** no exceda de **3.500 kg** y que estén diseñados para transportar no más de 9 personas (incluido el conductor).\n\n💡 **Truco:** No asocies la palabra \"camión\" solo con vehículos gigantes. Muchos camiones de reparto pequeños entran en el límite de 3.500 kg. ¡Si pesa más de eso, ya necesitarías el permiso C! 🚛",
+      "en": "🎓 The Class B license authorizes you to drive automobiles (cars, vans, and trucks) whose **Maximum Authorized Mass (MAM)** does not exceed **3,500 kg** and are designed to carry no more than 9 people (including the driver).\n\n💡 **Tip:** Don't assume a \"truck\" is always a huge heavy goods vehicle. Many small delivery trucks fit within the 3,500 kg limit, so you are allowed to drive them. If it's heavier than that, you need a Class C license! 🚛",
+      "ru": "🎓 Права категории B позволяют управлять автомобилями (включая грузовики и фургоны), чья **Разрешенная Максимальная Масса (MMA)** не превышает **3500 кг**, а количество мест не превышает 9 (включая водителя)."
+    },
+    "image_url": "https://teorica.practicavial.com/question/cf904c6a-4dd0-48c2-9956-9de656cf4664-0000000000-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/cf904c6a-4dd0-48c2-9956-9de656cf4664-s-1.jpg?t=1768470891",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "id": "cf904c6a-4dd0-48c2-9956-9de656cf4664",
+    "external_id": "cf904c6a-4dd0-48c2-9956-9de656cf4664"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 9,
+    "category": "B",
+    "question": {
+      "es": "Los sistemas ADAS (sistemas avanzados de ayuda a la conducción) instalados en el vehículo, ¿pueden ser desconectados en algún momento?",
+      "en": "Can ADAS systems (Advanced Driver Assistance Systems) installed in the vehicle be disconnected at any time?",
+      "ru": "Могут ли системы ADAS (передовые системы помощи водителю), установленные в автомобиле, быть отключены в какой-либо момент?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Pueden desconectarse de forma permanente pero nunca de forma temporal",
+          "en": "They can be disconnected permanently but never temporarily",
+          "ru": "Их можно отключить навсегда, но никогда временно"
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, de forma permanente o temporal",
+          "en": "Yes, permanently or temporarily",
+          "ru": "Да, постоянно или временно"
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No pueden desconectarse en ningún caso",
+          "en": "They cannot be disconnected in any case",
+          "ru": "Их нельзя отключить ни в коем случае"
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "🎓 Los sistemas ADAS son tus copilotos tecnológicos, pero tú eres el capitán. Están diseñados para ayudar, no para sustituirte. Por eso, la normativa y los fabricantes permiten que, en general, puedan desconectarse tanto de forma **temporal** (para un trayecto concreto) como **permanente**.\n💡 Piensa en el aviso de salida de carril: a veces en obras o carreteras estrechas molesta más que ayuda. ¡Tú tienes el control y puedes apagarlo! 🤖🛑",
+      "en": "🎓 ADAS are your technological co-pilots, but you are the captain. They are designed to assist, not to take over completely. Therefore, generally, they can be switched off either **temporarily** (for a single journey) or **permanently**.\n💡 Think of features like Lane Assist. Sometimes on narrow roads or roadworks, it might fight the steering wheel. You can turn it off. You are in charge! 🤖🛑",
+      "ru": "🎓 Системы ADAS — это твои электронные помощники, но за рулем главный — ты. Они не заменяют водителя, а лишь страхуют. Поэтому конструкторы предусматривают возможность их отключения: как **временно** (на одну поездку), так и **постоянно**."
+    },
+    "image_url": "https://teorica.practicavial.com/teo/frontend/img/test-practicavial-default.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/c2a2d007-a484-4fb9-ac01-e3d69ed339b6-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ]
+  },
+  {
+    "topic_number": 1,
+    "question_number": 10,
+    "category": "B",
+    "question": {
+      "es": "Los menores de edad, ¿cuándo pueden empezar a utilizar los cinturones de seguridad normales?",
+      "en": "When can minors start using standard seat belts?",
+      "ru": "Когда несовершеннолетние могут начать использовать обычные ремни безопасности?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "A partir de 12 años, aunque midan menos de 1,35 m de estatura.",
+          "en": "From 12 years old, even if they are less than 1.35 m tall.",
+          "ru": "С 12 лет, даже если их рост меньше 1,35 м."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Cuando tengan más de 1,35 m de estatura.",
+          "en": "When they are over 1.35 m tall.",
+          "ru": "Когда их рост превысит 1,35 м."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "A partir de 1,50 m de estatura.",
+          "en": "From 1.50 m tall.",
+          "ru": "При росте от 1,50 м."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "🎓 La norma de la DGT es clara: los menores que midan 1,35 metros o menos deben utilizar obligatoriamente un sistema de retención infantil (sillita o elevador) adaptado a su talla y peso. Una vez superada esa estatura, pueden usar el cinturón de seguridad del vehículo. 💡 ¡Laxitud recomendada! Aunque la ley permite el cinturón a partir de 1,35 m, la DGT aconseja seguir usando elevadores hasta los 1,50 m para que el cinturón ajuste mejor al hombro, pero para el examen quédate con el 1,35 m.",
+      "en": "🎓 DGT rules state that minors measuring 1.35 meters or less must use an approved child restraint system (car seat or booster) suited to their size and weight. Once they exceed this height, they can use the standard vehicle seat belt. 💡 Exam Tip: Don't be fooled by age! In Spain, the legal requirement to switch from a car seat to a normal belt is based strictly on height (1.35m), not age.",
+      "ru": "🎓 Правила DGT гласят: дети ростом 1,35 метра и ниже обязаны использовать детское удерживающее устройство (автокресло или бустер), соответствующее их весу и росту. Как только рост ребенка становится больше 1,35 м, он может переходить на обычный ремень безопасности."
+    },
+    "image_url": "https://teorica.practicavial.com/question/40ac1c57-5028-4220-ae7c-3e0535761d54-1658945986-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/40ac1c57-5028-4220-ae7c-3e0535761d54-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "id": "40ac1c57-5028-4220-ae7c-3e0535761d54",
+    "external_id": "40ac1c57-5028-4220-ae7c-3e0535761d54"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 11,
+    "category": "B",
+    "question": {
+      "es": "¿Cuándo se considera que un vehículo estacionado obstruye gravemente la circulación?",
+      "en": "When is a parked vehicle considered to seriously obstruct traffic?",
+      "ru": "В каком случае считается, что припаркованное транспортное средство серьезно мешает движению?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Cuando esté estacionado en una zona reservada a carga y descarga, fuera de las horas de utilización.",
+          "en": "When parked in a loading and unloading zone outside of operating hours.",
+          "ru": "При парковке в зоне погрузки и разгрузки в нерабочее время."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Cuando esté estacionado fuera del arcén transitable de una vía interurbana.",
+          "en": "When parked off the passable shoulder of an interurban road.",
+          "ru": "При парковке за пределами проезжей части и обочины на междугородней дороге."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Cuando esté estacionado en doble fila sin conductor.",
+          "en": "When parked in a double row without a driver.",
+          "ru": "При парковке вторым рядом без водителя."
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": "🎓 El Reglamento General de Circulación prohíbe el estacionamiento en doble fila. Se considera una obstrucción grave cuando dejas el coche solo (sin conductor) en el segundo carril, ya que impides el paso y la visibilidad. Recuerda: puedes hacer una 'parada' (menos de 2 minutos y sin bajar del coche) si no hay sitio cerca, pero nunca un 'estacionamiento'. 💡 ¡Ojo! Si el conductor está dentro y es menos de 2 minutos, es parada. Si te bajas, ¡es una falta grave por obstaculizar!",
+      "en": "🎓 Spanish traffic rules strictly forbid parking (estacionamiento) in a double row. It is classified as a 'serious obstruction' when the vehicle is left unattended (without a driver). You are allowed to perform a 'stop' (parada) for less than 2 minutes without leaving the vehicle if there is no space nearby, but parking there is a major violation. 💡 Exam Tip: 'Double row' + 'No driver' = Serious obstruction. If you stay in the car for under 2 minutes, it's just a stop!",
+      "ru": "🎓 Правила дорожного движения Испании запрещают парковку (estacionamiento) вторым рядом. Это считается 'серьезным препятствием' для движения, если вы оставили машину без водителя. Помните разницу: 'остановка' (parada) до 2 минут без выхода из машины разрешена (если нет места рядом), а вот 'парковка' (ушел из авто) вторым рядом — это грубое нарушение."
+    },
+    "image_url": "https://teorica.practicavial.com/teo/frontend/img/test-practicavial-default.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/43dfb1c5-41cf-4fbb-86de-b98a50fd8abc-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ]
+  },
+  {
+    "topic_number": 1,
+    "question_number": 12,
+    "category": "B",
+    "question": {
+      "es": "Sopla viento lateral. ¿Qué debe hacer?",
+      "en": "A side wind is blowing. What should you do?",
+      "ru": "Дует сильный боковой ветер. Что вы должны сделать?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Reducir la velocidad y circular con la primera marcha, siempre.",
+          "en": "Reduce speed and always drive in first gear.",
+          "ru": "Снизить скорость и всегда двигаться на первой передаче."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Adaptar la velocidad y circular con marchas cortas cuando sea necesario.",
+          "en": "Adapt your speed and use lower gears when necessary.",
+          "ru": "Адаптировать скорость и использовать пониженные передачи, когда это необходимо."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Aumentar la velocidad y circular con marchas largas.",
+          "en": "Increase speed and drive in higher gears.",
+          "ru": "Увеличить скорость и двигаться на повышенных передачах."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "🎓 El viento lateral es el más peligroso, especialmente si es a ráfagas, ya que puede desplazar tu vehículo. Para combatirlo, debes adaptar la velocidad y, si es necesario, usar marchas cortas (marchas con más fuerza) para que el neumático tenga un mejor agarre al asfalto. 💡 ¡Cuidado con la palabra 'siempre'! En el examen DGT, las respuestas que te obligan a ir 'siempre' en primera marcha suelen ser incorrectas. La clave es la adaptación.",
+      "en": "🎓 Crosswinds are the most dangerous type of wind because they can push your vehicle sideways. You must adapt your speed and use lower gears (short gears) when necessary to ensure the engine provides better traction and stability. 💡 Exam Tip: Be wary of absolute terms like 'always' or 'first gear only'. The DGT prefers answers that focus on 'adapting' to the specific conditions of the moment.",
+      "ru": "🎓 Боковой ветер — самый опасный, особенно порывистый, так как он может сместить автомобиль с траектории. Чтобы сохранить контроль, нужно адаптировать скорость и при необходимости использовать пониженные передачи (marchas cortas). Это дает двигателю больше тяги, а колесам — лучшее сцепление с асфальтом."
+    },
+    "image_url": "https://teorica.practicavial.com/question/04be1cef-3d08-492b-8947-29e1231e8ac7-1659115784-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/04be1cef-3d08-492b-8947-29e1231e8ac7-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "id": "04be1cef-3d08-492b-8947-29e1231e8ac7",
+    "external_id": "04be1cef-3d08-492b-8947-29e1231e8ac7"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 13,
+    "category": "B",
+    "question": {
+      "es": "El conductor del vehículo que utiliza el carril adicional...",
+      "en": "The driver of a vehicle using the additional lane...",
+      "ru": "Водитель транспортного средства, использующий дополнительную полосу (carril adicional)..."
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "llevará encendida, al menos, la luz de cruce.",
+          "en": "must have at least the dipped headlights switched on.",
+          "ru": "должен включить, как минимум, ближний свет фар."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "deberá abandonar la vía en cuanto le sea posible.",
+          "en": "must leave the road as soon as possible.",
+          "ru": "должен покинуть дорогу при первой возможности."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "circulará, como máximo, a 100 km/h.",
+          "en": "must drive at a maximum speed of 100 km/h.",
+          "ru": "должен двигаться со скоростью не более 100 км/ч."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "🎓 El carril adicional circunstancial se habilita mediante conos cuando la densidad del tráfico lo requiere, aprovechando los arcenes. La norma exige que TODOS los vehículos que circulen por esa calzada (tanto los que van por el carril adicional como los que van por los carriles normales) utilicen la luz de cruce día y noche, y mantengan una velocidad entre 60 y 80 km/h. 💡 ¡Truco de examen! Esta regla de 'Luz + 60-80' se aplica a todos los conductores en ese tramo, no solo al que va por los conos.",
+      "en": "🎓 A circumstantial additional lane is created using cones and shoulders (arcenes) to ease heavy traffic. The rule states that ALL vehicles on that road—both in the additional lane and the original lanes—must use dipped headlights (luz de cruce) day and night. The speed limit is also strictly set between 60 km/h (minimum) and 80 km/h (maximum). 💡 Driving Coach Tip: Remember the '60-80-Lights' rule; it applies to everyone on that section of the road, not just the cars inside the cones!",
+      "ru": "🎓 Дополнительная полоса (carril adicional) создается с помощью конусов и использования обочин (arcenes) для улучшения пропускной способности. Правила DGT гласят: ВСЕ транспортные средства на этом участке (и в доп. полосе, и в основных полосах) ОБЯЗАНЫ включить ближний свет фар (luz de cruce) в любое время суток. Скоростной режим ограничен: минимум 60 км/ч, максимум 80 км/ч."
+    },
+    "image_url": "https://teorica.practicavial.com/question/85faf79f-b551-4cd7-a369-74715184f37a-1658938936-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/85faf79f-b551-4cd7-a369-74715184f37a-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "id": "85faf79f-b551-4cd7-a369-74715184f37a",
+    "external_id": "85faf79f-b551-4cd7-a369-74715184f37a"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 14,
+    "category": "B",
+    "question": {
+      "es": "Si la temperatura en el interior del vehículo es muy alta, ¿puede influir en el tiempo de reacción del conductor?",
+      "en": "If the temperature inside the vehicle is very high, can it influence the driver's reaction time?",
+      "ru": "Если температура внутри транспортного средства очень высокая, может ли это повлиять на время реакции водителя?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, aumentándolo.",
+          "en": "Yes, increasing it.",
+          "ru": "Да, увеличивая его."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No, no influye.",
+          "en": "No, it does not influence.",
+          "ru": "Нет, это не влияет."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, disminuyéndolo.",
+          "en": "Yes, decreasing it.",
+          "ru": "Да, уменьшая его."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "🎓 El calor excesivo (por encima de 35°C) genera fatiga y somnolencia, lo que hace que el conductor tarde más en reaccionar ante un imprevisto. 💡 ¡Cuidado con la trampa de la DGT! El calor siempre AUMENTA el tiempo de reacción (tardas más segundos en actuar) pero DISMINUYE la capacidad de conducción. Lo ideal es mantener el interior entre 20 y 23 grados. ⚠️",
+      "en": "🎓 Excessive heat (above 35°C) causes fatigue and drowsiness, making the driver take longer to respond to hazards. 💡 Exam Hack: Heat INCREASES reaction time (you take more seconds to act) and DECREASES reaction capacity (you are less sharp). Always aim for an interior temperature between 20-23°C for safety. ⚠️",
+      "ru": "🎓 Избыточное тепло (выше 35°C) вызывает усталость и сонливость, из-за чего водителю требуется больше времени, чтобы среагировать на опасность."
+    },
+    "image_url": "https://teorica.practicavial.com/question/63bf8312-7d20-4c87-ba0e-ddee72738699-1659110839-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/63bf8312-7d20-4c87-ba0e-ddee72738699-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ],
+    "id": "63bf8312-7d20-4c87-ba0e-ddee72738699",
+    "external_id": "63bf8312-7d20-4c87-ba0e-ddee72738699"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 15,
+    "category": "B",
+    "question": {
+      "es": "¿Qué se debe hacer si caen objetos en la calzada?",
+      "en": "What should be done if objects fall on the roadway?",
+      "ru": "Что необходимо сделать, если на проезжую часть упали предметы?"
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Señalizarlo tanto si caen en la calzada como en el arcén.",
+          "en": "Signal it whether they fall on the roadway or the shoulder.",
+          "ru": "Обозначить их, независимо от того, упали они на проезжую часть или на обочину."
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No señalizarlo.",
+          "en": "Do not signal it.",
+          "ru": "Не обозначать их."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Señalizarlo solo si los objetos caen en la calzada, no en el arcén.",
+          "en": "Signal it only if the objects fall on the roadway, not on the shoulder.",
+          "ru": "Обозначать только в том случае, если предметы упали на проезжую часть, а не на обочину."
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": "🎓 Si por accidente o avería la carga cae a la vía, tienes la obligación de señalizar el obstáculo inmediatamente. No importa si está en la calzada o en el arcén, ya que ambos forman parte de la vía y pueden causar un accidente. 💡 ¡Ojo! La regla es: señalizar, proteger y retirar lo antes posible. Si no puedes quitarlo tú mismo, avisa a las autoridades.",
+      "en": "🎓 If your load falls onto the road, you must signal the hazard immediately. This applies whether the objects are on the roadway (calzada) or the shoulder (arcén). Both areas must be kept clear for safety. 💡 Remember: signal first to warn others, then try to remove the obstacle safely. If you can't move it, call for help!",
+      "ru": "🎓 Если груз или предметы выпали на дорогу, водитель обязан немедленно обозначить это препятствие. Это касается как проезжей части (calzada), так и обочины (arcén), поскольку они являются частями дороги, где движение или остановка должны быть безопасными."
+    },
+    "image_url": "https://teorica.practicavial.com/teo/frontend/img/test-practicavial-default.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/cc690a9c-ed4f-4b03-99e1-52f3580d9356-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "essential"
+    ]
+  },
+  {
+    "topic_number": 1,
+    "question_number": 16,
+    "category": "B",
+    "question": {
+      "es": "El calor afecta negativamente a sus capacidades para conducir con seguridad. Un conductor que se encuentra bajo sus efectos normalmente:",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Tarda más en reaccionar y es menos agresivo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Tarda menos en reaccionar y es más agresivo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Tarda más en reaccionar y es más agresivo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/99034383-657a-4159-99cf-fbb7bcf35c7a-0000000000-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/99034383-657a-4159-99cf-fbb7bcf35c7a-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "dgt"
+    ],
+    "external_id": "99034383-657a-4159-99cf-fbb7bcf35c7a",
+    "id": "99034383-657a-4159-99cf-fbb7bcf35c7a"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 17,
+    "category": "B",
+    "question": {
+      "es": "Si se encuentra con un rebaño en esta vía, ¿debe ceder el paso a los animales?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sólo cuando ya estén cruzando.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No, los animales en la calzada no tienen prioridad de paso nunca.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, es un paso de animales domésticos y se debe ceder el paso.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/e2ecbffb-c374-4323-abf3-8cfecdb60457-0000000000-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/e2ecbffb-c374-4323-abf3-8cfecdb60457-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "dgt"
+    ],
+    "external_id": "e2ecbffb-c374-4323-abf3-8cfecdb60457",
+    "id": "e2ecbffb-c374-4323-abf3-8cfecdb60457"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 18,
+    "category": "B",
+    "question": {
+      "es": "Un conductor que gira con su vehículo para entrar en otra vía, ¿debe ceder el paso a un peatón que esté cruzándola?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "No, salvo que exista un paso para peatones.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Solo si el peatón no se da cuenta de la presencia del vehículo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, aunque no exista un paso para peatones.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/c2fd10b4-c19f-4b8c-bcb2-98f677247663-0000000000-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/c2fd10b4-c19f-4b8c-bcb2-98f677247663-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "dgt"
+    ],
+    "external_id": "c2fd10b4-c19f-4b8c-bcb2-98f677247663",
+    "id": "c2fd10b4-c19f-4b8c-bcb2-98f677247663"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 19,
+    "category": "B",
+    "question": {
+      "es": "Un turismo acaba de superar favorablemente la primera ITV, la próxima inspección la realizará…",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Al año siguiente.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "A los 2 años.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "A los 4 años.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/8605b5b9-fa00-499b-96e9-718a5b3e9653-1659683819-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/8605b5b9-fa00-499b-96e9-718a5b3e9653-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "dgt"
+    ],
+    "external_id": "8605b5b9-fa00-499b-96e9-718a5b3e9653",
+    "id": "8605b5b9-fa00-499b-96e9-718a5b3e9653"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 20,
+    "category": "B",
+    "question": {
+      "es": "La circulación por un carril en sentido contrario al habitual...",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "no está sujeta a limitación de velocidad.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "obliga a llevar encendida, al menos, la luz de cruce.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "está reservada únicamente a los turismos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/ea3d1920-03df-4575-9d17-ca9a7426697b-1731740193-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/ea3d1920-03df-4575-9d17-ca9a7426697b-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "dgt"
+    ],
+    "external_id": "ea3d1920-03df-4575-9d17-ca9a7426697b",
+    "id": "ea3d1920-03df-4575-9d17-ca9a7426697b"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 21,
+    "category": "B",
+    "question": {
+      "es": "A la vista de la fotografía, ¿qué debe hacer el conductor de un vehículo?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Respetar la señal del agente.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Respetar la señal de stop.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Pasar porque el semáforo le permite pasar con prioridad.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/71ebf4b4-3720-4220-80a0-8c8114951d89-0000000000-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/71ebf4b4-3720-4220-80a0-8c8114951d89-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "dgt"
+    ],
+    "external_id": "71ebf4b4-3720-4220-80a0-8c8114951d89",
+    "id": "71ebf4b4-3720-4220-80a0-8c8114951d89"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 22,
+    "category": "B",
+    "question": {
+      "es": "Esta calle tiene tres carriles en cada sentido. ¿Por dónde se debe circular?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Por el carril más adecuado para ir a mi destino.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Por el carril derecho y por los otros sólo para adelantar.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Depende de la velocidad de mi vehículo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/f733098b-4061-4cc1-a26a-1c6dc1df4253-1667491613-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/f733098b-4061-4cc1-a26a-1c6dc1df4253-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "dgt"
+    ],
+    "external_id": "f733098b-4061-4cc1-a26a-1c6dc1df4253",
+    "id": "f733098b-4061-4cc1-a26a-1c6dc1df4253"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 23,
+    "category": "B",
+    "question": {
+      "es": "Un autobús realiza transporte urbano. ¿Cuál es su velocidad máxima permitida dentro de poblado?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "40 kilómetros por hora.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "50 kilómetros por hora.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "60 kilómetros por hora.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/f3fb804f-727d-49a0-bbfd-66e848d3346e-0000000000-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/f3fb804f-727d-49a0-bbfd-66e848d3346e-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "dgt"
+    ],
+    "external_id": "f3fb804f-727d-49a0-bbfd-66e848d3346e",
+    "id": "f3fb804f-727d-49a0-bbfd-66e848d3346e"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 24,
+    "category": "B",
+    "question": {
+      "es": "El vehículo rojo se quiere incorporar a la circulación proveniente del garaje particular de una vivienda, ¿debe cederle el paso?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Solo si el vehículo rojo esta destinado al servicio publico.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Sí, porque se incorpora a la derecha.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "No.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/ca80ffa4-ec3d-45aa-84fe-31a03ab5d2f0-1659630064-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/ca80ffa4-ec3d-45aa-84fe-31a03ab5d2f0-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "dgt"
+    ],
+    "external_id": "ca80ffa4-ec3d-45aa-84fe-31a03ab5d2f0",
+    "id": "ca80ffa4-ec3d-45aa-84fe-31a03ab5d2f0"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 25,
+    "category": "B",
+    "question": {
+      "es": "Un dispositivo de retención infantil, ¿cómo se debe elegir?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "En función de la edad.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "En función del peso del niño.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "El de mayor tamaño, para que pueda usarse durante más tiempo.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/70fbadf2-5200-4d15-8178-ef92fd99cfeb-1659434434-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/70fbadf2-5200-4d15-8178-ef92fd99cfeb-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "dgt"
+    ],
+    "external_id": "70fbadf2-5200-4d15-8178-ef92fd99cfeb",
+    "id": "70fbadf2-5200-4d15-8178-ef92fd99cfeb"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 26,
+    "category": "B",
+    "question": {
+      "es": "Los límites de velocidad que se establecen para una vía, ¿de qué dependen?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "De su trazado y del número de curvas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "De criterios económicos, fundamentalmente.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "De su trazado y del tráfico que vaya a soportar.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/10b6da2f-252a-4420-967f-5c5a65e744fb-0000000000-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/10b6da2f-252a-4420-967f-5c5a65e744fb-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "dgt"
+    ],
+    "external_id": "10b6da2f-252a-4420-967f-5c5a65e744fb",
+    "id": "10b6da2f-252a-4420-967f-5c5a65e744fb"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 27,
+    "category": "B",
+    "question": {
+      "es": "En un paso a nivel, ¿está permitido realizar un cambio de sentido?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Sí, en los pasos a nivel sin barrera.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "No.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Sí, cuando las barreras no estén en movimiento.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/bca31191-1a24-4327-8974-98e9b00dae1b-1659541734-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/bca31191-1a24-4327-8974-98e9b00dae1b-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "dgt"
+    ],
+    "external_id": "bca31191-1a24-4327-8974-98e9b00dae1b",
+    "id": "bca31191-1a24-4327-8974-98e9b00dae1b"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 28,
+    "category": "B",
+    "question": {
+      "es": "En esta calzada de doble sentido de circulación, para cambiar de dirección a la izquierda, se debe colocar…",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "donde no obstaculice a otros usuarios de la vía.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "sin invadir la zona destinada al sentido contrario, junto al eje de la calzada.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "junto al borde derecho de la calzada.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/db17d4ea-f84f-41d8-a993-56b937006ef0-1659540627-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/db17d4ea-f84f-41d8-a993-56b937006ef0-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "dgt"
+    ],
+    "external_id": "db17d4ea-f84f-41d8-a993-56b937006ef0",
+    "id": "db17d4ea-f84f-41d8-a993-56b937006ef0"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 29,
+    "category": "B",
+    "question": {
+      "es": "Cuando ha circulado por un tramo de calzada en el que había balsas de agua, ¿qué medidas de seguridad deberá tomar?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Mantener alta la velocidad para alejarme lo antes posible.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Después de pasar el tramo, frenar varias veces para secar los frenos.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "Poner una relación de marchas largas.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/062be4e0-bf2f-4238-a9cc-de12d2218e1a-1659542786-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/062be4e0-bf2f-4238-a9cc-de12d2218e1a-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "dgt"
+    ],
+    "external_id": "062be4e0-bf2f-4238-a9cc-de12d2218e1a",
+    "id": "062be4e0-bf2f-4238-a9cc-de12d2218e1a"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 30,
+    "category": "B",
+    "question": {
+      "es": "Los principios de la conducción preventiva",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "velocidad, desconfianza y espacio.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "aceleración, anticipación y desconfianza.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "visión, anticipación y espacio.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/338862be-010e-4cc6-8771-88381a4aa570-1659372745-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/338862be-010e-4cc6-8771-88381a4aa570-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "dgt"
+    ],
+    "external_id": "338862be-010e-4cc6-8771-88381a4aa570",
+    "id": "338862be-010e-4cc6-8771-88381a4aa570"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 31,
+    "category": "B",
+    "question": {
+      "es": "En un turismo, ¿dónde debe colocar la placa L conductor novel?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "En un lugar visible en la parte posterior izquierda.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "En un lugar visible en la parte posterior derecha.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "En cualquier lugar visible de la parte posterior.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/6e6093cc-9512-41ff-9f8a-f388f0e376f0-0000000000-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/6e6093cc-9512-41ff-9f8a-f388f0e376f0-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "dgt"
+    ],
+    "external_id": "6e6093cc-9512-41ff-9f8a-f388f0e376f0",
+    "id": "6e6093cc-9512-41ff-9f8a-f388f0e376f0"
+  },
+  {
+    "topic_number": 1,
+    "question_number": 32,
+    "category": "B",
+    "question": {
+      "es": "Las letras P y N pintadas en la calzada, una a cada lado de un aspa, ¿qué indican?",
+      "en": null,
+      "ru": null
+    },
+    "answers": [
+      {
+        "id": "a",
+        "text": {
+          "es": "Peligro por la proximidad de un paso a nivel sin barreras.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "b",
+        "text": {
+          "es": "Peligro por la proximidad de un paso a nivel con barreras.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": false
+      },
+      {
+        "id": "c",
+        "text": {
+          "es": "La proximidad de un paso a nivel con o sin barreras.",
+          "en": null,
+          "ru": null
+        },
+        "is_correct": true
+      }
+    ],
+    "explanation": {
+      "es": null,
+      "en": null,
+      "ru": null
+    },
+    "image_url": "https://teorica.practicavial.com/question/4dbafc14-c3e8-4e59-ab0a-287e2dcbfe2b-1659374422-i.jpg",
+    "schema_url": "https://teorica.practicavial.com/question/4dbafc14-c3e8-4e59-ab0a-287e2dcbfe2b-s-1.jpg",
+    "source": "practicavial",
+    "tags": [
+      "practicavial",
+      "dgt"
+    ],
+    "external_id": "4dbafc14-c3e8-4e59-ab0a-287e2dcbfe2b",
+    "id": "4dbafc14-c3e8-4e59-ab0a-287e2dcbfe2b"
+  }
+]
