@@ -362,12 +362,7 @@ const AIWidgetContent = ({
       }
 
       if (explanationToShow && explanationToShow.trim()) {
-        setMessages([
-          {
-            role: "assistant",
-            content: explanationToShow
-          }
-        ]);
+        showStaticResponse(explanationToShow);
       }
     }
   }, [explanation, explanationRu, explanationEs, explanationEn, showTranslation]);
@@ -481,9 +476,12 @@ const AIWidgetContent = ({
   const staticHint = interfaceLanguage === 'ru' ? hintRu : interfaceLanguage === 'en' ? hintEn : hintEs;
   const staticExplanation = interfaceLanguage === 'ru' ? explanationRu : interfaceLanguage === 'en' ? explanationEn : (explanationEs ?? explanation);
 
-  const showStaticResponse = (text: string | null | undefined, label: string) => {
+  const showStaticResponse = (text: string | null | undefined, label?: string | null) => {
     if (!text) return;
-    setMessages([{ role: 'user', content: label }, { role: 'assistant', content: '' }]);
+    const initial: Message[] = label
+      ? [{ role: 'user', content: label }, { role: 'assistant', content: '' }]
+      : [{ role: 'assistant', content: '' }];
+    setMessages(initial);
     setIsLoading(true);
     typewriter.start(
       (slice) => {
@@ -839,10 +837,8 @@ ${imageUrl ? `\n⚠️ К вопросу есть иллюстрация — о�
                       return;
                     }
                     if (explanation) {
-                      setMessages([{
-                        role: "assistant",
-                        content: explanation
-                      }]);
+                      const label = interfaceLanguage === 'ru' ? t('lumiHelpButton') : interfaceLanguage === 'en' ? 'Help me understand this' : 'Ayúdame a entender esto';
+                      showStaticResponse(explanation, label);
                     } else {
                       askAI(interfaceLanguage === 'ru' ? "Помоги мне понять это" : interfaceLanguage === 'en' ? "Help me understand this" : "Ayúdame a entender esto");
                     }

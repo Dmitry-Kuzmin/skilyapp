@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import guestQuestionsRaw from "@/data/guest-questions.json";
-import { getLazySupabase } from "@/integrations/supabase/lazyClient";
+import { getSupabaseClient } from "@/integrations/supabase/lazyClient";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -95,7 +95,7 @@ function normalizeRaw(q: any): DemoQuestion {
 // ── Fetch full question from Supabase ─────────────────────────────────────────
 
 async function fetchQuestion(id: string): Promise<DemoQuestion | null> {
-    const supabase = await getLazySupabase();
+    const supabase = await getSupabaseClient();
     const { data, error } = await supabase
         .from('questions_new')
         .select(`
@@ -178,7 +178,7 @@ export function DemoQuestionsPanel() {
         const timer = setTimeout(async () => {
             setSearchLoading(true);
             try {
-                const supabase = await getLazySupabase();
+                const supabase = await getSupabaseClient();
                 const { data } = await supabase
                     .from('questions_new')
                     .select('id, question_es, question_ru, image_url')
