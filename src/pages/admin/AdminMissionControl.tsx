@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 import { Badge } from "@/components/ui/badge";
-import { Maximize2, Minimize2, ChevronRight, TestTube2, AlertCircle, Command, Power, LayoutDashboard, Copy, Check, FlaskConical } from "lucide-react";
+import { Maximize2, Minimize2, ChevronRight, TestTube2, AlertCircle, Command, Power, LayoutDashboard, Copy, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { MissionSidebar } from "@/components/admin/mission-control/MissionSidebar";
@@ -243,24 +243,10 @@ const AdminMissionControlContent = () => {
 
                     <ChevronRight className="w-3 h-3 text-zinc-800" />
 
-                    <button
-                        onClick={() => setIsDemoMode(false)}
-                        className={cn("flex items-center gap-2 transition-colors", !isDemoMode ? "text-white" : "text-zinc-500 hover:text-white")}
-                    >
+                    <div className="flex items-center gap-2 text-zinc-500 hover:text-white transition-colors cursor-pointer" onClick={() => { setIsDemoMode(false); setSelectedTestId(null); }}>
                         <TestTube2 className="w-3.5 h-3.5" />
                         <span className="font-mono tracking-wider">TESTS</span>
-                    </button>
-                    <ChevronRight className="w-3 h-3 text-zinc-800" />
-                    <button
-                        onClick={() => setIsDemoMode(true)}
-                        className={cn(
-                            "flex items-center gap-2 transition-colors px-2 py-0.5 rounded",
-                            isDemoMode ? "text-indigo-400 bg-indigo-500/10" : "text-zinc-500 hover:text-white"
-                        )}
-                    >
-                        <FlaskConical className="w-3.5 h-3.5" />
-                        <span className="font-mono tracking-wider">DEMO</span>
-                    </button>
+                    </div>
                     {selectedTestId && (
                         <>
                             <ChevronRight className="w-3 h-3 text-zinc-700" />
@@ -353,7 +339,7 @@ const AdminMissionControlContent = () => {
                 {/* Sidebar */}
                 <ResizablePanel defaultSize={18} minSize={15} maxSize={25} className="border-r border-white/5 bg-[#050505]">
                     <MissionSidebar
-                        onSelectTest={setSelectedTestId}
+                        onSelectTest={(id) => { setSelectedTestId(id); setIsDemoMode(false); }}
                         onSelectQuestion={(id) => setSelectedQuestionId(id)}
                         selectedTestId={selectedTestId}
                         selectedQuestionId={selectedQuestionId}
@@ -363,6 +349,8 @@ const AdminMissionControlContent = () => {
                         generatingQuestionId={generatingQuestionId}
                         isSearchOpen={isSearchOpen}
                         onSearchOpenChange={setIsSearchOpen}
+                        isDemoMode={isDemoMode}
+                        onDemoMode={setIsDemoMode}
                     />
                 </ResizablePanel>
 

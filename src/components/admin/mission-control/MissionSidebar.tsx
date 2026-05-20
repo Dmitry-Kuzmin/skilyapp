@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
-import { Search, FileText, CheckCircle2, ChevronRight, Folder, ChevronDown, AlertTriangle, Loader2, Image as ImageIcon } from "lucide-react";
+import { Search, FileText, CheckCircle2, ChevronRight, Folder, ChevronDown, AlertTriangle, Loader2, Image as ImageIcon, FlaskConical } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
     CommandDialog,
@@ -25,6 +25,8 @@ interface MissionSidebarProps {
     generatingQuestionId?: string | null;
     isSearchOpen: boolean;
     onSearchOpenChange: (open: boolean) => void;
+    isDemoMode?: boolean;
+    onDemoMode?: (active: boolean) => void;
 }
 
 export function MissionSidebar({
@@ -37,7 +39,9 @@ export function MissionSidebar({
     questions = [],
     generatingQuestionId,
     isSearchOpen,
-    onSearchOpenChange
+    onSearchOpenChange,
+    isDemoMode = false,
+    onDemoMode,
 }: MissionSidebarProps) {
     const [structure, setStructure] = useState<any>({});
     const [loading, setLoading] = useState(false);
@@ -299,6 +303,23 @@ export function MissionSidebar({
                         </div>
                     </ScrollArea>
                 )}
+            </div>
+
+            {/* DEMO mode button */}
+            <div className="p-2 border-t border-zinc-800/60">
+                <button
+                    onClick={() => onDemoMode?.(!isDemoMode)}
+                    className={cn(
+                        "w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-all",
+                        isDemoMode
+                            ? "bg-indigo-500/15 border border-indigo-500/30 text-indigo-300"
+                            : "text-zinc-500 hover:text-zinc-200 hover:bg-zinc-900 border border-transparent"
+                    )}
+                >
+                    <FlaskConical className="w-3.5 h-3.5 shrink-0" />
+                    <span className="font-mono tracking-wider uppercase text-[10px]">Demo Questions</span>
+                    {isDemoMode && <span className="ml-auto w-1.5 h-1.5 rounded-full bg-indigo-400" />}
+                </button>
             </div>
 
             {/* COMMAND PALETTE (Global Search) */}

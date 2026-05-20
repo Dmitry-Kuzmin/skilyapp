@@ -1,12 +1,13 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import guestQuestionsRaw from "@/data/guest-questions.json";
 import { getSupabaseClient } from "@/integrations/supabase/lazyClient";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
     Cloud, Trash2, Plus, Save, RefreshCw,
-    Image as ImageIcon, Check, X, GripVertical, Loader2
+    Image as ImageIcon, Check, X, GripVertical, Loader2, Sparkles, ChevronRight
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -50,24 +51,20 @@ type SearchResult = {
     image_url: string | null;
 };
 
-// ── Persistence ───────────────────────────────────────────────────────────────
+// ── DB helpers ────────────────────────────────────────────────────────────────
 
 const DB_KEY = 'demo_questions';
 
 async function loadFromDB(): Promise<DemoQuestion[] | null> {
-    const supabase = await getSupabaseClient();
-    const { data } = await supabase
-        .from('app_config')
-        .select('value')
-        .eq('key', DB_KEY)
-        .single();
+    const sb = await getSupabaseClient();
+    const { data } = await sb.from('app_config').select('value').eq('key', DB_KEY).single();
     if (!data?.value) return null;
     try { return data.value as DemoQuestion[]; } catch { return null; }
 }
 
 async function saveToDB(qs: DemoQuestion[]): Promise<void> {
-    const supabase = await getSupabaseClient();
-    await supabase.from('app_config').upsert({
+    const sb = await getSupabaseClient();
+    await sb.from('app_config').upsert({
         key: DB_KEY,
         value: qs as any,
         description: 'Demo/guest questions shown to non-authenticated users',
@@ -75,7 +72,7 @@ async function saveToDB(qs: DemoQuestion[]): Promise<void> {
     }, { onConflict: 'key' });
 }
 
-// ── Normalize raw JSON → DemoQuestion ─────────────────────────────────────────
+// ── Normalize raw JSON ────────────────────────────────────────────────────────
 
 function normalizeRaw(q: any): DemoQuestion {
     return {
@@ -105,18 +102,15 @@ function normalizeRaw(q: any): DemoQuestion {
 // ── Fetch full question from Supabase ─────────────────────────────────────────
 
 async function fetchQuestion(id: string): Promise<DemoQuestion | null> {
-    const supabase = await getSupabaseClient();
-    const { data, error } = await supabase
+    const sb = await getSupabaseClient();
+    const { data, error } = await sb
         .from('questions_new')
-        .select(`
-            id, question_es, question_ru, question_en, image_url,
+        .select(`id, question_es, question_ru, question_en, image_url,
             explanation_es, explanation_ru, explanation_en,
             topics ( title_ru, title_es ),
-            answer_options ( id, text_ru, text_es, text_en, is_correct, position )
-        `)
+            answer_options ( id, text_ru, text_es, text_en, is_correct, position )`)
         .eq('id', id)
         .single();
-
     if (error || !data) return null;
     const d = data as any;
     return {
@@ -131,14 +125,50 @@ async function fetchQuestion(id: string): Promise<DemoQuestion | null> {
         topics: d.topics ? { title_ru: d.topics.title_ru, title_es: d.topics.title_es } : null,
         answer_options: ((d.answer_options as any[]) ?? [])
             .sort((a, b) => (a.position ?? 0) - (b.position ?? 0))
-            .map(a => ({
-                id: a.id, text_es: a.text_es ?? null, text_ru: a.text_ru ?? '',
-                text_en: a.text_en ?? null, is_correct: a.is_correct ?? false, position: a.position ?? 0,
-            })),
-        hint_es: null,
-        hint_ru: null,
-        hint_en: null,
+            .map(a => ({ id: a.id, text_es: a.text_es ?? null, text_ru: a.text_ru ?? '', text_en: a.text_en ?? null, is_correct: a.is_correct ?? false, position: a.position ?? 0 })),
+        hint_es: null, hint_ru: null, hint_en: null,
     };
+}
+
+// ── AI hint generation ────────────────────────────────────────────────────────
+
+async function generateHints(q: DemoQuestion): Promise<{ hint_es: string; hint_ru: string; hint_en: string } | null> {
+    const correctAnswer = q.answer_options.find(a => a.is_correct);
+    const wrongAnswers = q.answer_options.filter(a => !a.is_correct);
+
+    const prompt = `Ты эксперт по правилам дорожного движения Испании (DGT).
+
+Вопрос (ES): ${q.question_es}
+Вопрос (RU): ${q.question_ru}
+
+Варианты ответов (ES):
+✓ ${correctAnswer?.text_es ?? ''}
+${wrongAnswers.map(a => `✗ ${a.text_es}`).join('\n')}
+
+Официальное объяснение: ${q.explanation_es ?? q.explanation_ru ?? ''}
+
+Задача: напиши подсказку для студента — направь его мышление к правильному ответу, но НЕ называй его напрямую. 1-2 предложения.
+
+Ответь СТРОГО в JSON без markdown:
+{"hint_es":"...","hint_ru":"...","hint_en":"..."}`;
+
+    try {
+        const { data, error } = await supabase.functions.invoke('ai-chat', {
+            body: {
+                messages: [{ role: 'user', content: prompt }],
+                country: 'spain',
+                language: 'ru',
+            }
+        });
+        if (error) throw error;
+        const text: string = typeof data === 'string' ? data : (data?.content ?? data?.message ?? JSON.stringify(data));
+        const jsonMatch = text.match(/\{[\s\S]*\}/);
+        if (!jsonMatch) throw new Error('No JSON in response');
+        return JSON.parse(jsonMatch[0]);
+    } catch (e) {
+        console.error('[DemoPanel] Generate hints error:', e);
+        return null;
+    }
 }
 
 // ── Main component ────────────────────────────────────────────────────────────
@@ -147,6 +177,7 @@ export function DemoQuestionsPanel() {
     const [questions, setQuestions] = useState<DemoQuestion[]>((guestQuestionsRaw as any[]).map(normalizeRaw));
     const [dbLoading, setDbLoading] = useState(true);
     const [saving, setSaving] = useState(false);
+    const [generating, setGenerating] = useState(false);
     const [selectedId, setSelectedId] = useState<string | null>(null);
     const [searchOpen, setSearchOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
@@ -156,6 +187,9 @@ export function DemoQuestionsPanel() {
     const [hintDraft, setHintDraft] = useState({ es: '', ru: '', en: '' });
     const [hintSaved, setHintSaved] = useState(false);
     const dragIdx = useRef<number | null>(null);
+
+    const selectedQ = questions.find(q => q.id === selectedId) ?? null;
+    const selectedIdx = questions.findIndex(q => q.id === selectedId);
 
     // Load from DB on mount
     useEffect(() => {
@@ -167,16 +201,10 @@ export function DemoQuestionsPanel() {
         });
     }, []);
 
-    const selectedQ = questions.find(q => q.id === selectedId) ?? null;
-
-    // Sync hint draft when selected question changes
+    // Sync hint draft
     useEffect(() => {
         if (!selectedQ) return;
-        setHintDraft({
-            es: selectedQ.hint_es ?? '',
-            ru: selectedQ.hint_ru ?? '',
-            en: selectedQ.hint_en ?? '',
-        });
+        setHintDraft({ es: selectedQ.hint_es ?? '', ru: selectedQ.hint_ru ?? '', en: selectedQ.hint_en ?? '' });
         setHintSaved(false);
     }, [selectedId]);
 
@@ -186,8 +214,8 @@ export function DemoQuestionsPanel() {
         const timer = setTimeout(async () => {
             setSearchLoading(true);
             try {
-                const supabase = await getSupabaseClient();
-                const { data } = await supabase
+                const sb = await getSupabaseClient();
+                const { data } = await sb
                     .from('questions_new')
                     .select('id, question_es, question_ru, image_url')
                     .eq('country', 'es')
@@ -212,42 +240,42 @@ export function DemoQuestionsPanel() {
         setSaving(false);
         setHintSaved(true);
         setTimeout(() => setHintSaved(false), 1500);
-        toast.success('Сохранено в облако — гости увидят сразу');
+        toast.success('Сохранено — гости увидят сразу');
     }, [selectedId, hintDraft, questions]);
+
+    const handleGenerate = useCallback(async () => {
+        if (!selectedQ) return;
+        setGenerating(true);
+        const hints = await generateHints(selectedQ);
+        if (hints) {
+            setHintDraft({ es: hints.hint_es, ru: hints.hint_ru, en: hints.hint_en });
+            toast.success('Подсказки сгенерированы — проверь и сохрани');
+        } else {
+            toast.error('Не удалось сгенерировать подсказки');
+        }
+        setGenerating(false);
+    }, [selectedQ]);
 
     const removeQuestion = useCallback((id: string) => {
         setQuestions(prev => {
             const updated = prev.filter(q => q.id !== id);
-            saveToDB(updated);
             if (selectedId === id) setSelectedId(updated[0]?.id ?? null);
             return updated;
         });
-        toast.success('Вопрос удалён из демо');
     }, [selectedId]);
 
     const addQuestion = useCallback(async (id: string) => {
-        if (questions.some(q => q.id === id)) {
-            toast.warning('Этот вопрос уже в демо');
-            setSearchOpen(false);
-            return;
-        }
-        if (questions.length >= 30) {
-            toast.error('Максимум 30 вопросов в демо');
-            return;
-        }
+        if (questions.some(q => q.id === id)) { toast.warning('Уже в демо'); setSearchOpen(false); return; }
+        if (questions.length >= 30) { toast.error('Максимум 30 вопросов'); return; }
         setAddingId(id);
         const q = await fetchQuestion(id);
         setAddingId(null);
         if (!q) { toast.error('Не удалось загрузить вопрос'); return; }
-        setQuestions(prev => {
-            const updated = [...prev, q];
-            saveToDB(updated);
-            return updated;
-        });
+        setQuestions(prev => [...prev, q]);
         setSelectedId(id);
         setSearchOpen(false);
         setSearchQuery('');
-        toast.success('Вопрос добавлен в демо');
+        toast.success('Вопрос добавлен');
     }, [questions]);
 
     const resetToOriginal = useCallback(async () => {
@@ -257,10 +285,16 @@ export function DemoQuestionsPanel() {
         setSaving(true);
         await saveToDB(original);
         setSaving(false);
-        toast.success('Восстановлен оригинальный список и опубликован');
+        toast.success('Восстановлен оригинальный список');
     }, []);
 
-    // Drag-and-drop reorder
+    const publishAll = useCallback(async () => {
+        setSaving(true);
+        await saveToDB(questions);
+        setSaving(false);
+        toast.success('Опубликовано — гости увидят сразу');
+    }, [questions]);
+
     const handleDragStart = (idx: number) => { dragIdx.current = idx; };
     const handleDrop = (idx: number) => {
         if (dragIdx.current === null || dragIdx.current === idx) return;
@@ -268,55 +302,50 @@ export function DemoQuestionsPanel() {
             const updated = [...prev];
             const [moved] = updated.splice(dragIdx.current!, 1);
             updated.splice(idx, 0, moved);
-            saveToDB(updated);
             return updated;
         });
         dragIdx.current = null;
     };
 
+    if (dbLoading) {
+        return (
+            <div className="flex-1 flex items-center justify-center gap-3 text-zinc-600">
+                <Loader2 className="w-5 h-5 animate-spin" />
+                <span className="text-sm font-mono">Loading demo config...</span>
+            </div>
+        );
+    }
+
     return (
         <div className="flex h-full overflow-hidden">
-            {/* ── LEFT: Question List ──────────────────────────────────────── */}
-            <div className="w-72 border-r border-white/5 flex flex-col bg-[#050505]">
-                {/* Header */}
-                <div className="px-4 py-3 border-b border-zinc-800 bg-zinc-900/40">
-                    <div className="flex items-center justify-between mb-2">
-                        <span className="text-xs font-bold text-zinc-300 uppercase tracking-widest">Demo Questions</span>
-                        <Badge variant="outline" className="text-[10px] h-5 border-indigo-500/30 text-indigo-400 bg-indigo-500/5">
+
+            {/* ── COL 1: Question List (narrow) ─────────────────────────── */}
+            <div className="w-64 border-r border-white/5 flex flex-col bg-[#050505] shrink-0">
+                <div className="px-3 py-2.5 border-b border-zinc-800 bg-zinc-900/40 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                        <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Demo</span>
+                        <Badge variant="outline" className="text-[9px] h-4 border-indigo-500/30 text-indigo-400 bg-indigo-500/5">
                             {questions.length}/30
                         </Badge>
                     </div>
-                    <div className="flex gap-1.5">
-                        <Button
-                            size="sm"
-                            variant="ghost"
-                            className="flex-1 h-7 text-[11px] gap-1.5 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-400 border border-indigo-500/20"
-                            onClick={() => setSearchOpen(true)}
-                        >
-                            <Plus className="w-3 h-3" />
-                            Добавить
-                        </Button>
-                        <Button
-                            size="sm"
-                            variant="ghost"
-                            className="h-7 w-7 p-0 text-zinc-600 hover:text-zinc-300"
-                            onClick={resetToOriginal}
-                            title="Сбросить к оригиналу"
-                        >
+                    <div className="flex items-center gap-1">
+                        <Button size="sm" variant="ghost" className="h-6 w-6 p-0 text-zinc-600 hover:text-zinc-300" onClick={resetToOriginal} title="Сброс">
                             <RefreshCw className="w-3 h-3" />
+                        </Button>
+                        <Button size="sm" variant="ghost" className="h-6 w-6 p-0 text-indigo-400 hover:text-indigo-300" onClick={() => setSearchOpen(true)} title="Добавить">
+                            <Plus className="w-3 h-3" />
                         </Button>
                     </div>
                 </div>
 
-                {/* List */}
                 <ScrollArea className="flex-1">
-                    <div className="p-2 space-y-0.5">
+                    <div className="p-1.5 space-y-0.5">
                         {questions.map((q, idx) => (
                             <div
                                 key={q.id}
                                 draggable
                                 onDragStart={() => handleDragStart(idx)}
-                                onDragOver={(e) => e.preventDefault()}
+                                onDragOver={e => e.preventDefault()}
                                 onDrop={() => handleDrop(idx)}
                                 onClick={() => setSelectedId(q.id)}
                                 className={cn(
@@ -326,152 +355,106 @@ export function DemoQuestionsPanel() {
                                         : "text-zinc-500 hover:bg-zinc-900 hover:text-zinc-300"
                                 )}
                             >
-                                <GripVertical className="w-3 h-3 mr-1.5 mt-0.5 flex-shrink-0 opacity-20 group-hover:opacity-50 cursor-grab" />
-                                <span className={cn(
-                                    "font-mono text-[10px] mr-2 mt-0.5 w-5 flex-shrink-0",
-                                    selectedId === q.id ? "text-indigo-400" : "opacity-30 group-hover:opacity-50"
-                                )}>
+                                <GripVertical className="w-3 h-3 mr-1 mt-0.5 flex-shrink-0 opacity-20 group-hover:opacity-40 cursor-grab" />
+                                <span className={cn("font-mono text-[10px] mr-1.5 mt-0.5 w-4 flex-shrink-0", selectedId === q.id ? "text-indigo-400" : "opacity-30")}>
                                     {(idx + 1).toString().padStart(2, '0')}
                                 </span>
                                 <div className="flex-1 min-w-0">
-                                    <div className="text-[11px] font-medium leading-relaxed line-clamp-2 opacity-90">
-                                        {q.question_ru || q.question_es || '...'}
-                                    </div>
-                                    <div className="flex gap-1 mt-1">
-                                        {q.hint_es && <span className="text-[9px] text-emerald-500/70 font-mono">ES</span>}
-                                        {q.hint_ru && <span className="text-[9px] text-emerald-500/70 font-mono">RU</span>}
-                                        {q.hint_en && <span className="text-[9px] text-emerald-500/70 font-mono">EN</span>}
+                                    <div className="text-[11px] leading-relaxed line-clamp-2">{q.question_ru || q.question_es || '...'}</div>
+                                    <div className="flex gap-1 mt-0.5">
+                                        {q.hint_es && <span className="text-[8px] text-emerald-500/60 font-mono">ES</span>}
+                                        {q.hint_ru && <span className="text-[8px] text-emerald-500/60 font-mono">RU</span>}
+                                        {q.hint_en && <span className="text-[8px] text-emerald-500/60 font-mono">EN</span>}
                                     </div>
                                 </div>
-                                <button
-                                    onClick={(e) => { e.stopPropagation(); removeQuestion(q.id); }}
-                                    className="opacity-0 group-hover:opacity-100 transition-opacity ml-1 p-0.5 rounded text-zinc-600 hover:text-rose-400"
-                                >
-                                    <X className="w-3 h-3" />
+                                <button onClick={e => { e.stopPropagation(); removeQuestion(q.id); }}
+                                    className="opacity-0 group-hover:opacity-100 p-0.5 rounded text-zinc-700 hover:text-rose-400 ml-1 flex-shrink-0">
+                                    <X className="w-2.5 h-2.5" />
                                 </button>
                             </div>
                         ))}
                     </div>
                 </ScrollArea>
 
-                {/* Publish */}
-                <div className="p-3 border-t border-zinc-800">
+                <div className="p-2 border-t border-zinc-800">
                     <Button
-                        className="w-full h-8 text-xs gap-2 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 disabled:opacity-50"
-                        variant="ghost"
-                        disabled={saving || dbLoading}
-                        onClick={async () => {
-                            setSaving(true);
-                            await saveToDB(questions);
-                            setSaving(false);
-                            toast.success('Опубликовано — гости увидят новые вопросы сразу');
-                        }}
+                        className="w-full h-7 text-[11px] gap-1.5 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 disabled:opacity-50"
+                        variant="ghost" disabled={saving} onClick={publishAll}
                     >
-                        {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Cloud className="w-3.5 h-3.5" />}
-                        {saving ? 'Сохраняю...' : 'Опубликовать изменения'}
+                        {saving ? <Loader2 className="w-3 h-3 animate-spin" /> : <Cloud className="w-3 h-3" />}
+                        {saving ? 'Сохраняю...' : 'Опубликовать'}
                     </Button>
                 </div>
             </div>
 
-            {/* ── RIGHT: Editor ────────────────────────────────────────────── */}
-            <div className="flex-1 flex flex-col bg-[#09090b] overflow-hidden">
+            {/* ── COL 2: Question Preview ───────────────────────────────── */}
+            <div className="flex-1 border-r border-white/5 flex flex-col bg-[#050505] min-w-0">
                 {selectedQ ? (
                     <>
-                        {/* Question header */}
-                        <div className="px-6 py-4 border-b border-white/5">
-                            <div className="flex items-start gap-4">
-                                {/* Image */}
-                                <div className="w-32 h-24 rounded-xl overflow-hidden border border-white/10 flex-shrink-0 bg-zinc-900">
-                                    {selectedQ.image_url ? (
-                                        <img
-                                            src={selectedQ.image_url}
-                                            alt=""
-                                            className="w-full h-full object-cover"
-                                            onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
-                                        />
-                                    ) : (
-                                        <div className="w-full h-full flex items-center justify-center">
-                                            <ImageIcon className="w-6 h-6 text-zinc-700" />
-                                        </div>
-                                    )}
-                                </div>
-
-                                {/* Texts */}
-                                <div className="flex-1 min-w-0">
-                                    <div className="text-[10px] font-mono text-zinc-600 mb-1">
-                                        {selectedQ.topics?.title_ru ?? selectedQ.topics?.title_es ?? '—'}
-                                    </div>
-                                    <p className="text-sm text-zinc-200 font-medium leading-relaxed mb-1">
-                                        {selectedQ.question_ru}
-                                    </p>
-                                    <p className="text-xs text-zinc-500 italic leading-relaxed">
-                                        {selectedQ.question_es}
-                                    </p>
-                                    <div className="mt-2 space-y-0.5">
-                                        {selectedQ.answer_options
-                                            .sort((a, b) => a.position - b.position)
-                                            .map(a => (
-                                                <div key={a.id} className={cn(
-                                                    "text-[11px] flex items-center gap-1.5",
-                                                    a.is_correct ? "text-emerald-400" : "text-zinc-600"
-                                                )}>
-                                                    <span>{a.is_correct ? '✓' : '·'}</span>
-                                                    <span>{a.text_ru}</span>
-                                                </div>
-                                            ))}
-                                    </div>
-                                </div>
+                        {/* Nav arrows */}
+                        <div className="px-4 py-2.5 border-b border-zinc-800 flex items-center justify-between">
+                            <span className="text-[10px] font-mono text-zinc-600">
+                                {selectedIdx + 1} / {questions.length}
+                            </span>
+                            <div className="flex gap-1">
+                                <Button size="sm" variant="ghost" className="h-6 w-6 p-0 text-zinc-600 hover:text-white" disabled={selectedIdx <= 0}
+                                    onClick={() => setSelectedId(questions[selectedIdx - 1]?.id)}>
+                                    ‹
+                                </Button>
+                                <Button size="sm" variant="ghost" className="h-6 w-6 p-0 text-zinc-600 hover:text-white" disabled={selectedIdx >= questions.length - 1}
+                                    onClick={() => setSelectedId(questions[selectedIdx + 1]?.id)}>
+                                    ›
+                                </Button>
                             </div>
                         </div>
 
-                        {/* Hints editor */}
                         <ScrollArea className="flex-1">
-                            <div className="px-6 py-4 space-y-4">
-                                <div className="flex items-center justify-between">
-                                    <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-widest">Подсказки (Hints)</h3>
-                                    <span className="text-[10px] text-zinc-600">Не раскрывают правильный ответ — только направляют мышление</span>
+                            <div className="p-4 space-y-4">
+                                {/* Image */}
+                                <div className="aspect-video w-full rounded-xl overflow-hidden border border-white/10 bg-zinc-900">
+                                    {selectedQ.image_url ? (
+                                        <img src={selectedQ.image_url} alt="" className="w-full h-full object-cover" />
+                                    ) : (
+                                        <div className="w-full h-full flex items-center justify-center">
+                                            <ImageIcon className="w-10 h-10 text-zinc-700" />
+                                        </div>
+                                    )}
                                 </div>
 
-                                {(['es', 'ru', 'en'] as const).map(lang => (
-                                    <div key={lang}>
-                                        <div className="text-[10px] font-mono text-zinc-500 uppercase mb-1.5 flex items-center gap-2">
-                                            <span>{lang === 'es' ? '🇪🇸' : lang === 'ru' ? '🇷🇺' : '🇬🇧'}</span>
-                                            {lang === 'es' ? 'Español' : lang === 'ru' ? 'Русский' : 'English'}
-                                            {hintDraft[lang] && <Check className="w-3 h-3 text-emerald-500" />}
-                                        </div>
-                                        <Textarea
-                                            value={hintDraft[lang]}
-                                            onChange={e => setHintDraft(prev => ({ ...prev, [lang]: e.target.value }))}
-                                            placeholder={
-                                                lang === 'es' ? 'Pista para el estudiante...'
-                                                    : lang === 'ru' ? 'Подсказка для ученика...'
-                                                        : 'Hint for the student...'
-                                            }
-                                            className="bg-zinc-900/50 border-zinc-800 text-zinc-300 text-[13px] resize-none min-h-[80px] focus:border-indigo-500/50"
-                                            rows={3}
-                                        />
+                                {/* Topic */}
+                                {selectedQ.topics && (
+                                    <div className="text-[10px] font-mono text-zinc-600 uppercase tracking-wide">
+                                        {selectedQ.topics.title_ru}
                                     </div>
-                                ))}
+                                )}
 
-                                <Button
-                                    onClick={saveHints}
-                                    className={cn(
-                                        "gap-2 transition-all",
-                                        hintSaved
-                                            ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/30"
-                                            : "bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-400 border-indigo-500/20"
-                                    )}
-                                    variant="ghost"
-                                >
-                                    {hintSaved ? <Check className="w-3.5 h-3.5" /> : <Save className="w-3.5 h-3.5" />}
-                                    {hintSaved ? 'Сохранено!' : 'Сохранить подсказки'}
-                                </Button>
+                                {/* Question */}
+                                <div>
+                                    <p className="text-sm font-semibold text-zinc-100 leading-relaxed mb-1">{selectedQ.question_ru}</p>
+                                    <p className="text-xs text-zinc-500 italic leading-relaxed">{selectedQ.question_es}</p>
+                                </div>
 
-                                {/* Explanation preview */}
+                                {/* Answers */}
+                                <div className="space-y-1.5">
+                                    {selectedQ.answer_options.sort((a, b) => a.position - b.position).map(a => (
+                                        <div key={a.id} className={cn(
+                                            "flex items-start gap-2 text-[12px] px-3 py-2 rounded-lg",
+                                            a.is_correct ? "bg-emerald-500/10 border border-emerald-500/20 text-emerald-300" : "bg-zinc-900/50 text-zinc-500"
+                                        )}>
+                                            <span className="mt-0.5 shrink-0">{a.is_correct ? '✓' : '·'}</span>
+                                            <div>
+                                                <div>{a.text_ru}</div>
+                                                {a.text_es && <div className="text-[10px] opacity-50 italic">{a.text_es}</div>}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+
+                                {/* Explanation */}
                                 {(selectedQ.explanation_ru || selectedQ.explanation_es) && (
-                                    <div className="mt-4 p-3 rounded-lg bg-zinc-900/50 border border-white/5">
-                                        <div className="text-[10px] font-mono text-zinc-600 uppercase mb-1">Официальное объяснение (из БД)</div>
-                                        <p className="text-xs text-zinc-500 leading-relaxed">{selectedQ.explanation_ru || selectedQ.explanation_es}</p>
+                                    <div className="p-3 rounded-lg bg-zinc-900/60 border border-white/5">
+                                        <div className="text-[9px] font-mono text-zinc-600 uppercase mb-1">Объяснение из БД</div>
+                                        <p className="text-[12px] text-zinc-400 leading-relaxed">{selectedQ.explanation_ru || selectedQ.explanation_es}</p>
                                     </div>
                                 )}
                             </div>
@@ -479,61 +462,105 @@ export function DemoQuestionsPanel() {
                     </>
                 ) : (
                     <div className="flex-1 flex items-center justify-center text-zinc-700 text-sm">
-                        Выберите вопрос слева
+                        Выберите вопрос
                     </div>
                 )}
             </div>
 
-            {/* ── Search dialog ─────────────────────────────────────────────── */}
-            <CommandDialog open={searchOpen} onOpenChange={(o) => { setSearchOpen(o); if (!o) setSearchQuery(''); }} shouldFilter={false}>
-                <CommandInput
-                    placeholder="Поиск по тексту вопроса (ES или RU)..."
-                    value={searchQuery}
-                    onValueChange={setSearchQuery}
-                />
+            {/* ── COL 3: Hints Editor ───────────────────────────────────── */}
+            <div className="w-80 flex flex-col bg-[#09090b] shrink-0">
+                <div className="px-4 py-2.5 border-b border-zinc-800 flex items-center justify-between">
+                    <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Подсказки (Hints)</span>
+                    <Button
+                        size="sm" variant="ghost"
+                        className="h-6 px-2 text-[10px] gap-1.5 text-violet-400 hover:text-violet-300 hover:bg-violet-500/10 disabled:opacity-40"
+                        onClick={handleGenerate} disabled={generating || !selectedQ}
+                    >
+                        {generating ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />}
+                        {generating ? 'Генерирую...' : 'Генерировать'}
+                    </Button>
+                </div>
+
+                <ScrollArea className="flex-1">
+                    <div className="p-4 space-y-4">
+                        {selectedQ ? (
+                            <>
+                                <p className="text-[10px] text-zinc-600 leading-relaxed">
+                                    Подсказка направляет студента к ответу, не называя его напрямую.
+                                </p>
+
+                                {(['es', 'ru', 'en'] as const).map(lang => (
+                                    <div key={lang}>
+                                        <div className="flex items-center gap-1.5 mb-1.5">
+                                            <span className="text-xs">{lang === 'es' ? '🇪🇸' : lang === 'ru' ? '🇷🇺' : '🇬🇧'}</span>
+                                            <span className="text-[10px] font-mono text-zinc-500 uppercase">
+                                                {lang === 'es' ? 'Español' : lang === 'ru' ? 'Русский' : 'English'}
+                                            </span>
+                                            {hintDraft[lang] && <Check className="w-3 h-3 text-emerald-500 ml-auto" />}
+                                        </div>
+                                        <Textarea
+                                            value={hintDraft[lang]}
+                                            onChange={e => setHintDraft(prev => ({ ...prev, [lang]: e.target.value }))}
+                                            placeholder={lang === 'es' ? 'Pista...' : lang === 'ru' ? 'Подсказка...' : 'Hint...'}
+                                            className="bg-zinc-900/50 border-zinc-800 text-zinc-300 text-[12px] resize-none min-h-[72px] focus:border-indigo-500/50"
+                                            rows={3}
+                                        />
+                                    </div>
+                                ))}
+
+                                <Button
+                                    onClick={saveHints} disabled={saving}
+                                    className={cn(
+                                        "w-full gap-2 transition-all",
+                                        hintSaved
+                                            ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/30"
+                                            : "bg-indigo-500/15 hover:bg-indigo-500/25 text-indigo-400 border-indigo-500/20"
+                                    )}
+                                    variant="ghost"
+                                >
+                                    {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                        : hintSaved ? <Check className="w-3.5 h-3.5" />
+                                            : <Save className="w-3.5 h-3.5" />}
+                                    {hintSaved ? 'Сохранено!' : saving ? 'Сохраняю...' : 'Сохранить подсказки'}
+                                </Button>
+                            </>
+                        ) : (
+                            <div className="text-zinc-700 text-xs text-center py-8">Выберите вопрос слева</div>
+                        )}
+                    </div>
+                </ScrollArea>
+            </div>
+
+            {/* ── Search dialog ─────────────────────────────────────────── */}
+            <CommandDialog open={searchOpen} onOpenChange={o => { setSearchOpen(o); if (!o) setSearchQuery(''); }} shouldFilter={false}>
+                <CommandInput placeholder="Поиск вопроса (ES или RU)..." value={searchQuery} onValueChange={setSearchQuery} />
                 <CommandList>
                     {searchLoading && (
                         <div className="flex items-center justify-center py-6 gap-2 text-zinc-500 text-xs">
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                            Поиск...
+                            <Loader2 className="w-4 h-4 animate-spin" /> Поиск...
                         </div>
                     )}
-                    {!searchLoading && searchQuery.length > 1 && searchResults.length === 0 && (
-                        <CommandEmpty>Ничего не найдено</CommandEmpty>
-                    )}
+                    {!searchLoading && searchQuery.length > 1 && searchResults.length === 0 && <CommandEmpty>Ничего не найдено</CommandEmpty>}
                     {searchResults.length > 0 && (
                         <CommandGroup heading={`${searchResults.length} результатов`}>
                             {searchResults.map(r => {
                                 const alreadyAdded = questions.some(q => q.id === r.id);
                                 return (
-                                    <CommandItem
-                                        key={r.id}
-                                        onSelect={() => !alreadyAdded && addQuestion(r.id)}
-                                        className="flex items-start gap-3 p-2 cursor-pointer"
-                                        value={r.id}
-                                    >
+                                    <CommandItem key={r.id} onSelect={() => !alreadyAdded && addQuestion(r.id)} className="flex items-start gap-3 p-2 cursor-pointer" value={r.id}>
                                         <div className="w-16 h-11 rounded-lg overflow-hidden bg-zinc-900 border border-white/5 flex-shrink-0">
-                                            {r.image_url ? (
-                                                <img src={r.image_url} alt="" className="w-full h-full object-cover opacity-70" />
-                                            ) : (
-                                                <div className="w-full h-full flex items-center justify-center">
-                                                    <ImageIcon className="w-4 h-4 text-zinc-700" />
-                                                </div>
-                                            )}
+                                            {r.image_url
+                                                ? <img src={r.image_url} alt="" className="w-full h-full object-cover opacity-70" />
+                                                : <div className="w-full h-full flex items-center justify-center"><ImageIcon className="w-4 h-4 text-zinc-700" /></div>}
                                         </div>
                                         <div className="flex-1 min-w-0">
                                             <p className="text-xs font-medium text-zinc-200 line-clamp-2">{r.question_ru ?? '...'}</p>
                                             <p className="text-[11px] text-zinc-500 italic mt-0.5 line-clamp-1">{r.question_es ?? ''}</p>
                                         </div>
-                                        {alreadyAdded ? (
-                                            <Badge variant="outline" className="text-[9px] border-emerald-500/30 text-emerald-500 flex-shrink-0">
-                                                В демо
-                                            </Badge>
-                                        ) : addingId === r.id ? (
-                                            <Loader2 className="w-4 h-4 animate-spin text-indigo-400 flex-shrink-0" />
-                                        ) : (
-                                            <Plus className="w-4 h-4 text-zinc-600 flex-shrink-0" />
-                                        )}
+                                        {alreadyAdded
+                                            ? <Badge variant="outline" className="text-[9px] border-emerald-500/30 text-emerald-500 flex-shrink-0">В демо</Badge>
+                                            : addingId === r.id
+                                                ? <Loader2 className="w-4 h-4 animate-spin text-indigo-400 flex-shrink-0" />
+                                                : <Plus className="w-4 h-4 text-zinc-600 flex-shrink-0" />}
                                     </CommandItem>
                                 );
                             })}
