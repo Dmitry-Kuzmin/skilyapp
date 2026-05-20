@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 import { Badge } from "@/components/ui/badge";
-import { Maximize2, Minimize2, ChevronRight, TestTube2, AlertCircle, Command, Power, LayoutDashboard, Copy, Check } from "lucide-react";
+import { Maximize2, Minimize2, ChevronRight, TestTube2, AlertCircle, Command, Power, LayoutDashboard, Copy, Check, FlaskConical } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { MissionSidebar } from "@/components/admin/mission-control/MissionSidebar";
@@ -10,6 +10,7 @@ import { MissionImageControl, MissionImageControlHandle } from "@/components/adm
 import { MissionTestDashboard } from "@/components/admin/mission-control/MissionTestDashboard";
 import { FloatingDock } from "@/components/admin/mission-control/FloatingDock";
 import { ActivityBar } from "@/components/admin/mission-control/ActivityBar";
+import { DemoQuestionsPanel } from "@/components/admin/mission-control/DemoQuestionsPanel";
 import { ActivityLogProvider } from "@/contexts/ActivityLogContext";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
@@ -35,6 +36,7 @@ const AdminMissionControlContent = () => {
     const [isValidatorServerOnline, setIsValidatorServerOnline] = useState<boolean>(false);
     const [questions, setQuestions] = useState<any[]>([]);
     const [isFullscreen, setIsFullscreen] = useState(false);
+    const [isDemoMode, setIsDemoMode] = useState(false);
     const [generatingQuestionId, setGeneratingQuestionId] = useState<string | null>(null);
     const [isTestEnriched, setIsTestEnriched] = useState<boolean>(true);
     const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -241,10 +243,24 @@ const AdminMissionControlContent = () => {
 
                     <ChevronRight className="w-3 h-3 text-zinc-800" />
 
-                    <div className="flex items-center gap-2 text-zinc-500 hover:text-white transition-colors cursor-pointer" onClick={() => setSelectedTestId(null)}>
+                    <button
+                        onClick={() => setIsDemoMode(false)}
+                        className={cn("flex items-center gap-2 transition-colors", !isDemoMode ? "text-white" : "text-zinc-500 hover:text-white")}
+                    >
                         <TestTube2 className="w-3.5 h-3.5" />
                         <span className="font-mono tracking-wider">TESTS</span>
-                    </div>
+                    </button>
+                    <ChevronRight className="w-3 h-3 text-zinc-800" />
+                    <button
+                        onClick={() => setIsDemoMode(true)}
+                        className={cn(
+                            "flex items-center gap-2 transition-colors px-2 py-0.5 rounded",
+                            isDemoMode ? "text-indigo-400 bg-indigo-500/10" : "text-zinc-500 hover:text-white"
+                        )}
+                    >
+                        <FlaskConical className="w-3.5 h-3.5" />
+                        <span className="font-mono tracking-wider">DEMO</span>
+                    </button>
                     {selectedTestId && (
                         <>
                             <ChevronRight className="w-3 h-3 text-zinc-700" />
@@ -325,8 +341,15 @@ const AdminMissionControlContent = () => {
                 </div>
             </div>
 
+            {/* Demo Mode */}
+            {isDemoMode && (
+                <div className="flex-1 overflow-hidden">
+                    <DemoQuestionsPanel />
+                </div>
+            )}
+
             {/* Layout */}
-            <ResizablePanelGroup direction="horizontal" className="flex-1">
+            <ResizablePanelGroup direction="horizontal" className={cn("flex-1", isDemoMode && "hidden")}>
                 {/* Sidebar */}
                 <ResizablePanel defaultSize={18} minSize={15} maxSize={25} className="border-r border-white/5 bg-[#050505]">
                     <MissionSidebar
