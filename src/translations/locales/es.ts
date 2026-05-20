@@ -1746,7 +1746,14 @@ export const es = {
     savedToFavorites: "Guardado en favoritos",
     extraBlockWarning: "BLOQUE ADICIONAL: NO SE PERMITEN ERRORES",
     confirm: "CONFIRMAR",
-    confirmTooltip: "Presiona Enter para confirmar la respuesta"
+    confirmTooltip: "Presiona Enter para confirmar la respuesta",
+    enterToContinue: "Presiona Enter para continuar",
+    enterToAnswer: "Presiona Enter para responder",
+    answer: "Responder",
+    streakMilestone3: "Racha ×3",
+    streakMilestone5: "¡Racha ×5!",
+    streakMilestone7: "¡×7 En llamas!",
+    streakMilestone10: "¡×10 Leyenda!"
   },
   unifiedSettings: {
     title: "Configuración",

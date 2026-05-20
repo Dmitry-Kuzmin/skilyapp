@@ -74,6 +74,7 @@ export const QuestionCard = ({
     isAnswerLocked = false,
     onReportProblem,
 }: QuestionCardProps) => {
+    const { t } = useLanguage();
     const [showHintPulse, setShowHintPulse] = useState(false);
     const [showExplanation, setShowExplanation] = useState(false);
     const [explanationKey, setExplanationKey] = useState(0);
@@ -225,19 +226,19 @@ export const QuestionCard = ({
                                                 </Button>
                                             </TooltipTrigger>
                                             <TooltipContent side="top" className="bg-slate-900 border-white/10 text-white">
-                                                <p>Нажмите Enter, чтобы продолжить</p>
+                                                <p>{t('test.enterToContinue')}</p>
                                             </TooltipContent>
                                         </Tooltip>
                                     </TooltipProvider>
                                 ) : (
                                     !(isRussia && isPracticeLikeMode && mode !== "exam-russia") && mode !== "exam-russia" && (
                                         <SubmitButton
-                                            label={isRussia ? "Ответить" : "Responder"}
+                                            label={t('test.answer')}
                                             onClick={() => handleAnswer(selectedOption || undefined)}
                                             disabled={!selectedOption || isAnswerLocked}
                                             isEnterPressed={isEnterPressed}
                                             variant="practice"
-                                            tooltipText={isRussia ? "Нажмите Enter, чтобы ответить" : "Presiona Enter para responder"}
+                                            tooltipText={t('test.enterToAnswer')}
                                             showArrow={!!selectedOption}
                                             showKeyboardHint={true}
                                         />
@@ -345,19 +346,19 @@ export const QuestionCard = ({
                                                     </Button>
                                                 </TooltipTrigger>
                                                 <TooltipContent side="top" className="bg-slate-900 border-white/10 text-white">
-                                                    <p>Нажмите Enter, чтобы продолжить</p>
+                                                    <p>{t('test.enterToContinue')}</p>
                                                 </TooltipContent>
                                             </Tooltip>
                                         </TooltipProvider>
                                     ) : (
                                         !(isRussia && isPracticeLikeMode && mode !== "exam-russia") && mode !== "exam-russia" && (
                                             <SubmitButton
-                                                label={isRussia ? "Ответить" : "Responder"}
+                                                label={t('test.answer')}
                                                 onClick={() => handleAnswer(selectedOption || undefined)}
                                                 disabled={!selectedOption || isAnswerLocked}
                                                 isEnterPressed={isEnterPressed}
                                                 variant="practice"
-                                                tooltipText={isRussia ? "Нажмите Enter, чтобы ответить" : "Presiona Enter para responder"}
+                                                tooltipText={t('test.enterToAnswer')}
                                                 showArrow={!!selectedOption}
                                                 showKeyboardHint={true}
                                             />
@@ -449,12 +450,12 @@ export const QuestionCard = ({
                         ) : (
                             !(isRussia && isPracticeLikeMode && mode !== "exam-russia") && mode !== "exam-russia" && (
                                 <SubmitButton
-                                    label={isRussia ? "Ответить" : "Responder"}
+                                    label={t('test.answer')}
                                     onClick={() => handleAnswer(selectedOption || undefined)}
                                     disabled={!selectedOption}
                                     isEnterPressed={isEnterPressed}
                                     variant="practice"
-                                    tooltipText={isRussia ? "Нажмите Enter, чтобы ответить" : "Presiona Enter para responder"}
+                                    tooltipText={t('test.enterToAnswer')}
                                     showArrow={!!selectedOption}
                                     showKeyboardHint={true}
                                 />

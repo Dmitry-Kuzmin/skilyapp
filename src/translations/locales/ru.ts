@@ -1761,7 +1761,14 @@ export const ru = {
     savedToFavorites: "Сохранено в избранное",
     extraBlockWarning: "ДОПОЛНИТЕЛЬНЫЙ БЛОК: ОШИБКИ НЕДОПУСТИМЫ",
     confirm: "ПОДТВЕРДИТЬ",
-    confirmTooltip: "Нажмите Enter, чтобы подтвердить ответ"
+    confirmTooltip: "Нажмите Enter, чтобы подтвердить ответ",
+    enterToContinue: "Нажмите Enter, чтобы продолжить",
+    enterToAnswer: "Нажмите Enter, чтобы ответить",
+    answer: "Ответить",
+    streakMilestone3: "Серия ×3",
+    streakMilestone5: "Серия ×5!",
+    streakMilestone7: "×7 Горишь!",
+    streakMilestone10: "×10 Легенда!"
   },
   unifiedSettings: {
     title: "Настройки",

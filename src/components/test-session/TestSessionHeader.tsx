@@ -196,9 +196,10 @@ export const TestSessionHeader = ({
                                 />
                             )}
 
-                            {/* Streak бейдж — мотивирует серию правильных ответов.
+                            {/* Streak бейдж — эволюционирует с первого правильного ответа:
+                                seed (1-2) → mild (3-4) → warm (5-7) → hot (8+).
                                 Скрыт в экзаменах (не подсказывает что было верно). */}
-                            {mode !== "exam" && mode !== "exam-russia" && streak >= 3 && (
+                            {mode !== "exam" && mode !== "exam-russia" && streak >= 1 && (
                                 <AnswerStreakBadge streak={streak} />
                             )}
 

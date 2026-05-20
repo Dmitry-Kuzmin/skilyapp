@@ -81,7 +81,7 @@ import { useTestCompletion } from "@/hooks/test-session/useTestCompletion";
 import { useServerTestSession } from "@/hooks/test-session/useServerTestSession";
 import type { TestMode as ServerTestMode } from "@/lib/testManager";
 import { GameBackground } from "@/components/test-session/GameBackground";
-import { StreakEdgeGlow } from "@/components/test-session/StreakEdgeGlow";
+import { StreakParticleBurst } from "@/components/test-session/StreakParticleBurst";
 import { useModalStore } from "@/store/modalStore";
 import { useDailyTestLimit, isFullTestMode } from "@/hooks/useDailyTestLimit";
 
@@ -329,8 +329,6 @@ const TestSession = () => {
   const [isClosing, setIsClosing] = useState(false);
   const [showReportModal, setShowReportModal] = useState(false);
   const [showTestSettings, setShowTestSettings] = useState(false);
-  const [showGuestPaywall, setShowGuestPaywall] = useState(false);
-  const guestPaywallShownRef = useRef(false);
   const hasLoadedProgressRef = useRef<string | null>(null);
   const previousTestIdRef = useRef<string | null>(null); // Для отслеживания изменения testId
 
@@ -1127,15 +1125,7 @@ const TestSession = () => {
   const nextQuestion = () => {
     const currentTotal = questionsState.length > 0 ? questionsState.length : questions.length;
 
-    // Show guest paywall after 3rd answered question (demo mode)
-    if (isGuest && !guestPaywallShownRef.current && answers.length === 3) {
-      guestPaywallShownRef.current = true;
-      engineNextQuestion();
-      setShowTranslation(false);
-      closeAIChat();
-      setTimeout(() => setShowGuestPaywall(true), 400);
-      return;
-    }
+
 
     if (currentIndex < currentTotal - 1) {
       engineNextQuestion();
@@ -1381,7 +1371,7 @@ const TestSession = () => {
   return (
     <Layout hideNavigation={true}>
       <GameBackground mode={mode} timeLeft={timeLeft} streak={streak} />
-      <StreakEdgeGlow streak={streak} />
+      <StreakParticleBurst streak={streak} selectedAnswerId={selectedOption} />
       <TestContentLayout
         mode={mode}
         isTelegramApp={!!isTelegramApp}
@@ -1597,97 +1587,6 @@ const TestSession = () => {
           </AnimatePresence>
         )}
 
-        {showGuestPaywall && (() => {
-          const pw = {
-            badge: t('guestPaywall.badge'),
-            title: t('guestPaywall.title'),
-            coinTitle: t('guestPaywall.coinTitle'),
-            coinSub: t('guestPaywall.coinSub'),
-            perks: [
-              { icon: '🧠', text: t('guestPaywall.perks.plan') },
-              { icon: '⚔️', text: t('guestPaywall.perks.duels') },
-              { icon: '🚀', text: t('guestPaywall.perks.explanations') },
-            ],
-            cta: t('guestPaywall.cta'),
-            skip: t('guestPaywall.skip'),
-          };
-          return (
-            <div
-              className="fixed inset-0 z-[200] flex items-end sm:items-center justify-center p-4"
-              style={{ background: "rgba(0,0,0,0.82)", backdropFilter: "blur(14px)" }}
-            >
-              <motion.div
-                initial={{ y: 48, opacity: 0, scale: 0.97 }}
-                animate={{ y: 0, opacity: 1, scale: 1 }}
-                transition={{ type: "spring", stiffness: 320, damping: 30 }}
-                className="relative w-full max-w-sm bg-[#0d1526] border border-white/10 rounded-[1.75rem] overflow-hidden shadow-2xl"
-              >
-                <div className="absolute inset-0 bg-gradient-to-b from-blue-600/10 via-transparent to-violet-600/8 pointer-events-none" />
-                <button
-                  onClick={() => setShowGuestPaywall(false)}
-                  className="absolute top-3.5 right-3.5 z-10 w-7 h-7 rounded-full bg-white/6 hover:bg-white/12 flex items-center justify-center transition-colors"
-                >
-                  <X className="w-3.5 h-3.5 text-slate-400" />
-                </button>
-
-                <div className="relative p-5 sm:p-6">
-                  {/* Header */}
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="w-10 h-10 rounded-xl bg-blue-500/20 border border-blue-500/25 flex items-center justify-center shrink-0">
-                      <span className="text-xl">🎯</span>
-                    </div>
-                    <div>
-                      <p className="text-[10px] font-black uppercase tracking-[0.2em] text-blue-400 mb-0.5">
-                        {pw.badge}
-                      </p>
-                      <h2 
-                        className="text-lg font-black text-white leading-tight"
-                        dangerouslySetInnerHTML={{ __html: pw.title }}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Coin highlight */}
-                  <div className="mb-4 px-3.5 py-3 rounded-xl bg-gradient-to-r from-amber-500/12 to-orange-500/8 border border-amber-500/20 flex items-center gap-2.5">
-                    <span className="text-2xl">🪙</span>
-                    <div>
-                      <p className="font-black text-white text-sm">{pw.coinTitle}</p>
-                      <p className="text-[11px] text-amber-300/65 mt-0.5">{pw.coinSub}</p>
-                    </div>
-                  </div>
-
-                  {/* Perks */}
-                  <ul className="space-y-2 mb-5">
-                    {pw.perks.map((item) => (
-                      <li key={item.text} className="flex items-center gap-2.5 text-[13px] text-slate-300">
-                        <span className="text-base leading-none">{item.icon}</span>
-                        {item.text}
-                      </li>
-                    ))}
-                  </ul>
-
-                  <Button
-                    className="w-full h-11 text-sm font-black bg-blue-600 hover:bg-blue-500 text-white rounded-xl shadow-lg shadow-blue-900/30"
-                    onClick={() => {
-                      setShowGuestPaywall(false);
-                      localStorage.setItem("skily_demo_coins_pending", "100");
-                      localStorage.setItem("skily_demo_completed", "completed");
-                      openModal("AUTH", { initialStep: "email" });
-                    }}
-                  >
-                    {pw.cta}
-                  </Button>
-                  <button
-                    onClick={() => setShowGuestPaywall(false)}
-                    className="mt-2.5 w-full h-9 text-xs text-slate-500 hover:text-slate-300 transition-colors font-medium"
-                  >
-                    {pw.skip} →
-                  </button>
-                </div>
-              </motion.div>
-            </div>
-          );
-        })()}
 
         {/* Question Map Bottom Sheet */}
         <TestSessionModals

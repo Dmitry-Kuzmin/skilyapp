@@ -1753,7 +1753,14 @@ export const en = {
     savedToFavorites: "Saved to favorites",
     extraBlockWarning: "EXTRA BLOCK: NO ERRORS ALLOWED",
     confirm: "CONFIRM",
-    confirmTooltip: "Press Enter to confirm your answer"
+    confirmTooltip: "Press Enter to confirm your answer",
+    enterToContinue: "Press Enter to continue",
+    enterToAnswer: "Press Enter to answer",
+    answer: "Answer",
+    streakMilestone3: "Streak ×3",
+    streakMilestone5: "Streak ×5!",
+    streakMilestone7: "×7 On Fire!",
+    streakMilestone10: "×10 Legend!"
   },
   unifiedSettings: {
     title: "Settings",
