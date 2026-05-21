@@ -315,11 +315,13 @@ export function AIChatWidget() {
         let imageUrl: string | undefined;
         let attachmentUrl: string | undefined;
         let outboundMessage = userMessage;
+        // imageFile.type is reliable (param, not stale state) — use it instead of pendingAttachment.kind
+        const isImageFile = Boolean(imageFile && imageFile.type.startsWith('image/'));
         const userAttachedFile = Boolean(imageFile);
         if (imageFile && profileId) {
             const uploaded = await uploadChatAttachment(imageFile, profileId);
             if (uploaded) {
-                if (pendingAttachment?.kind === 'image') {
+                if (isImageFile) {
                     imageUrl = uploaded;
                 } else {
                     attachmentUrl = uploaded;
@@ -340,8 +342,8 @@ export function AIChatWidget() {
         if (pendingAttachment?.previewUrl) URL.revokeObjectURL(pendingAttachment.previewUrl);
         setPendingAttachment(null);
 
-        const fallbackContent = pendingAttachment?.kind === 'document'
-            ? `📎 ${imageFile?.name ?? ''}`.trim()
+        const fallbackContent = imageFile && !isImageFile
+            ? `📎 ${imageFile.name}`.trim()
             : '📷';
         const userMsg = { role: 'user' as const, content: userMessage || fallbackContent, imageUrl };
         addMessage(userMsg);
