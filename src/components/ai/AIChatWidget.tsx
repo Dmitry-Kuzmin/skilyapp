@@ -957,21 +957,21 @@ export function AIChatWidget() {
                                 >
                                 <DropdownMenuItem
                                     onClick={() => imageInputRef.current?.click()}
-                                    className="rounded-xl px-3 py-3 text-sm focus:bg-white/6 focus:text-white"
+                                    className="cursor-pointer rounded-xl px-3 py-3 text-sm focus:bg-white/6 focus:text-white"
                                 >
                                     <ImagePlus className="mr-3 h-4 w-4 text-indigo-500" />
                                     {attachPhotoLabel}
                                 </DropdownMenuItem>
                                 <DropdownMenuItem
                                     onClick={() => cameraInputRef.current?.click()}
-                                    className="rounded-xl px-3 py-3 text-sm focus:bg-white/6 focus:text-white"
+                                    className="cursor-pointer rounded-xl px-3 py-3 text-sm focus:bg-white/6 focus:text-white"
                                 >
                                     <Camera className="mr-3 h-4 w-4 text-amber-400" />
                                     {takePhotoLabel}
                                 </DropdownMenuItem>
                                 <DropdownMenuItem
                                     onClick={() => documentInputRef.current?.click()}
-                                    className="rounded-xl px-3 py-3 text-sm focus:bg-white/6 focus:text-white"
+                                    className="cursor-pointer rounded-xl px-3 py-3 text-sm focus:bg-white/6 focus:text-white"
                                 >
                                     <FileText className="mr-3 h-4 w-4 text-slate-300" />
                                     {attachDocumentLabel}

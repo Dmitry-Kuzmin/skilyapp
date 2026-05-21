@@ -82,6 +82,7 @@ import { useServerTestSession } from "@/hooks/test-session/useServerTestSession"
 import type { TestMode as ServerTestMode } from "@/lib/testManager";
 import { GameBackground } from "@/components/test-session/GameBackground";
 import { StreakParticleBurst } from "@/components/test-session/StreakParticleBurst";
+import { StreakEdgeGlow } from "@/components/test-session/StreakEdgeGlow";
 import { useModalStore } from "@/store/modalStore";
 import { useDailyTestLimit, isFullTestMode } from "@/hooks/useDailyTestLimit";
 
@@ -1393,6 +1394,7 @@ const TestSession = () => {
   return (
     <Layout hideNavigation={true}>
       <GameBackground mode={mode} timeLeft={timeLeft} streak={streak} />
+      <StreakEdgeGlow streak={streak} />
       <StreakParticleBurst streak={streak} selectedAnswerId={selectedOption} />
       <TestContentLayout
         mode={mode}

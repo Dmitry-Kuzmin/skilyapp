@@ -1,18 +1,24 @@
 /**
  * SafeLog - утилита для вывода критической диагностики в продакшене.
- * Использует прямое обращение к window.console, чтобы обойти автоматическую 
- * очистку консоли (esbuild drop) при сборке.
+ * Использует nativeConsole — ссылки на оригинальные методы console,
+ * захваченные ДО глобального подавления логов в main.tsx.
+ * Благодаря этому easter egg и важная диагностика видны даже когда
+ * console.log подавлен.
  */
+
+import { nativeLog, nativeWarn, nativeError } from '@/utils/nativeConsole';
 
 type LogLevel = 'log' | 'warn' | 'error' | 'info' | 'group' | 'groupCollapsed' | 'groupEnd';
 
+const NATIVE_MAP: Partial<Record<LogLevel, (...a: any[]) => void>> = {
+    log:   nativeLog,
+    warn:  nativeWarn,
+    error: nativeError,
+};
+
 export const safeLog = (level: LogLevel, ...args: any[]) => {
-    // В продакшене используем window.console напрямую
-    // В разработке — обычный console (для удобства отладки и маппинга строк)
-    if (typeof window !== 'undefined') {
-        const target = (window.console as any)[level] || window.console.log;
-        target(...args);
-    }
+    const fn = NATIVE_MAP[level] ?? nativeLog;
+    fn(...args);
 };
 
 /**

@@ -1,3 +1,7 @@
+// КРИТИЧНО: Захватываем оригинальные методы console ДО любого переопределения.
+// safeLog (easter egg) использует эти ссылки и будет работать даже после подавления логов.
+import "./utils/nativeConsole";
+
 import { Buffer } from 'buffer';
 if (typeof window !== 'undefined') {
   window.Buffer = Buffer;
@@ -10,9 +14,19 @@ import { ErrorBoundary } from "./components/ErrorBoundary";
 import App from "./App.tsx";
 import "./index.css";
 
-// КРИТИЧНО: Лог версии для отладки кеша (UTC)
-console.log("%c Build: 2026-03-12 18:38 UTC ", "background: #1e1b4b; color: #818cf8; font-weight: bold; padding: 4px 8px; border-radius: 4px;");
-// ОПТИМИЗАЦИЯ: animations.css lazy load (не блокирует FCP)
+// ПРОДАКШН: Подавляем console.log и console.warn глобально.
+// Остаётся только easter egg (через safeLog → nativeConsole) и console.error.
+if (import.meta.env.PROD) {
+  // eslint-disable-next-line no-console
+  console.log  = () => {};
+  // eslint-disable-next-line no-console
+  console.warn = () => {};
+  // eslint-disable-next-line no-console
+  console.info = () => {};
+  // eslint-disable-next-line no-console
+  console.debug = () => {};
+}
+
 import { reportWebVitals } from "./utils/webVitals";
 import { performanceMonitor } from "./utils/performance";
 
@@ -227,12 +241,6 @@ if (typeof window !== "undefined" && !isPrerenderMode) {
 
 // Инициализация Web Vitals мониторинга
 reportWebVitals((metric) => {
-  if (import.meta.env.PROD) {
-    console.log('[Web Vitals]', metric.name, {
-      value: metric.value,
-      rating: metric.rating,
-    });
-  }
   if (performanceMonitor) {
     performanceMonitor.recordMetric(`web-vital-${metric.name}`, metric.value);
   }
