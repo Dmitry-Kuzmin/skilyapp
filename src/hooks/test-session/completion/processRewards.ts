@@ -16,6 +16,7 @@ import { checkOnlineStatus } from '@/hooks/useOnlineStatus';
 export type TestRewardResult = {
     coins_awarded?: number;
     sp_awarded?: number;
+    xp_awarded?: number;
     base_coins?: number;
     base_sp?: number;
     abuse_penalty?: number;
@@ -110,6 +111,7 @@ async function tryServerComplete(input: ProcessRewardsInput): Promise<ProcessRew
             rewardResult: {
                 coins_awarded: (reward.coins_awarded as number | undefined) ?? 0,
                 sp_awarded: (reward.sp_awarded as number | undefined) ?? 0,
+                xp_awarded: reward.xp_awarded as number | undefined,
                 base_coins: reward.base_coins as number | undefined,
                 base_sp: reward.sp_base as number | undefined,
                 abuse_penalty: reward.abuse_penalty as number | undefined,

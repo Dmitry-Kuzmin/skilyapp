@@ -315,6 +315,7 @@ export function AIChatWidget() {
         let imageUrl: string | undefined;
         let attachmentUrl: string | undefined;
         let outboundMessage = userMessage;
+        const userAttachedFile = Boolean(imageFile);
         if (imageFile && profileId) {
             const uploaded = await uploadChatAttachment(imageFile, profileId);
             if (uploaded) {
@@ -327,6 +328,13 @@ export function AIChatWidget() {
                         : `\n\n[DOCUMENT ATTACHED: ${imageFile.name}${attachmentUrl ? ` | URL: ${attachmentUrl}` : ''}]`;
                     outboundMessage = `${userMessage}${note}`.trim();
                 }
+            } else {
+                // Upload failed — stop here so we don't silently send a wrong context image
+                toast.error(interfaceLanguage === 'ru' ? 'Не удалось загрузить фото, попробуй ещё раз' : 'Failed to upload photo, please try again');
+                if (pendingAttachment?.previewUrl) URL.revokeObjectURL(pendingAttachment.previewUrl);
+                setPendingAttachment(null);
+                setLoading(false);
+                return;
             }
         }
         if (pendingAttachment?.previewUrl) URL.revokeObjectURL(pendingAttachment.previewUrl);
@@ -413,7 +421,7 @@ export function AIChatWidget() {
         );
 
         await sendRequest(
-            { messages: apiMessages, country: selectedCountry, language: replyLang, mode: 'chat', showComparison: false, imageUrl: imageUrl ?? context?.imageUrl ?? null },
+            { messages: apiMessages, country: selectedCountry, language: replyLang, mode: 'chat', showComparison: false, imageUrl: imageUrl ?? (userAttachedFile ? null : context?.imageUrl) ?? null },
             {
                 onChunk: (text) => typewriter.push(text),
                 onDone: () => {

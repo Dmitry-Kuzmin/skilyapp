@@ -114,24 +114,28 @@ async function fetchNextQuestion() {
     "limit=1",
   ].join("&");
 
+  // Always load local log — cross-reference guards against Supabase mark failures (e.g. ENOTFOUND)
+  const logPath = path.join(RENDERS_DIR, "published-log.json");
+  let localPublished = [];
+  try { localPublished = JSON.parse(fs.readFileSync(logPath, "utf-8")); } catch {}
+  const localPublishedIds = new Set(localPublished.map(p => p.id));
+
   const rows = await supabaseRequest("GET", `/questions_new?select=${cols}&${filter}`);
 
-  // Fallback: if metadata column filtering fails, fetch without filter and skip locally
-  let question;
-  if (!Array.isArray(rows) || rows.length === 0) {
-    log("  ⚠️  metadata filter returned no results — using local fallback");
-    const logPath = path.join(RENDERS_DIR, "published-log.json");
-    let published = [];
-    try { published = JSON.parse(fs.readFileSync(logPath, "utf-8")); } catch {}
-    const publishedIds = new Set(published.map(p => p.id));
+  // Filter out any Supabase results that are already in the local log
+  // (happens when previous Supabase PATCH failed mid-run — e.g. ENOTFOUND)
+  const freshRows = Array.isArray(rows) ? rows.filter(r => !localPublishedIds.has(r.id)) : [];
 
+  let question;
+  if (freshRows.length === 0) {
+    log("  ⚠️  No fresh questions from Supabase filter — using local fallback");
     const all = await supabaseRequest("GET",
       `/questions_new?select=${cols}&country=eq.es&question_es=not.is.null&order=percent_correct.asc&limit=50`
     );
     if (!Array.isArray(all) || all.length === 0) throw new Error("No questions in Supabase");
-    question = all.find(r => !publishedIds.has(r.id)) || all[0];
+    question = all.find(r => !localPublishedIds.has(r.id)) || all[0];
   } else {
-    question = rows[0];
+    question = freshRows[0];
   }
 
   // Fetch answer options
@@ -149,6 +153,40 @@ async function fetchNextQuestion() {
       id: a.id, text: a.text_es || "", text_ru: a.text_ru || "", is_correct: a.is_correct, position: a.position,
     })) : [],
   };
+}
+
+// Retry any Supabase marks that failed in previous runs (e.g. ENOTFOUND during markPublished)
+async function repairFailedMarks() {
+  const logPath = path.join(RENDERS_DIR, "published-log.json");
+  let published = [];
+  try { published = JSON.parse(fs.readFileSync(logPath, "utf-8")); } catch { return; }
+  if (published.length === 0) return;
+
+  // Check last 5 local entries against Supabase — these are the only ones that could have failed recently
+  const recent = published.slice(-5);
+  const ids = recent.map(p => p.id);
+  let stale;
+  try {
+    stale = await supabaseRequest("GET",
+      `/questions_new?select=id,metadata&id=in.(${ids.join(",")})&metadata->>video_published_at=is.null`
+    );
+  } catch { return; }
+
+  if (!Array.isArray(stale) || stale.length === 0) return;
+
+  log(`  🔧 Repairing ${stale.length} failed Supabase mark(s)...`);
+  for (const row of stale) {
+    const entry = published.slice().reverse().find(p => p.id === row.id);
+    if (!entry) continue;
+    try {
+      await supabaseRequest("PATCH", `/questions_new?id=eq.${row.id}`,
+        { metadata: { video_published_at: entry.publishedAt, video_series_es: entry.seriesNumber, video_series_ru: entry.seriesNumber } }
+      );
+      log(`  ✅ Repaired mark: ${row.id} (series #${entry.seriesNumber})`);
+    } catch(e) {
+      log(`  ⚠️  Repair failed for ${row.id}: ${e.message}`);
+    }
+  }
 }
 
 async function markPublished(questionId, seriesNumber) {
@@ -341,6 +379,9 @@ function scheduleRUPublish(ruVideoPath) {
   fs.mkdirSync(RENDERS_DIR, { recursive: true });
 
   try {
+    // 0. Repair any Supabase marks that failed in previous runs (e.g. ENOTFOUND)
+    await repairFailedMarks();
+
     // 1. Pick question
     log("📋 Fetching question from Supabase...");
     const question = await fetchNextQuestion();
