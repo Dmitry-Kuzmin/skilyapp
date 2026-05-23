@@ -7,6 +7,7 @@
  */
 
 import { supabase } from '@/integrations/supabase/client';
+import { MODULE_PASS_THRESHOLD } from '@/lib/test-constants';
 
 export type SequentialTestProgressInput = {
     profileId: string;
@@ -35,8 +36,6 @@ export type ModuleTopicProgressInput = {
     topicId: string;
     score: number; // 0-100
 };
-
-const MODULE_PASS_THRESHOLD = 70;
 
 export async function upsertModuleTopicProgress(input: ModuleTopicProgressInput): Promise<void> {
     const { profileId, topicId, score } = input;

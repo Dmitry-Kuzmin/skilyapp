@@ -6,6 +6,7 @@ import { triggerHapticFeedback } from "@/lib/telegram";
 import { TestMode } from './useTestDataLoader';
 import { Zap, Timer, Clock } from 'lucide-react';
 import React from 'react';
+import type { TestQuestionData, UserAnswer, ActiveExamState, RussiaExamAdapter, NavigateFunction } from '@/types/test-session';
 
 interface UseTestInteractionParams {
     // Context
@@ -15,10 +16,10 @@ interface UseTestInteractionParams {
     pddCountry: string;
 
     // Data
-    questions: any[];
+    questions: TestQuestionData[];
     currentIndex: number;
-    activeState: any;
-    russiaExam: any;
+    activeState: ActiveExamState | null;
+    russiaExam: RussiaExamAdapter;
 
     // Actions (Zustand & Setters)
     answerQuestionZ: (answerId: string, isCorrect: boolean) => void;
@@ -47,8 +48,8 @@ interface UseTestInteractionParams {
     redemptionFailedQuestions: any[];
 
     // Navigation
-    navigate: any;
-    answers: any[];
+    navigate: NavigateFunction;
+    answers: UserAnswer[];
     isAnswerLocked: boolean;
 
     // Server-validated session (test-manager). Если есть — is_correct берётся от сервера.
@@ -58,7 +59,7 @@ interface UseTestInteractionParams {
         time_taken_ms: number;
         client_reported_correct?: boolean;
         is_skipped?: boolean;
-    }) => Promise<boolean>;
+    }) => Promise<{ isCorrect: boolean; correctOptionId: string | null }>;
     getServerQuestionId?: (questionId: string) => string | null;
 }
 

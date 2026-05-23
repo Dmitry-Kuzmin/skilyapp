@@ -5,6 +5,7 @@
 
 import { QueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { PDD_TICKET_PASS_THRESHOLD } from '@/lib/test-constants';
 
 export type PddTicketProgressInput = {
     profileId: string;
@@ -29,7 +30,7 @@ export async function savePddTicketProgress(
 
     const ticketScore = Math.round((correctCount / Math.max(1, questionsTotal)) * 100);
     const ticketStatus: 'passed' | 'failed' | 'in_progress' =
-        ticketScore >= 90 ? 'passed' : ticketScore > 0 ? 'failed' : 'in_progress';
+        ticketScore >= PDD_TICKET_PASS_THRESHOLD ? 'passed' : ticketScore > 0 ? 'failed' : 'in_progress';
     const dbCountry = normalizeCountry(pddCountry);
 
     const { error: upsertError } = await supabase

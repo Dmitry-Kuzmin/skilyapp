@@ -129,14 +129,21 @@ export async function handleSubmitAnswer({ supabase, profileId, ipHash, params }
         success: true,
         is_correct: dup?.is_correct ?? false,
         already_answered: true,
+        // correct_option_id раскрываем после ответа — клиент уже выбрал
+        correct_option_id: correctIds[0] ?? null,
+        correct_option_ids: correctIds,
       });
     }
     return errorResponse('Failed to save answer', 500, { details: insertError.message });
   }
 
+  // После сохранения ответа раскрываем правильный — клиент уже выбрал, не подсказка.
+  // Это позволит клиенту подсветить правильный ответ без локального is_correct.
   return jsonResponse({
     success: true,
     is_correct: isCorrect,
+    correct_option_id: correctIds[0] ?? null,
+    correct_option_ids: correctIds,
   });
 }
 

@@ -38,7 +38,7 @@ export type UseServerTestSessionResult = {
     time_taken_ms: number;
     client_reported_correct?: boolean;
     is_skipped?: boolean;
-  }) => Promise<boolean>;
+  }) => Promise<{ isCorrect: boolean; correctOptionId: string | null }>;
   complete: (params: {
     client_correct_count?: number;
     test_duration_seconds?: number;
@@ -103,19 +103,23 @@ export function useServerTestSession(params: UseServerTestSessionParams): UseSer
     time_taken_ms: number;
     client_reported_correct?: boolean;
     is_skipped?: boolean;
-  }): Promise<boolean> => {
+  }): Promise<{ isCorrect: boolean; correctOptionId: string | null }> => {
     if (!sessionId) {
       console.warn('[useServerTestSession] submit called before session_id ready');
-      return false;
+      return { isCorrect: false, correctOptionId: null };
     }
     try {
       const res = await submitTestAnswer({ session_id: sessionId, ...p });
-      return res.is_correct;
+      return {
+        isCorrect: res.is_correct,
+        correctOptionId: res.correct_option_id ?? null,
+      };
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
       console.error('[useServerTestSession] submit error:', msg);
       toast.error('Не удалось сохранить ответ');
-      return Boolean(p.client_reported_correct); // fallback — клиентское мнение
+      // fallback — клиентское мнение, без раскрытия правильного
+      return { isCorrect: Boolean(p.client_reported_correct), correctOptionId: null };
     }
   };
 

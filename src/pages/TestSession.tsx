@@ -80,8 +80,11 @@ import { useTestInteraction } from "@/hooks/test-session/useTestInteraction";
 import { useTestCompletion } from "@/hooks/test-session/useTestCompletion";
 import { useServerTestSession } from "@/hooks/test-session/useServerTestSession";
 import type { TestMode as ServerTestMode } from "@/lib/testManager";
+import { isServerValidatedMode, isPracticeLikeMode as checkPracticeLikeMode, isBlitzMode, isExamMode as checkIsExamMode } from "@/lib/test-modes";
+import { RUSSIA_EXAM_MAX_SNAPSHOT } from "@/lib/test-constants";
 import { GameBackground } from "@/components/test-session/GameBackground";
 import { StreakParticleBurst } from "@/components/test-session/StreakParticleBurst";
+import { TestAnswerParticleBurst } from "@/components/test-session/TestAnswerParticleBurst";
 import { StreakEdgeGlow } from "@/components/test-session/StreakEdgeGlow";
 import { useModalStore } from "@/store/modalStore";
 import { useDailyTestLimit, isFullTestMode } from "@/hooks/useDailyTestLimit";
@@ -667,16 +670,10 @@ const TestSession = () => {
   // Derived testInfo merged above
 
   // === SERVER-VALIDATED SESSION (test-manager) ===
-  const SERVER_MODES: ServerTestMode[] = [
-    'practice', 'exam', 'exam-russia', 'blitz', 'module', 'mastery', 'marathon',
-    'pdd-ticket', 'pdd-random', 'pdd-sequential', 'pdd-topic',
-    'sequential', 'redemption', 'round-retry',
-  ];
-  const useServerValidation = SERVER_MODES.includes(mode as ServerTestMode);
+  const useServerValidation = isServerValidatedMode(mode);
 
   // Для russia-exam передаём расширенный список: main 20 + полный extraPool по блокам.
   // Snapshot всех потенциальных вопросов сразу — extra-questions при ошибке уже будут в сессии.
-  // Cap на 60 (Zod max). На практике пул небольшой, но защитимся.
   const serverQuestionIds = useMemo(() => {
     if (!useServerValidation) return [];
     if (mode === 'exam-russia' && allQuestionsByBlock) {
@@ -688,9 +685,9 @@ const TestSession = () => {
       for (const blockQs of Object.values(allQuestionsByBlock)) {
         for (const q of blockQs as Array<{ id: string }>) {
           if (q?.id && !seen.has(q.id)) { seen.add(q.id); ids.push(q.id); }
-          if (ids.length >= 60) break;
+          if (ids.length >= RUSSIA_EXAM_MAX_SNAPSHOT) break;
         }
-        if (ids.length >= 60) break;
+        if (ids.length >= RUSSIA_EXAM_MAX_SNAPSHOT) break;
       }
       return ids;
     }
@@ -914,16 +911,46 @@ const TestSession = () => {
     }, 300);
   }, []);
 
+  // Stable session ID, переживающий reload страницы.
+  // Ключ зависит от testId/mode чтобы разные тесты имели разные id.
+  // Это критично для idempotency check в complete-test-and-award:
+  // при reload во время теста — продолжаем тот же session_id и не получаем
+  // двойного начисления SP.
   const testSessionIdRef = useRef<string | null>(null);
+  const sessionStorageKey = useMemo(
+    () => `test-session-id:${testId || mode}:${profileId || 'anon'}`,
+    [testId, mode, profileId]
+  );
   const getOrCreateSessionId = useCallback(() => {
-    if (!testSessionIdRef.current) {
-      const fallbackId = `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
-      testSessionIdRef.current =
-        typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
-          ? crypto.randomUUID()
-          : fallbackId;
-    }
-    return testSessionIdRef.current;
+    if (testSessionIdRef.current) return testSessionIdRef.current;
+
+    // Сначала пробуем восстановить из sessionStorage (переживает reload)
+    try {
+      const stored = sessionStorage.getItem(sessionStorageKey);
+      if (stored) {
+        testSessionIdRef.current = stored;
+        return stored;
+      }
+    } catch { /* sessionStorage may be unavailable */ }
+
+    const fallbackId = `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+    const newId =
+      typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+        ? crypto.randomUUID()
+        : fallbackId;
+    testSessionIdRef.current = newId;
+
+    try { sessionStorage.setItem(sessionStorageKey, newId); } catch { /* */ }
+    return newId;
+  }, [sessionStorageKey]);
+
+  // При завершении теста очищаем persistance — следующий тест получит новый ID
+  useEffect(() => {
+    return () => {
+      // Cleanup at unmount; в /test/results уже не нужен
+      try { sessionStorage.removeItem(sessionStorageKey); } catch { /* */ }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Адаптер для совместимости с существующим JSX кодом
@@ -1125,14 +1152,10 @@ const TestSession = () => {
 
 
 
-  const practiceLikeModes = [
-    "practice", "blitz", "mastery", "marathon", "sequential", "module",
-    "challenge-bank", "dgt", "pdd-ticket", "redemption", "by-topic",
-    "traps", "hardest", "favorites", "nonstop", "smart"
-  ];
-  const isPracticeLikeMode = practiceLikeModes.includes(mode);
+  // Используем единые утилиты-классификаторы из src/lib/test-modes.ts
+  const isPracticeLikeMode = checkPracticeLikeMode(mode);
   const isBlitzMode = mode === 'blitz';
-  const isExamMode = mode === 'exam' || mode === 'exam-russia';
+  const isExamMode = checkIsExamMode(mode);
 
   // ============================================
   // NAVIGATION WRAPPERS (Moved up for hook dependency)
@@ -1396,6 +1419,7 @@ const TestSession = () => {
       <GameBackground mode={mode} timeLeft={timeLeft} streak={streak} />
       <StreakEdgeGlow streak={streak} />
       <StreakParticleBurst streak={streak} selectedAnswerId={selectedOption} />
+      <TestAnswerParticleBurst answers={progressBarAnswers} selectedAnswerId={selectedOption} />
       <TestContentLayout
         mode={mode}
         isTelegramApp={!!isTelegramApp}
@@ -1606,6 +1630,10 @@ const TestSession = () => {
                 isEnterPressed={isEnterPressed}
                 isAnswerLocked={!!isAnswerLocked}
                 onReportProblem={() => setShowReportModal(true)}
+                progressAnswers={progressBarAnswers}
+                progressCurrentIndex={currentIndex}
+                progressTotal={sessionQuestionCount}
+                hideProgressScoreIndicators={mode === 'exam'}
               />
             </motion.div>
           </AnimatePresence>

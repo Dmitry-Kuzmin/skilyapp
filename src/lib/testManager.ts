@@ -62,6 +62,11 @@ export type SubmitAnswerResult = {
   success: true;
   is_correct: boolean;
   already_answered?: boolean;
+  /** ID правильного варианта — раскрывается ТОЛЬКО после ответа клиента.
+   *  Используется для подсветки правильного ответа в UI без локального is_correct. */
+  correct_option_id?: string | null;
+  /** Для multi-correct вопросов (теоретическая поддержка) */
+  correct_option_ids?: string[];
 };
 
 export type CompleteSessionResult = {

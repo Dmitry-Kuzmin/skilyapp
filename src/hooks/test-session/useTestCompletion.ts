@@ -21,12 +21,20 @@ import { savePddTicketProgress } from './completion/savePddTicketProgress';
 import { updateSequentialTestProgress, upsertModuleTopicProgress } from './completion/saveTopicProgress';
 import { logGameSession } from './completion/logGameSession';
 import { processRewards, type TestRewardResult, type ServerCompleteFn } from './completion/processRewards';
+import type {
+    TestQuestionData,
+    TestInfo,
+    UserAnswer,
+    EnqueueOfflineActionFn,
+    InitializeExamFn,
+} from '@/types/test-session';
+import { isRoundRetryMode } from '@/lib/test-modes';
 
 interface UseTestCompletionParams {
     profileId?: string;
     mode: string;
-    questions: any[];
-    testInfo: any;
+    questions: TestQuestionData[];
+    testInfo: TestInfo | null;
     startTime: number;
     timeLeft: number;
     initialTimeBudget: number;
@@ -35,23 +43,24 @@ interface UseTestCompletionParams {
     pddCountry: string;
     topic: string | undefined;
     isPremium: boolean;
-    enqueueOfflineAction: any;
+    enqueueOfflineAction: EnqueueOfflineActionFn;
     getOrCreateSessionId: () => string;
 
     // Mastery Mode
     masteryWrongQuestions: string[];
     masteryRound: number;
-    setQuestions: (q: any[]) => void;
+    setQuestions: (q: TestQuestionData[]) => void;
     setMasteryWrongQuestions: (q: string[]) => void;
     setMasteryRound: (r: number) => void;
     setCurrentIndex: (i: number) => void;
-    initializeExam: any;
+    initializeExam: InitializeExamFn;
     setShowTranslation: (v: boolean) => void;
     closeAIChat: () => void;
-    russiaExamQuestions: any[];
-    isRussia: boolean;
-    answers?: any[];
-    setAnswers: (a: any[]) => void;
+    russiaExamQuestions: TestQuestionData[];
+    /** @deprecated не используется в orchestrator, оставлено для back-compat */
+    isRussia?: boolean;
+    answers?: UserAnswer[];
+    setAnswers: (a: UserAnswer[]) => void;
 
     // Server-validated session
     serverSessionId?: string | null;
@@ -121,8 +130,8 @@ export const useTestCompletion = ({
         }
 
         // === 2. MASTERY / MARATHON ROUND RETRY ===
-        if ((mode === 'mastery' || mode === 'marathon') && masteryWrongQuestions.length > 0) {
-            const wrongQuestionsData = currentQuestions.filter((q: any) => masteryWrongQuestions.includes(q.id));
+        if (isRoundRetryMode(mode) && masteryWrongQuestions.length > 0) {
+            const wrongQuestionsData = currentQuestions.filter((q: TestQuestionData) => masteryWrongQuestions.includes(q.id));
 
             if (wrongQuestionsData.length > 0) {
                 const nextRound = masteryRound + 1;
@@ -178,7 +187,9 @@ export const useTestCompletion = ({
                             profileId,
                             effectiveTestId,
                             pddCountry,
-                            questionsTotal: questions.length,
+                            // FIX: используем currentQuestions (после mastery round retry),
+                            // не оригинальный questions из пропсов
+                            questionsTotal: currentQuestions.length,
                             correctCount,
                             timeSpentSec: timeSpent,
                         },
@@ -190,7 +201,7 @@ export const useTestCompletion = ({
                     updateSequentialTestProgress({
                         profileId,
                         effectiveTestId,
-                        questionsTotal: questions.length,
+                        questionsTotal: currentQuestions.length,
                         correctCount,
                         timeSpentSec: timeSpent,
                     })

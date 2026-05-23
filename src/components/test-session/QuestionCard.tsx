@@ -17,6 +17,51 @@ import { isTelegramMiniApp } from "@/lib/telegram";
 
 
 
+interface ProgressOverlayProps {
+    answers: Array<{ isCorrect: boolean } | null>;
+    currentIndex: number;
+    total: number;
+    hideScoreIndicators?: boolean;
+    /** true = over image (light segments), false = over card bg */
+    onImage?: boolean;
+}
+
+const ProgressOverlay = ({ answers, currentIndex, total, hideScoreIndicators, onImage }: ProgressOverlayProps) => (
+    <div className={cn(
+        "flex gap-[2px] h-[5px] pointer-events-none",
+        onImage ? "absolute top-3 left-3 right-3 z-10" : "w-full",
+    )}>
+        {Array.from({ length: total }, (_, i) => {
+            const answered = answers[i] != null;
+            const isCorrect = answered && answers[i]!.isCorrect;
+            const isWrong   = answered && !answers[i]!.isCorrect;
+            const isCurrent = i === currentIndex;
+            return (
+                <div
+                    key={i}
+                    data-progress-segment-card={i}
+                    className={cn(
+                        "flex-1 min-w-0 rounded-full transition-colors duration-500",
+                        onImage ? [
+                            !hideScoreIndicators && isCorrect && "bg-teal-400",
+                            !hideScoreIndicators && isWrong   && "bg-rose-400",
+                            hideScoreIndicators  && answered  && "bg-white/60",
+                            isCurrent && !answered && "bg-blue-300/80",
+                            !answered && !isCurrent && "bg-white/20",
+                        ] : [
+                            !hideScoreIndicators && isCorrect && "bg-teal-500",
+                            !hideScoreIndicators && isWrong   && "bg-rose-500",
+                            hideScoreIndicators  && answered  && "bg-slate-400 dark:bg-slate-500",
+                            isCurrent && !answered && "bg-indigo-400/70",
+                            !answered && !isCurrent && "bg-black/[0.08] dark:bg-white/[0.07]",
+                        ],
+                    )}
+                />
+            );
+        })}
+    </div>
+);
+
 interface QuestionCardProps {
     currentQuestion: {
         id: string;
@@ -49,6 +94,11 @@ interface QuestionCardProps {
     isEnterPressed: boolean;
     isAnswerLocked?: boolean;
     onReportProblem?: () => void;
+    // Mini progress bar inside the card
+    progressAnswers?: Array<{ isCorrect: boolean } | null>;
+    progressCurrentIndex?: number;
+    progressTotal?: number;
+    hideProgressScoreIndicators?: boolean;
 }
 
 export const QuestionCard = ({
@@ -73,6 +123,10 @@ export const QuestionCard = ({
     isEnterPressed,
     isAnswerLocked = false,
     onReportProblem,
+    progressAnswers,
+    progressCurrentIndex = 0,
+    progressTotal,
+    hideProgressScoreIndicators = false,
 }: QuestionCardProps) => {
     const { t } = useLanguage();
     const [showHintPulse, setShowHintPulse] = useState(false);
@@ -116,18 +170,23 @@ export const QuestionCard = ({
     return (
         <Card
             data-testid="question-card"
-            className={cn(
-                "p-3 sm:p-4 md:p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/5 shadow-sm backdrop-blur-sm transition-all duration-300 relative overflow-hidden rounded-3xl",
-                feedbackStatus === 'correct' && "border-emerald-500/50 shadow-emerald-500/10",
-                feedbackStatus === 'incorrect' && "border-red-500/50 shadow-red-500/10"
-            )}
+            className="p-3 sm:p-4 md:p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/5 shadow-sm backdrop-blur-sm transition-all duration-300 relative overflow-hidden rounded-3xl"
         >
             {/* Layout System */}
             {imageUrl ? (
                 isRussia ? (
                     // Russia Vertical Layout (Image on top)
                     <div className="space-y-6">
-                        <div className="w-full">
+                        <div className="w-full relative">
+                            {progressAnswers && progressTotal && progressTotal > 0 && (
+                                <ProgressOverlay
+                                    answers={progressAnswers}
+                                    currentIndex={progressCurrentIndex}
+                                    total={progressTotal}
+                                    hideScoreIndicators={hideProgressScoreIndicators}
+                                    onImage
+                                />
+                            )}
                             <QuestionImage
                                 imageUrl={currentQuestion.image_url || null}
                                 country={isRussia ? 'russia' : 'spain'}
@@ -250,7 +309,16 @@ export const QuestionCard = ({
                 ) : (
                     // DGT Split Layout (Premium Split)
                     <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_0.8fr] xl:grid-cols-[1.1fr_0.9fr] 2xl:grid-cols-[1.2fr_0.8fr] gap-6 items-start">
-                        <div className="w-full lg:sticky lg:top-6 lg:self-start">
+                        <div className="w-full lg:sticky lg:top-6 lg:self-start relative">
+                            {progressAnswers && progressTotal && progressTotal > 0 && (
+                                <ProgressOverlay
+                                    answers={progressAnswers}
+                                    currentIndex={progressCurrentIndex}
+                                    total={progressTotal}
+                                    hideScoreIndicators={hideProgressScoreIndicators}
+                                    onImage
+                                />
+                            )}
                             <QuestionImage
                                 imageUrl={currentQuestion.image_url || null}
                                 country={isRussia ? 'russia' : 'spain'}
@@ -377,6 +445,15 @@ export const QuestionCard = ({
             ) : (
                 // No image layout -> Just text
                 <div className="space-y-6">
+                    {progressAnswers && progressTotal && progressTotal > 0 && (
+                        <ProgressOverlay
+                            answers={progressAnswers}
+                            currentIndex={progressCurrentIndex}
+                            total={progressTotal}
+                            hideScoreIndicators={hideProgressScoreIndicators}
+                            onImage={false}
+                        />
+                    )}
                     <div className="mb-6">
                         <QuestionText
                             text={displayQuestion}

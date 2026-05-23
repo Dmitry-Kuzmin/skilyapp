@@ -9,6 +9,8 @@ import { ExamTimer } from '@/components/test-session/ExamTimer';
 import { AnswerStreakBadge } from '@/components/test-session/AnswerStreakBadge';
 import type { TestMode } from '@/store/examStore';
 import type { RussiaExamState } from '@/types/pddExam';
+import { getTestTimeLimit } from '@/lib/test-constants';
+import { isExamMode } from '@/lib/test-modes';
 
 // Settings menu открывается редко (тап на иконку) — ленивая загрузка
 const TestSettingsMenu = lazy(() =>
@@ -189,17 +191,17 @@ export const TestSessionHeader = ({
                     customLeftContent={
                         <>
                             {/* Современный pill-таймер для экзаменов и марафона */}
-                            {(mode === "exam" || mode === "exam-russia" || mode === "marathon") && (
+                            {(isExamMode(mode) || mode === "marathon") && (
                                 <ExamTimer
                                     timeLeft={timeLeft}
-                                    maxTime={mode === "exam-russia" ? 1200 : mode === "exam" ? 1800 : 600}
+                                    maxTime={getTestTimeLimit(mode)}
                                 />
                             )}
 
                             {/* Streak бейдж — эволюционирует с первого правильного ответа:
                                 seed (1-2) → mild (3-4) → warm (5-7) → hot (8+).
                                 Скрыт в экзаменах (не подсказывает что было верно). */}
-                            {mode !== "exam" && mode !== "exam-russia" && streak >= 1 && (
+                            {!isExamMode(mode) && streak >= 1 && (
                                 <AnswerStreakBadge streak={streak} />
                             )}
 

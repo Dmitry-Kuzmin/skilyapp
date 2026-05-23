@@ -12,6 +12,7 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import { checkOnlineStatus } from '@/hooks/useOnlineStatus';
+import { RUSSIA_EXAM_MAIN_QUESTIONS } from '@/lib/test-constants';
 
 export type TestRewardResult = {
     coins_awarded?: number;
@@ -93,7 +94,7 @@ async function tryServerComplete(input: ProcessRewardsInput): Promise<ProcessRew
 
         // Russia exam особый случай: snapshot >> real
         const effectiveCount = input.mode === 'exam-russia'
-            ? Math.max(input.answersLength, 20)
+            ? Math.max(input.answersLength, RUSSIA_EXAM_MAIN_QUESTIONS)
             : undefined;
 
         const serverResult = await input.serverComplete!({

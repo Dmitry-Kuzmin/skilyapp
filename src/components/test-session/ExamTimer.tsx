@@ -10,6 +10,7 @@ import { useMemo } from "react";
 import { motion } from "@/components/optimized/Motion";
 import { Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { TIMER_WARNING_THRESHOLD, TIMER_CRITICAL_THRESHOLD } from "@/lib/test-constants";
 
 type ExamTimerProps = {
     timeLeft: number;
@@ -30,8 +31,8 @@ export const ExamTimer = ({ timeLeft, maxTime, className }: ExamTimerProps) => {
         const safeLeft = Math.max(0, timeLeft);
         const pct = Math.min(100, (safeLeft / safeMax) * 100);
         let s: "normal" | "warning" | "critical" = "normal";
-        if (safeLeft <= 30) s = "critical";
-        else if (safeLeft <= 120) s = "warning";
+        if (safeLeft <= TIMER_CRITICAL_THRESHOLD) s = "critical";
+        else if (safeLeft <= TIMER_WARNING_THRESHOLD) s = "warning";
         return { state: s, progress: pct, displayTime: formatMMSS(safeLeft) };
     }, [timeLeft, maxTime]);
 
