@@ -15,7 +15,6 @@ import { DuelResult } from '@/components/duel/DuelResult';
 import { DuelHelpRequest } from '@/components/duel/DuelHelpRequest';
 import { DuelHelpHandler } from '@/components/duel/DuelHelpHandler';
 import { PageLoader } from '@/components/PageLoader';
-import { LoadoutSelector } from '@/components/duel/LoadoutSelector';
 import { AuthModalNew as AuthModal } from '@/components/AuthModalNew';
 import { Card } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
@@ -1887,7 +1886,6 @@ export default function Duel() {
                                                                         </motion.div>
                                                                     </motion.div>
 
-                                                                    <LoadoutSelector />
                                                                 </div>
 
                                                                 <div className="space-y-4 pt-2">
@@ -2465,15 +2463,6 @@ export default function Duel() {
                                                                 )}
 
                                                                 {/* Join Loadout Selector */}
-                                                                <motion.div
-                                                                    initial={{ opacity: 0, y: 10 }}
-                                                                    animate={{ opacity: 1, y: 0 }}
-                                                                    transition={{ delay: 0.25 }}
-                                                                    className="py-4"
-                                                                >
-                                                                    <LoadoutSelector />
-                                                                </motion.div>
-
                                                                 <motion.div
                                                                     initial={{ opacity: 0, y: 10 }}
                                                                     animate={{ opacity: 1, y: 0 }}

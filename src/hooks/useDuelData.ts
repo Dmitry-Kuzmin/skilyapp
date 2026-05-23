@@ -485,31 +485,15 @@ export const useDuelData = (duelId: string | null, profileId?: string | null) =>
       // Create inventory map
       const inventoryMap = new Map((inventory || []).map(b => [b.boost_type, b.quantity]));
 
-      // Extract loadout types
-      const loadoutBoosts = [loadout?.slot_1, loadout?.slot_2, loadout?.slot_3].filter(Boolean) as string[];
-
-      if (loadoutBoosts.length > 0) {
-        // Show ONLY loadout boosts (trusting the selection)
-        return loadoutBoosts.map(type => {
-          const def = definitionsMap.get(type);
-          return {
-            boost_type: type,
-            quantity: inventoryMap.get(type) || 0,
-            icon: def?.icon || null,
-            name_ru: def?.name_ru || type
-          };
-        });
-      } else {
-        // No loadout? Then show all inventory items (fallback or new user)
-        return (inventory || []).map(b => {
-          const def = definitionsMap.get(b.boost_type);
-          return {
-            ...b,
-            icon: def?.icon || null,
-            name_ru: def?.name_ru || b.boost_type
-          };
-        });
-      }
+      // Always show full inventory (no loadout pre-selection)
+      return (inventory || []).map(b => {
+        const def = definitionsMap.get(b.boost_type);
+        return {
+          ...b,
+          icon: def?.icon || null,
+          name_ru: def?.name_ru || b.boost_type
+        };
+      });
     } catch (e) {
       console.error('[useDuelData] ❌ Error in optimized boost fetch:', e);
       return [];

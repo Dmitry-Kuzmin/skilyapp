@@ -1,15 +1,15 @@
 import React, { ReactNode } from 'react';
 import { cn } from '@/lib/utils';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { DuelSettingsMenu } from '../../DuelSettingsMenu';
 import { QuestionProgressBar } from '@/components/QuestionProgressBar';
 import { DuelTimer } from '../../DuelTimer';
 import { DuelScoreBoard } from '../../DuelScoreBoard';
 import { ArenaControls } from './ArenaControls';
-import { Zap, X } from 'lucide-react';
+
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { haptics } from '@/lib/haptics';
+
 
 interface ArenaHeaderProps {
     currentIndex: number;
@@ -126,7 +126,6 @@ export const ArenaHeader: React.FC<ArenaHeaderProps> = ({
 }) => {
     const { t } = useLanguage();
     const isMobile = useIsMobile();
-    const [showBoostsMobile, setShowBoostsMobile] = React.useState(false);
 
     // Consider both Telegram flag and viewport width
     const isMobileView = isTelegramMobile || isMobile;
@@ -187,58 +186,41 @@ export const ArenaHeader: React.FC<ArenaHeaderProps> = ({
                     )}
                 >
                     {isMobileView ? (
-                        <AnimatePresence mode="wait">
-                            {!showBoostsMobile ? (
-                                <motion.div
-                                    key="scoreboard-mobile"
-                                    initial={{ opacity: 0, x: -10 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    exit={{ opacity: 0, x: -10, transition: { duration: 0.15 } }}
-                                    transition={{ duration: 0.25, ease: "easeOut" }}
-                                    className="flex-1 min-w-0"
-                                >
-                                    <DuelScoreBoard
-                                        myScore={myScore}
-                                        opponentScore={opponentScore}
-                                        myName={myName}
-                                        opponentName={opponentName}
-                                        myPhotoUrl={myPhotoUrl ?? null}
-                                        opponentPhotoUrl={opponentPhotoUrl ?? null}
-                                        myInsuranceActive={myInsuranceActive}
-                                        myCoverageDisplay={myCoverageDisplay}
-                                        opponentInsuranceActive={opponentInsuranceActive}
-                                        opponentCoverageDisplay={opponentCoverageDisplay}
-                                        opponentActivityStatus={opponentActivityStatus}
-                                        opponentAnswered={opponentAnswered}
-                                        betInfo={betInfo}
-                                        seasonBonusDisplay={seasonBonusDisplay}
-                                        isTelegramMobile={isTelegramMobile}
-                                        opponentIsConnected={opponentIsConnected}
-                                        opponentLastSeen={opponentLastSeen}
-                                        combo={combo}
-                                    />
-                                </motion.div>
-                            ) : (
-                                <motion.div
-                                    key="boostspanel-mobile"
-                                    initial={{ opacity: 0, x: 10 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    exit={{ opacity: 0, x: 10, transition: { duration: 0.15 } }}
-                                    transition={{ duration: 0.25, ease: "easeOut" }}
-                                    className="flex-1 min-w-0 overflow-visible"
-                                >
-                                    <ArenaControls
-                                        boosts={boosts}
-                                        usedBoosts={usedBoosts}
-                                        isAnswered={isAnswered}
-                                        translatePopoverOpen={translatePopoverOpen}
-                                        onBoostUse={onBoostUse}
-                                        setTranslatePopoverOpen={setTranslatePopoverOpen}
-                                        isTelegramMobile={isMobileView}
-                                    />
-                                </motion.div>
-                            )}
-                        </AnimatePresence>
+                        <>
+                            <div className="flex-1 min-w-0">
+                                <DuelScoreBoard
+                                    myScore={myScore}
+                                    opponentScore={opponentScore}
+                                    myName={myName}
+                                    opponentName={opponentName}
+                                    myPhotoUrl={myPhotoUrl ?? null}
+                                    opponentPhotoUrl={opponentPhotoUrl ?? null}
+                                    myInsuranceActive={myInsuranceActive}
+                                    myCoverageDisplay={myCoverageDisplay}
+                                    opponentInsuranceActive={opponentInsuranceActive}
+                                    opponentCoverageDisplay={opponentCoverageDisplay}
+                                    opponentActivityStatus={opponentActivityStatus}
+                                    opponentAnswered={opponentAnswered}
+                                    betInfo={betInfo}
+                                    seasonBonusDisplay={seasonBonusDisplay}
+                                    isTelegramMobile={isTelegramMobile}
+                                    opponentIsConnected={opponentIsConnected}
+                                    opponentLastSeen={opponentLastSeen}
+                                    combo={combo}
+                                />
+                            </div>
+                            <div className="flex-none">
+                                <ArenaControls
+                                    boosts={boosts}
+                                    usedBoosts={usedBoosts}
+                                    isAnswered={isAnswered}
+                                    translatePopoverOpen={translatePopoverOpen}
+                                    onBoostUse={onBoostUse}
+                                    setTranslatePopoverOpen={setTranslatePopoverOpen}
+                                    isTelegramMobile={isMobileView}
+                                />
+                            </div>
+                        </>
                     ) : (
                         <>
                             <div className="flex-1 min-w-0">
@@ -277,51 +259,6 @@ export const ArenaHeader: React.FC<ArenaHeaderProps> = ({
                         </>
                     )}
 
-                    {/* Mobile Toggle Button (Zap) */}
-                    {isMobileView && (
-                        <button
-                            onClick={() => {
-                                setShowBoostsMobile(!showBoostsMobile);
-                                haptics.light();
-                            }}
-                            className={cn(
-                                "relative h-11 w-11 flex-shrink-0 flex items-center justify-center rounded-2xl transition-all duration-300 active:scale-95 shadow-lg overflow-visible",
-                                showBoostsMobile 
-                                    ? "bg-zinc-800/90 text-white border border-white/20" 
-                                    : "bg-indigo-600/90 text-white border border-indigo-400/50 shadow-indigo-500/30"
-                            )}
-                        >
-                            <AnimatePresence mode="wait">
-                                {showBoostsMobile ? (
-                                    <motion.div
-                                        key="icon-x"
-                                        initial={{ scale: 0, rotate: -90 }}
-                                        animate={{ scale: 1, rotate: 0 }}
-                                        exit={{ scale: 0, rotate: 90 }}
-                                        transition={{ duration: 0.2 }}
-                                        className="flex items-center justify-center absolute inset-0"
-                                    >
-                                        <X className="w-5 h-5" />
-                                    </motion.div>
-                                ) : (
-                                    <motion.div
-                                        key="icon-zap"
-                                        initial={{ scale: 0, rotate: 90 }}
-                                        animate={{ scale: 1, rotate: 0 }}
-                                        exit={{ scale: 0, rotate: -90 }}
-                                        transition={{ duration: 0.2 }}
-                                        className="flex items-center justify-center absolute inset-0"
-                                    >
-                                        <Zap className="w-5 h-5 fill-white animate-pulse" />
-                                        <span className="absolute -top-1 -right-1 flex h-3 w-3">
-                                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
-                                            <span className="relative inline-flex rounded-full h-3 w-3 bg-indigo-500"></span>
-                                        </span>
-                                    </motion.div>
-                                )}
-                            </AnimatePresence>
-                        </button>
-                    )}
                 </div>
             </div>
         </>

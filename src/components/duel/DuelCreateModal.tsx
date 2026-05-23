@@ -13,7 +13,6 @@ import { toast } from 'sonner';
 import { useUserContext } from '@/contexts/UserContext';
 import { extractErrorFromResponse } from '@/utils/errorMessages';
 import { ResponsiveModal } from '@/components/ui/responsive-modal';
-import { LoadoutSelector } from '@/components/duel/LoadoutSelector';
 import { cn } from '@/lib/utils';
 import { isTelegramMiniApp, getTelegramWebApp } from '@/lib/telegram';
 import { usePDDContext } from '@/contexts/PDDContext';
@@ -244,8 +243,6 @@ export function DuelCreateModal({ open, onClose, initialTab = 'random', onDuelCr
                         <Button variant="outline" size="icon" onClick={() => setNumQuestions(prev => Math.min(30, prev + 5))} className="rounded-xl h-11 w-11 border-none bg-background shadow-sm active:scale-90 transition-all"><Plus className="w-5 h-5 text-primary" /></Button>
                       </div>
                     </div>
-
-                    <div className="relative pt-2"><LoadoutSelector /></div>
 
                     <Button onClick={() => handleAction('find_match')} disabled={isProcessing} className="w-full h-16 rounded-[1.5rem] bg-gradient-to-r from-indigo-600 via-indigo-500 to-violet-600 text-white font-black text-xl shadow-2xl hover:scale-[1.02] active:scale-[0.98] transition-all group overflow-hidden">
                       <AnimatePresence mode="wait">
