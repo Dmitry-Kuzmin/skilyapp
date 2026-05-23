@@ -6,7 +6,7 @@ import { cn } from '@/lib/utils';
 import { haptics } from '@/lib/haptics';
 import { useModal } from '@/hooks/useModal';
 
-// ─── Static config for all known attack types ────────────────────────────────
+// ─── Attack types ─────────────────────────────────────────────────────────────
 
 export const ATTACK_BOOST_TYPES = new Set([
   'ice_screen', 'fog_screen', 'sun_glare', 'rain_storm', 'bug_splat',
@@ -15,18 +15,18 @@ export const ATTACK_BOOST_TYPES = new Set([
 ]);
 
 const ATTACK_META: Record<string, { emoji: string; name: string; color: string; glow: string }> = {
-  ice_screen:      { emoji: '🧊', name: 'Заморозка',  color: '#22d3ee', glow: 'rgba(34,211,238,0.45)' },
-  fog_screen:      { emoji: '🌫️', name: 'Туман',      color: '#94a3b8', glow: 'rgba(148,163,184,0.45)' },
-  sun_glare:       { emoji: '☀️', name: 'Солнце',     color: '#f59e0b', glow: 'rgba(245,158,11,0.45)' },
-  rain_storm:      { emoji: '🌧️', name: 'Гроза',      color: '#818cf8', glow: 'rgba(129,140,248,0.45)' },
-  bug_splat:       { emoji: '🐛', name: 'Баги',        color: '#34d399', glow: 'rgba(52,211,153,0.45)' },
-  police_backdoor: { emoji: '🚓', name: 'Полиция',    color: '#f87171', glow: 'rgba(248,113,113,0.45)' },
-  cryptolocker:    { emoji: '🔐', name: 'Шифровка',   color: '#a78bfa', glow: 'rgba(167,139,250,0.45)' },
-  input_lag:       { emoji: '🕸️', name: 'Лаг',        color: '#fb923c', glow: 'rgba(251,146,60,0.45)' },
-  oil_spill:       { emoji: '🛢️', name: 'Масло',      color: '#a8a29e', glow: 'rgba(168,162,158,0.45)' },
-  screen_injector: { emoji: '💉', name: 'Инъекция',   color: '#ef4444', glow: 'rgba(239,68,68,0.45)' },
-  gps_spoofing:    { emoji: '📡', name: 'GPS Спуф',   color: '#06b6d4', glow: 'rgba(6,182,212,0.45)' },
-  firewall:        { emoji: '🔥', name: 'Файрвол',    color: '#f97316', glow: 'rgba(249,115,22,0.45)' },
+  ice_screen:      { emoji: '🧊', name: 'Заморозка',  color: '#22d3ee', glow: 'rgba(34,211,238,0.4)' },
+  fog_screen:      { emoji: '🌫️', name: 'Туман',      color: '#94a3b8', glow: 'rgba(148,163,184,0.4)' },
+  sun_glare:       { emoji: '☀️', name: 'Солнце',     color: '#f59e0b', glow: 'rgba(245,158,11,0.4)' },
+  rain_storm:      { emoji: '🌧️', name: 'Гроза',      color: '#818cf8', glow: 'rgba(129,140,248,0.4)' },
+  bug_splat:       { emoji: '🐛', name: 'Баги',        color: '#34d399', glow: 'rgba(52,211,153,0.4)' },
+  police_backdoor: { emoji: '🚓', name: 'Полиция',    color: '#f87171', glow: 'rgba(248,113,113,0.4)' },
+  cryptolocker:    { emoji: '🔐', name: 'Шифровка',   color: '#a78bfa', glow: 'rgba(167,139,250,0.4)' },
+  input_lag:       { emoji: '🕸️', name: 'Лаг',        color: '#fb923c', glow: 'rgba(251,146,60,0.4)' },
+  oil_spill:       { emoji: '🛢️', name: 'Масло',      color: '#a8a29e', glow: 'rgba(168,162,158,0.4)' },
+  screen_injector: { emoji: '💉', name: 'Инъекция',   color: '#ef4444', glow: 'rgba(239,68,68,0.4)' },
+  gps_spoofing:    { emoji: '📡', name: 'GPS Спуф',   color: '#06b6d4', glow: 'rgba(6,182,212,0.4)' },
+  firewall:        { emoji: '🔥', name: 'Файрвол',    color: '#f97316', glow: 'rgba(249,115,22,0.4)' },
 };
 
 const ATTACK_ORDER = [
@@ -35,19 +35,15 @@ const ATTACK_ORDER = [
   'oil_spill', 'screen_injector', 'gps_spoofing', 'firewall',
 ];
 
-// ─── Utility boost types (shown in a compact row at bottom) ──────────────────
+// ─── Utility types ────────────────────────────────────────────────────────────
 
-const UTILITY_BOOST_TYPES = new Set([
-  'fifty_fifty', 'time_extend', 'hint', 'skip', 'translate', 'rewind',
-]);
-
-const UTILITY_META: Record<string, { emoji: string; name: string }> = {
-  fifty_fifty:  { emoji: '✂️',  name: '50/50' },
-  time_extend:  { emoji: '⏱️',  name: '+30с' },
-  hint:         { emoji: '💡',  name: 'Подсказка' },
-  skip:         { emoji: '⏭️',  name: 'Пропуск' },
-  translate:    { emoji: '🌐',  name: 'Перевод' },
-  rewind:       { emoji: '↩️',  name: 'Перемотка' },
+const UTILITY_META: Record<string, { emoji: string; name: string; color: string }> = {
+  fifty_fifty: { emoji: '✂️',  name: '50/50',      color: '#f59e0b' },
+  time_extend: { emoji: '⏱️',  name: '+30 сек',    color: '#22d3ee' },
+  hint:        { emoji: '💡',  name: 'Подсказка',  color: '#fb923c' },
+  skip:        { emoji: '⏭️',  name: 'Пропустить', color: '#818cf8' },
+  translate:   { emoji: '🌐',  name: 'Перевод',    color: '#34d399' },
+  rewind:      { emoji: '↩️',  name: 'Перемотка',  color: '#a78bfa' },
 };
 
 // ─── Props ────────────────────────────────────────────────────────────────────
@@ -65,7 +61,9 @@ interface AttackPickerSheetProps {
   boosts: BoostItem[];
   usedBoosts: string[];
   isAnswered: boolean;
-  onBoostUse: (boostType: string) => void;
+  onBoostUse: (boostType: string, lang?: 'ru' | 'en') => void;
+  translatePopoverOpen: string | null;
+  onTranslatePopoverChange: (id: string | null) => void;
 }
 
 // ─── Component ───────────────────────────────────────────────────────────────
@@ -77,11 +75,19 @@ export const AttackPickerSheet: React.FC<AttackPickerSheetProps> = ({
   usedBoosts,
   isAnswered,
   onBoostUse,
+  translatePopoverOpen,
+  onTranslatePopoverChange,
 }) => {
   const { openModal } = useModal('BOOST_SHOP');
   const [pendingBuy, setPendingBuy] = useState<string | null>(null);
 
   const inventoryMap = new Map(boosts.map(b => [b.boost_type, b.quantity]));
+
+  const handleClose = () => {
+    setPendingBuy(null);
+    onTranslatePopoverChange(null);
+    onClose();
+  };
 
   const handleAttack = (type: string) => {
     if (isAnswered) return;
@@ -92,202 +98,248 @@ export const AttackPickerSheet: React.FC<AttackPickerSheetProps> = ({
     }
     haptics.medium();
     onBoostUse(type);
-    onClose();
+    handleClose();
   };
 
-  const handleBuyAndAttack = () => {
-    onClose();
-    openModal({ initialTab: 'boosts' });
+  const handleUtility = (type: string) => {
+    if (isAnswered || usedBoosts.includes(type)) return;
+    const qty = inventoryMap.get(type) ?? 0;
+    if (qty <= 0) {
+      handleClose();
+      openModal({ initialTab: 'boosts' });
+      return;
+    }
+    if (type === 'translate') {
+      onTranslatePopoverChange(translatePopoverOpen === type ? null : type);
+      return;
+    }
+    haptics.light();
+    onBoostUse(type);
+    handleClose();
   };
 
-  const utilityBoosts = boosts.filter(b => UTILITY_BOOST_TYPES.has(b.boost_type) && b.quantity > 0);
+  const utilityBoosts = Object.keys(UTILITY_META).map(type => ({
+    type,
+    qty: inventoryMap.get(type) ?? 0,
+  }));
+
+  const hasAnyUtility = utilityBoosts.some(b => b.qty > 0);
+  const hasAnyAttack = ATTACK_ORDER.some(t => (inventoryMap.get(t) ?? 0) > 0);
+  const hasAnything = hasAnyUtility || hasAnyAttack;
 
   return (
-    <Sheet open={isOpen} onOpenChange={open => { if (!open) { onClose(); setPendingBuy(null); } }}>
+    <Sheet open={isOpen} onOpenChange={open => { if (!open) handleClose(); }}>
       <SheetContent
         side="bottom"
-        className="p-0 border-0 rounded-t-3xl focus:outline-none"
+        className="p-0 border-0 rounded-t-3xl focus:outline-none overflow-hidden"
         style={{
-          background: 'linear-gradient(180deg, rgba(15,17,23,0.98) 0%, rgba(10,11,16,0.99) 100%)',
-          backdropFilter: 'blur(24px)',
-          WebkitBackdropFilter: 'blur(24px)',
-          boxShadow: '0 -2px 60px rgba(0,0,0,0.6)',
-          maxHeight: '72vh',
+          background: 'linear-gradient(160deg, rgba(13,14,20,0.99) 0%, rgba(9,10,15,1) 100%)',
+          backdropFilter: 'blur(32px)',
+          WebkitBackdropFilter: 'blur(32px)',
+          boxShadow: '0 -4px 60px rgba(0,0,0,0.7)',
+          maxHeight: '75vh',
         }}
       >
-        {/* Top accent line */}
-        <div className="absolute top-0 left-0 right-0 h-px"
-          style={{ background: 'linear-gradient(90deg, transparent, rgba(99,102,241,0.6), rgba(168,85,247,0.6), transparent)' }}
+        {/* Gradient accent top border */}
+        <div className="absolute top-0 left-0 right-0 h-[1.5px]"
+          style={{ background: 'linear-gradient(90deg, transparent 5%, rgba(99,102,241,0.7) 35%, rgba(168,85,247,0.7) 65%, transparent 95%)' }}
         />
 
-        {/* Drag handle */}
-        <div className="flex justify-center pt-3 pb-1">
-          <div className="w-10 h-1 rounded-full bg-white/20" />
-        </div>
-
-        {/* Header */}
-        <div className="flex items-center justify-between px-5 pt-2 pb-4">
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="text-lg">⚡</span>
-              <span className="text-white font-black text-base tracking-wider uppercase font-mono">Атаки</span>
-            </div>
-            <p className="text-white/40 text-xs mt-0.5 font-mono">Отправь помеху сопернику</p>
-          </div>
-          <motion.button
-            whileTap={{ scale: 0.9 }}
-            onClick={onClose}
-            className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white/60 hover:text-white hover:bg-white/15 transition-colors"
-          >
-            <X className="w-4 h-4" />
-          </motion.button>
-        </div>
-
-        {/* Attack grid */}
-        <div className="overflow-y-auto px-4 pb-4" style={{ maxHeight: 'calc(72vh - 100px)' }}>
-          <div className="grid grid-cols-4 gap-2.5">
-            {ATTACK_ORDER.map((type, idx) => {
-              const meta = ATTACK_META[type];
-              if (!meta) return null;
-              const qty = inventoryMap.get(type) ?? 0;
-              const hasIt = qty > 0;
-              const isUsed = usedBoosts.includes(type);
-              const isBuyPending = pendingBuy === type;
-              const disabled = isAnswered || isUsed;
-
-              return (
-                <motion.div
-                  key={type}
-                  initial={{ opacity: 0, y: 12 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: idx * 0.03, type: 'spring', stiffness: 380, damping: 28 }}
-                  className="flex flex-col gap-1.5"
-                >
-                  <motion.button
-                    whileTap={!disabled && hasIt ? { scale: 0.92 } : {}}
-                    onClick={() => handleAttack(type)}
-                    disabled={disabled}
-                    className={cn(
-                      'relative flex flex-col items-center justify-center rounded-2xl pt-3 pb-2 px-1 border transition-all duration-200',
-                      disabled
-                        ? 'opacity-35 cursor-not-allowed border-white/5 bg-white/3'
-                        : hasIt
-                          ? 'cursor-pointer border-white/15 bg-white/5 active:brightness-110'
-                          : 'cursor-pointer border-dashed border-white/10 bg-white/[0.02]',
-                    )}
-                    style={hasIt && !disabled ? {
-                      boxShadow: `0 0 18px ${meta.glow}, inset 0 1px 0 rgba(255,255,255,0.08)`,
-                      borderColor: `${meta.color}40`,
-                    } : undefined}
-                  >
-                    {/* Qty badge */}
-                    <div
-                      className={cn(
-                        'absolute -top-1.5 -right-1.5 h-5 min-w-5 px-1 rounded-full flex items-center justify-center text-[10px] font-black border',
-                        hasIt
-                          ? 'bg-white text-black border-white/20'
-                          : 'bg-white/10 text-white/40 border-white/10',
-                      )}
-                    >
-                      {hasIt ? qty : '+'}
-                    </div>
-
-                    {/* Icon */}
-                    <span
-                      className="text-2xl leading-none mb-1.5"
-                      style={hasIt && !disabled ? { filter: `drop-shadow(0 0 8px ${meta.glow})` } : { opacity: 0.35 }}
-                    >
-                      {meta.emoji}
-                    </span>
-
-                    {/* Name */}
-                    <span
-                      className="text-[9px] font-bold text-center leading-tight w-full truncate px-0.5"
-                      style={{ color: hasIt && !disabled ? meta.color : 'rgba(255,255,255,0.3)' }}
-                    >
-                      {meta.name}
-                    </span>
-                  </motion.button>
-
-                  {/* Buy confirm */}
-                  <AnimatePresence>
-                    {isBuyPending && !hasIt && !disabled && (
-                      <motion.button
-                        initial={{ opacity: 0, scaleY: 0.7, y: -4 }}
-                        animate={{ opacity: 1, scaleY: 1, y: 0 }}
-                        exit={{ opacity: 0, scaleY: 0.7, y: -4 }}
-                        transition={{ duration: 0.18 }}
-                        onClick={handleBuyAndAttack}
-                        className="flex items-center justify-center gap-1 rounded-xl py-1.5 text-[9px] font-bold text-white border border-indigo-500/50 bg-indigo-500/20 active:bg-indigo-500/35 transition-colors"
-                      >
-                        <ShoppingBag className="w-2.5 h-2.5" />
-                        Купить
-                      </motion.button>
-                    )}
-                  </AnimatePresence>
-                </motion.div>
-              );
-            })}
+        <div className="max-w-xl mx-auto flex flex-col" style={{ maxHeight: '75vh' }}>
+          {/* Handle */}
+          <div className="flex justify-center pt-3">
+            <div className="w-9 h-1 rounded-full bg-white/15" />
           </div>
 
-          {/* Utility boosts row */}
-          {utilityBoosts.length > 0 && (
-            <div className="mt-5">
-              <p className="text-white/25 text-[10px] font-mono uppercase tracking-widest mb-2.5 px-0.5">
-                Инструменты
+          {/* Header */}
+          <div className="flex items-center justify-between px-5 pt-3 pb-3">
+            <div>
+              <h3 className="text-white font-black text-[15px] tracking-wide uppercase font-mono flex items-center gap-2">
+                <span className="text-base">⚡</span> Арсенал
+              </h3>
+              <p className="text-white/35 text-[11px] mt-0.5">
+                {isAnswered ? 'Ответ дан — жди следующего вопроса' : 'Атакуй соперника или используй инструмент'}
               </p>
-              <div className="flex flex-wrap gap-2">
-                {utilityBoosts.map(b => {
-                  const meta = UTILITY_META[b.boost_type];
-                  const isUsed = usedBoosts.includes(b.boost_type);
-                  const disabled = isAnswered || isUsed;
-                  return (
+            </div>
+            <motion.button
+              whileTap={{ scale: 0.88 }}
+              onClick={handleClose}
+              className="w-8 h-8 rounded-full bg-white/8 flex items-center justify-center text-white/50 hover:text-white hover:bg-white/14 transition-colors"
+            >
+              <X className="w-4 h-4" />
+            </motion.button>
+          </div>
+
+          {/* Scrollable content */}
+          <div className="overflow-y-auto px-4 pb-5 flex-1">
+
+            {/* ── ATTACKS ─────────────────────────────────────── */}
+            <p className="text-white/25 text-[10px] font-mono uppercase tracking-widest mb-2.5">
+              Атаки сопернику
+            </p>
+
+            <div className="grid grid-cols-4 gap-2">
+              {ATTACK_ORDER.map((type, idx) => {
+                const meta = ATTACK_META[type];
+                if (!meta) return null;
+                const qty = inventoryMap.get(type) ?? 0;
+                const hasIt = qty > 0;
+                const isUsed = usedBoosts.includes(type);
+                const disabled = isAnswered || isUsed;
+                const isBuyPending = pendingBuy === type;
+
+                return (
+                  <div key={type} className="flex flex-col gap-1">
                     <motion.button
-                      key={b.boost_type}
-                      whileTap={!disabled ? { scale: 0.93 } : {}}
-                      onClick={() => {
-                        if (disabled) return;
-                        haptics.light();
-                        onBoostUse(b.boost_type);
-                        onClose();
-                      }}
+                      initial={{ opacity: 0, scale: 0.85 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: idx * 0.025, type: 'spring', stiffness: 400, damping: 30 }}
+                      whileTap={!disabled && hasIt ? { scale: 0.88 } : {}}
+                      onClick={() => handleAttack(type)}
                       disabled={disabled}
                       className={cn(
-                        'flex items-center gap-1.5 rounded-xl px-3 py-1.5 border text-xs font-semibold transition-all',
+                        'relative aspect-square flex flex-col items-center justify-center rounded-2xl border transition-all duration-150',
                         disabled
-                          ? 'opacity-35 cursor-not-allowed border-white/5 bg-white/3 text-white/30'
-                          : 'border-white/15 bg-white/8 text-white/80 active:bg-white/15 cursor-pointer',
+                          ? 'opacity-30 cursor-not-allowed bg-white/3 border-white/5'
+                          : hasIt
+                            ? 'cursor-pointer bg-white/5 border-white/12 active:brightness-125'
+                            : 'cursor-pointer bg-white/[0.02] border-dashed border-white/8',
                       )}
+                      style={hasIt && !disabled ? {
+                        boxShadow: `0 0 16px ${meta.glow}`,
+                        borderColor: `${meta.color}35`,
+                      } : undefined}
                     >
-                      <span>{meta?.emoji ?? b.icon ?? '⚡'}</span>
-                      <span>{meta?.name ?? b.name_ru ?? b.boost_type}</span>
-                      <span className="text-[10px] font-black bg-white/15 rounded-full px-1.5 py-0.5 text-white/70">
-                        ×{b.quantity}
+                      {/* Qty badge */}
+                      <div className={cn(
+                        'absolute -top-1.5 -right-1.5 h-5 min-w-[20px] px-1 rounded-full border text-[9px] font-black flex items-center justify-center leading-none',
+                        hasIt ? 'bg-white text-black border-transparent' : 'bg-transparent text-white/30 border-white/10',
+                      )}>
+                        {hasIt ? qty : '+'}
+                      </div>
+
+                      {/* Icon */}
+                      <span
+                        className="text-2xl leading-none mb-1"
+                        style={hasIt && !disabled ? { filter: `drop-shadow(0 0 6px ${meta.glow})` } : { opacity: 0.25 }}
+                      >
+                        {meta.emoji}
+                      </span>
+
+                      {/* Name */}
+                      <span
+                        className="text-[9px] font-semibold text-center leading-tight w-full truncate px-1"
+                        style={{ color: hasIt && !disabled ? `${meta.color}cc` : 'rgba(255,255,255,0.2)' }}
+                      >
+                        {meta.name}
                       </span>
                     </motion.button>
-                  );
-                })}
-              </div>
-            </div>
-          )}
 
-          {/* Empty state */}
-          {boosts.filter(b => ATTACK_BOOST_TYPES.has(b.boost_type) && b.quantity > 0).length === 0 &&
-            utilityBoosts.length === 0 && (
-            <div className="flex flex-col items-center justify-center py-6 text-center">
-              <span className="text-4xl mb-3 opacity-30">⚡</span>
-              <p className="text-white/40 text-sm font-semibold mb-1">Нет атак в арсенале</p>
-              <p className="text-white/25 text-xs mb-4">Купи атаки в магазине и используй их прямо здесь</p>
-              <motion.button
-                whileTap={{ scale: 0.95 }}
-                onClick={handleBuyAndAttack}
-                className="flex items-center gap-2 px-5 py-2.5 rounded-2xl text-sm font-bold text-white border border-indigo-500/50 bg-indigo-500/20 active:bg-indigo-500/35 transition-colors"
-              >
-                <ShoppingBag className="w-4 h-4" />
-                Открыть магазин
-              </motion.button>
+                    {/* Buy confirm pill */}
+                    <AnimatePresence>
+                      {isBuyPending && !disabled && (
+                        <motion.button
+                          initial={{ opacity: 0, y: -6, scaleY: 0.6 }}
+                          animate={{ opacity: 1, y: 0, scaleY: 1 }}
+                          exit={{ opacity: 0, y: -4, scaleY: 0.7 }}
+                          transition={{ duration: 0.15 }}
+                          onClick={() => { handleClose(); openModal({ initialTab: 'boosts' }); }}
+                          className="w-full py-1.5 rounded-xl text-[9px] font-bold text-indigo-300 border border-indigo-500/40 bg-indigo-500/15 active:bg-indigo-500/30 flex items-center justify-center gap-1 transition-colors"
+                        >
+                          <ShoppingBag className="w-2.5 h-2.5" /> Купить
+                        </motion.button>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                );
+              })}
             </div>
-          )}
+
+            {/* ── UTILITY ─────────────────────────────────────── */}
+            {hasAnyUtility && (
+              <div className="mt-5">
+                <p className="text-white/25 text-[10px] font-mono uppercase tracking-widest mb-2.5">
+                  Инструменты
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {utilityBoosts.map(({ type, qty }) => {
+                    const meta = UTILITY_META[type];
+                    if (!meta || qty <= 0) return null;
+                    const isUsed = usedBoosts.includes(type);
+                    const disabled = isAnswered || isUsed;
+                    const isTranslateOpen = translatePopoverOpen === type;
+
+                    if (type === 'translate' && isTranslateOpen && !disabled) {
+                      return (
+                        <div key={type} className="flex items-center gap-1.5">
+                          <motion.button
+                            whileTap={{ scale: 0.9 }}
+                            onClick={() => { haptics.light(); onBoostUse('translate', 'ru'); handleClose(); }}
+                            className="flex items-center gap-1 px-3 py-1.5 rounded-xl border border-red-500/40 bg-red-500/15 text-red-300 text-xs font-bold active:bg-red-500/30 transition-colors"
+                          >
+                            🇷🇺 RU
+                          </motion.button>
+                          <motion.button
+                            whileTap={{ scale: 0.9 }}
+                            onClick={() => { haptics.light(); onBoostUse('translate', 'en'); handleClose(); }}
+                            className="flex items-center gap-1 px-3 py-1.5 rounded-xl border border-blue-500/40 bg-blue-500/15 text-blue-300 text-xs font-bold active:bg-blue-500/30 transition-colors"
+                          >
+                            🇬🇧 EN
+                          </motion.button>
+                          <motion.button
+                            whileTap={{ scale: 0.9 }}
+                            onClick={() => onTranslatePopoverChange(null)}
+                            className="w-7 h-7 rounded-xl border border-white/10 bg-white/5 text-white/40 flex items-center justify-center transition-colors"
+                          >
+                            <X className="w-3 h-3" />
+                          </motion.button>
+                        </div>
+                      );
+                    }
+
+                    return (
+                      <motion.button
+                        key={type}
+                        whileTap={!disabled ? { scale: 0.91 } : {}}
+                        onClick={() => handleUtility(type)}
+                        disabled={disabled}
+                        className={cn(
+                          'flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-semibold transition-all',
+                          disabled
+                            ? 'opacity-30 cursor-not-allowed border-white/5 bg-white/3 text-white/30'
+                            : 'border-white/12 bg-white/6 text-white/75 active:bg-white/14 cursor-pointer',
+                        )}
+                        style={!disabled ? { borderColor: `${meta.color}25` } : undefined}
+                      >
+                        <span className="text-sm leading-none">{meta.emoji}</span>
+                        <span>{meta.name}</span>
+                        <span className="text-[10px] font-black rounded-full px-1.5 py-0.5 bg-white/10 text-white/60">
+                          ×{qty}
+                        </span>
+                      </motion.button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* ── EMPTY STATE ──────────────────────────────────── */}
+            {!hasAnything && (
+              <div className="flex flex-col items-center py-8 text-center">
+                <span className="text-5xl mb-3 opacity-20">🎒</span>
+                <p className="text-white/40 text-sm font-semibold mb-1">Арсенал пуст</p>
+                <p className="text-white/25 text-xs mb-5 max-w-[200px]">Купи атаки и инструменты — используй прямо в дуэли</p>
+                <motion.button
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => { handleClose(); openModal({ initialTab: 'boosts' }); }}
+                  className="flex items-center gap-2 px-5 py-2.5 rounded-2xl text-sm font-bold text-white border border-indigo-500/40 bg-indigo-500/15 active:bg-indigo-500/30 transition-colors"
+                >
+                  <ShoppingBag className="w-4 h-4" />
+                  Открыть магазин
+                </motion.button>
+              </div>
+            )}
+          </div>
         </div>
       </SheetContent>
     </Sheet>

@@ -43,7 +43,7 @@ interface ArenaHeaderProps {
     usedBoosts: string[];
     isAnswered: boolean;
     translatePopoverOpen: string | null;
-    onBoostUse: (boostId: string) => void;
+    onBoostUse: (boostId: string, lang?: 'ru' | 'en') => void;
     setTranslatePopoverOpen: (id: string | null) => void;
 
     // Settings & Navigation
