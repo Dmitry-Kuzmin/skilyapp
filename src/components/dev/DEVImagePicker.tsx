@@ -53,11 +53,27 @@ export function DEVImagePicker({ onSaved, onClose }: Props) {
   const loadGallery = useCallback(async (p = 0, q = "") => {
     setGalleryLoading(true);
     try {
-      const res = await fetch(`${V}/api/course/existing-images?page=${p}&limit=30&search=${encodeURIComponent(q)}`);
-      const data = await res.json();
-      setImages(prev => p === 0 ? (data.images || []) : [...prev, ...(data.images || [])]);
-      setTotal(data.total || 0);
-      setPage(p);
+      if (q && q.trim().length >= 2) {
+        // Search mode: use Mission Control's proven search endpoint
+        const res = await fetch(`${V}/api/search?q=${encodeURIComponent(q.trim())}&country=spain`);
+        const hits: Array<{ id: string; testId: string; imageUrl?: string }> = await res.json();
+        const mapped: ExistingImage[] = hits.map(h => ({
+          name: `${h.id}.png`,
+          testId: h.testId,
+          // Server has smart fallback: serves any .png/.webp/.jpg starting with this UUID
+          url: `${V}/generated-images/${h.testId}/${encodeURIComponent(h.id)}.png`,
+        }));
+        setImages(mapped);
+        setTotal(mapped.length);
+        setPage(0);
+      } else {
+        // No search: paginated gallery
+        const res = await fetch(`${V}/api/course/existing-images?page=${p}&limit=30`);
+        const data = await res.json();
+        setImages(prev => p === 0 ? (data.images || []) : [...prev, ...(data.images || [])]);
+        setTotal(data.total || 0);
+        setPage(p);
+      }
     } catch { /* server offline */ }
     setGalleryLoading(false);
   }, []);
@@ -205,11 +221,11 @@ export function DEVImagePicker({ onSaved, onClose }: Props) {
                 </div>
               )}
 
-              <div className="grid grid-cols-3 gap-1.5">
+              <div className="grid grid-cols-5 gap-1">
                 {images.map(img => (
                   <button key={`${img.testId}/${img.name}`}
                     onClick={() => setSelected(selected?.name === img.name ? null : img)}
-                    className={cn("relative aspect-square rounded-xl overflow-hidden border-2 transition-all",
+                    className={cn("relative aspect-square rounded-lg overflow-hidden border-2 transition-all",
                       selected?.name === img.name ? "border-violet-500 ring-2 ring-violet-500/40" : "border-zinc-700 hover:border-zinc-500")}>
                     <img src={img.url} alt="" className="w-full h-full object-cover" loading="lazy" />
                     {selected?.name === img.name && (
@@ -263,11 +279,11 @@ export function DEVImagePicker({ onSaved, onClose }: Props) {
                 </div>
               )}
 
-              <div className="grid grid-cols-3 gap-1.5">
+              <div className="grid grid-cols-5 gap-1">
                 {courseImages.map(img => (
                   <button key={img.name}
                     onClick={() => setSelectedCourse(selectedCourse?.name === img.name ? null : img)}
-                    className={cn("relative aspect-square rounded-xl overflow-hidden border-2 transition-all",
+                    className={cn("relative aspect-square rounded-lg overflow-hidden border-2 transition-all",
                       selectedCourse?.name === img.name ? "border-emerald-500 ring-2 ring-emerald-500/40" : "border-zinc-700 hover:border-zinc-500")}>
                     <img src={img.url} alt="" className="w-full h-full object-cover" loading="lazy" />
                     {selectedCourse?.name === img.name && (

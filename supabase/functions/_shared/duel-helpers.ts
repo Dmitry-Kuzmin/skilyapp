@@ -259,26 +259,47 @@ export function getDeterministicBotName(id: string): string {
     return BOT_NAMES[botNameIndex];
 }
 
+type BotDifficulty = 'easy' | 'medium' | 'hard' | 'insane';
+const DIFFICULTY_LADDER: BotDifficulty[] = ['easy', 'medium', 'hard', 'insane'];
+
+/**
+ * Подбирает сложность бота под игрока.
+ *
+ * Принципы:
+ *  - Плавная лесенка по skill score (level + winStreak*2) — нет резких скачков
+ *  - Insane заблокирован, пока нет реального win-стрика (≥4) — никаких "ботов-убийц"
+ *    для новых аккаунтов
+ *  - Anti-frustration: если winStreak == 0 (значит последний матч проигран),
+ *    сложность снижается на 1 ступень — даём игроку отдышаться
+ *  - ±1 рандомное "колебание" в 20% случаев — для разнообразия, чтобы бот
+ *    не был предсказуемым
+ */
 export function generateBotProfile(playerLevel: number, winStreak: number = 0, botId?: string): {
     name: string;
     avatar: string;
-    difficulty: 'easy' | 'medium' | 'hard' | 'insane';
+    difficulty: BotDifficulty;
 } {
-    let difficulty: 'easy' | 'medium' | 'hard' | 'insane' = 'medium';
+    const skillScore = (playerLevel || 1) + winStreak * 2;
 
-    if (winStreak >= 5) {
-        difficulty = 'insane';
-    } else if (winStreak >= 3) {
-        difficulty = 'hard';
-    } else if (winStreak <= 2) {
-        if (playerLevel >= 8) {
-            difficulty = 'hard';
-        } else if (playerLevel >= 4) {
-            difficulty = 'medium';
-        } else {
-            difficulty = 'easy';
-        }
+    let rank: number;
+    if (skillScore < 4) rank = 0;        // easy
+    else if (skillScore < 8) rank = 1;   // medium
+    else if (skillScore < 14) rank = 2;  // hard
+    else rank = 3;                       // insane
+
+    // Insane разрешён только при реальном win-стрике
+    if (rank === 3 && winStreak < 4) rank = 2;
+
+    // Anti-frustration: после поражения снижаем сложность
+    if (winStreak === 0 && rank > 0) rank -= 1;
+
+    // Разнообразие: ±1 ступень с шансом 20%
+    if (Math.random() < 0.2) {
+        rank += Math.random() < 0.5 ? -1 : 1;
     }
+
+    rank = Math.max(0, Math.min(DIFFICULTY_LADDER.length - 1, rank));
+    const difficulty = DIFFICULTY_LADDER[rank];
 
     const name = botId ? getDeterministicBotName(botId) : BOT_NAMES[Math.floor(Math.random() * BOT_NAMES.length)];
     const BOT_AVATARS = ['default', 'cyberpunk', 'hacker', 'ninja', 'warrior', 'ghost', 'neon'];

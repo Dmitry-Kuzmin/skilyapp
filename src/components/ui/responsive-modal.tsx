@@ -5,6 +5,7 @@ import { Drawer, DrawerContent, DrawerTitle, DrawerDescription } from "@/compone
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useExternalOverlay } from "@/hooks/useExternalOverlay";
 import { cn } from "@/lib/utils";
+import { isTelegramMiniApp } from "@/lib/telegram";
 
 // ---------------------------------------------------------------------------
 // MarqueeTitle — scrolls long text when it overflows the flex-1 container
@@ -138,10 +139,9 @@ export function ResponsiveModal({
 
   // ── Fullscreen status-bar color ───────────────────────────────────────────
   React.useEffect(() => {
-    if (!mobileFullscreen || !open) return;
+    if (!mobileFullscreen || !open || !isTelegramMiniApp()) return;
     try {
       const tg = (window as any).Telegram?.WebApp;
-      // Use Telegram's own bg_color preset so it always matches the sheet bg
       tg?.setHeaderColor?.("bg_color");
     } catch { /* noop */ }
     return () => {

@@ -3489,35 +3489,34 @@ Your task: Create a DETAILED scene description so this exact image can be FAITHF
 
 OUTPUT: Plain structured English text describing every element. Be precise and exhaustive — the goal is to recreate this SAME scene faithfully.`;
 
-const COURSE_STYLE_PROMPT = `You are recreating an educational illustration for a Spanish DGT driving course app called Skily.
+const COURSE_STYLE_PROMPT = `ROLE: Photorealistic DGT Scene Rebuilder — Skily Edition.
+TASK: Faithfully rebuild the reference scene as a cinematic photorealistic image with Skily branding and a Northern Spanish natural environment. DO NOT invent new road elements.
 
-## MISSION: Faithfully redraw the reference scene in a clean educational style.
-Do NOT invent new content. Reproduce EXACTLY what was described from the reference image.
+## ROAD FIDELITY (ABSOLUTE — DO NOT CHANGE):
+1. **COMPOSITION LOCK**: Identical camera angle, framing, and perspective as the reference.
+2. **LAYOUT LOCK**: Every road object (vehicles, signs, markings, barriers) stays in the EXACT same position and lane.
+3. **SIGN ACCURACY**: Reproduce ONLY the signs from the reference — symbol, shape, color. ZERO invented signs. NO catalog code text on signs (no "R-1", "S-34" text written on signs).
+4. **MARKINGS**: Replicate all road markings exactly — dashed, solid, crosswalk, arrows — WHITE ONLY (Spanish DGT standard, NOT yellow/USA).
+5. **INFRASTRUCTURE**: Same road type, lane count, shoulders, barriers.
+6. **TRAJECTORY ARROWS**: If arrows are present, preserve exact paths and directions as semi-transparent colored overlays.
 
-## VISUAL STYLE:
-- 3D isometric bird's-eye view (45-60°) for road scenes, OR match the original perspective
-- Clean educational diagram aesthetic — professional driving school quality
-- Bright daylight, soft shadows
-- Photorealistic but simplified geometry (not a photo, but not a cartoon)
+## UPGRADE — APPLY THESE IMPROVEMENTS:
+7. **VEHICLES → SKILY FLEET**: Replace cars/hatchbacks with the **Skily Hero Car — White & Dark Blue hatchback with Electric Cyan (#00E5FF) accents**, metallic automotive paint, real reflections, correct European proportions. NOT plastic, NOT toy-like, NOT low-poly. If the scene requires a truck/bus/motorcycle, keep its type but give it a modern realistic look without Skily livery.
+8. **ENVIRONMENT → NORTHERN SPAIN**: Transform the background into a natural Northern Spanish landscape — lush green hills, Asturian or Cantabrian or Basque scenery, dramatic clean sky. Cinematic natural lighting (soft golden hour or crisp bright daylight).
+9. **QUALITY → PHOTOREALISTIC 8K**: Cinematic photography quality. Unbiased rendering (Octane/Redshift style), Global Illumination. Real asphalt grain and wear. Volumetric light. Real reflections on car roofs and windshields. NO flat lighting, NO cartoon style.
 
-## ROAD ELEMENTS (Spanish DGT standard):
-- Asphalt: realistic gray texture (#404040 to #555555)
-- Center line: yellow (#FFD700) — continuous or dashed as described
-- Lane markings: white (#FFFFFF) dashed
-- Edge lines: white continuous
-- Lane width: ~3.5 m
+## SKILY BRAND SAFETY:
+- Skily vehicles must NEVER be involved in accidents, collisions, or illegal maneuvers.
+- Skily vehicles must always be parked legally or driving safely and correctly.
 
-## VEHICLES (Spanish/European fleet):
-- Modern European cars (Seat, Citroën, Renault, Peugeot proportions)
-- EXACT colors as described in reference analysis
-- Realistic 3D models, visible wheels and windshield
-- Proper proportions and scale
+## DGT SIGN RULES:
+- Signs must be geometrically perfect (perfect circles, triangles, rectangles).
+- Sign poles: galvanized steel, matte grey, mounted on sidewalk/shoulder — NEVER on road surface.
+- NO supplementary text plates below signs.
+- NO construction sign text (draw only the yellow triangle with worker symbol).
 
-## RULES:
-- NO text, labels, or watermarks ON the image
-- NO branding or logos
-- Square 1:1 aspect ratio
-- Keep all vehicles, signs, arrows, and layout from the reference — just cleaner and more polished
+## NEGATIVE PROMPT (STRICTLY AVOID):
+Plastic cars, toy cars, simplified geometry, low poly, cartoon style, miniature scale, tilt-shift, doll-like proportions, isometric diagram, invented signs, yellow road lines (USA style), text labels on road, watermarks, generic grey flat sky, flat boring fields, changed road layout, missing signs from original, extra vehicles not in reference, warning triangle on road, road cone clutter, sci-fi glowing arrows, HUD overlays.
 
 ## REFERENCE SCENE DESCRIPTION:
 {ANALYSIS}
@@ -3525,7 +3524,7 @@ Do NOT invent new content. Reproduce EXACTLY what was described from the referen
 ## ADDITIONAL INSTRUCTION FROM USER:
 {INSTRUCTION}
 
-Recreate this scene faithfully in Skily's clean educational style.`;
+Recreate this scene faithfully as a photorealistic Skily-branded image.`;
 
 app.post('/api/course/generate-image', express.json({ limit: '20mb' }), async (req, res) => {
     const { referenceImageBase64, mimeType = 'image/png', instruction = '', lessonStepId, language = 'es' } = req.body;
@@ -3540,16 +3539,28 @@ app.post('/api/course/generate-image', express.json({ limit: '20mb' }), async (r
         // gemini-3.1-flash-image-preview accepts image input AND outputs an image in one call
         const model = genAI.getGenerativeModel({ model: 'gemini-3.1-flash-image-preview' });
 
-        const prompt = `You are recreating an educational illustration for a Spanish DGT driving course app.
+        const prompt = `ROLE: Photorealistic DGT Scene Rebuilder — Skily Edition.
+TASK: Faithfully rebuild this reference DGT driving scene as a cinematic photorealistic image with Skily branding.
 
-TASK: Redraw the reference image in a clean, modern educational style.
-- Keep the SAME scene, composition, vehicles, signs, and layout as the reference
-- Style: clean 3D isometric educational diagram, bright daylight, professional quality
-- Spanish road markings (white lanes, European signs)
-- NO text or watermarks on the image
-- Landscape 16:9 aspect ratio (wide, horizontal)
+## ABSOLUTE RULES — DO NOT CHANGE:
+- Identical camera angle and perspective as the reference
+- Every vehicle, sign, road marking, and barrier stays in the EXACT same position and lane
+- Road markings: WHITE ONLY (Spanish DGT standard, NOT yellow USA lines)
+- Reproduce ONLY the signs visible in the reference — NO invented signs, NO text/codes on signs
 
-${instruction ? `Additional instruction: ${instruction}` : ''}`;
+## VISUAL UPGRADE:
+- **SKILY HERO CAR**: Replace cars/hatchbacks with the Skily Hero Car — White & Dark Blue hatchback with Electric Cyan (#00E5FF) accents, metallic paint, real reflections. Trucks/buses/motorcycles keep their type but get a modern realistic look.
+- **NORTHERN SPAIN ENVIRONMENT**: Transform the background into Northern Spanish landscape — lush green Asturian/Cantabrian/Basque hills, dramatic clean sky, cinematic natural lighting.
+- **PHOTOREALISTIC 8K**: Cinematic photography quality. Unbiased rendering (Octane/Redshift), Global Illumination. Real asphalt grain. Volumetric light. Reflections on car roofs and windshields.
+- If trajectory arrows are present: keep them as semi-transparent colored overlays.
+
+## BRAND SAFETY:
+- Skily vehicles must NEVER be in accidents or illegal maneuvers — always driving safely.
+
+## STRICTLY AVOID:
+Plastic cars, toy cars, low poly, cartoon, isometric diagram, simplified geometry, yellow road lines, text labels, watermarks, flat grey sky, invented signs, sci-fi HUD overlays, glowing arrows on road surface.
+
+${instruction ? `## ADDITIONAL INSTRUCTION:\n${instruction}` : ''}`;
 
         console.log('[Course Gen] 🎨 Generating with gemini-3.1-flash-image-preview...');
         const result = await model.generateContent({
@@ -3677,26 +3688,58 @@ app.get('/api/course/existing-images', async (req, res) => {
     const { page = '0', limit = '48', search = '' } = req.query;
     const pageNum = parseInt(page);
     const limitNum = parseInt(limit);
-    const q = (search + '').toLowerCase();
+    const q = (search + '').trim();
 
     try {
         const imagesRoot = path.join(process.cwd(), 'data', 'generated-images');
         const skip = new Set(['Old', 'originals', 'rejected-pool', 'rejected-images', 'single-gen']);
-        const testDirs = (await fs.readdir(imagesRoot).catch(() => [])).filter(d => !d.startsWith('.') && !skip.has(d));
-
         let allImages = [];
-        for (const dir of testDirs) {
-            const testDir = path.join(imagesRoot, dir);
-            try {
-                const stat = await fs.stat(testDir);
-                if (!stat.isDirectory()) continue;
-                const files = await fs.readdir(testDir);
-                for (const file of files) {
-                    if (!file.endsWith('.png')) continue;
-                    if (q && !file.toLowerCase().includes(q) && !dir.toLowerCase().includes(q)) continue;
-                    allImages.push({ name: file, testId: dir, url: `http://localhost:3030/generated-images/${dir}/${encodeURIComponent(file)}` });
+
+        if (q && GLOBAL_SEARCH_INDEX && GLOBAL_SEARCH_INDEX.length > 0) {
+            // Search mode: find matching questions via text index, then locate their image files
+            const normalizedQ = normalizeText(q);
+            const tokens = normalizedQ.split(' ').filter(t => t.length > 1);
+
+            if (tokens.length > 0) {
+                const hits = GLOBAL_SEARCH_INDEX.filter(item =>
+                    tokens.every(token => item.searchText.includes(token))
+                ).slice(0, 300);
+
+                const seen = new Set();
+                for (const hit of hits) {
+                    const testDir = path.join(imagesRoot, hit.testId);
+                    const idLower = hit.id.toLowerCase();
+                    try {
+                        const files = await fs.readdir(testDir).catch(() => []);
+                        for (const file of files) {
+                            if (!file.match(/\.(png|webp|jpg|jpeg)$/i)) continue;
+                            if (file.toLowerCase().startsWith(idLower)) {
+                                const key = `${hit.testId}/${file}`;
+                                if (!seen.has(key)) {
+                                    seen.add(key);
+                                    allImages.push({ name: file, testId: hit.testId, url: `http://localhost:3030/generated-images/${hit.testId}/${encodeURIComponent(file)}` });
+                                }
+                                break; // one image per question
+                            }
+                        }
+                    } catch { /* skip */ }
                 }
-            } catch { /* skip */ }
+            }
+        } else {
+            // No search: scan all dirs and return everything
+            const testDirs = (await fs.readdir(imagesRoot).catch(() => [])).filter(d => !d.startsWith('.') && !skip.has(d));
+            for (const dir of testDirs) {
+                const testDir = path.join(imagesRoot, dir);
+                try {
+                    const stat = await fs.stat(testDir);
+                    if (!stat.isDirectory()) continue;
+                    const files = await fs.readdir(testDir);
+                    for (const file of files) {
+                        if (!file.match(/\.(png|webp|jpg|jpeg)$/i)) continue;
+                        allImages.push({ name: file, testId: dir, url: `http://localhost:3030/generated-images/${dir}/${encodeURIComponent(file)}` });
+                    }
+                } catch { /* skip */ }
+            }
         }
 
         const total = allImages.length;

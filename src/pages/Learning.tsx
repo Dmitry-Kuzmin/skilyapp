@@ -1,10 +1,10 @@
 import { useEffect, useState, lazy, Suspense } from "react";
 import { useNavigate } from "react-router-dom";
-import { BookOpen, Lock, CheckCircle2, ChevronRight, Sparkles, Loader2 } from "lucide-react";
+import { BookOpen, ArrowRight } from "lucide-react";
 import Layout from "@/components/Layout";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { cn } from "@/lib/utils";
 import { getSupabaseClient } from "@/integrations/supabase/lazyClient";
+import { SnakeLearningPath, LessonNode } from "@/components/learning-map/SnakeLearningPath";
 
 const CourseStudio = import.meta.env.DEV
   ? lazy(() => import("@/components/dev/CourseStudio").then(m => ({ default: m.CourseStudio })))
@@ -32,6 +32,9 @@ const FALLBACK_MODULES = [
   { id: "", number: 9,  emoji: "🔧", title_es: "Mecánica y mantenimiento del vehículo", title_ru: "Механика и обслуживание",      order_index: 9,  lesson_count: 13 },
   { id: "", number: 10, emoji: "🏎️", title_es: "Tipos y técnicas de conducción",        title_ru: "Техники вождения",             order_index: 10, lesson_count: 11 },
 ];
+
+// Duolingo-style palette for banner (matches SnakeLearningPath PALETTE order)
+const BANNER_COLORS = ['#58CC02','#FF4B4B','#1CB0F6','#FF9600','#CE82FF','#FF4B4B','#1CB0F6','#FF9600','#58CC02','#CE82FF'];
 
 const Learning = () => {
   const { language } = useLanguage();
@@ -74,90 +77,111 @@ const Learning = () => {
     }
   };
 
-  const handleModuleClick = (mod: CourseModule) => {
-    if (!mod.id) return;
-    navigate(`/learning/module/${mod.id}`);
+  const lessonNodes: LessonNode[] = modules.map((mod) => ({
+    id: mod.id || String(mod.number),
+    title: isEs ? mod.title_es : mod.title_ru,
+    topic_number: mod.number,
+    type: 'module',
+    status: mod.number === 1 && !!mod.id ? 'active' : 'locked',
+    emoji: mod.emoji,
+    lesson_count: lessonCounts[mod.id] ?? mod.lesson_count,
+  }));
+
+  const activeNode = lessonNodes.find(n => n.status === 'active');
+  const activeMod = activeNode ? modules.find(m => (m.id || String(m.number)) === activeNode.id) : null;
+  const bannerColor = activeMod ? BANNER_COLORS[(activeMod.number - 1) % BANNER_COLORS.length] : '#58CC02';
+
+  const handleStart = (lessonId: string) => {
+    const mod = modules.find(m => m.id === lessonId);
+    if (mod?.id) navigate(`/learning/module/${mod.id}`);
   };
 
   return (
     <Layout>
       <div className="w-full px-4 sm:px-6 lg:px-10 pt-0 md:pt-6 pb-24 font-sans">
-        <div className="max-w-2xl mx-auto">
+        <div className="max-w-sm mx-auto">
 
-          {/* Header */}
-          <div className="mb-8 space-y-2">
-            <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-3 py-1 text-xs font-medium text-primary">
-              <Sparkles className="w-3 h-3" />
-              {isEs ? "Curso DGT" : "Курс DGT"}
+          {/* Duolingo-style active module banner */}
+          {activeMod && (
+            <div
+              className="mb-6 rounded-2xl overflow-hidden"
+              style={{
+                backgroundColor: bannerColor,
+                boxShadow: `0 6px 24px ${bannerColor}55`,
+              }}
+            >
+              {/* Top stripe */}
+              <div
+                style={{
+                  backgroundColor: 'rgba(255,255,255,0.12)',
+                  padding: '10px 16px 8px',
+                  borderBottom: '1px solid rgba(255,255,255,0.12)',
+                }}
+              >
+                <p style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.8)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                  {isEs ? `MÓDULO ${activeMod.number}` : `МОДУЛЬ ${activeMod.number}`}
+                </p>
+              </div>
+
+              {/* Content row */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px' }}>
+                <span style={{ fontSize: 36, lineHeight: 1, flexShrink: 0 }}>{activeMod.emoji}</span>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <p style={{ fontSize: 16, fontWeight: 700, color: 'white', lineHeight: 1.3 }}>
+                    {isEs ? activeMod.title_es : activeMod.title_ru}
+                  </p>
+                  {(lessonCounts[activeMod.id] ?? activeMod.lesson_count) && (
+                    <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.75)', marginTop: 3 }}>
+                      {lessonCounts[activeMod.id] ?? activeMod.lesson_count} {isEs ? 'lecciones' : 'уроков'}
+                    </p>
+                  )}
+                </div>
+                <button
+                  onClick={() => activeMod.id && navigate(`/learning/module/${activeMod.id}`)}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 6,
+                    padding: '9px 16px',
+                    borderRadius: 12,
+                    backgroundColor: 'rgba(255,255,255,0.22)',
+                    color: 'white',
+                    fontSize: 13,
+                    fontWeight: 700,
+                    flexShrink: 0,
+                    border: '2px solid rgba(255,255,255,0.3)',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  {isEs ? 'Empezar' : 'Начать'}
+                  <ArrowRight style={{ width: 14, height: 14 }} />
+                </button>
+              </div>
             </div>
-            <h1 className="text-2xl font-bold text-foreground">
-              {isEs ? "Tu ruta de aprendizaje" : "Твой путь обучения"}
-            </h1>
-            <p className="text-sm text-muted-foreground">
-              {isEs
-                ? "Completa los módulos en orden y prepárate para el examen"
-                : "Проходи модули по порядку и готовься к экзамену"}
-            </p>
-          </div>
+          )}
 
-          {/* Module path */}
-          <div className="relative">
-            <div className="absolute left-[2.375rem] top-16 bottom-16 w-0.5 bg-border/60 z-0" />
-
-            <div className="space-y-4 relative z-10">
-              {modules.map((mod, idx) => {
-                const isUnlocked = mod.number === 1 && !!mod.id;
-                const isLocked = !isUnlocked;
-                const count = mod.id ? (lessonCounts[mod.id] ?? mod.lesson_count ?? 0) : (mod.lesson_count ?? 0);
-
-                return (
-                  <button
-                    key={mod.id || mod.number}
-                    type="button"
-                    disabled={isLocked}
-                    onClick={() => handleModuleClick(mod)}
-                    className={cn(
-                      "w-full flex items-center gap-4 rounded-2xl border p-4 text-left transition-all duration-200",
-                      isLocked
-                        ? "bg-card/40 border-border/40 opacity-60 cursor-not-allowed"
-                        : "bg-card border-border hover:border-primary/50 hover:shadow-md active:scale-[0.99]"
-                    )}
-                  >
-                    {/* Icon */}
-                    <div className={cn(
-                      "w-12 h-12 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0 border-2",
-                      isLocked
-                        ? "bg-muted border-border/40"
-                        : "bg-primary/10 border-primary/20"
-                    )}>
-                      {isLocked
-                        ? <Lock className="w-5 h-5 text-muted-foreground/60" />
-                        : <span>{mod.emoji}</span>
-                      }
-                    </div>
-
-                    {/* Content */}
-                    <div className="flex-1 min-w-0">
-                      <span className="text-xs text-muted-foreground uppercase tracking-wide font-medium">
-                        {isEs ? "Módulo" : "Модуль"} {mod.number}
-                      </span>
-                      <p className="font-semibold text-sm mt-0.5 truncate">
-                        {isEs ? mod.title_es : mod.title_ru}
-                      </p>
-                      <p className="text-xs text-muted-foreground mt-0.5">
-                        {count > 0
-                          ? `${count} ${isEs ? "lecciones" : "уроков"}`
-                          : isEs ? "En desarrollo" : "В разработке"
-                        }
-                      </p>
-                    </div>
-
-                    {!isLocked && <ChevronRight className="w-4 h-4 text-muted-foreground flex-shrink-0" />}
-                  </button>
-                );
-              })}
+          {/* Fallback header when no active module */}
+          {!activeMod && (
+            <div className="mb-6">
+              <h1 className="text-2xl font-bold text-foreground">
+                {isEs ? "Tu ruta de aprendizaje" : "Твой путь обучения"}
+              </h1>
+              <p className="text-sm text-muted-foreground mt-1">
+                {isEs
+                  ? "Completa los módulos en orden"
+                  : "Проходи модули по порядку"}
+              </p>
             </div>
-          </div>
+          )}
+
+          {/* Snake learning path */}
+          {loadingModules ? (
+            <div className="flex items-center justify-center py-20">
+              <div className="w-8 h-8 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+            </div>
+          ) : (
+            <SnakeLearningPath lessons={lessonNodes} onStart={handleStart} />
+          )}
 
           {/* Coming soon */}
           <div className="mt-8 rounded-2xl border border-dashed border-primary/20 bg-primary/5 p-6 text-center space-y-2">

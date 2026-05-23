@@ -1,4 +1,7 @@
-// Calculate scoring
+// ============================================================================
+// Scoring & bot AI simulation
+// ============================================================================
+
 export function calculateScore(
   difficulty: string,
   timeRemainMs: number,
@@ -14,95 +17,69 @@ export function calculateScore(
   return Math.round((base + timeBonus) * comboMult);
 }
 
-// Bot name pool - реалистичные никнеймы для ботов
-export const BOT_NAMES = [
-  // Русские имена
-  'Александр', 'Мария', 'Дмитрий', 'Анна', 'Иван', 'Елена', 'Сергей', 'Ольга',
-  'Андрей', 'Наталья', 'Максим', 'Татьяна', 'Алексей', 'Юлия', 'Павел', 'Ирина',
-  'Николай', 'Светлана', 'Владимир', 'Екатерина', 'Артем', 'Марина', 'Роман', 'Анастасия',
-  'Денис', 'Виктория', 'Антон', 'Кристина', 'Игорь', 'Дарья', 'Михаил', 'Полина',
-  'Евгений', 'Валерия', 'Алекс', 'София', 'Кирилл', 'Алиса', 'Станислав', 'Вероника',
-  'Артур', 'Арина', 'Даниил', 'Елизавета', 'Георгий', 'Милана', 'Тимур', 'Амелия',
-  'Марк', 'Василиса', 'Лев', 'Ангелина', 'Федор', 'Диана', 'Григорий', 'Карина',
+// ============================================================================
+// BOT AI — accuracy simulation
+// ----------------------------------------------------------------------------
+// Only correctness is decided here. Visible "thinking time" is owned by the
+// client (src/hooks/useBotOpponent.ts) and passed back as time_taken_ms.
+// ============================================================================
 
-  // Испанские имена
-  'Carlos', 'María', 'José', 'Ana', 'Luis', 'Carmen', 'Juan', 'Laura',
-  'Miguel', 'Isabel', 'Francisco', 'Patricia', 'Antonio', 'Sofía', 'Manuel', 'Lucía',
-  'Pedro', 'Elena', 'Javier', 'Marta', 'Diego', 'Paula', 'Ángel', 'Claudia',
-  'Fernando', 'Cristina', 'Roberto', 'Andrea', 'Ricardo', 'Natalia', 'Alejandro', 'Sara',
-  'Daniel', 'Beatriz', 'Sergio', 'Raquel', 'Pablo', 'Mónica', 'Álvaro', 'Eva',
-  'Adrián', 'Lorena', 'Rubén', 'Silvia', 'Óscar', 'Rocío', 'Víctor', 'Nerea',
-  'Iván', 'Celia', 'Jorge', 'Inés', 'Raúl', 'Marina', 'Gonzalo', 'Carla',
+type BotDifficulty = 'easy' | 'medium' | 'hard' | 'insane';
 
-  // Английские имена
-  'James', 'Emma', 'Michael', 'Olivia', 'William', 'Sophia', 'David', 'Isabella',
-  'Richard', 'Charlotte', 'Joseph', 'Amelia', 'Thomas', 'Mia', 'Charles', 'Harper',
-  'Christopher', 'Evelyn', 'Daniel', 'Abigail', 'Matthew', 'Emily', 'Anthony', 'Elizabeth',
-  'Mark', 'Sofia', 'Donald', 'Avery', 'Steven', 'Ella', 'Paul', 'Madison',
-  'Andrew', 'Scarlett', 'Joshua', 'Victoria', 'Kenneth', 'Aria', 'Kevin', 'Grace',
-  'Brian', 'Chloe', 'George', 'Camila', 'Timothy', 'Penelope', 'Ronald', 'Riley',
-  'Jason', 'Layla', 'Edward', 'Lillian', 'Jeffrey', 'Nora', 'Ryan', 'Zoey',
-  'Jacob', 'Mila', 'Gary', 'Aubrey', 'Nicholas', 'Hannah', 'Eric', 'Addison',
-  'Jonathan', 'Eleanor', 'Stephen', 'Natalie', 'Larry', 'Luna', 'Justin', 'Savannah',
-  'Scott', 'Leah', 'Brandon', 'Zoe', 'Benjamin', 'Stella', 'Samuel', 'Hazel',
-  'Frank', 'Ellie', 'Gregory', 'Paisley', 'Raymond', 'Audrey', 'Alexander', 'Skylar',
-  'Patrick', 'Violet', 'Jack', 'Claire', 'Dennis', 'Bella', 'Jerry', 'Aurora'
-];
+// Base accuracy per difficulty — what % a bot gets right on a medium question
+const BASE_ACCURACY: Record<BotDifficulty, number> = {
+  easy: 0.62,
+  medium: 0.75,
+  hard: 0.88,
+  insane: 0.97,
+};
 
-// Bot avatar pool (используем доступные аватары)
-export const BOT_AVATARS = [
-  'default', 'cyberpunk', 'hacker', 'ninja', 'warrior', 'ghost', 'neon'
-];
+// Question-difficulty modifier — easy questions are easier for everyone
+const QUESTION_MODIFIER: Record<string, number> = {
+  easy: 0.12,
+  medium: 0,
+  hard: -0.15,
+};
 
-// Bot simulation with adaptive accuracy based on bot difficulty (anti-farming protection)
-export function simulateBotAnswer(botDifficulty: 'easy' | 'medium' | 'hard' | 'insane', questionDifficulty: string): {
-  delayMs: number;
-  willBeCorrect: boolean;
-} {
-  // 🛡️ АДАПТИВНАЯ ТОЧНОСТЬ БОТА
-  // Easy: 60-70% (дает кайфануть новичкам)
-  // Medium: 70-80% (стандартная сложность)
-  // Hard: 85-90% (начинает давить на фармеров)
-  // Insane: 95-99% (бот-убийца, почти непобедим)
+// Flat "blunder" chance — even strong players misclick / misread sometimes
+const BLUNDER_CHANCE: Record<BotDifficulty, number> = {
+  easy: 0.08,
+  medium: 0.05,
+  hard: 0.03,
+  insane: 0.01,
+};
 
-  const baseAccuracies = {
-    easy: 0.65,      // 65% базовая точность
-    medium: 0.75,    // 75% базовая точность
-    hard: 0.875,     // 87.5% базовая точность
-    insane: 0.97,    // 97% базовая точность (почти непобедим)
-  };
+// Per-question variance — humans aren't equally confident every question
+const VARIANCE = 0.08;
 
-  const baseAccuracy = baseAccuracies[botDifficulty] || 0.75;
+export function simulateBotAnswer(
+  botDifficulty: BotDifficulty,
+  questionDifficulty: string
+): { willBeCorrect: boolean } {
+  // Flat blunder — regardless of skill, sometimes the bot just gets it wrong
+  if (Math.random() < BLUNDER_CHANCE[botDifficulty]) {
+    console.log(`[simulateBotAnswer] 🤖 ${botDifficulty} bot blundered on ${questionDifficulty} Q`);
+    return { willBeCorrect: false };
+  }
 
-  // Модификаторы на основе сложности вопроса
-  const difficultyModifiers = {
-    easy: 0.15,   // +15% для легких вопросов
-    medium: 0,    // Без изменений для средних
-    hard: -0.10,  // -10% для сложных вопросов (но не ниже минимума)
-  };
+  const base = BASE_ACCURACY[botDifficulty];
+  const qMod = QUESTION_MODIFIER[questionDifficulty] ?? 0;
+  const jitter = (Math.random() - 0.5) * 2 * VARIANCE;
+  const accuracy = Math.min(0.99, Math.max(0.40, base + qMod + jitter));
 
-  const modifier = difficultyModifiers[questionDifficulty as keyof typeof difficultyModifiers] || 0;
-  const accuracy = Math.min(0.99, Math.max(0.50, baseAccuracy + modifier));
+  const willBeCorrect = Math.random() < accuracy;
 
-  // 🎯 УМНЫЕ ТАЙМИНГИ ОТВЕТОВ БОТА
-  // Реалистичные времена как у живого игрока (ускорены для лучшего UX)
-  const delayRanges = {
-    easy: { min: 8000, max: 25000 },       // 8-25 секунд (думает дольше)
-    medium: { min: 6000, max: 18000 },     // 6-18 секунд (стандартно)
-    hard: { min: 4000, max: 12000 },       // 4-12 секунд (быстрее)
-    insane: { min: 3000, max: 8000 },      // 3-8 секунд (очень быстро, как про)
-  };
+  console.log(
+    `[simulateBotAnswer] 🤖 ${botDifficulty} / ${questionDifficulty}Q → ` +
+      `acc ${(accuracy * 100).toFixed(0)}% → ${willBeCorrect ? '✅' : '❌'}`
+  );
 
-  const range = delayRanges[botDifficulty] || delayRanges.medium;
-  const delayMs = Math.floor(Math.random() * (range.max - range.min) + range.min);
-
-  console.log(`[simulateBotAnswer] 🤖 Bot difficulty: ${botDifficulty}, Question: ${questionDifficulty}, Accuracy: ${(accuracy * 100).toFixed(1)}%, Delay: ${Math.round(delayMs / 1000)}s`);
-
-  return {
-    delayMs,
-    willBeCorrect: Math.random() < accuracy,
-  };
+  return { willBeCorrect };
 }
+
+// ============================================================================
+// Season / coin rewards
+// ============================================================================
 
 export const BASE_WIN_SP_NO_BET = 30;
 export const BASE_LOSE_SP = 5;
@@ -133,9 +110,7 @@ export const calculateSeasonReward = (
 export const BASE_WIN_COINS_NO_BET = 20;
 export const BASE_DRAW_COINS_NO_BET = 10;
 
-/**
- * Mapping between frontend country names and database codes
- */
+// Map frontend country names → DB codes
 export function mapCountry(country?: string): string {
   if (country === 'russia') return 'ru';
   if (country === 'spain') return 'es';

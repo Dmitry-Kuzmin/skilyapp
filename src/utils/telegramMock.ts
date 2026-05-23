@@ -152,8 +152,8 @@ export const initTelegramMock = () => {
                 button_text_color: '#ffffff',
                 secondary_bg_color: '#18181b',
             },
-            setHeaderColor: (color: string) => console.log('[Mock] setHeaderColor', color),
-            setBackgroundColor: (color: string) => console.log('[Mock] setBackgroundColor', color),
+            setHeaderColor: (_color: string) => {},
+            setBackgroundColor: (_color: string) => {},
             // Fullscreen (Bot API 8.0)
             isFullscreen: false,
             isActive: true,

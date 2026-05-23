@@ -12,40 +12,25 @@ interface BotOpponentProps {
   profileId: string | null;
 }
 
-/**
- * Вспомогательная функция для расчета времени "раздумий" бота
- * Генерирует задержку от 2 до 15 секунд в зависимости от сложности
- */
+// Реалистичные диапазоны "раздумий" бота (15-50 сек на ответ).
+// Все диапазоны — внутри 15-50с, чтобы бот ощущался как живой человек,
+// который читает вопрос, варианты и обдумывает ответ.
+const THINKING_RANGES_MS: Record<string, { min: number; max: number }> = {
+  easy: { min: 25_000, max: 50_000 },   // новички "тупят" дольше
+  medium: { min: 20_000, max: 40_000 }, // средний игрок
+  hard: { min: 17_000, max: 32_000 },   // опытный
+  insane: { min: 15_000, max: 25_000 }, // про, но не мгновенно
+};
+
 const calculateBotThinkingTime = (difficulty: string = 'medium'): number => {
-  let min = 4000;
-  let max = 10000;
-
-  switch (difficulty) {
-    case 'easy':
-      min = 5000;
-      max = 12000;
-      break;
-    case 'medium':
-      min = 3000;
-      max = 8000;
-      break;
-    case 'hard':
-      min = 2000;
-      max = 6000;
-      break;
-    case 'insane':
-      min = 1000;
-      max = 4000;
-      break;
-  }
-
-  return Math.floor(Math.random() * (max - min + 1)) + min;
+  const range = THINKING_RANGES_MS[difficulty] || THINKING_RANGES_MS.medium;
+  return Math.floor(Math.random() * (range.max - range.min + 1)) + range.min;
 };
 
 /**
- * Хук для имитации ответов бота-соперника
- * Автоматически отправляет ответы за бота с реалистичной задержкой (2-15 секунд)
- * Время ответа зависит от сложности бота: easy=5-12с, medium=4-10с, hard=3-8с, insane=2-6с
+ * Хук для имитации ответов бота-соперника.
+ * Управляет видимой задержкой ответа (15-50 сек) и передаёт фактическое время
+ * на сервер для расчёта очков — чтобы score совпадал с тем, что видит игрок.
  */
 export function useBotOpponent({
   duelId,
@@ -119,6 +104,7 @@ export function useBotOpponent({
               duel_id: duelId,
               duel_question_id: questionToAnswer,
               profile_id: profileId, // 🔥 CRITICAL: Needed for Telegram Mini App auth
+              time_taken_ms: thinkingTime, // реальная видимая задержка → совпадает с очками
             },
           });
 

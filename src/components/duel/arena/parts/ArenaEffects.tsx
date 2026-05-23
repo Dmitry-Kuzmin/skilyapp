@@ -11,6 +11,7 @@ const SunGlareAttack = lazy(() => import('../../attacks/SunGlareAttack').then(m 
 const RainStormAttack = lazy(() => import('../../attacks/RainStormAttack').then(m => ({ default: m.RainStormAttack })));
 const BugSplatAttack = lazy(() => import('../../attacks/BugSplatAttack').then(m => ({ default: m.BugSplatAttack })));
 const SchulteTableAttack = lazy(() => import('../../attacks/SchulteTableAttack').then(m => ({ default: m.SchulteTableAttack })));
+const EncryptionFlashlight = lazy(() => import('../../attacks/EncryptionFlashlight').then(m => ({ default: m.EncryptionFlashlight })));
 
 interface ArenaEffectsProps {
     feedbackEffect: 'correct' | 'wrong' | null;
@@ -22,7 +23,7 @@ export const ArenaEffects: React.FC<ArenaEffectsProps> = ({ feedbackEffect, remo
     const setExploitPassed = useDuelStore(state => state.setExploitPassed);
 
     // Derived state for exploits - extracted from the main component to clean it up
-    const { screenInjector, policeRaid, iceScreen, sunGlare, rainStorm, bugSplat, fogScreen, screenInjectorPassed, policePassed, iceScreenPassed, sunGlarePassed, rainStormPassed, bugSplatPassed, fogScreenPassed } = useMemo(() => {
+    const { screenInjector, policeRaid, iceScreen, sunGlare, rainStorm, bugSplat, fogScreen, cryptolocker, screenInjectorPassed, policePassed, iceScreenPassed, sunGlarePassed, rainStormPassed, bugSplatPassed, fogScreenPassed, cryptolockerPassed } = useMemo(() => {
         const NETWORK_LATENCY_BUFFER_MS = 10000; // 10 seconds buffer
         const now = Date.now();
 
@@ -51,6 +52,8 @@ export const ArenaEffects: React.FC<ArenaEffectsProps> = ({ feedbackEffect, remo
         const bugSplat = findExploit(['bug_splat']);
         // Fog screen must be completed manually — ignore expiresAt
         const fogScreen = exploits.find(e => e.type === 'fog_screen');
+        // Cryptolocker must be completed manually — ignore expiresAt
+        const cryptolocker = exploits.find(e => e.type === 'cryptolocker');
 
         // Check passed status
         const screenInjectorPassed =
@@ -65,8 +68,9 @@ export const ArenaEffects: React.FC<ArenaEffectsProps> = ({ feedbackEffect, remo
         const rainStormPassed = activeExploits.get('rain_storm')?.passed || false;
         const bugSplatPassed = activeExploits.get('bug_splat')?.passed || false;
         const fogScreenPassed = activeExploits.get('fog_screen')?.passed || false;
+        const cryptolockerPassed = activeExploits.get('cryptolocker')?.passed || false;
 
-        return { screenInjector, policeRaid, iceScreen, sunGlare, rainStorm, bugSplat, fogScreen, screenInjectorPassed, policePassed, iceScreenPassed, sunGlarePassed, rainStormPassed, bugSplatPassed, fogScreenPassed };
+        return { screenInjector, policeRaid, iceScreen, sunGlare, rainStorm, bugSplat, fogScreen, cryptolocker, screenInjectorPassed, policePassed, iceScreenPassed, sunGlarePassed, rainStormPassed, bugSplatPassed, fogScreenPassed, cryptolockerPassed };
     }, [activeExploits]);
 
     const inputLagActive = useMemo(() => {
@@ -179,6 +183,21 @@ export const ArenaEffects: React.FC<ArenaEffectsProps> = ({ feedbackEffect, remo
                         onCleaned={() => {
                             if (bugSplat.id) removeExploit(bugSplat.id);
                             setExploitPassed('bug_splat');
+                        }}
+                    />
+                </Suspense>
+            )}
+
+            {/* Cryptolocker → 4-digit key minigame */}
+            {cryptolocker && !cryptolockerPassed && (
+                <Suspense fallback={null}>
+                    <EncryptionFlashlight
+                        isActive={true}
+                        expiresAt={cryptolocker.expiresAt}
+                        exploitId={cryptolocker.id}
+                        onCleaned={() => {
+                            if (cryptolocker.id) removeExploit(cryptolocker.id);
+                            setExploitPassed('cryptolocker');
                         }}
                     />
                 </Suspense>

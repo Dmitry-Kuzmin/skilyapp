@@ -1,10 +1,26 @@
-import { useNavigate } from "react-router-dom";
-import { toast } from "sonner";
-import { useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-import { clearTestProgress } from "@/utils/testStorage";
-import { useExamStore } from "@/store/examStore";
-import { checkOnlineStatus } from "@/hooks/useOnlineStatus";
+/**
+ * useTestCompletion — orchestrator финализации теста.
+ *
+ * Декомпозирован на 4 чистые async-утилиты:
+ *   - savePddTicketProgress    (PDD билеты)
+ *   - saveTopicProgress        (sequential + module)
+ *   - logGameSession           (legacy game_sessions log)
+ *   - processRewards           (server-validated → legacy fallback)
+ *
+ * Этот хук только координирует: извлекает ответы из Zustand,
+ * обрабатывает mastery/marathon round retry, выбирает какие
+ * утилиты вызвать и навигирует на /test/results.
+ */
+
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
+import { useQueryClient } from '@tanstack/react-query';
+import { clearTestProgress } from '@/utils/testStorage';
+import { useExamStore } from '@/store/examStore';
+import { savePddTicketProgress } from './completion/savePddTicketProgress';
+import { updateSequentialTestProgress, upsertModuleTopicProgress } from './completion/saveTopicProgress';
+import { logGameSession } from './completion/logGameSession';
+import { processRewards, type TestRewardResult, type ServerCompleteFn } from './completion/processRewards';
 
 interface UseTestCompletionParams {
     profileId?: string;
@@ -37,38 +53,9 @@ interface UseTestCompletionParams {
     answers?: any[];
     setAnswers: (a: any[]) => void;
 
-    // Server-validated session (test-manager). Если есть — авторитетный финал.
+    // Server-validated session
     serverSessionId?: string | null;
-    serverComplete?: (params: {
-        client_correct_count?: number;
-        test_duration_seconds?: number;
-        premium_flag?: boolean;
-        double_sp_active?: boolean;
-        effective_question_count?: number;
-    }) => Promise<{
-        success: true;
-        score: number;
-        correct_count: number;
-        questions_count: number;
-        test_duration_seconds: number;
-        speed_cheat_detected: boolean;
-        already_completed?: boolean;
-        reward?: Record<string, unknown> | null;
-    } | null>;
-}
-
-interface TestRewardResult {
-    coins_awarded?: number;
-    sp_awarded?: number;
-    xp_awarded?: number;
-    base_coins?: number;
-    base_sp?: number;
-    abuse_penalty?: number;
-    diminishing_factor?: number;
-    message?: string;
-    level_up?: boolean;
-    new_level?: number;
-    tests_today?: number;
+    serverComplete?: ServerCompleteFn;
 }
 
 export const useTestCompletion = ({
@@ -96,7 +83,6 @@ export const useTestCompletion = ({
     setShowTranslation,
     closeAIChat,
     russiaExamQuestions,
-    isRussia,
     answers = [],
     setAnswers,
     serverSessionId,
@@ -106,40 +92,36 @@ export const useTestCompletion = ({
     const queryClient = useQueryClient();
 
     const finishTest = async () => {
-        // Получаем самое свежее состояние из стора
+        // === 1. ИЗВЛЕКАЕМ СВЕЖИЕ ОТВЕТЫ ИЗ ZUSTAND ===
         const latestState = useExamStore.getState().activeState;
 
-        // Безопасно извлекаем ответы
         const currentAnswers = latestState
             ? (latestState.kind === 'russia'
                 ? [...Object.values(latestState.data.mainAnswers), ...Object.values(latestState.data.extraAnswers)].map((a: any) => ({
                     questionId: a.questionId,
                     selectedAnswerId: a.selectedAnswerId || '',
-                    isCorrect: a.isCorrect
+                    isCorrect: a.isCorrect,
                 }))
                 : Object.entries(latestState.data.answers).map(([qid, ans]: [string, any]) => ({
                     questionId: qid,
                     selectedAnswerId: ans.selectedOptionId,
-                    isCorrect: ans.isCorrect
+                    isCorrect: ans.isCorrect,
                 })))
             : answers;
 
         const currentQuestions = latestState
-            ? (latestState.kind === 'russia'
-                ? russiaExamQuestions
-                : latestState.data.questions)
+            ? (latestState.kind === 'russia' ? russiaExamQuestions : latestState.data.questions)
             : questions;
 
-        // КРИТИЧНО: Очищаем локальное сохранение после завершения теста
+        // Очищаем локальное сохранение прогресса
         if (testInfo?.id) {
-            clearTestProgress(testInfo.id).catch((error) => {
-                console.error('[TestSession] Error clearing saved progress:', error);
+            clearTestProgress(testInfo.id).catch((err) => {
+                console.error('[TestSession] Error clearing saved progress:', err);
             });
         }
 
-        // MASTERY / MARATHON MODE: Если есть неправильные вопросы - повторяем!
-        if ((mode === "mastery" || mode === "marathon") && masteryWrongQuestions.length > 0) {
-            // ФИКС: Берем ТОЛЬКО те вопросы, которые были в masteryWrongQuestions
+        // === 2. MASTERY / MARATHON ROUND RETRY ===
+        if ((mode === 'mastery' || mode === 'marathon') && masteryWrongQuestions.length > 0) {
             const wrongQuestionsData = currentQuestions.filter((q: any) => masteryWrongQuestions.includes(q.id));
 
             if (wrongQuestionsData.length > 0) {
@@ -149,47 +131,27 @@ export const useTestCompletion = ({
                     { duration: 4500 }
                 );
 
-                // Очищаем локальные ответы сразу, чтобы UI не мигал старыми данными
                 setAnswers([]);
-
-                // Перезапускаем с неправильными вопросами
                 setQuestions(wrongQuestionsData);
-                setMasteryWrongQuestions([]); // Сбрасываем для нового раунда
+                setMasteryWrongQuestions([]);
                 setMasteryRound(nextRound);
                 setCurrentIndex(0);
-
-                // Реинициализируем экзамен
                 initializeExam(mode, wrongQuestionsData, { timeLimit: initialTimeBudget });
-
                 setShowTranslation(false);
                 if (closeAIChat) closeAIChat();
-                return; // НЕ завершаем тест!
+                return;
             }
         }
 
-        // Если Mastery / Marathon Mode и все правильно - показываем поздравление!
-        if (mode === "mastery") {
+        if (mode === 'mastery') {
             toast.success(`🎉 ИДЕАЛЬНО! Все вопросы правильно за ${masteryRound} раундов!`, { duration: 5000 });
-        } else if (mode === "marathon") {
+        } else if (mode === 'marathon') {
             toast.success(`🏆 Марафон пройден за ${masteryRound} раундов без единой ошибки!`, { duration: 6000 });
         }
 
+        // === 3. БАЗОВЫЕ МЕТРИКИ ===
         const correctCount = currentAnswers.filter((a: any) => a.isCorrect).length;
         const score = Math.round((correctCount / Math.max(1, currentQuestions.length)) * 100);
-
-        // ДИАГНОСТИКА: Подробное логирование
-        console.log('[TestSession] finishTest final report:', {
-            questionsTotal: currentQuestions.length,
-            answersTotal: currentAnswers.length,
-            correctCount,
-            score,
-            allAnswers: currentAnswers.map((a: any) => ({ id: a.questionId, ok: a.isCorrect }))
-        });
-
-        // Валидация
-        if (currentQuestions.length > 0 && currentAnswers.length === 0) {
-            console.error('[TestSession] ❌ CRITICAL: No answers recorded but questions exist!');
-        }
 
         const timeSpent = startTime > 0
             ? Math.floor((Date.now() - startTime) / 1000)
@@ -197,269 +159,114 @@ export const useTestCompletion = ({
                 ? initialTimeBudget - timeLeft
                 : 0;
 
-        // Определяем эффективный ID теста для сохранения прогресса
-        const effectiveTestId = testId ? testId : (mode === 'pdd-ticket' && ticketIdParam ? `pdd-ticket-${ticketIdParam}` : null);
+        const effectiveTestId = testId
+            ? testId
+            : (mode === 'pdd-ticket' && ticketIdParam ? `pdd-ticket-${ticketIdParam}` : null);
 
+        if (currentQuestions.length > 0 && currentAnswers.length === 0) {
+            console.error('[TestSession] ❌ CRITICAL: No answers recorded but questions exist!');
+        }
+
+        // === 4. СОХРАНЕНИЕ ПРОГРЕССА (параллельно, не блокирует rewards) ===
+        const progressPromises: Promise<void>[] = [];
+
+        if (profileId && effectiveTestId) {
+            if (mode === 'pdd-ticket') {
+                progressPromises.push(
+                    savePddTicketProgress(
+                        {
+                            profileId,
+                            effectiveTestId,
+                            pddCountry,
+                            questionsTotal: questions.length,
+                            correctCount,
+                            timeSpentSec: timeSpent,
+                        },
+                        queryClient
+                    )
+                );
+            } else if (testId) {
+                progressPromises.push(
+                    updateSequentialTestProgress({
+                        profileId,
+                        effectiveTestId,
+                        questionsTotal: questions.length,
+                        correctCount,
+                        timeSpentSec: timeSpent,
+                    })
+                );
+            }
+        }
+
+        if (mode === 'module' && profileId && topic) {
+            progressPromises.push(
+                upsertModuleTopicProgress({ profileId, topicId: topic, score })
+            );
+        }
+
+        progressPromises.push(
+            logGameSession({
+                mode,
+                testId,
+                questionsTotal: currentQuestions.length,
+                correctCount,
+                durationSec: timeSpent,
+            })
+        );
+
+        // Promise.allSettled — не валит весь flow если один progress save упал
+        await Promise.allSettled(progressPromises);
+
+        // === 5. НАГРАДЫ: server-validated приоритет, legacy fallback ===
         let rewardResult: TestRewardResult | null = null;
-
-        try {
-            // Для билетов ПДД: сохраняем в ИЗОЛИРОВАННУЮ таблицу
-            if (mode === 'pdd-ticket' && effectiveTestId && profileId) {
-                const ticketScore = Math.round((correctCount / Math.max(1, questions.length)) * 100);
-                const ticketStatus = ticketScore >= 90 ? 'passed' : (ticketScore > 0 ? 'failed' : 'in_progress');
-
-                // Определяем код страны для БД
-                const dbCountry = pddCountry === 'russia' ? 'ru' : pddCountry === 'spain' ? 'es' : (pddCountry || 'ru');
-
-                const { error: upsertError } = await supabase
-                    .from('user_pdd_ticket_progress')
-                    .upsert({
-                        user_id: profileId,
-                        ticket_id: effectiveTestId,
-                        country: dbCountry,
-                        status: ticketStatus,
-                        score: ticketScore,
-                        correct_answers: correctCount,
-                        total_questions: questions.length,
-                        time_spent_seconds: timeSpent,
-                        completed_at: new Date().toISOString(),
-                        best_score: ticketScore, // Will be handled by DB trigger/logic for max
-                    }, {
-                        onConflict: 'user_id,ticket_id,country'
-                    });
-
-                if (upsertError) {
-                    console.error("[TestSession] Error saving ticket progress to DB:", upsertError);
-                    // Fallback: сохраняем в localStorage
-                    const localKey = `pdd-ticket-progress-${profileId}-${dbCountry}`;
-                    const existingData = localStorage.getItem(localKey);
-                    const tickets = existingData ? JSON.parse(existingData) : [];
-
-                    // Найти или добавить запись для этого билета
-                    const existingIndex = tickets.findIndex((t: { ticket_id: string }) => t.ticket_id === effectiveTestId);
-                    const ticketData = {
-                        ticket_id: effectiveTestId,
-                        score: ticketScore,
-                        status: ticketStatus,
-                        correct_answers: correctCount,
-                        total_questions: questions.length,
-                        best_score: Math.max(ticketScore, existingIndex >= 0 ? tickets[existingIndex].best_score || 0 : 0)
-                    };
-
-                    if (existingIndex >= 0) {
-                        tickets[existingIndex] = ticketData;
-                    } else {
-                        tickets.push(ticketData);
-                    }
-
-                    localStorage.setItem(localKey, JSON.stringify(tickets));
-                }
-                // Invalidate cache so useTicketsStatus refetches
-                queryClient.invalidateQueries({ queryKey: ['user-pdd-ticket-progress'] });
-            }
-            // Для sequential тестов с UUID: используем RPC функцию
-            else if (effectiveTestId && profileId && testId) {
-                const { error: progressError } = await supabase.rpc('update_test_progress', {
-                    p_user_id: profileId,
-                    p_test_id: effectiveTestId,
-                    p_correct_answers: correctCount,
-                    p_total_questions: questions.length,
-                    p_time_spent_seconds: timeSpent,
-                });
-
-                if (progressError) {
-                    console.error("Error updating test progress:", progressError);
-                }
-            }
-
-            // Для module-теста сохраняем прогресс по теме с мягким порогом (>= 70%)
-            if (mode === "module" && profileId && topic) {
-                try {
-                    await supabase
-                        .from("user_topic_progress")
-                        .upsert(
-                            {
-                                user_id: profileId,
-                                topic_id: topic,
-                                subtopic_id: null,
-                                completed: score >= 70,
-                                score,
-                            },
-                            { onConflict: "user_id,topic_id,subtopic_id" }
-                        );
-                } catch (progressError) {
-                    console.error("Error updating module topic progress:", progressError);
-                }
-            }
-
-            // Сохраняем в game_sessions для совместимости
-            const { data: { user } } = await supabase.auth.getUser();
-            if (user) {
-                const { data: profile } = await supabase
-                    .from("profiles")
-                    .select("id")
-                    .eq("user_id", user.id)
-                    .single();
-
-                if (profile) {
-                    const duration = timeSpent;
-                    const sessionData = {
-                        user_id: profile.id,
-                        game_type: testId
-                            ? "test_sequential"
-                            : mode === "exam"
-                                ? "test_exam"
-                                : mode === "blitz"
-                                    ? "test_blitz"
-                                    : mode === "module"
-                                        ? "test_module"
-                                        : "test_practice",
-                        score: Math.min(Math.max(0, correctCount), currentQuestions.length),
-                        total_questions: Math.min(Math.max(1, currentQuestions.length), 100),
-                        duration_seconds: Math.min(Math.max(0, duration), 7200), // Ensure 0-7200 range
-                    };
-
-                    await supabase.from("game_sessions").insert(sessionData);
-                }
-            }
-        } catch (error) {
-            console.error("Error saving results:", error);
-        }
-
-        // === SERVER-VALIDATED COMPLETE (приоритетный путь) ===
-        // Если серверная сессия активна — это авторитетный финал.
-        // Сервер сам пересчитает score из test_session_answers и вызовет
-        // complete-test-and-award внутри (см. handlers/gameplay.ts).
-        if (serverSessionId && serverComplete) {
-            try {
-                const realOnline = await checkOnlineStatus();
-                if (realOnline) {
-                    // Для russia-exam snapshot >> real: передаём реальное число пройденных
-                    // (main + extra). Сервер использует max(answered, effective) как знаменатель.
-                    const effectiveCount = mode === 'exam-russia'
-                        ? Math.max(currentAnswers.length, 20)
-                        : undefined;
-
-                    const serverResult = await serverComplete({
-                        client_correct_count: correctCount,
-                        test_duration_seconds: Math.max(timeSpent, 0),
-                        premium_flag: Boolean(isPremium),
-                        double_sp_active: false,
-                        effective_question_count: effectiveCount,
-                    });
-
-                    if (serverResult) {
-                        const reward = (serverResult.reward ?? {}) as Record<string, unknown>;
-                        rewardResult = {
-                            coins_awarded: (reward.coins_awarded as number | undefined) ?? 0,
-                            sp_awarded: (reward.sp_awarded as number | undefined) ?? 0,
-                            xp_awarded: reward.xp_awarded as number | undefined,
-                            base_coins: reward.base_coins as number | undefined,
-                            base_sp: reward.sp_base as number | undefined,
-                            abuse_penalty: reward.abuse_penalty as number | undefined,
-                            diminishing_factor: reward.diminishing_factor as number | undefined,
-                            message: reward.message as string | undefined,
-                            level_up: reward.level_up as boolean | undefined,
-                            new_level: reward.new_level as number | undefined,
-                            tests_today: reward.tests_today as number | undefined,
-                        };
-
-                        try { sessionStorage.setItem('last_test_reward', JSON.stringify(rewardResult)); } catch {}
-
-                        navigate("/test/results", {
-                            state: {
-                                score: serverResult.score,
-                                total: serverResult.questions_count,
-                                correctCount: serverResult.correct_count,
-                                wrongAnswers: currentAnswers.filter((a: any) => !a.isCorrect).map((a: any) => a.questionId),
-                                answers: currentAnswers,
-                                questions: currentQuestions,
-                                timeSpent: serverResult.test_duration_seconds,
-                                mode,
-                                rewardResult,
-                                masteryRound,
-                                country: pddCountry,
-                                speedCheatDetected: serverResult.speed_cheat_detected,
-                            },
-                        });
-                        return;
-                    }
-                }
-            } catch (err) {
-                console.error('[useTestCompletion] serverComplete failed, fallback to legacy flow:', err);
-            }
-        }
+        let finalScore = score;
+        let finalCorrect = correctCount;
+        let finalTimeSpent = timeSpent;
+        let speedCheatDetected = false;
 
         if (profileId) {
-            try {
-                const sessionId = getOrCreateSessionId();
-
-                // OFFLINE-FIRST: Если offline - добавляем в очередь вместо прямой отправки
-                const realOnline = await checkOnlineStatus();
-                if (!realOnline) {
-                    await enqueueOfflineAction('test-result', {
-                        user_id: profileId,
-                        session_id: sessionId,
-                        test_id: testId || null,
-                        score,
-                        questions_count: currentQuestions.length,
-                        correct_count: correctCount,
-                        test_duration_seconds: Math.max(timeSpent, 0),
-                        premium_flag: Boolean(isPremium),
-                        double_sp_active: false,
-                        mode,
-                    });
-
-                    // Базовые награды для UI (будут пересчитаны при sync)
-                    rewardResult = {
-                        coins_awarded: 0,
-                        sp_awarded: 0,
-                        message: "OFFLINE: Результаты сохранены и будут отправлены при подключении."
-                    };
-                } else {
-                    const { data, error } = await supabase.functions.invoke('complete-test-and-award', {
-                        body: {
-                            user_id: profileId,
-                            session_id: sessionId,
-                            test_id: testId || null,
-                            score,
-                            questions_count: currentQuestions.length,
-                            correct_count: correctCount,
-                            test_duration_seconds: Math.max(timeSpent, 0),
-                            premium_flag: Boolean(isPremium),
-                            double_sp_active: false,
-                            mode,
-                        }
-                    });
-                    if (error) {
-                        console.error("Error calculating rewards:", error);
-                    } else if (data) {
-                        rewardResult = data;
-                    }
-                }
-            } catch (err) {
-                console.error("Failed to process rewards:", err);
-            }
-        }
-
-        // Persist rewards so they survive a page reload
-        if (rewardResult) {
-            try { sessionStorage.setItem('last_test_reward', JSON.stringify(rewardResult)); } catch {}
-        }
-
-        navigate("/test/results", {
-            state: {
-                score,
-                total: currentQuestions.length,
+            const rewardOutcome = await processRewards({
+                profileId,
+                mode,
+                testId,
+                questionsTotal: currentQuestions.length,
                 correctCount,
+                timeSpentSec: timeSpent,
+                isPremium,
+                answersLength: currentAnswers.length,
+                serverSessionId,
+                serverComplete,
+                enqueueOfflineAction,
+                getOrCreateSessionId,
+            });
+
+            rewardResult = rewardOutcome.rewardResult;
+            if (rewardOutcome.overrideScore !== undefined) finalScore = rewardOutcome.overrideScore;
+            if (rewardOutcome.overrideCorrect !== undefined) finalCorrect = rewardOutcome.overrideCorrect;
+            if (rewardOutcome.overrideTimeSpent !== undefined) finalTimeSpent = rewardOutcome.overrideTimeSpent;
+            speedCheatDetected = Boolean(rewardOutcome.speedCheatDetected);
+        }
+
+        // Persist rewards чтобы выжили reload страницы
+        if (rewardResult) {
+            try { sessionStorage.setItem('last_test_reward', JSON.stringify(rewardResult)); } catch { /* */ }
+        }
+
+        // === 6. NAVIGATE ===
+        navigate('/test/results', {
+            state: {
+                score: finalScore,
+                total: currentQuestions.length,
+                correctCount: finalCorrect,
                 wrongAnswers: currentAnswers.filter((a: any) => !a.isCorrect).map((a: any) => a.questionId),
                 answers: currentAnswers,
                 questions: currentQuestions,
-                timeSpent,
+                timeSpent: finalTimeSpent,
                 mode,
                 rewardResult,
                 masteryRound,
                 country: pddCountry,
+                ...(speedCheatDetected ? { speedCheatDetected: true } : {}),
             },
         });
     };

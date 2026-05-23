@@ -241,7 +241,8 @@ export async function handleSubmitAnswer(params: any, profileId: string, supabas
 
 export async function handleBotAnswer(params: any, profileId: string, supabase: SupabaseClient): Promise<Response> {
   // Обработка ответа бота на вопрос
-  const { duel_id, duel_question_id } = params;
+  // time_taken_ms — реальная задержка от клиента (источник правды для "сколько бот думал")
+  const { duel_id, duel_question_id, time_taken_ms: clientTimeTaken } = params;
 
   // Находим бота в дуэли
   const { data: botPlayer } = await supabase
@@ -376,42 +377,19 @@ export async function handleBotAnswer(params: any, profileId: string, supabase: 
     willBeCorrect: botSimulation.willBeCorrect
   });
 
-  // Вычисляем очки (бот не получает комбо бонусы для упрощения)
+  // Используем РЕАЛЬНОЕ время от клиента как источник правды.
+  // Клиент сам управляет видимой задержкой (useBotOpponent.ts) и передаёт сюда
+  // фактическое значение — так score соответствует тому, что игрок видел на экране.
   const timeLimit = 60000;
+  const timeTakenMs = Math.max(15000, Math.min(55000, Number(clientTimeTaken) || 25000));
+  const timeRemainMs = timeLimit - timeTakenMs;
 
-  // Естественное время ответа бота зависит от сложности вопроса и бота
-  // Легкие вопросы - быстрее, сложные - медленнее
-  // Сильные боты отвечают быстрее на легкие вопросы
-  const difficultyTimeModifiers = {
-    easy: { min: 8000, max: 20000 },    // 8-20 секунд для легких
-    medium: { min: 15000, max: 35000 },  // 15-35 секунд для средних
-    hard: { min: 25000, max: 50000 },   // 25-50 секунд для сложных
-  };
-
-  const timeRange = difficultyTimeModifiers[questionDifficulty as keyof typeof difficultyTimeModifiers] || difficultyTimeModifiers.medium;
-
-  // Сильные боты отвечают быстрее
-  const botSpeedModifier = {
-    easy: 1.0,    // Без изменений
-    medium: 0.9,  // На 10% быстрее
-    hard: 0.8,    // На 20% быстрее
-    insane: 0.7, // На 30% быстрее
-  }[botDifficulty] || 1.0;
-
-  const adjustedMin = Math.floor(timeRange.min * botSpeedModifier);
-  const adjustedMax = Math.floor(timeRange.max * botSpeedModifier);
-  const timeRemain = Math.floor(Math.random() * (adjustedMax - adjustedMin) + adjustedMin);
-
-  // Ограничиваем время ответа разумными пределами (не меньше 5 секунд, не больше 55 секунд)
-  const clampedTimeRemain = Math.max(5000, Math.min(55000, timeRemain));
-
-  const points = isCorrect ? calculateScore(questionDifficulty, clampedTimeRemain, timeLimit, 0) : 0;
+  const points = isCorrect ? calculateScore(questionDifficulty, timeRemainMs, timeLimit, 0) : 0;
 
   console.log(`[bot_answer] ⏱️ Bot answer timing:`, {
     botDifficulty,
     questionDifficulty,
-    timeRemain: clampedTimeRemain,
-    timeTaken: timeLimit - clampedTimeRemain,
+    timeTakenMs,
     isCorrect,
     points
   });
@@ -424,7 +402,7 @@ export async function handleBotAnswer(params: any, profileId: string, supabase: 
     selected_option_id: selectedOptionId,
     is_correct: isCorrect,
     is_skipped: isSkipped,
-    time_taken_ms: timeLimit - timeRemain,
+    time_taken_ms: timeTakenMs,
     points_awarded: points,
     combo_at_time: 0,
     boost_used: null,

@@ -216,6 +216,9 @@ function buildResult(
   if (metrics.weakTopicsCount >= 3) displayP = Math.min(displayP, 0.6);
   if (metrics.lifetimeAttempts < 50) displayP = Math.min(displayP, 0.4);
   if (metrics.testsCompleted < 3) displayP = Math.min(displayP, 0.3);
+  // Non-linear curve: compress low-accuracy scores so 38% acc → ~23%, not ~42%.
+  // 90% acc (DGT threshold) maps to ~85% readiness; 95% acc → ~93%.
+  displayP = Math.pow(displayP, 1.5);
   const percent = Math.round(Math.min(100, Math.max(0, displayP * 100)));
   // Active users with near-zero display score still see "Начало пути", not "Начни обучение".
   const statusInput = (percent === 0 && metrics.lifetimeAttempts > 0) ? 1 : percent;

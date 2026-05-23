@@ -13,7 +13,6 @@ interface ArenaPlaygroundProps {
     translationLanguage: any;
     onAnswer: (optionId: string) => void;
     activeExploits: Map<string, any>;
-    cryptolockerActive: boolean;
 }
 
 export const ArenaPlayground: React.FC<ArenaPlaygroundProps> = ({
@@ -26,7 +25,6 @@ export const ArenaPlayground: React.FC<ArenaPlaygroundProps> = ({
     translationLanguage,
     onAnswer,
     activeExploits,
-    cryptolockerActive
 }) => {
     return (
         <motion.div
@@ -55,7 +53,6 @@ export const ArenaPlayground: React.FC<ArenaPlaygroundProps> = ({
                 onAnswer={onAnswer}
                 inputLagActive={!!activeExploits.get('input_lag') && !activeExploits.get('input_lag')?.passed}
                 inputLagDelay={1500}
-                cryptolockerActive={cryptolockerActive}
             />
         </motion.div>
     );

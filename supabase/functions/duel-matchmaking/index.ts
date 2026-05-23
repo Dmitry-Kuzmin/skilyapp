@@ -186,7 +186,12 @@ Deno.serve(async (req) => {
                     });
                 }
 
-                const code = generateDuelCode();
+                let code = generateDuelCode();
+                for (let _i = 0; _i < 10; _i++) {
+                    const { data: existing } = await supabase.from('duels').select('id').eq('code', code).maybeSingle();
+                    if (!existing) break;
+                    code = generateDuelCode();
+                }
                 const questionSeed = Math.floor(Date.now() * 1000 + Math.random() * 1000000);
                 const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
 
@@ -533,7 +538,12 @@ Deno.serve(async (req) => {
                 if (rematch_opponent_id) {
                     console.log(`[find_match] 🔄 Rematch requested with opponent: ${rematch_opponent_id}`);
 
-                    const rematchCode = generateDuelCode();
+                    let rematchCode = generateDuelCode();
+                    for (let _i = 0; _i < 10; _i++) {
+                        const { data: existing } = await supabase.from('duels').select('id').eq('code', rematchCode).maybeSingle();
+                        if (!existing) break;
+                        rematchCode = generateDuelCode();
+                    }
                     const questionSeed = Math.floor(Date.now() * 1000 + Math.random() * 1000000);
                     const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
 
@@ -808,7 +818,12 @@ Deno.serve(async (req) => {
                     botProfile = generateBotProfile(playerProfile.duel_pass_level || 1, playerProfile.win_streak || 0);
                 }
 
-                const code = generateDuelCode();
+                let code = generateDuelCode();
+                for (let _i = 0; _i < 10; _i++) {
+                    const { data: existing } = await supabase.from('duels').select('id').eq('code', code).maybeSingle();
+                    if (!existing) break;
+                    code = generateDuelCode();
+                }
                 const questionSeed = Math.floor(Date.now() * 1000 + Math.random() * 1000000);
                 const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
 
