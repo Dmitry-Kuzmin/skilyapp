@@ -1,22 +1,22 @@
 /**
- * StreakParticleBurst — частицы, летящие от карточки правильного ответа
- * к счётчику стрика на каждое инкрементное событие.
+ * StreakParticleBurst — частицы + плавающий toast-чип стрика.
  *
- * Триггер: streak увеличился.
- * Источник: DOM-элемент с [data-answer-id="<selectedAnswerId>"] (выбранный ответ).
- * Цель: [data-streak-target] (бейдж стрика или невидимый якорь в шапке).
+ * Частицы летят от выбранного ответа к [data-streak-target] в шапке.
+ * Floating chip:
+ *   - compact: маленький пилл 🔥 N (всегда виден при streak ≥ 1)
+ *   - milestone: расширяется в баннер с лейблом на 3/5/7/10
  *
- * Цветовые уровни:
- *   1-2 — изумрудно-зелёный (просто верно)
- *   3-7 — золотой (серия)
- *   8+  — янтарно-оранжевый (горячая серия)
- *
- * При попадании частиц бейдж получает scale-bump через CustomEvent
- * 'streak-burst-hit' (см. AnswerStreakBadge).
+ * Цветовые уровни частиц:
+ *   1-2 — изумрудно-зелёный
+ *   3-7 — золотой
+ *   8+  — янтарно-оранжевый
  */
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "@/components/optimized/Motion";
+import { useAnimationControls } from "framer-motion";
+import { Flame } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 interface StreakParticleBurstProps {
@@ -66,6 +66,144 @@ const MILESTONES: Record<number, { emoji: string; textKey: string; gradient: str
     10: { emoji: "🏆", textKey: "test.streakMilestone10", gradient: "from-red-600 to-yellow-400" },
 };
 
+/** Градиенты + глоу для компактного чипа по тиру */
+const COMPACT_TIER = {
+    low:  { bg: "from-amber-400 to-orange-500",     glow: "shadow-[0_4px_20px_rgba(251,146,60,0.55)]" },
+    mid:  { bg: "from-orange-500 to-red-500",        glow: "shadow-[0_4px_24px_rgba(249,115,22,0.6)]" },
+    high: { bg: "from-rose-600 via-red-500 to-orange-400", glow: "shadow-[0_4px_28px_rgba(220,38,38,0.7)]" },
+} as const;
+
+// ─────────────────────────────────────────────────────────────
+// Floating streak toast chip
+// ─────────────────────────────────────────────────────────────
+const StreakFloatingChip = ({ streak }: { streak: number }) => {
+    const { t } = useLanguage();
+    const prevStreakRef = useRef(streak);
+    const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const [showMilestone, setShowMilestone] = useState(false);
+    const [activeMilestone, setActiveMilestone] = useState<typeof MILESTONES[number] | null>(null);
+
+    // Controls for compact chip bump on each streak inc
+    const chipControls = useAnimationControls();
+    const iconControls = useAnimationControls();
+
+    useEffect(() => {
+        const prev = prevStreakRef.current;
+        prevStreakRef.current = streak;
+
+        if (streak <= 0) {
+            setShowMilestone(false);
+            return;
+        }
+        if (streak <= prev) return;
+
+        // Bump compact chip
+        chipControls.start({
+            scale: [1, 1.22, 0.94, 1.06, 1],
+            transition: { duration: 0.45, ease: "easeOut" },
+        });
+        iconControls.start({
+            rotate: [0, -20, 15, -8, 0],
+            scale:  [1, 1.35, 0.9, 1.1, 1],
+            transition: { duration: 0.5, ease: "easeOut" },
+        });
+
+        // Milestone?
+        if (MILESTONES[streak]) {
+            setActiveMilestone(MILESTONES[streak]);
+            setShowMilestone(true);
+            if (timerRef.current) clearTimeout(timerRef.current);
+            timerRef.current = setTimeout(() => setShowMilestone(false), 1800);
+        }
+    }, [streak, chipControls, iconControls]);
+
+    const tier = tierFromStreak(streak);
+    const tierStyle = COMPACT_TIER[tier];
+
+    return (
+        <AnimatePresence>
+            {streak >= 1 && (
+                <div
+                    className="fixed inset-x-0 flex justify-center pointer-events-none"
+                    style={{ top: "62px", zIndex: 300 }}
+                >
+                    <AnimatePresence mode="wait">
+                        {showMilestone && activeMilestone ? (
+                            /* ── Milestone banner ── */
+                            <motion.div
+                                key="milestone"
+                                initial={{ opacity: 0, scale: 0.55, y: -12 }}
+                                animate={{ opacity: 1, scale: 1, y: 0 }}
+                                exit={{ opacity: 0, scale: 0.82, y: -8 }}
+                                transition={{ type: "spring", stiffness: 440, damping: 18 }}
+                                className={cn(
+                                    "flex items-center gap-2.5 px-5 py-2.5 rounded-2xl",
+                                    "bg-gradient-to-r shadow-2xl",
+                                    activeMilestone.gradient,
+                                )}
+                            >
+                                <motion.span
+                                    className="text-xl leading-none"
+                                    animate={{ rotate: [0, -18, 16, -8, 0] }}
+                                    transition={{ duration: 0.5, delay: 0.08 }}
+                                >
+                                    {activeMilestone.emoji}
+                                </motion.span>
+                                <span className="text-white font-black text-base tracking-tight drop-shadow leading-none">
+                                    {t(activeMilestone.textKey)}
+                                </span>
+                            </motion.div>
+                        ) : (
+                            /* ── Compact chip ── */
+                            <motion.div
+                                key="compact"
+                                data-streak-target="chip"
+                                initial={{ opacity: 0, scale: 0.5, y: -8 }}
+                                animate={{ opacity: 1, scale: 1, y: 0 }}
+                                exit={{ opacity: 0, scale: 0.5, y: -8 }}
+                                transition={{ type: "spring", stiffness: 400, damping: 18 }}
+                                className={cn(
+                                    "relative flex items-center gap-1.5 px-3 h-8 rounded-full overflow-hidden",
+                                    "bg-gradient-to-r backdrop-blur-md ring-1 ring-white/20",
+                                    tierStyle.bg,
+                                    tierStyle.glow,
+                                )}
+                            >
+                                {/* Radial flash on bump */}
+                                <div className="absolute inset-0 rounded-full pointer-events-none overflow-hidden">
+                                    <motion.div
+                                        key={streak}
+                                        className="absolute inset-0 rounded-full"
+                                        style={{ background: "radial-gradient(circle at 50% 50%, rgba(255,255,255,0.35) 0%, transparent 70%)" }}
+                                        initial={{ opacity: 0, scale: 0.4 }}
+                                        animate={{ opacity: [0, 1, 0], scale: [0.4, 2.2, 2.8] }}
+                                        transition={{ duration: 0.5, ease: "easeOut" }}
+                                    />
+                                </div>
+
+                                <motion.div animate={chipControls} className="relative z-10 flex items-center gap-1">
+                                    <motion.span animate={iconControls} className="flex items-center">
+                                        <Flame className="w-3.5 h-3.5 text-white drop-shadow-[0_0_6px_rgba(253,186,36,0.9)]" />
+                                    </motion.span>
+                                    <motion.span
+                                        key={streak}
+                                        initial={{ scale: 0.5, y: 4, opacity: 0 }}
+                                        animate={{ scale: 1, y: 0, opacity: 1 }}
+                                        transition={{ type: "spring", stiffness: 600, damping: 18 }}
+                                        className="font-black tabular-nums text-[13px] leading-none tracking-tight text-white"
+                                    >
+                                        {streak}
+                                    </motion.span>
+                                </motion.div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+                </div>
+            )}
+        </AnimatePresence>
+    );
+};
+
 let burstSeq = 0;
 
 const tierFromStreak = (s: number): Tier => {
@@ -103,11 +241,8 @@ const buildParticles = (burst: Burst): ParticleSpec[] => {
 };
 
 export const StreakParticleBurst = ({ streak, selectedAnswerId }: StreakParticleBurstProps) => {
-    const { t } = useLanguage();
     const prevStreakRef = useRef(streak);
-    const milestoneTimerRef = useRef<ReturnType<typeof window.setTimeout> | null>(null);
     const [bursts, setBursts] = useState<Burst[]>([]);
-    const [milestone, setMilestone] = useState<{ key: number; data: typeof MILESTONES[number] } | null>(null);
 
     useEffect(() => {
         const prev = prevStreakRef.current;
@@ -143,7 +278,7 @@ export const StreakParticleBurst = ({ streak, selectedAnswerId }: StreakParticle
 
         setBursts((prevB) => [...prevB, burst]);
 
-        // Сообщаем бейджу о моменте прилёта частиц (≈ конец анимации)
+        // Сообщаем floating-чипу о попадании частиц
         const hitTimer = window.setTimeout(() => {
             window.dispatchEvent(new CustomEvent("streak-burst-hit", { detail: { streak, tier } }));
         }, 520);
@@ -153,15 +288,6 @@ export const StreakParticleBurst = ({ streak, selectedAnswerId }: StreakParticle
             setBursts((prevB) => prevB.filter((b) => b.id !== id));
         }, 1100);
 
-        // Milestone-баннер на 3/5/7/10.
-        // Таймер живёт в ref — cleanup effect его НЕ отменяет,
-        // иначе следующий ответ убивал бы таймер и баннер зависал.
-        if (MILESTONES[streak]) {
-            setMilestone({ key: streak, data: MILESTONES[streak] });
-            if (milestoneTimerRef.current) window.clearTimeout(milestoneTimerRef.current);
-            milestoneTimerRef.current = window.setTimeout(() => setMilestone(null), 1600);
-        }
-
         return () => {
             window.clearTimeout(hitTimer);
             window.clearTimeout(cleanupTimer);
@@ -170,6 +296,7 @@ export const StreakParticleBurst = ({ streak, selectedAnswerId }: StreakParticle
 
     return (
         <>
+            {/* Частицы */}
             <div className="fixed inset-0 pointer-events-none" style={{ zIndex: 250 }}>
                 <AnimatePresence>
                     {bursts.map((burst) => (
@@ -178,36 +305,8 @@ export const StreakParticleBurst = ({ streak, selectedAnswerId }: StreakParticle
                 </AnimatePresence>
             </div>
 
-            {/* Milestone-баннер */}
-            <AnimatePresence>
-                {milestone && (
-                    <motion.div
-                        key={milestone.key}
-                        className="fixed inset-x-0 pointer-events-none flex justify-center"
-                        style={{ top: "18%", zIndex: 300 }}
-                        initial={{ opacity: 0, scale: 0.5, y: -20 }}
-                        animate={{ opacity: 1, scale: 1, y: 0 }}
-                        exit={{ opacity: 0, scale: 0.85, y: -12 }}
-                        transition={{
-                            type: "spring", stiffness: 420, damping: 18,
-                            exit: { duration: 0.35, ease: "easeIn" },
-                        }}
-                    >
-                        <div className={`bg-gradient-to-r ${milestone.data.gradient} px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-2.5`}>
-                            <motion.span
-                                className="text-2xl"
-                                animate={{ rotate: [0, -15, 15, -10, 10, 0] }}
-                                transition={{ duration: 0.5, delay: 0.1 }}
-                            >
-                                {milestone.data.emoji}
-                            </motion.span>
-                            <span className="text-white font-black text-lg tracking-tight drop-shadow">
-                                {t(milestone.data.textKey)}
-                            </span>
-                        </div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
+            {/* Floating toast chip — compact + milestone */}
+            <StreakFloatingChip streak={streak} />
         </>
     );
 };

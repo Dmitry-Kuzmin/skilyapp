@@ -6,7 +6,6 @@ import { BlitzHeader } from '@/components/blitz';
 import { QuestionProgressBar } from '@/components/QuestionProgressBar';
 import { Trophy } from 'lucide-react';
 import { ExamTimer } from '@/components/test-session/ExamTimer';
-import { AnswerStreakBadge } from '@/components/test-session/AnswerStreakBadge';
 import type { TestMode } from '@/store/examStore';
 import type { RussiaExamState } from '@/types/pddExam';
 import { getTestTimeLimit } from '@/lib/test-constants';
@@ -196,13 +195,6 @@ export const TestSessionHeader = ({
                                     timeLeft={timeLeft}
                                     maxTime={getTestTimeLimit(mode)}
                                 />
-                            )}
-
-                            {/* Streak бейдж — эволюционирует с первого правильного ответа:
-                                seed (1-2) → mild (3-4) → warm (5-7) → hot (8+).
-                                Скрыт в экзаменах (не подсказывает что было верно). */}
-                            {!isExamMode(mode) && streak >= 1 && (
-                                <AnswerStreakBadge streak={streak} />
                             )}
 
                             {/* Mastery / Marathon Round Indicator */}

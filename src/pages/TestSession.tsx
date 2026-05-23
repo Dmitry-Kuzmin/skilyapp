@@ -85,7 +85,7 @@ import { RUSSIA_EXAM_MAX_SNAPSHOT } from "@/lib/test-constants";
 import { GameBackground } from "@/components/test-session/GameBackground";
 import { StreakParticleBurst } from "@/components/test-session/StreakParticleBurst";
 import { TestAnswerParticleBurst } from "@/components/test-session/TestAnswerParticleBurst";
-import { StreakEdgeGlow } from "@/components/test-session/StreakEdgeGlow";
+
 import { useModalStore } from "@/store/modalStore";
 import { useDailyTestLimit, isFullTestMode } from "@/hooks/useDailyTestLimit";
 
@@ -1417,7 +1417,7 @@ const TestSession = () => {
   return (
     <Layout hideNavigation={true}>
       <GameBackground mode={mode} timeLeft={timeLeft} streak={streak} />
-      <StreakEdgeGlow streak={streak} />
+
       <StreakParticleBurst streak={streak} selectedAnswerId={selectedOption} />
       <TestAnswerParticleBurst answers={progressBarAnswers} selectedAnswerId={selectedOption} />
       <TestContentLayout
@@ -1630,10 +1630,7 @@ const TestSession = () => {
                 isEnterPressed={isEnterPressed}
                 isAnswerLocked={!!isAnswerLocked}
                 onReportProblem={() => setShowReportModal(true)}
-                progressAnswers={progressBarAnswers}
-                progressCurrentIndex={currentIndex}
-                progressTotal={sessionQuestionCount}
-                hideProgressScoreIndicators={mode === 'exam'}
+                streak={mode !== 'exam' ? streak : 0}
               />
             </motion.div>
           </AnimatePresence>
