@@ -262,7 +262,7 @@ export const DuelScoreBoard = memo(({
                 />
               </>
             )}
-            <Avatar className="h-12 w-12 md:h-14 md:w-14 rounded-xl border border-white/10 shadow-sm relative z-20 bg-background">
+            <Avatar data-attack-target className="h-12 w-12 md:h-14 md:w-14 rounded-xl border border-white/10 shadow-sm relative z-20 bg-background">
               <AvatarImage src={(opponentPhotoUrl && opponentPhotoUrl.trim() !== '' && !opponentPhotoUrl.includes('undefined') && !opponentPhotoUrl.includes('null') && !opponentImgError) ? opponentPhotoUrl : undefined} alt={opponentName || ''} onError={() => setOpponentImgError(true)} />
               <AvatarFallback className="bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-bold uppercase">
                 {getInitials(opponentName)}

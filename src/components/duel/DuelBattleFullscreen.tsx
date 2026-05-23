@@ -9,6 +9,7 @@ import { ArenaHeader } from './arena/parts/ArenaHeader';
 import { ArenaPlayground } from './arena/parts/ArenaPlayground';
 import { AnswerProcessingOverlay } from './overlays/AnswerProcessingOverlay';
 import { AttackFlyout, type AttackFlyoutData } from './overlays/AttackFlyout';
+import { AttackParticleEffect } from './overlays/AttackParticleEffect';
 import { Button } from '@/components/ui/button';
 import { Coins } from 'lucide-react';
 import { useDuelBattleCoordinator } from './hooks/useDuelBattleCoordinator';
@@ -71,11 +72,14 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
   const handleFlyoutDismiss = useCallback(() => setFlyoutAttack(null), []);
   const [attackBadge, setAttackBadge] = useState<{ emoji: string; color: string; glow: string } | null>(null);
   const attackBadgeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [particleAttack, setParticleAttack] = useState<AttackFlyoutData | null>(null);
+  const handleParticleComplete = useCallback(() => setParticleAttack(null), []);
 
   const handleBoostUseWithFlyout = (boostType: string, lang?: 'ru' | 'en') => {
     const meta = ATTACK_FLYOUT_META[boostType];
     if (meta) {
       setFlyoutAttack({ type: boostType, ...meta });
+      setParticleAttack({ type: boostType, ...meta });
       setAttackBadge({ emoji: meta.emoji, color: meta.color, glow: meta.glow });
       if (attackBadgeTimer.current) clearTimeout(attackBadgeTimer.current);
       attackBadgeTimer.current = setTimeout(() => setAttackBadge(null), 30_000);
@@ -395,6 +399,12 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
         attack={flyoutAttack}
         opponentName={c.opponentName}
         onDismiss={handleFlyoutDismiss}
+      />
+
+      {/* Particle effect: burst → fly to opponent avatar */}
+      <AttackParticleEffect
+        attack={particleAttack}
+        onComplete={handleParticleComplete}
       />
 
       {/* Unified Overlays Layer */}
