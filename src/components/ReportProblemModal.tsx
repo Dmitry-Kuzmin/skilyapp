@@ -233,7 +233,7 @@ export function ReportProblemModal({ open, onOpenChange, questionId, questionTex
                     }
                     value={comment}
                     onChange={(e) => setComment(e.target.value)}
-                    className="min-h-[90px] resize-none rounded-2xl text-sm p-4 pb-8 bg-zinc-900/50 border-white/5 focus:bg-zinc-900 focus:border-white/20 focus:ring-1 focus:ring-white/20 text-zinc-200 placeholder:text-zinc-600"
+                    className="min-h-[90px] resize-none rounded-2xl text-sm p-4 pb-8 bg-zinc-900/50 border-white/5 focus:bg-zinc-900 focus:border-white/20 focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none text-zinc-200 placeholder:text-zinc-600"
                   />
                   {/* char counter */}
                   <span className="absolute bottom-3 right-3 text-[10px] font-mono text-zinc-600 pointer-events-none">
