@@ -76,6 +76,9 @@ interface ArenaHeaderProps {
 
     // Answer history for progress bar coloring
     answers?: Array<{ isCorrect: boolean }>;
+
+    // Active attack indicator on opponent avatar
+    sentAttack?: { emoji: string; color: string; glow: string } | null;
 }
 
 export const ArenaHeader: React.FC<ArenaHeaderProps> = ({
@@ -125,6 +128,7 @@ export const ArenaHeader: React.FC<ArenaHeaderProps> = ({
     isQuestionBookmarked,
     bookmarkLoading,
     answers = [],
+    sentAttack = null,
 }) => {
     const { t } = useLanguage();
     const isMobile = useIsMobile();
@@ -209,6 +213,7 @@ export const ArenaHeader: React.FC<ArenaHeaderProps> = ({
                                     opponentIsConnected={opponentIsConnected}
                                     opponentLastSeen={opponentLastSeen}
                                     combo={combo}
+                                    sentAttack={sentAttack}
                                 />
                             </div>
                             <div className="flex-none">
@@ -246,6 +251,7 @@ export const ArenaHeader: React.FC<ArenaHeaderProps> = ({
                                     opponentIsConnected={opponentIsConnected}
                                     opponentLastSeen={opponentLastSeen}
                                     combo={combo}
+                                    sentAttack={sentAttack}
                                 />
                             </div>
                             <div className="flex-none">

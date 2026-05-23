@@ -72,6 +72,8 @@ interface DuelScoreBoardProps {
   opponentIsConnected?: boolean;
   opponentLastSeen?: Date | null;
   combo?: number;
+  // Active attack sent by me targeting opponent (shows badge on their avatar)
+  sentAttack?: { emoji: string; color: string; glow: string } | null;
 }
 
 
@@ -94,6 +96,7 @@ export const DuelScoreBoard = memo(({
   opponentIsConnected = true,
   opponentLastSeen = null,
   combo = 0,
+  sentAttack = null,
 }: DuelScoreBoardProps) => {
   const { t } = useLanguage();
 
@@ -291,6 +294,38 @@ export const DuelScoreBoard = memo(({
                 className="absolute -bottom-1 -left-1 z-30 bg-emerald-500 rounded-lg p-0.5 shadow-[0_0_10px_rgba(16,185,129,0.5)] border border-white/20"
               >
                 <Shield className="w-3 h-3 text-white" />
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Active attack badge — my attack running on opponent */}
+          <AnimatePresence>
+            {sentAttack && (
+              <motion.div
+                initial={{ scale: 0, rotate: -30 }}
+                animate={{ scale: 1, rotate: 0 }}
+                exit={{ scale: 0, rotate: 30 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 20 }}
+                className="absolute -top-1.5 -left-1.5 z-30 w-5 h-5 md:w-6 md:h-6 rounded-full flex items-center justify-center border-2 border-black/60"
+                style={{
+                  background: `radial-gradient(circle, ${sentAttack.color}cc, ${sentAttack.color}88)`,
+                  boxShadow: `0 0 8px ${sentAttack.glow}, 0 0 4px ${sentAttack.color}80`,
+                }}
+              >
+                <motion.span
+                  animate={{ scale: [1, 1.25, 1] }}
+                  transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
+                  className="text-[11px] leading-none"
+                >
+                  {sentAttack.emoji}
+                </motion.span>
+                {/* Pulse ring */}
+                <motion.div
+                  animate={{ scale: [1, 1.9], opacity: [0.5, 0] }}
+                  transition={{ duration: 1.2, repeat: Infinity, ease: 'easeOut' }}
+                  className="absolute inset-0 rounded-full border"
+                  style={{ borderColor: sentAttack.color }}
+                />
               </motion.div>
             )}
           </AnimatePresence>

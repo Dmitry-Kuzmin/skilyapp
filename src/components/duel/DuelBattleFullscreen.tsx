@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useDuelStore } from '@/store/duelStore';
 import { DuelLoadingView } from './parts/DuelLoadingView';
@@ -68,10 +68,17 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
   const setExploitPassed = useDuelStore(s => s.setExploitPassed);
   const [devOpen, setDevOpen] = useState(false);
   const [flyoutAttack, setFlyoutAttack] = useState<AttackFlyoutData | null>(null);
+  const [attackBadge, setAttackBadge] = useState<{ emoji: string; color: string; glow: string } | null>(null);
+  const attackBadgeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const handleBoostUseWithFlyout = (boostType: string, lang?: 'ru' | 'en') => {
     const meta = ATTACK_FLYOUT_META[boostType];
-    if (meta) setFlyoutAttack({ type: boostType, ...meta });
+    if (meta) {
+      setFlyoutAttack({ type: boostType, ...meta });
+      setAttackBadge({ emoji: meta.emoji, color: meta.color, glow: meta.glow });
+      if (attackBadgeTimer.current) clearTimeout(attackBadgeTimer.current);
+      attackBadgeTimer.current = setTimeout(() => setAttackBadge(null), 30_000);
+    }
     c.handleBoostUse(boostType, lang);
   };
 
@@ -363,6 +370,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
         isQuestionBookmarked={c.isQuestionBookmarked}
         bookmarkLoading={c.bookmarkLoading}
         answers={c.answerHistory}
+        sentAttack={attackBadge}
       />
 
       {/* Question Card */}
