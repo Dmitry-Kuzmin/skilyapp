@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect, useCallback, ReactNode, lazy, Suspense, m
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Bell, CheckCheck, ChevronDown, ChevronUp } from 'lucide-react';
+import { Bell, CheckCheck, ChevronDown, ChevronUp, Trophy, Flag, Swords, Sparkles, Clock, Zap, MessageSquare, AlertTriangle, CheckCircle2, Gift, Award, XCircle, BellRing } from 'lucide-react';
 import { useNotifications } from '@/hooks/useNotifications';
 import { useUserContext } from '@/contexts/UserContext';
 // ОПТИМИЗАЦИЯ: Импортируем только нужные функции из date-fns
@@ -34,6 +34,56 @@ interface NotificationsPanelProps {
 
 type NotificationView = 'unread' | 'all';
 
+// ─────────────────────────────────────────────────────────────────────
+// Notification style system — цвет + иконка по типу
+// ─────────────────────────────────────────────────────────────────────
+type NotifVariant = {
+  Icon: typeof Bell;
+  iconClass: string;  // text + bg gradient class
+  ringClass: string;  // unread accent ring
+};
+
+const getNotificationVariant = (n: DuelNotification): NotifVariant => {
+  const type = n.type;
+  const meta = n.metadata as any;
+
+  // finish: победа vs поражение
+  if (type === 'finish') {
+    const isWinner = meta?.is_winner ?? meta?.win;
+    if (isWinner === true) {
+      return { Icon: Trophy, iconClass: 'bg-gradient-to-br from-emerald-500/20 to-teal-500/20 text-emerald-500', ringClass: 'ring-emerald-500/30' };
+    }
+    if (isWinner === false) {
+      return { Icon: Flag, iconClass: 'bg-gradient-to-br from-amber-500/20 to-orange-500/20 text-amber-500', ringClass: 'ring-amber-500/30' };
+    }
+    return { Icon: Trophy, iconClass: 'bg-gradient-to-br from-emerald-500/20 to-teal-500/20 text-emerald-500', ringClass: 'ring-emerald-500/30' };
+  }
+
+  // question_report_reply: статус определяет цвет
+  if (type === 'question_report_reply') {
+    const status = meta?.status;
+    if (status === 'resolved')   return { Icon: CheckCircle2,  iconClass: 'bg-gradient-to-br from-emerald-500/20 to-green-500/20 text-emerald-500', ringClass: 'ring-emerald-500/30' };
+    if (status === 'dismissed')  return { Icon: AlertTriangle, iconClass: 'bg-gradient-to-br from-zinc-500/20 to-zinc-600/20 text-zinc-400',      ringClass: 'ring-zinc-500/30' };
+    return                       { Icon: MessageSquare, iconClass: 'bg-gradient-to-br from-blue-500/20 to-indigo-500/20 text-blue-500',    ringClass: 'ring-blue-500/30' };
+  }
+
+  switch (type) {
+    case 'start':           return { Icon: Swords,        iconClass: 'bg-gradient-to-br from-indigo-500/20 to-purple-500/20 text-indigo-500', ringClass: 'ring-indigo-500/30' };
+    case 'reminder':        return { Icon: Clock,         iconClass: 'bg-gradient-to-br from-sky-500/20 to-blue-500/20 text-sky-500',          ringClass: 'ring-sky-500/30' };
+    case 'timeout':         return { Icon: Clock,         iconClass: 'bg-gradient-to-br from-zinc-500/20 to-zinc-600/20 text-zinc-400',       ringClass: 'ring-zinc-500/30' };
+    case 'boost':           return { Icon: Zap,           iconClass: 'bg-gradient-to-br from-orange-500/20 to-amber-500/20 text-orange-500',   ringClass: 'ring-orange-500/30' };
+    case 'help_requested':  return { Icon: Sparkles,      iconClass: 'bg-gradient-to-br from-fuchsia-500/20 to-pink-500/20 text-fuchsia-500',  ringClass: 'ring-fuchsia-500/30' };
+    case 'help_received':   return { Icon: Sparkles,      iconClass: 'bg-gradient-to-br from-teal-500/20 to-cyan-500/20 text-teal-500',        ringClass: 'ring-teal-500/30' };
+    case 'referral_joined': return { Icon: Gift,          iconClass: 'bg-gradient-to-br from-pink-500/20 to-rose-500/20 text-pink-500',        ringClass: 'ring-pink-500/30' };
+    case 'referral_earned': return { Icon: Gift,          iconClass: 'bg-gradient-to-br from-green-500/20 to-emerald-500/20 text-green-500',   ringClass: 'ring-green-500/30' };
+    case 'daily_reward':    return { Icon: Gift,          iconClass: 'bg-gradient-to-br from-yellow-500/20 to-amber-500/20 text-yellow-500',   ringClass: 'ring-yellow-500/30' };
+    case 'achievement':     return { Icon: Award,         iconClass: 'bg-gradient-to-br from-purple-500/20 to-violet-500/20 text-purple-500',  ringClass: 'ring-purple-500/30' };
+    case 'streak_lost':     return { Icon: XCircle,       iconClass: 'bg-gradient-to-br from-rose-500/20 to-red-500/20 text-rose-500',         ringClass: 'ring-rose-500/30' };
+    case 'test_result':     return { Icon: CheckCircle2,  iconClass: 'bg-gradient-to-br from-cyan-500/20 to-blue-500/20 text-cyan-500',        ringClass: 'ring-cyan-500/30' };
+    default:                return { Icon: BellRing,      iconClass: 'bg-gradient-to-br from-zinc-500/20 to-zinc-600/20 text-zinc-400',       ringClass: 'ring-zinc-500/30' };
+  }
+};
+
 // ОПТИМИЗАЦИЯ: Мемоизированный компонент элемента уведомления
 // Предотвращает лишние ре-рендеры при обновлении списка
 const NotificationItem = memo(({
@@ -57,120 +107,114 @@ const NotificationItem = memo(({
   route: string | null;
   t: (key: string, params?: Record<string, string | number>) => string;
 }) => {
+  const variant = getNotificationVariant(notification);
+  const { Icon } = variant;
+  const isUnread = !notification.is_read;
+  const imageUrl = notification.type === 'question_report_reply'
+    ? (notification.metadata as any)?.question_image_url
+    : null;
+
   return (
-    <div
+    <button
+      type="button"
       onClick={() => onClick(notification)}
       className={cn(
-        "p-4 rounded-xl border-2 cursor-pointer transition-colors duration-150 w-full max-w-full overflow-hidden",
-        "hover:shadow-md",
-        notification.is_read
-          ? 'bg-background/50 border-border/50 opacity-60'
-          : 'bg-primary/5 border-primary/30 hover:bg-primary/10 hover:border-primary/50'
+        "group relative w-full text-left rounded-2xl transition-all duration-200 overflow-hidden",
+        "active:scale-[0.985]",
+        isUnread
+          ? "bg-card/80 hover:bg-card backdrop-blur-sm shadow-[0_1px_2px_rgba(0,0,0,0.04)] dark:shadow-[0_1px_2px_rgba(0,0,0,0.2)]"
+          : "bg-transparent hover:bg-card/40 opacity-70 hover:opacity-100"
       )}
     >
-      <div className="flex items-start gap-3">
-        {notification.icon && (
-          <div className={cn(
-            "w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0",
-            notification.is_read
-              ? 'bg-muted/50'
-              : 'bg-primary/20 shadow-sm'
-          )}>
-            <NotificationIcon
-              iconName={notification.icon}
-              className={cn(
-                notification.is_read
-                  ? 'text-muted-foreground'
-                  : 'text-primary'
-              )}
-              size={24}
-            />
-          </div>
-        )}
-        <div className="flex-1 min-w-0 max-w-full overflow-hidden">
-          <div className="flex items-start justify-between gap-2 mb-1">
+      {/* Unread dot — left edge accent */}
+      {isUnread && (
+        <span className={cn(
+          "absolute left-2 top-1/2 -translate-y-1/2 w-1 h-1 rounded-full",
+          variant.iconClass.match(/text-(\w+-\d+)/)?.[0] ?? 'text-primary'
+        )} style={{ backgroundColor: 'currentColor' }} />
+      )}
+
+      <div className="flex items-start gap-3 p-3 pl-4">
+        {/* Icon */}
+        <div className={cn(
+          "shrink-0 w-10 h-10 rounded-xl flex items-center justify-center",
+          variant.iconClass
+        )}>
+          <Icon className="w-[18px] h-[18px]" strokeWidth={2.2} />
+        </div>
+
+        {/* Content */}
+        <div className="flex-1 min-w-0">
+          {/* Title + time row */}
+          <div className="flex items-baseline justify-between gap-2 mb-0.5">
             <h4 className={cn(
-              "font-bold text-sm line-clamp-1 break-words overflow-wrap-anywhere",
-              !notification.is_read && "text-foreground"
+              "text-sm leading-tight truncate",
+              isUnread ? "font-semibold text-foreground" : "font-medium text-foreground/85"
             )}>
               {notification.title}
             </h4>
-            {!notification.is_read && (
-              <div className="w-2 h-2 rounded-full bg-primary flex-shrink-0 mt-1.5 animate-pulse" />
-            )}
+            <span className="shrink-0 text-[11px] text-muted-foreground/70 font-medium tabular-nums">
+              {getCachedTime(notification.created_at)}
+            </span>
           </div>
-          <div className="mb-2 max-w-full overflow-hidden">
-            {shouldTruncate(notification.message) && !isExpanded ? (
-              <>
-                <p className="text-sm text-muted-foreground line-clamp-3 leading-relaxed break-all">
-                  {notification.message}
-                </p>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onToggleExpand(notification.id);
-                  }}
-                  className="mt-2 flex items-center gap-1 text-xs text-primary hover:text-primary/80 transition-colors font-medium"
-                >
-                  <ChevronDown className="h-3 w-3" />
-                  {t('notifications.expand')}
-                </button>
-              </>
-            ) : shouldTruncate(notification.message) && isExpanded ? (
-              <>
-                <p className="text-sm text-muted-foreground whitespace-pre-wrap leading-relaxed break-all">
-                  {notification.message}
-                </p>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onToggleExpand(notification.id);
-                  }}
-                  className="mt-2 flex items-center gap-1 text-xs text-primary hover:text-primary/80 transition-colors font-medium"
-                >
-                  <ChevronUp className="h-3 w-3" />
-                  {t('notifications.collapse')}
-                </button>
-              </>
-            ) : (
-              <p className="text-sm text-muted-foreground whitespace-pre-wrap leading-relaxed break-all">
-                {notification.message}
-              </p>
-            )}
-          </div>
-          {/* Картинка вопроса для report_reply уведомлений */}
-          {notification.type === 'question_report_reply' && notification.metadata?.question_image_url && (
-            <div className="mb-2 rounded-lg overflow-hidden border border-border/50">
+
+          {/* Message */}
+          {notification.message && (
+            <div className="text-[13px] text-muted-foreground leading-relaxed">
+              {shouldTruncate(notification.message) && !isExpanded ? (
+                <>
+                  <p className="line-clamp-2 break-words">{notification.message}</p>
+                  <button
+                    type="button"
+                    onClick={(e) => { e.stopPropagation(); onToggleExpand(notification.id); }}
+                    className="mt-1 inline-flex items-center gap-0.5 text-[11px] text-muted-foreground/80 hover:text-foreground transition-colors"
+                  >
+                    <ChevronDown className="w-3 h-3" />
+                    {t('notifications.expand')}
+                  </button>
+                </>
+              ) : shouldTruncate(notification.message) && isExpanded ? (
+                <>
+                  <p className="whitespace-pre-wrap break-words">{notification.message}</p>
+                  <button
+                    type="button"
+                    onClick={(e) => { e.stopPropagation(); onToggleExpand(notification.id); }}
+                    className="mt-1 inline-flex items-center gap-0.5 text-[11px] text-muted-foreground/80 hover:text-foreground transition-colors"
+                  >
+                    <ChevronUp className="w-3 h-3" />
+                    {t('notifications.collapse')}
+                  </button>
+                </>
+              ) : (
+                <p className="whitespace-pre-wrap break-words">{notification.message}</p>
+              )}
+            </div>
+          )}
+
+          {/* Image preview (для report_reply) */}
+          {imageUrl && (
+            <div className="mt-2 rounded-lg overflow-hidden border border-border/30 max-w-[200px]">
               <img
-                src={notification.metadata.question_image_url}
+                src={imageUrl}
                 alt=""
-                className="w-full h-32 object-cover"
+                className="w-full h-20 object-cover"
                 loading="lazy"
               />
             </div>
           )}
 
-          <div className="flex items-center justify-between">
-            <p className="text-xs text-muted-foreground">
-              {getCachedTime(notification.created_at)}
-            </p>
-            {route && (
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-6 text-xs px-2"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  navigateTo(route);
-                }}
-              >
+          {/* CTA */}
+          {route && (
+            <div className="mt-2">
+              <span className="inline-flex items-center gap-0.5 text-[11px] font-semibold text-primary group-hover:gap-1 transition-all">
                 {t('notifications.goTo')}
-              </Button>
-            )}
-          </div>
+                <ChevronDown className="w-3 h-3 -rotate-90" />
+              </span>
+            </div>
+          )}
         </div>
       </div>
-    </div>
+    </button>
   );
 });
 NotificationItem.displayName = 'NotificationItem';
@@ -473,27 +517,29 @@ export const NotificationsPanel = ({ notificationsApi, open, onOpenChange, rende
           {trigger ?? defaultTrigger}
         </SheetTrigger>
       )}
-      <SheetContent side="right" className="w-full sm:max-w-md p-0 flex flex-col" style={{ paddingTop: 'max(var(--app-content-top, 0px), env(safe-area-inset-top, 0px))' }}>
-        <SheetHeader className="p-6 pb-4 border-b pt-6">
-          <div className="flex items-center justify-between mb-4">
-            <SheetTitle className="text-2xl font-bold flex items-center gap-2">
-              <Bell className="h-6 w-6" />
+      <SheetContent side="right" className="w-full sm:max-w-md p-0 flex flex-col bg-background/95 backdrop-blur-xl border-l border-border/50" style={{ paddingTop: 'max(var(--app-content-top, 0px), env(safe-area-inset-top, 0px))' }}>
+        <SheetHeader className="px-5 pt-5 pb-3 border-b border-border/30">
+          <div className="flex items-center justify-between mb-3">
+            <SheetTitle className="text-xl font-bold tracking-tight flex items-center gap-2">
               {t('notifications.title')}
+              {unreadCount > 0 && (
+                <span className="inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-primary text-primary-foreground text-[11px] font-bold tabular-nums">
+                  {unreadCount > 99 ? '99+' : unreadCount}
+                </span>
+              )}
             </SheetTitle>
             {unreadCount > 0 && (
-              <Button
-                variant="ghost"
-                size="sm"
+              <button
                 onClick={markAllAsRead}
-                className="text-xs h-8"
+                className="inline-flex items-center gap-1 text-[12px] font-medium text-muted-foreground hover:text-foreground transition-colors px-2 py-1 rounded-md hover:bg-muted/50"
               >
-                <CheckCheck className="h-4 w-4 mr-1" />
+                <CheckCheck className="h-3.5 w-3.5" />
                 {t('notifications.markAllAsRead')}
-              </Button>
+              </button>
             )}
           </div>
 
-          {/* New / All */}
+          {/* Tabs */}
           <SegmentedControl
             value={view}
             onChange={(v) => setView(v as NotificationView)}
@@ -510,15 +556,25 @@ export const NotificationsPanel = ({ notificationsApi, open, onOpenChange, rende
           {filteredNotifications.length === 0 ? (
             <motion.div
               key="empty"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="p-12 text-center space-y-3"
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+              className="flex-1 flex flex-col items-center justify-center p-8 text-center"
             >
-              <div className="w-16 h-16 mx-auto rounded-full bg-muted flex items-center justify-center">
-                <Bell className="h-5 w-5" />
+              <div className="relative w-20 h-20 mb-4">
+                <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/10 to-primary/5 blur-xl" />
+                <div className="relative w-full h-full rounded-full bg-gradient-to-br from-muted/80 to-muted/40 flex items-center justify-center border border-border/30">
+                  <BellRing className="h-7 w-7 text-muted-foreground/50" />
+                </div>
               </div>
-              <p className="text-muted-foreground">
+              <p className="text-sm font-medium text-foreground/80 mb-1">
                 {view === 'unread' ? t('notifications.emptyUnread') : t('notifications.emptyAll')}
+              </p>
+              <p className="text-xs text-muted-foreground/70 max-w-[240px]">
+                {view === 'unread'
+                  ? (language === 'es' ? 'Aquí aparecerán tus nuevas notificaciones' : 'Здесь будут появляться новые уведомления')
+                  : (language === 'es' ? 'Cuando ocurra algo importante, lo verás aquí' : 'Когда что-то произойдёт — увидишь здесь')
+                }
               </p>
             </motion.div>
           ) : flatList.length > 10 ? (
@@ -556,15 +612,14 @@ export const NotificationsPanel = ({ notificationsApi, open, onOpenChange, rende
                             width: '100%',
                             transform: `translateY(${virtualItem.start}px)`, // GPU ускорение
                           }}
-                          className="px-4 pt-6 pb-2"
+                          className="px-5 pt-4 pb-1.5"
                         >
-                          <div className="flex items-center gap-2">
-                            <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                          <div className="flex items-baseline gap-2">
+                            <h3 className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-[0.12em]">
                               {item.label}
                             </h3>
-                            <div className="flex-1 h-px bg-border" />
-                            <span className="text-xs text-muted-foreground">
-                              {item.count}
+                            <span className="text-[10px] font-medium text-muted-foreground/40 tabular-nums">
+                              · {item.count}
                             </span>
                           </div>
                         </div>
@@ -583,7 +638,7 @@ export const NotificationsPanel = ({ notificationsApi, open, onOpenChange, rende
                           width: '100%',
                           transform: `translateY(${virtualItem.start}px)`, // GPU ускорение
                         }}
-                        className="px-4 pb-2"
+                        className="px-3 pb-1.5"
                       >
                         {(() => {
                           const n = item.data;
@@ -620,19 +675,18 @@ export const NotificationsPanel = ({ notificationsApi, open, onOpenChange, rende
             </div>
           ) : (
             // Для малых списков (< 10) рендерим без виртуализации (простая группировка)
-            <div className="flex-1 overflow-y-auto p-4 space-y-6">
+            <div className="flex-1 overflow-y-auto px-3 py-3 space-y-4">
               {Object.entries(groupedNotifications).map(([groupKey, groupNotifications]) => (
-                <div key={groupKey} className="space-y-3">
-                  <div className="flex items-center gap-2 px-2">
-                    <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                <div key={groupKey} className="space-y-1">
+                  <div className="flex items-baseline gap-2 px-2 pb-1">
+                    <h3 className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-[0.12em]">
                       {groupKey}
                     </h3>
-                    <div className="flex-1 h-px bg-border" />
-                    <span className="text-xs text-muted-foreground">
-                      {groupNotifications.length}
+                    <span className="text-[10px] font-medium text-muted-foreground/40 tabular-nums">
+                      · {groupNotifications.length}
                     </span>
                   </div>
-                  <div className="space-y-2">
+                  <div className="space-y-1">
                     {groupNotifications.map((notification) => (
                       (() => {
                         const deeplink = (notification.metadata as any)?.cta_deeplink || (notification.metadata as any)?.deeplink || (notification.metadata as any)?.route;

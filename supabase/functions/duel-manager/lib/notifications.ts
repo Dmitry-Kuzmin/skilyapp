@@ -247,8 +247,19 @@ export interface NotificationParams {
 }
 
 // Helper function to create notifications with templates
+// Типы уведомлений, которые НЕ создаём в БД (показываем только in-game toast).
+// answer/progress спамят колокол при каждом ходе соперника — это шум.
+const SUPPRESSED_TYPES = new Set(['answer', 'progress']);
+
 export async function createNotification(body: NotificationParams, profileId: string, supabase: SupabaseClient): Promise<Response> {
   const { duel_id, type, title, message, icon, metadata = {} as NotificationMetadata } = body;
+
+  // Skip noisy live-feedback types — они уже показываются как in-game toasts
+  if (SUPPRESSED_TYPES.has(type)) {
+    return new Response(JSON.stringify({ success: true, skipped: true, reason: `Type ${type} is suppressed` }), {
+      status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    });
+  }
 
   try {
     const { data: players, error: playersError } = await supabase
