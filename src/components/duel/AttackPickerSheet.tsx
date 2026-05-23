@@ -4,7 +4,7 @@ import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { X, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { haptics } from '@/lib/haptics';
-import { supabase } from '@/integrations/supabase/lazyClient';
+import { supabase } from '@/integrations/supabase/client';
 import { usePremium } from '@/hooks/usePremium';
 
 // ─── Attack types ─────────────────────────────────────────────────────────────
@@ -160,11 +160,7 @@ export const AttackPickerSheet: React.FC<AttackPickerSheetProps> = ({
   const handleUtility = (type: string) => {
     if (isAnswered || usedBoosts.includes(type)) return;
     const qty = inventoryMap.get(type) ?? 0;
-    if (qty <= 0) {
-      handleClose();
-      openModal({ initialTab: 'boosts' });
-      return;
-    }
+    if (qty <= 0) return;
     if (type === 'translate') {
       onTranslatePopoverChange(translatePopoverOpen === type ? null : type);
       return;

@@ -8,6 +8,7 @@ import { isTelegramMiniApp as isTelegramMiniAppRaw, getTelegramWebApp as getTele
 import { ArenaHeader } from './arena/parts/ArenaHeader';
 import { ArenaPlayground } from './arena/parts/ArenaPlayground';
 import { AnswerProcessingOverlay } from './overlays/AnswerProcessingOverlay';
+import { AttackFlyout, type AttackFlyoutData } from './overlays/AttackFlyout';
 import { Button } from '@/components/ui/button';
 import { Coins } from 'lucide-react';
 import { useDuelBattleCoordinator } from './hooks/useDuelBattleCoordinator';
@@ -34,6 +35,21 @@ interface DuelBattleFullscreenProps {
   onWidgetExpand?: () => void;
 }
 
+const ATTACK_FLYOUT_META: Record<string, Omit<AttackFlyoutData, 'type'>> = {
+  ice_screen:      { emoji: '🧊', name: 'Заморозка',  color: '#22d3ee', glow: 'rgba(34,211,238,0.35)' },
+  fog_screen:      { emoji: '🌫️', name: 'Туман',      color: '#94a3b8', glow: 'rgba(148,163,184,0.35)' },
+  sun_glare:       { emoji: '☀️', name: 'Солнце',     color: '#f59e0b', glow: 'rgba(245,158,11,0.35)' },
+  rain_storm:      { emoji: '🌧️', name: 'Гроза',      color: '#818cf8', glow: 'rgba(129,140,248,0.35)' },
+  bug_splat:       { emoji: '🐛', name: 'Баги',        color: '#34d399', glow: 'rgba(52,211,153,0.35)' },
+  police_backdoor: { emoji: '🚓', name: 'Полиция',    color: '#f87171', glow: 'rgba(248,113,113,0.35)' },
+  cryptolocker:    { emoji: '🔐', name: 'Шифровка',   color: '#a78bfa', glow: 'rgba(167,139,250,0.35)' },
+  input_lag:       { emoji: '🕸️', name: 'Лаг',        color: '#fb923c', glow: 'rgba(251,146,60,0.35)' },
+  oil_spill:       { emoji: '🛢️', name: 'Масло',      color: '#a8a29e', glow: 'rgba(168,162,158,0.35)' },
+  screen_injector: { emoji: '💉', name: 'Инъекция',   color: '#ef4444', glow: 'rgba(239,68,68,0.35)' },
+  gps_spoofing:    { emoji: '📡', name: 'GPS Спуф',   color: '#06b6d4', glow: 'rgba(6,182,212,0.35)' },
+  firewall:        { emoji: '🔥', name: 'Файрвол',    color: '#f97316', glow: 'rgba(249,115,22,0.35)' },
+};
+
 const DEV_ATTACKS = [
   { type: 'oil_spill',       label: '🛢 Oil' },
   { type: 'cryptolocker',    label: '🔐 Crypto' },
@@ -51,6 +67,13 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
   const syncActiveExploits = useDuelStore(s => s.syncActiveExploits);
   const setExploitPassed = useDuelStore(s => s.setExploitPassed);
   const [devOpen, setDevOpen] = useState(false);
+  const [flyoutAttack, setFlyoutAttack] = useState<AttackFlyoutData | null>(null);
+
+  const handleBoostUseWithFlyout = (boostType: string, lang?: 'ru' | 'en') => {
+    const meta = ATTACK_FLYOUT_META[boostType];
+    if (meta) setFlyoutAttack({ type: boostType, ...meta });
+    c.handleBoostUse(boostType, lang);
+  };
 
   // Обработка Telegram BackButton для дуэли
   useEffect(() => {
@@ -319,7 +342,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
         usedBoosts={c.usedBoosts}
         isAnswered={c.isAnswered}
         translatePopoverOpen={c.translatePopoverOpen}
-        onBoostUse={c.handleBoostUse}
+        onBoostUse={handleBoostUseWithFlyout}
         onBoostPurchased={c.syncBoostInventory}
         setTranslatePopoverOpen={c.setTranslatePopoverOpen}
         formatTime={c.formatTime}
@@ -357,6 +380,13 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
 
       {/* Answer Processing Animation */}
       <AnswerProcessingOverlay isVisible={c.isProcessingAnswer} />
+
+      {/* Cinematic attack launch feedback */}
+      <AttackFlyout
+        attack={flyoutAttack}
+        opponentName={c.opponentName}
+        onDismiss={() => setFlyoutAttack(null)}
+      />
 
       {/* Unified Overlays Layer */}
       {/* DEV: attack tester — visible only in development builds */}
