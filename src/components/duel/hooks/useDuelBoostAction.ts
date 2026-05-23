@@ -81,13 +81,6 @@ export function useDuelBoostAction({
             return;
         }
 
-        // Check quantity
-        const boost = boosts.find(b => b.boost_type === boostType);
-        if (!boost || boost.quantity <= 0) {
-            toast.error('У вас нет этого буста!');
-            return;
-        }
-
         // Determine if it's an exploit (Root Mode)
         const rootModeExploits = ['screen_injector', 'oil_spill', 'data_leak', 'input_lag', 'gps_spoofing', 'police_backdoor', 'firewall', 'cryptolocker', 'ice_screen', 'sun_glare', 'rain_storm', 'bug_splat', 'fog_screen'];
         const isExploit = rootModeExploits.includes(boostType);
