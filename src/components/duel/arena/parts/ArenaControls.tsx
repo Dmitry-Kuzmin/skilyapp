@@ -3,6 +3,7 @@ import { motion } from '@/components/optimized/Motion';
 import { AttackPickerSheet, ATTACK_BOOST_TYPES } from '../../AttackPickerSheet';
 import { haptics } from '@/lib/haptics';
 import { cn } from '@/lib/utils';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface ArenaControlsProps {
     boosts: any[];
@@ -24,6 +25,7 @@ export const ArenaControls: React.FC<ArenaControlsProps> = ({
     onBoostPurchased,
     setTranslatePopoverOpen,
 }) => {
+    const { t } = useLanguage();
     const [sheetOpen, setSheetOpen] = useState(false);
 
     // Total usable items in inventory
@@ -57,7 +59,7 @@ export const ArenaControls: React.FC<ArenaControlsProps> = ({
             >
                 <span className="text-sm leading-none">⚡</span>
                 <span className="text-xs font-bold leading-none">
-                    {totalAvailable > 0 ? 'Арсенал' : 'Бусты'}
+                    {totalAvailable > 0 ? t('duelArsenal.buttonLabel') : t('duelArsenal.buttonEmpty')}
                 </span>
 
                 {totalAvailable > 0 && (

@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from '@/components/optimized/Motion';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export interface AttackFlyoutData {
   type: string;
@@ -18,6 +19,7 @@ interface AttackFlyoutProps {
 // Compact pill toast — slides in below the header, auto-dismisses in 1.6s.
 // No background overlay, pointer-events: none — game stays fully playable.
 export const AttackFlyout: React.FC<AttackFlyoutProps> = ({ attack, opponentName, onDismiss }) => {
+  const { t } = useLanguage();
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
@@ -53,7 +55,7 @@ export const AttackFlyout: React.FC<AttackFlyoutProps> = ({ attack, opponentName
               {attack.emoji}
             </span>
             <span className="text-white/90 text-sm font-bold tracking-wide whitespace-nowrap">
-              {attack.name}
+              {t(`boosts.boostNames.${attack.type}.name`) || attack.name}
             </span>
             {opponentName && (
               <>
@@ -67,7 +69,7 @@ export const AttackFlyout: React.FC<AttackFlyoutProps> = ({ attack, opponentName
               className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded-full"
               style={{ background: `${attack.color}22`, color: `${attack.color}cc` }}
             >
-              ⚡ атака
+              ⚡ {t('duelArsenal.attackLabel')}
             </span>
           </div>
         </motion.div>

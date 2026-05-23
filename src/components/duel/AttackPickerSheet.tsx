@@ -6,6 +6,7 @@ import { cn } from '@/lib/utils';
 import { haptics } from '@/lib/haptics';
 import { supabase } from '@/integrations/supabase/client';
 import { usePremium } from '@/hooks/usePremium';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 // ─── Attack types ─────────────────────────────────────────────────────────────
 
@@ -15,19 +16,20 @@ export const ATTACK_BOOST_TYPES = new Set([
   'screen_injector', 'gps_spoofing', 'firewall',
 ]);
 
-const ATTACK_META: Record<string, { emoji: string; name: string; color: string; glow: string }> = {
-  ice_screen:      { emoji: '🧊', name: 'Заморозка',  color: '#22d3ee', glow: 'rgba(34,211,238,0.4)' },
-  fog_screen:      { emoji: '🌫️', name: 'Туман',      color: '#94a3b8', glow: 'rgba(148,163,184,0.4)' },
-  sun_glare:       { emoji: '☀️', name: 'Солнце',     color: '#f59e0b', glow: 'rgba(245,158,11,0.4)' },
-  rain_storm:      { emoji: '🌧️', name: 'Гроза',      color: '#818cf8', glow: 'rgba(129,140,248,0.4)' },
-  bug_splat:       { emoji: '🐛', name: 'Баги',        color: '#34d399', glow: 'rgba(52,211,153,0.4)' },
-  police_backdoor: { emoji: '🚓', name: 'Полиция',    color: '#f87171', glow: 'rgba(248,113,113,0.4)' },
-  cryptolocker:    { emoji: '🔐', name: 'Шифровка',   color: '#a78bfa', glow: 'rgba(167,139,250,0.4)' },
-  input_lag:       { emoji: '🕸️', name: 'Лаг',        color: '#fb923c', glow: 'rgba(251,146,60,0.4)' },
-  oil_spill:       { emoji: '🛢️', name: 'Масло',      color: '#a8a29e', glow: 'rgba(168,162,158,0.4)' },
-  screen_injector: { emoji: '💉', name: 'Инъекция',   color: '#ef4444', glow: 'rgba(239,68,68,0.4)' },
-  gps_spoofing:    { emoji: '📡', name: 'GPS Спуф',   color: '#06b6d4', glow: 'rgba(6,182,212,0.4)' },
-  firewall:        { emoji: '🔥', name: 'Файрвол',    color: '#f97316', glow: 'rgba(249,115,22,0.4)' },
+// emoji + color only — names come from i18n: t('boosts.boostNames.{type}.name')
+const ATTACK_META: Record<string, { emoji: string; color: string; glow: string }> = {
+  ice_screen:      { emoji: '🧊', color: '#22d3ee', glow: 'rgba(34,211,238,0.4)' },
+  fog_screen:      { emoji: '🌫️', color: '#94a3b8', glow: 'rgba(148,163,184,0.4)' },
+  sun_glare:       { emoji: '☀️', color: '#f59e0b', glow: 'rgba(245,158,11,0.4)' },
+  rain_storm:      { emoji: '🌧️', color: '#818cf8', glow: 'rgba(129,140,248,0.4)' },
+  bug_splat:       { emoji: '🐛', color: '#34d399', glow: 'rgba(52,211,153,0.4)' },
+  police_backdoor: { emoji: '🚓', color: '#f87171', glow: 'rgba(248,113,113,0.4)' },
+  cryptolocker:    { emoji: '🔐', color: '#a78bfa', glow: 'rgba(167,139,250,0.4)' },
+  input_lag:       { emoji: '🕸️', color: '#fb923c', glow: 'rgba(251,146,60,0.4)' },
+  oil_spill:       { emoji: '🛢️', color: '#a8a29e', glow: 'rgba(168,162,158,0.4)' },
+  screen_injector: { emoji: '💉', color: '#ef4444', glow: 'rgba(239,68,68,0.4)' },
+  gps_spoofing:    { emoji: '📡', color: '#06b6d4', glow: 'rgba(6,182,212,0.4)' },
+  firewall:        { emoji: '🔥', color: '#f97316', glow: 'rgba(249,115,22,0.4)' },
 };
 
 const ATTACK_ORDER = [
@@ -38,13 +40,14 @@ const ATTACK_ORDER = [
 
 // ─── Utility types ────────────────────────────────────────────────────────────
 
-const UTILITY_META: Record<string, { emoji: string; name: string; color: string }> = {
-  fifty_fifty: { emoji: '✂️',  name: '50/50',      color: '#f59e0b' },
-  time_extend: { emoji: '⏱️',  name: '+30 сек',    color: '#22d3ee' },
-  hint:        { emoji: '💡',  name: 'Подсказка',  color: '#fb923c' },
-  skip:        { emoji: '⏭️',  name: 'Пропустить', color: '#818cf8' },
-  translate:   { emoji: '🌐',  name: 'Перевод',    color: '#34d399' },
-  rewind:      { emoji: '↩️',  name: 'Перемотка',  color: '#a78bfa' },
+// emoji + color only — names from i18n
+const UTILITY_META: Record<string, { emoji: string; color: string }> = {
+  fifty_fifty: { emoji: '✂️',  color: '#f59e0b' },
+  time_extend: { emoji: '⏱️',  color: '#22d3ee' },
+  hint:        { emoji: '💡',  color: '#fb923c' },
+  skip:        { emoji: '⏭️',  color: '#818cf8' },
+  translate:   { emoji: '🌐',  color: '#34d399' },
+  rewind:      { emoji: '↩️',  color: '#a78bfa' },
 };
 
 // ─── Props ────────────────────────────────────────────────────────────────────
@@ -81,6 +84,7 @@ export const AttackPickerSheet: React.FC<AttackPickerSheetProps> = ({
   translatePopoverOpen,
   onTranslatePopoverChange,
 }) => {
+  const { t } = useLanguage();
   const { coins } = usePremium();
   const [prices, setPrices] = useState<Record<string, number>>({});
   const [buying, setBuying] = useState<string | null>(null);
@@ -124,7 +128,7 @@ export const AttackPickerSheet: React.FC<AttackPickerSheetProps> = ({
     if (buying) return;
     const price = prices[type] ?? 0;
     if (coins < price) {
-      setBuyError('Не хватает монет');
+      setBuyError(t('duelArsenal.notEnoughCoins'));
       setTimeout(() => setBuyError(null), 2000);
       return;
     }
@@ -137,7 +141,7 @@ export const AttackPickerSheet: React.FC<AttackPickerSheetProps> = ({
       setLocalBought(prev => new Set([...prev, type]));
       setPendingBuy(null);
     } catch {
-      setBuyError('Ошибка покупки');
+      setBuyError(t('duelArsenal.buyError'));
       setTimeout(() => setBuyError(null), 2500);
     } finally {
       setBuying(null);
@@ -176,7 +180,7 @@ export const AttackPickerSheet: React.FC<AttackPickerSheetProps> = ({
   }));
 
   const hasAnyUtility = utilityBoosts.some(b => b.qty > 0);
-  const hasAnyAttack = ATTACK_ORDER.some(t => getQty(t) > 0);
+  const hasAnyAttack = ATTACK_ORDER.some(type => getQty(type) > 0);
   const hasAnything = hasAnyUtility || hasAnyAttack;
 
   return (
@@ -207,7 +211,7 @@ export const AttackPickerSheet: React.FC<AttackPickerSheetProps> = ({
           <div className="flex items-center justify-between px-5 pt-3 pb-3">
             <div>
               <h3 className="text-white font-black text-[15px] tracking-wide uppercase font-mono flex items-center gap-2">
-                <span className="text-base">⚡</span> Арсенал
+                <span className="text-base">⚡</span> {t('duelArsenal.title')}
               </h3>
               <AnimatePresence mode="wait">
                 {buyError ? (
@@ -222,7 +226,7 @@ export const AttackPickerSheet: React.FC<AttackPickerSheetProps> = ({
                   </motion.p>
                 ) : (
                   <motion.p key="sub" className="text-white/35 text-[11px] mt-0.5">
-                    {isAnswered ? 'Ответ дан — жди следующего вопроса' : `Баланс: ${coins} 🪙`}
+                    {isAnswered ? t('duelArsenal.answered') : t('duelArsenal.balance', { coins })}
                   </motion.p>
                 )}
               </AnimatePresence>
@@ -241,7 +245,7 @@ export const AttackPickerSheet: React.FC<AttackPickerSheetProps> = ({
 
             {/* ── ATTACKS ─────────────────────────────────────── */}
             <p className="text-white/25 text-[10px] font-mono uppercase tracking-widest mb-2.5">
-              Атаки сопернику
+              {t('duelArsenal.sectionAttacks')}
             </p>
 
             <div className="grid grid-cols-4 gap-2">
@@ -301,7 +305,7 @@ export const AttackPickerSheet: React.FC<AttackPickerSheetProps> = ({
                         className="text-[9px] font-semibold text-center leading-tight w-full truncate px-1"
                         style={{ color: hasIt && !disabled ? `${meta.color}cc` : 'rgba(255,255,255,0.2)' }}
                       >
-                        {meta.name}
+                        {t(`boosts.boostNames.${type}.name`)}
                       </span>
                     </motion.button>
 
@@ -336,7 +340,7 @@ export const AttackPickerSheet: React.FC<AttackPickerSheetProps> = ({
                             }
                           </motion.button>
                           {!canAfford && price !== undefined && (
-                            <p className="text-[8px] text-red-400/70 text-center leading-tight">мало монет</p>
+                            <p className="text-[8px] text-red-400/70 text-center leading-tight">{t('duelArsenal.notEnoughCoins')}</p>
                           )}
                         </motion.div>
                       )}
@@ -350,7 +354,7 @@ export const AttackPickerSheet: React.FC<AttackPickerSheetProps> = ({
             {hasAnyUtility && (
               <div className="mt-5">
                 <p className="text-white/25 text-[10px] font-mono uppercase tracking-widest mb-2.5">
-                  Инструменты
+                  {t('duelArsenal.sectionTools')}
                 </p>
                 <div className="flex flex-wrap gap-2">
                   {utilityBoosts.map(({ type, qty }) => {
@@ -403,7 +407,7 @@ export const AttackPickerSheet: React.FC<AttackPickerSheetProps> = ({
                         style={!disabled ? { borderColor: `${meta.color}25` } : undefined}
                       >
                         <span className="text-sm leading-none">{meta.emoji}</span>
-                        <span>{meta.name}</span>
+                        <span>{t(`boosts.boostNames.${type}.name`)}</span>
                         <span className="text-[10px] font-black rounded-full px-1.5 py-0.5 bg-white/10 text-white/60">
                           ×{qty}
                         </span>
@@ -418,9 +422,9 @@ export const AttackPickerSheet: React.FC<AttackPickerSheetProps> = ({
             {!hasAnything && (
               <div className="flex flex-col items-center py-8 text-center">
                 <span className="text-5xl mb-3 opacity-20">🎒</span>
-                <p className="text-white/40 text-sm font-semibold mb-1">Арсенал пуст</p>
-                <p className="text-white/25 text-xs mb-5 max-w-[200px]">Купи атаки и инструменты — используй прямо в дуэли</p>
-                <p className="text-white/25 text-xs mt-1">Тапни на любую атаку выше чтобы купить</p>
+                <p className="text-white/40 text-sm font-semibold mb-1">{t('duelArsenal.empty')}</p>
+                <p className="text-white/25 text-xs mb-5 max-w-[200px]">{t('duelArsenal.emptyHint')}</p>
+                <p className="text-white/25 text-xs mt-1">{t('duelArsenal.emptyTip')}</p>
               </div>
             )}
           </div>

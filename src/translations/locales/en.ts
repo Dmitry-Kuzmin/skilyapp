@@ -840,6 +840,22 @@ export const en = {
       refund: "Refunds",
     },
   },
+  duelArsenal: {
+    title: "Arsenal",
+    balance: "Balance: {{coins}} 🪙",
+    answered: "Already answered — wait for the next question",
+    sectionAttacks: "Attacks on opponent",
+    sectionTools: "Tools",
+    empty: "Arsenal is empty",
+    emptyHint: "Buy attacks and tools — use them right in the duel",
+    emptyTip: "Tap any attack above to buy",
+    notEnoughCoins: "Not enough coins",
+    buyError: "Purchase error",
+    buttonLabel: "Arsenal",
+    buttonEmpty: "Boosts",
+    attackLabel: "attack",
+    activeSeconds: "active for {{sec}} seconds",
+  },
   boostShop: {
     title: "Shop",
     subtitle: "Boosts, coins & Premium",
@@ -898,9 +914,33 @@ export const en = {
         name: "Rewind",
         description: "Gives a second try on the current question",
       },
+      ice_screen: {
+        name: "Ice Freeze",
+        description: "Covers the opponent's screen with ice — zero visibility",
+      },
+      fog_screen: {
+        name: "Fog Screen",
+        description: "Blankets the opponent's screen in thick fog",
+      },
+      sun_glare: {
+        name: "Sun Glare",
+        description: "Blinds the opponent's screen with intense sunlight",
+      },
+      rain_storm: {
+        name: "Thunderstorm",
+        description: "Heavy rain and lightning obscure the opponent's view",
+      },
+      bug_splat: {
+        name: "Bug Splat",
+        description: "Floods the opponent's screen with glitches and bugs",
+      },
+      oil_spill: {
+        name: "Oil Spill",
+        description: "Smears the opponent's screen with an oil splatter",
+      },
       screen_injector: {
-        name: "Data Leak",
-        description: "Highlights the correct answer for the opponent",
+        name: "Screen Injector",
+        description: "Injects visual noise into the opponent's interface",
       },
       input_lag: {
         name: "Input Lag",
@@ -911,16 +951,16 @@ export const en = {
         description: "Disrupts the opponent's progress indicators",
       },
       police_backdoor: {
-        name: "Backdoor",
-        description: "Opens access to the correct answer",
+        name: "Police Raid",
+        description: "Sirens and flashing lights flood the opponent's screen",
       },
       firewall: {
         name: "Firewall",
-        description: "Protects against negative effects",
+        description: "Blocks the opponent's interface with a barrier",
       },
       cryptolocker: {
-        name: "Scrambler",
-        description: "Shuffles the opponent's answers",
+        name: "Cryptolocker",
+        description: "Scrambles the opponent's answer options",
       },
     },
     active: {

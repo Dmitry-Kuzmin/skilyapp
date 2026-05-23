@@ -834,6 +834,22 @@ export const es = {
       refund: "Reembolsos",
     },
   },
+  duelArsenal: {
+    title: "Arsenal",
+    balance: "Saldo: {{coins}} 🪙",
+    answered: "Ya respondiste — espera la siguiente pregunta",
+    sectionAttacks: "Ataques al oponente",
+    sectionTools: "Herramientas",
+    empty: "Arsenal vacío",
+    emptyHint: "Compra ataques y herramientas — úsalos directamente en el duelo",
+    emptyTip: "Toca cualquier ataque de arriba para comprar",
+    notEnoughCoins: "Monedas insuficientes",
+    buyError: "Error de compra",
+    buttonLabel: "Arsenal",
+    buttonEmpty: "Boosts",
+    attackLabel: "ataque",
+    activeSeconds: "activo {{sec}} segundos",
+  },
   boostShop: {
     title: "Tienda",
     subtitle: "Impulsos, monedas y Premium",
@@ -892,29 +908,53 @@ export const es = {
         name: "Rebobinar",
         description: "Da un segundo intento en la pregunta actual",
       },
+      ice_screen: {
+        name: "Congelación",
+        description: "Cubre la pantalla del oponente con hielo — visibilidad cero",
+      },
+      fog_screen: {
+        name: "Pantalla de niebla",
+        description: "Envuelve la pantalla del oponente en densa niebla",
+      },
+      sun_glare: {
+        name: "Destello solar",
+        description: "Ciega la pantalla del oponente con luz solar intensa",
+      },
+      rain_storm: {
+        name: "Tormenta",
+        description: "Lluvia y rayos ocultan la vista del oponente",
+      },
+      bug_splat: {
+        name: "Pantalla bugueada",
+        description: "Inunda la pantalla del oponente con fallos y errores",
+      },
+      oil_spill: {
+        name: "Derrame de aceite",
+        description: "Mancha la pantalla del oponente con aceite",
+      },
       screen_injector: {
-        name: "Filtración",
-        description: "Resalta la respuesta correcta para el oponente",
+        name: "Inyector",
+        description: "Inyecta ruido visual en la interfaz del oponente",
       },
       input_lag: {
-        name: "Retraso",
+        name: "Retraso de entrada",
         description: "Ralentiza la respuesta de la interfaz del oponente",
       },
       gps_spoofing: {
-        name: "GPS Falso",
+        name: "GPS falso",
         description: "Altera los indicadores de progreso del oponente",
       },
       police_backdoor: {
-        name: "Puerta trasera",
-        description: "Abre acceso a la respuesta correcta",
+        name: "Redada policial",
+        description: "Sirenas y luces llenan la pantalla del oponente",
       },
       firewall: {
         name: "Cortafuegos",
-        description: "Protege contra efectos negativos",
+        description: "Bloquea la interfaz del oponente con una barrera",
       },
       cryptolocker: {
-        name: "Scrembler",
-        description: "Mezcla las respuestas del oponente",
+        name: "Criptobloqueador",
+        description: "Baraja las opciones de respuesta del oponente",
       },
     },
     active: {

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useDuelStore } from '@/store/duelStore';
 import { DuelLoadingView } from './parts/DuelLoadingView';
@@ -68,6 +68,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
   const setExploitPassed = useDuelStore(s => s.setExploitPassed);
   const [devOpen, setDevOpen] = useState(false);
   const [flyoutAttack, setFlyoutAttack] = useState<AttackFlyoutData | null>(null);
+  const handleFlyoutDismiss = useCallback(() => setFlyoutAttack(null), []);
   const [attackBadge, setAttackBadge] = useState<{ emoji: string; color: string; glow: string } | null>(null);
   const attackBadgeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -393,7 +394,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
       <AttackFlyout
         attack={flyoutAttack}
         opponentName={c.opponentName}
-        onDismiss={() => setFlyoutAttack(null)}
+        onDismiss={handleFlyoutDismiss}
       />
 
       {/* Unified Overlays Layer */}

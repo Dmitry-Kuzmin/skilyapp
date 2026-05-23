@@ -846,6 +846,22 @@ export const ru = {
       refund: "Возврат",
     },
   },
+  duelArsenal: {
+    title: "Арсенал",
+    balance: "Баланс: {{coins}} 🪙",
+    answered: "Ответ дан — жди следующего вопроса",
+    sectionAttacks: "Атаки сопернику",
+    sectionTools: "Инструменты",
+    empty: "Арсенал пуст",
+    emptyHint: "Купи атаки и инструменты — используй прямо в дуэли",
+    emptyTip: "Тапни на любую атаку выше чтобы купить",
+    notEnoughCoins: "Не хватает монет",
+    buyError: "Ошибка покупки",
+    buttonLabel: "Арсенал",
+    buttonEmpty: "Бусты",
+    attackLabel: "атака",
+    activeSeconds: "действует {{sec}} секунд",
+  },
   boostShop: {
     title: "Магазин",
     subtitle: "Бусты, монеты и Premium",
@@ -904,29 +920,53 @@ export const ru = {
         name: "Перемотка",
         description: "Дает вторую попытку на текущий вопрос",
       },
+      ice_screen: {
+        name: "Заморозка",
+        description: "Покрывает экран соперника льдом — видимость нулевая",
+      },
+      fog_screen: {
+        name: "Туман",
+        description: "Накрывает экран соперника густым туманом",
+      },
+      sun_glare: {
+        name: "Солнечный удар",
+        description: "Слепит экран соперника ярким солнечным светом",
+      },
+      rain_storm: {
+        name: "Гроза",
+        description: "Гроза мешает соперника видеть вопрос",
+      },
+      bug_splat: {
+        name: "Глюки",
+        description: "Забрасывает экран соперника багами и помехами",
+      },
+      oil_spill: {
+        name: "Масляное пятно",
+        description: "Размазывает экран соперника маслом",
+      },
       screen_injector: {
-        name: "Утечка данных",
-        description: "Подсвекивает правильный ответ противнику",
+        name: "Инжектор",
+        description: "Внедряет визуальный шум в интерфейс соперника",
       },
       input_lag: {
-        name: "Инпут лаг",
-        description: "Замедляет реакцию интерфейса противника",
+        name: "Лаг",
+        description: "Замедляет реакцию интерфейса соперника",
       },
       gps_spoofing: {
-        name: "GPS Подмена",
-        description: "Сбивает индикаторы прогресса противника",
+        name: "GPS Обман",
+        description: "Сбивает индикаторы прогресса соперника",
       },
       police_backdoor: {
-        name: "Бэкдор",
-        description: "Открывает доступ к правильному ответу",
+        name: "Полиция",
+        description: "Сирены и мигалки заполняют экран соперника",
       },
       firewall: {
         name: "Файрвол",
-        description: "Защищает от негативных эффектов",
+        description: "Блокирует интерфейс соперника щитом",
       },
       cryptolocker: {
-        name: "Скремблер",
-        description: "Перемешивает ответы противника",
+        name: "Шифровщик",
+        description: "Перемешивает варианты ответов соперника",
       },
     },
     active: {
