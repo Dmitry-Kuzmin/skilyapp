@@ -16,7 +16,7 @@ export const ATTACK_BOOST_TYPES = new Set([
   'screen_injector', 'gps_spoofing', 'firewall',
 ]);
 
-// emoji + color only — names come from i18n: t('boosts.boostNames.{type}.name')
+// emoji + color only — names come from i18n: t('boostShop.boostNames.{type}.name')
 const ATTACK_META: Record<string, { emoji: string; color: string; glow: string }> = {
   ice_screen:      { emoji: '🧊', color: '#22d3ee', glow: 'rgba(34,211,238,0.4)' },
   fog_screen:      { emoji: '🌫️', color: '#94a3b8', glow: 'rgba(148,163,184,0.4)' },
@@ -305,7 +305,7 @@ export const AttackPickerSheet: React.FC<AttackPickerSheetProps> = ({
                         className="text-[9px] font-semibold text-center leading-tight w-full truncate px-1"
                         style={{ color: hasIt && !disabled ? `${meta.color}cc` : 'rgba(255,255,255,0.2)' }}
                       >
-                        {t(`boosts.boostNames.${type}.name`)}
+                        {t(`boostShop.boostNames.${type}.name`)}
                       </span>
                     </motion.button>
 
@@ -407,7 +407,7 @@ export const AttackPickerSheet: React.FC<AttackPickerSheetProps> = ({
                         style={!disabled ? { borderColor: `${meta.color}25` } : undefined}
                       >
                         <span className="text-sm leading-none">{meta.emoji}</span>
-                        <span>{t(`boosts.boostNames.${type}.name`)}</span>
+                        <span>{t(`boostShop.boostNames.${type}.name`)}</span>
                         <span className="text-[10px] font-black rounded-full px-1.5 py-0.5 bg-white/10 text-white/60">
                           ×{qty}
                         </span>

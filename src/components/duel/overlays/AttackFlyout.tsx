@@ -55,7 +55,7 @@ export const AttackFlyout: React.FC<AttackFlyoutProps> = ({ attack, opponentName
               {attack.emoji}
             </span>
             <span className="text-white/90 text-sm font-bold tracking-wide whitespace-nowrap">
-              {t(`boosts.boostNames.${attack.type}.name`) || attack.name}
+              {t(`boostShop.boostNames.${attack.type}.name`) || attack.name}
             </span>
             {opponentName && (
               <>
