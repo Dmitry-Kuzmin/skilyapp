@@ -1,7 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { memo, lazy, Suspense, useState } from 'react';
 import { getImageUrl } from '@/utils/imageUtils';
-import { Scrambler } from '@/utils/scramble';
 import { haptics } from '@/lib/haptics';
 import { ThreeDImageViewer } from "@/components/ui/ThreeDImageViewer";
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -9,7 +8,6 @@ import { useLanguage } from '@/contexts/LanguageContext';
 // КРИТИЧНО: Lazy loading для компонентов атак
 // Это предотвращает циклические зависимости и TDZ ошибки при сборке
 const InputLagWrapper = lazy(() => import('./attacks/InputLagWrapper').then(m => ({ default: m.InputLagWrapper })));
-const EncryptionFlashlight = lazy(() => import('./attacks/EncryptionFlashlight').then(m => ({ default: m.EncryptionFlashlight })));
 
 interface QuestionOption {
   id: string;
@@ -40,7 +38,6 @@ interface DuelQuestionCardProps {
   onAnswer: (optionId: string) => void;
   inputLagActive?: boolean;
   inputLagDelay?: number;
-  cryptolockerActive?: boolean;
 }
 
 export const DuelQuestionCard = memo(({
@@ -52,7 +49,6 @@ export const DuelQuestionCard = memo(({
   onAnswer,
   inputLagActive = false,
   inputLagDelay = 1500,
-  cryptolockerActive = false,
 }: DuelQuestionCardProps) => {
   const { t } = useLanguage();
   const [is3DViewerOpen, setIs3DViewerOpen] = useState(false);
@@ -134,7 +130,7 @@ export const DuelQuestionCard = memo(({
           <div className={`flex flex-col justify-center ${hasImage ? 'md:w-[45%]' : 'w-full max-w-4xl mx-auto'}`}>
             {/* Question Text - More breathing room */}
             <h2 className={`text-xl md:text-2xl font-bold mb-6 leading-relaxed text-foreground break-words ${!hasImage ? 'text-center' : ''}`}>
-              {cryptolockerActive && !isAnswered ? <Scrambler>{questionText}</Scrambler> : questionText}
+              {questionText}
             </h2>
 
             {/* Answer Options */}
@@ -172,6 +168,7 @@ export const DuelQuestionCard = memo(({
 
                 const buttonElement = (
                   <motion.button
+                    data-answer-id={option.id}
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: idx * 0.05 }}
@@ -197,7 +194,7 @@ export const DuelQuestionCard = memo(({
                       }`}
                   >
                     <span className="flex-1">
-                      {cryptolockerActive && !isAnswered ? <Scrambler>{optionText}</Scrambler> : optionText}
+                      {optionText}
                     </span>
 
                     {/* Icon status with Flexbox alignment instead of absolute positioning */}
@@ -255,18 +252,6 @@ export const DuelQuestionCard = memo(({
       />
     </>
   );
-
-  // Если cryptolocker активен - оборачиваем весь контент в один EncryptionFlashlight
-  if (cryptolockerActive && !isAnswered) {
-    const radius = typeof window !== 'undefined' && window.innerWidth < 768 ? 140 : 180;
-    return (
-      <Suspense fallback={cardContent}>
-        <EncryptionFlashlight isActive={true} flashlightRadius={radius}>
-          {cardContent}
-        </EncryptionFlashlight>
-      </Suspense>
-    );
-  }
 
   return cardContent;
 });

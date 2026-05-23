@@ -176,6 +176,7 @@ export function QuestionProgressBar({
               return (
                 <motion.div
                   key={i}
+                  data-progress-segment={i}
                   initial={answered ? { scale: 0.4, opacity: 0 } : false}
                   animate={
                     !hideScoreIndicators && isWrong && isLast

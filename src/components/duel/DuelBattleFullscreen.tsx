@@ -10,6 +10,7 @@ import { ArenaPlayground } from './arena/parts/ArenaPlayground';
 import { AnswerProcessingOverlay } from './overlays/AnswerProcessingOverlay';
 import { AttackFlyout, type AttackFlyoutData } from './overlays/AttackFlyout';
 import { AttackParticleEffect } from './overlays/AttackParticleEffect';
+import { DuelAnswerParticleBurst } from './DuelAnswerParticleBurst';
 import { Button } from '@/components/ui/button';
 import { Coins } from 'lucide-react';
 import { useDuelBattleCoordinator } from './hooks/useDuelBattleCoordinator';
@@ -405,6 +406,12 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
       <AttackParticleEffect
         attack={particleAttack}
         onComplete={handleParticleComplete}
+      />
+
+      {/* Answer particles: fly from selected answer to progress bar segment */}
+      <DuelAnswerParticleBurst
+        answers={c.answerHistory}
+        selectedAnswerId={c.selectedAnswer}
       />
 
       {/* Unified Overlays Layer */}
