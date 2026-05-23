@@ -44,6 +44,7 @@ interface ArenaHeaderProps {
     isAnswered: boolean;
     translatePopoverOpen: string | null;
     onBoostUse: (boostId: string, lang?: 'ru' | 'en') => void;
+    onBoostPurchased: () => void;
     setTranslatePopoverOpen: (id: string | null) => void;
 
     // Settings & Navigation
@@ -104,6 +105,7 @@ export const ArenaHeader: React.FC<ArenaHeaderProps> = ({
     isAnswered,
     translatePopoverOpen,
     onBoostUse,
+    onBoostPurchased,
     setTranslatePopoverOpen,
     showDuelSettings,
     setShowDuelSettings,
@@ -216,6 +218,7 @@ export const ArenaHeader: React.FC<ArenaHeaderProps> = ({
                                     isAnswered={isAnswered}
                                     translatePopoverOpen={translatePopoverOpen}
                                     onBoostUse={onBoostUse}
+                                    onBoostPurchased={onBoostPurchased}
                                     setTranslatePopoverOpen={setTranslatePopoverOpen}
                                     isTelegramMobile={isMobileView}
                                 />
@@ -252,6 +255,7 @@ export const ArenaHeader: React.FC<ArenaHeaderProps> = ({
                                     isAnswered={isAnswered}
                                     translatePopoverOpen={translatePopoverOpen}
                                     onBoostUse={onBoostUse}
+                                    onBoostPurchased={onBoostPurchased}
                                     setTranslatePopoverOpen={setTranslatePopoverOpen}
                                     isTelegramMobile={isMobileView}
                                 />

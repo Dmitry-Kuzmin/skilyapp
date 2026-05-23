@@ -10,6 +10,7 @@ interface ArenaControlsProps {
     isAnswered: boolean;
     translatePopoverOpen: string | null;
     onBoostUse: (boostId: string, lang?: 'ru' | 'en') => void;
+    onBoostPurchased: () => void;
     setTranslatePopoverOpen: (id: string | null) => void;
     isTelegramMobile: boolean;
 }
@@ -20,6 +21,7 @@ export const ArenaControls: React.FC<ArenaControlsProps> = ({
     isAnswered,
     translatePopoverOpen,
     onBoostUse,
+    onBoostPurchased,
     setTranslatePopoverOpen,
 }) => {
     const [sheetOpen, setSheetOpen] = useState(false);
@@ -80,6 +82,7 @@ export const ArenaControls: React.FC<ArenaControlsProps> = ({
                 usedBoosts={usedBoosts}
                 isAnswered={isAnswered}
                 onBoostUse={onBoostUse}
+                onBoostPurchased={onBoostPurchased}
                 translatePopoverOpen={translatePopoverOpen}
                 onTranslatePopoverChange={setTranslatePopoverOpen}
             />

@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from '@/components/optimized/Motion';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
-import { X, ShoppingBag } from 'lucide-react';
+import { X, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { haptics } from '@/lib/haptics';
-import { useModal } from '@/hooks/useModal';
+import { supabase } from '@/integrations/supabase/lazyClient';
+import { usePremium } from '@/hooks/usePremium';
 
 // ─── Attack types ─────────────────────────────────────────────────────────────
 
@@ -62,6 +63,7 @@ interface AttackPickerSheetProps {
   usedBoosts: string[];
   isAnswered: boolean;
   onBoostUse: (boostType: string, lang?: 'ru' | 'en') => void;
+  onBoostPurchased: () => void;
   translatePopoverOpen: string | null;
   onTranslatePopoverChange: (id: string | null) => void;
 }
@@ -75,25 +77,79 @@ export const AttackPickerSheet: React.FC<AttackPickerSheetProps> = ({
   usedBoosts,
   isAnswered,
   onBoostUse,
+  onBoostPurchased,
   translatePopoverOpen,
   onTranslatePopoverChange,
 }) => {
-  const { openModal } = useModal('BOOST_SHOP');
+  const { coins } = usePremium();
+  const [prices, setPrices] = useState<Record<string, number>>({});
+  const [buying, setBuying] = useState<string | null>(null);
+  const [buyError, setBuyError] = useState<string | null>(null);
+  // Optimistic: boost types bought this session (before parent refresh)
+  const [localBought, setLocalBought] = useState<Set<string>>(new Set());
   const [pendingBuy, setPendingBuy] = useState<string | null>(null);
+
+  // Load prices when sheet opens
+  useEffect(() => {
+    if (!isOpen) return;
+    supabase
+      .from('boost_definitions')
+      .select('type, cost_coins')
+      .then(({ data }) => {
+        if (data) {
+          const map: Record<string, number> = {};
+          data.forEach(d => { map[d.type] = d.cost_coins; });
+          setPrices(map);
+        }
+      });
+  }, [isOpen]);
 
   const inventoryMap = new Map(boosts.map(b => [b.boost_type, b.quantity]));
 
+  // Merge real inventory with optimistic purchases
+  const getQty = (type: string) => {
+    const base = inventoryMap.get(type) ?? 0;
+    return localBought.has(type) ? base + 1 : base;
+  };
+
   const handleClose = () => {
     setPendingBuy(null);
+    setBuyError(null);
     onTranslatePopoverChange(null);
+    if (localBought.size > 0) onBoostPurchased();
     onClose();
+  };
+
+  const handleBuy = async (type: string) => {
+    if (buying) return;
+    const price = prices[type] ?? 0;
+    if (coins < price) {
+      setBuyError('Не хватает монет');
+      setTimeout(() => setBuyError(null), 2000);
+      return;
+    }
+    setBuying(type);
+    setBuyError(null);
+    try {
+      const { error } = await supabase.rpc('purchase_boost', { p_boost_type: type });
+      if (error) throw error;
+      haptics.boostActivated?.() ?? haptics.medium();
+      setLocalBought(prev => new Set([...prev, type]));
+      setPendingBuy(null);
+    } catch {
+      setBuyError('Ошибка покупки');
+      setTimeout(() => setBuyError(null), 2500);
+    } finally {
+      setBuying(null);
+    }
   };
 
   const handleAttack = (type: string) => {
     if (isAnswered) return;
-    const qty = inventoryMap.get(type) ?? 0;
+    const qty = getQty(type);
     if (qty <= 0) {
       setPendingBuy(prev => (prev === type ? null : type));
+      setBuyError(null);
       return;
     }
     haptics.medium();
@@ -124,7 +180,7 @@ export const AttackPickerSheet: React.FC<AttackPickerSheetProps> = ({
   }));
 
   const hasAnyUtility = utilityBoosts.some(b => b.qty > 0);
-  const hasAnyAttack = ATTACK_ORDER.some(t => (inventoryMap.get(t) ?? 0) > 0);
+  const hasAnyAttack = ATTACK_ORDER.some(t => getQty(t) > 0);
   const hasAnything = hasAnyUtility || hasAnyAttack;
 
   return (
@@ -157,9 +213,23 @@ export const AttackPickerSheet: React.FC<AttackPickerSheetProps> = ({
               <h3 className="text-white font-black text-[15px] tracking-wide uppercase font-mono flex items-center gap-2">
                 <span className="text-base">⚡</span> Арсенал
               </h3>
-              <p className="text-white/35 text-[11px] mt-0.5">
-                {isAnswered ? 'Ответ дан — жди следующего вопроса' : 'Атакуй соперника или используй инструмент'}
-              </p>
+              <AnimatePresence mode="wait">
+                {buyError ? (
+                  <motion.p
+                    key="err"
+                    initial={{ opacity: 0, y: -4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0 }}
+                    className="text-red-400 text-[11px] mt-0.5 font-semibold"
+                  >
+                    {buyError}
+                  </motion.p>
+                ) : (
+                  <motion.p key="sub" className="text-white/35 text-[11px] mt-0.5">
+                    {isAnswered ? 'Ответ дан — жди следующего вопроса' : `Баланс: ${coins} 🪙`}
+                  </motion.p>
+                )}
+              </AnimatePresence>
             </div>
             <motion.button
               whileTap={{ scale: 0.88 }}
@@ -182,11 +252,14 @@ export const AttackPickerSheet: React.FC<AttackPickerSheetProps> = ({
               {ATTACK_ORDER.map((type, idx) => {
                 const meta = ATTACK_META[type];
                 if (!meta) return null;
-                const qty = inventoryMap.get(type) ?? 0;
+                const qty = getQty(type);
                 const hasIt = qty > 0;
                 const isUsed = usedBoosts.includes(type);
                 const disabled = isAnswered || isUsed;
                 const isBuyPending = pendingBuy === type;
+                const isBuying = buying === type;
+                const price = prices[type];
+                const canAfford = price !== undefined && coins >= price;
 
                 return (
                   <div key={type} className="flex flex-col gap-1">
@@ -204,6 +277,7 @@ export const AttackPickerSheet: React.FC<AttackPickerSheetProps> = ({
                           : hasIt
                             ? 'cursor-pointer bg-white/5 border-white/12 active:brightness-125'
                             : 'cursor-pointer bg-white/[0.02] border-dashed border-white/8',
+                        isBuyPending && !hasIt && 'ring-1 ring-indigo-500/40',
                       )}
                       style={hasIt && !disabled ? {
                         boxShadow: `0 0 16px ${meta.glow}`,
@@ -235,19 +309,40 @@ export const AttackPickerSheet: React.FC<AttackPickerSheetProps> = ({
                       </span>
                     </motion.button>
 
-                    {/* Buy confirm pill */}
+                    {/* Inline buy panel */}
                     <AnimatePresence>
-                      {isBuyPending && !disabled && (
-                        <motion.button
-                          initial={{ opacity: 0, y: -6, scaleY: 0.6 }}
+                      {isBuyPending && !hasIt && !disabled && (
+                        <motion.div
+                          initial={{ opacity: 0, y: -4, scaleY: 0.7 }}
                           animate={{ opacity: 1, y: 0, scaleY: 1 }}
                           exit={{ opacity: 0, y: -4, scaleY: 0.7 }}
-                          transition={{ duration: 0.15 }}
-                          onClick={() => { handleClose(); openModal({ initialTab: 'boosts' }); }}
-                          className="w-full py-1.5 rounded-xl text-[9px] font-bold text-indigo-300 border border-indigo-500/40 bg-indigo-500/15 active:bg-indigo-500/30 flex items-center justify-center gap-1 transition-colors"
+                          transition={{ duration: 0.14 }}
+                          className="flex flex-col gap-0.5"
                         >
-                          <ShoppingBag className="w-2.5 h-2.5" /> Купить
-                        </motion.button>
+                          <motion.button
+                            whileTap={canAfford && !isBuying ? { scale: 0.93 } : {}}
+                            onClick={() => canAfford && handleBuy(type)}
+                            disabled={!canAfford || isBuying}
+                            className={cn(
+                              'w-full py-1.5 rounded-xl text-[9px] font-bold flex items-center justify-center gap-1 transition-colors border',
+                              isBuying
+                                ? 'border-indigo-500/30 bg-indigo-500/10 text-indigo-400'
+                                : canAfford
+                                  ? 'border-indigo-500/50 bg-indigo-500/20 text-indigo-200 active:bg-indigo-500/35'
+                                  : 'border-white/8 bg-white/5 text-white/25 cursor-not-allowed',
+                            )}
+                          >
+                            {isBuying
+                              ? <Loader2 className="w-2.5 h-2.5 animate-spin" />
+                              : price !== undefined
+                                ? <><span>🪙</span><span>{price}</span></>
+                                : <span>…</span>
+                            }
+                          </motion.button>
+                          {!canAfford && price !== undefined && (
+                            <p className="text-[8px] text-red-400/70 text-center leading-tight">мало монет</p>
+                          )}
+                        </motion.div>
                       )}
                     </AnimatePresence>
                   </div>
@@ -329,14 +424,7 @@ export const AttackPickerSheet: React.FC<AttackPickerSheetProps> = ({
                 <span className="text-5xl mb-3 opacity-20">🎒</span>
                 <p className="text-white/40 text-sm font-semibold mb-1">Арсенал пуст</p>
                 <p className="text-white/25 text-xs mb-5 max-w-[200px]">Купи атаки и инструменты — используй прямо в дуэли</p>
-                <motion.button
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => { handleClose(); openModal({ initialTab: 'boosts' }); }}
-                  className="flex items-center gap-2 px-5 py-2.5 rounded-2xl text-sm font-bold text-white border border-indigo-500/40 bg-indigo-500/15 active:bg-indigo-500/30 transition-colors"
-                >
-                  <ShoppingBag className="w-4 h-4" />
-                  Открыть магазин
-                </motion.button>
+                <p className="text-white/25 text-xs mt-1">Тапни на любую атаку выше чтобы купить</p>
               </div>
             )}
           </div>

@@ -1,5 +1,6 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
+import { useDuelStore } from '@/store/duelStore';
 import { DuelLoadingView } from './parts/DuelLoadingView';
 import { DuelWaitingView } from './parts/DuelWaitingView';
 import { DuelOverlays } from './arena/parts/DuelOverlays';
@@ -33,8 +34,23 @@ interface DuelBattleFullscreenProps {
   onWidgetExpand?: () => void;
 }
 
+const DEV_ATTACKS = [
+  { type: 'oil_spill',       label: '🛢 Oil' },
+  { type: 'cryptolocker',    label: '🔐 Crypto' },
+  { type: 'fog_screen',      label: '🌫 Fog' },
+  { type: 'police_backdoor', label: '🚓 Police' },
+  { type: 'ice_screen',      label: '❄️ Ice' },
+  { type: 'sun_glare',       label: '☀️ Sun' },
+  { type: 'rain_storm',      label: '🌧 Rain' },
+  { type: 'bug_splat',       label: '🐛 Bugs' },
+  { type: 'input_lag',       label: '🕸 Lag' },
+] as const;
+
 export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, onWidgetExpand }: DuelBattleFullscreenProps) {
   const c = useDuelBattleCoordinator({ duelId, onDuelFinished, onHide, onWidgetExpand, onExit });
+  const syncActiveExploits = useDuelStore(s => s.syncActiveExploits);
+  const setExploitPassed = useDuelStore(s => s.setExploitPassed);
+  const [devOpen, setDevOpen] = useState(false);
 
   // Обработка Telegram BackButton для дуэли
   useEffect(() => {
@@ -250,8 +266,6 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
   // 🆕 Определяем активные exploits
   const inputLagExploit = c.realtimeState.activeExploits?.find((e: any) => e.type === 'input_lag');
   const inputLagActive = !!inputLagExploit && !c.activeExploits.get('input_lag')?.passed;
-  const cryptolockerExploit = c.realtimeState.activeExploits?.find((e: any) => e.type === 'cryptolocker');
-  const cryptolockerActive = !!cryptolockerExploit && !c.activeExploits.get('cryptolocker')?.passed;
 
   return (
     <div
@@ -306,6 +320,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
         isAnswered={c.isAnswered}
         translatePopoverOpen={c.translatePopoverOpen}
         onBoostUse={c.handleBoostUse}
+        onBoostPurchased={c.syncBoostInventory}
         setTranslatePopoverOpen={c.setTranslatePopoverOpen}
         formatTime={c.formatTime}
         showDuelSettings={c.showDuelSettings}
@@ -338,13 +353,52 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
         translationLanguage={c.translationLanguage}
         onAnswer={c.handleAnswer}
         activeExploits={c.activeExploits}
-        cryptolockerActive={cryptolockerActive}
       />
 
       {/* Answer Processing Animation */}
       <AnswerProcessingOverlay isVisible={c.isProcessingAnswer} />
 
       {/* Unified Overlays Layer */}
+      {/* DEV: attack tester — visible only in development builds */}
+      {isDev && (
+        <div className="fixed bottom-24 right-3 z-[9998] flex flex-col items-end gap-1.5">
+          {devOpen && (
+            <div className="bg-black/90 border border-yellow-400/40 rounded-xl p-2.5 flex flex-col gap-1.5 shadow-2xl min-w-[130px]">
+              <p className="text-yellow-300 text-[10px] font-mono uppercase tracking-widest px-1 pb-0.5 border-b border-yellow-400/20">
+                Trigger attack
+              </p>
+              {DEV_ATTACKS.map(({ type, label }) => (
+                <button
+                  key={type}
+                  onClick={() => {
+                    syncActiveExploits([{ type, expiresAt: Date.now() + 30_000, receivedAt: Date.now() }]);
+                    setDevOpen(false);
+                  }}
+                  className="text-left text-xs text-white/90 hover:text-yellow-300 hover:bg-yellow-400/10 px-2 py-1 rounded font-mono transition-colors"
+                >
+                  {label}
+                </button>
+              ))}
+              <button
+                onClick={() => {
+                  DEV_ATTACKS.forEach(({ type }) => setExploitPassed(type));
+                  setDevOpen(false);
+                }}
+                className="text-left text-xs text-red-400 hover:text-red-300 hover:bg-red-400/10 px-2 py-1 rounded font-mono transition-colors border-t border-white/10 mt-0.5 pt-1.5"
+              >
+                ✕ Clear all
+              </button>
+            </div>
+          )}
+          <button
+            onClick={() => setDevOpen(o => !o)}
+            className="bg-yellow-400 hover:bg-yellow-300 text-black text-[11px] font-black px-2.5 py-1 rounded-full shadow-lg font-mono tracking-widest transition-colors"
+          >
+            {devOpen ? '✕ DEV' : '⚡ DEV'}
+          </button>
+        </div>
+      )}
+
       <DuelOverlays
         toastNotifications={c.toastNotifications}
         setToastNotifications={c.setToastNotifications}
