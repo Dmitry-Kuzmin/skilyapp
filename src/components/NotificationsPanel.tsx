@@ -138,6 +138,18 @@ const NotificationItem = memo(({
               </p>
             )}
           </div>
+          {/* Картинка вопроса для report_reply уведомлений */}
+          {notification.type === 'question_report_reply' && notification.metadata?.question_image_url && (
+            <div className="mb-2 rounded-lg overflow-hidden border border-border/50">
+              <img
+                src={notification.metadata.question_image_url}
+                alt=""
+                className="w-full h-32 object-cover"
+                loading="lazy"
+              />
+            </div>
+          )}
+
           <div className="flex items-center justify-between">
             <p className="text-xs text-muted-foreground">
               {getCachedTime(notification.created_at)}
@@ -461,7 +473,7 @@ export const NotificationsPanel = ({ notificationsApi, open, onOpenChange, rende
           {trigger ?? defaultTrigger}
         </SheetTrigger>
       )}
-      <SheetContent side="right" className="w-full sm:max-w-md p-0 flex flex-col" style={{ paddingTop: 'var(--app-content-top, env(safe-area-inset-top, 0px))' }}>
+      <SheetContent side="right" className="w-full sm:max-w-md p-0 flex flex-col" style={{ paddingTop: 'max(var(--app-content-top, 0px), env(safe-area-inset-top, 0px))' }}>
         <SheetHeader className="p-6 pb-4 border-b pt-6">
           <div className="flex items-center justify-between mb-4">
             <SheetTitle className="text-2xl font-bold flex items-center gap-2">

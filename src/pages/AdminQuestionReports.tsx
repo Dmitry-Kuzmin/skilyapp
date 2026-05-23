@@ -191,7 +191,17 @@ const AdminQuestionReports = () => {
                 ? "ℹ️ Отчёт закрыт"
                 : "✉️ Ответ по отчёту";
 
-          const message = `Статус: ${statusText}\n\nОтвет:\n${responseText}`;
+          const questionText = selectedReport.question?.question_ru
+            || selectedReport.question?.question_es
+            || null;
+          const questionImageUrl = selectedReport.question?.image_url || null;
+
+          // Строим читаемое сообщение: вопрос + ответ
+          const messageParts: string[] = [];
+          if (questionText) messageParts.push(`Вопрос: ${questionText.substring(0, 120)}${questionText.length > 120 ? '...' : ''}`);
+          messageParts.push(`Статус: ${statusText}`);
+          messageParts.push(`Ответ:\n${responseText}`);
+          const message = messageParts.join('\n\n');
 
           const icon =
             newStatus === "resolved"
@@ -212,6 +222,7 @@ const AdminQuestionReports = () => {
               metadata: {
                 report_id: selectedReport.id,
                 question_id: selectedReport.question_id,
+                question_image_url: questionImageUrl,
                 status: newStatus,
                 admin_response: responseText,
               },
