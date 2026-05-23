@@ -368,6 +368,10 @@ export function DuelWaitingReplay({
   }, [duelId, profileId, isDuelFinished, safeCallOnDuelFinished]);
 
   // FALLBACK: Poll opponent score for Telegram WebApp (Realtime may not work reliably)
+  // Храним текущий opponentScore в ref, чтобы не перезапускать интервал при каждом обновлении
+  const opponentScoreRef = useRef(opponentScore);
+  useEffect(() => { opponentScoreRef.current = opponentScore; }, [opponentScore]);
+
   useEffect(() => {
     const isTelegram = typeof window !== 'undefined' && window.Telegram?.WebApp;
 
@@ -394,8 +398,8 @@ export function DuelWaitingReplay({
 
         if (data?.players) {
           const opponent = data.players.find((p: any) => p.user_id !== profileId);
-          if (opponent && typeof opponent.score === 'number' && opponent.score !== opponentScore) {
-            devLog('[DuelWaitingReplay] 🔄 Fallback: Updating opponent score:', opponent.score, '(was:', opponentScore, ')');
+          if (opponent && typeof opponent.score === 'number' && opponent.score !== opponentScoreRef.current) {
+            devLog('[DuelWaitingReplay] 🔄 Fallback: Updating opponent score:', opponent.score, '(was:', opponentScoreRef.current, ')');
             setOpponentScore(opponent.score);
           }
         }
@@ -409,7 +413,8 @@ export function DuelWaitingReplay({
     const interval = setInterval(pollOpponentScore, 2000);
 
     return () => clearInterval(interval);
-  }, [duelId, profileId, isDuelFinished, opponentScore]);
+  // opponentScore убран из deps — используем ref, чтобы не рестартовать интервал при каждом обновлении счёта
+  }, [duelId, profileId, isDuelFinished]);
 
   // CRITICAL FALLBACK: Poll duel status for Telegram WebApp (Realtime may not trigger duelFinished)
   useEffect(() => {

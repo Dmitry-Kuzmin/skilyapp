@@ -343,6 +343,11 @@ export default function Duel() {
         // Ждем завершения проверки activeDuel и загрузки данных
         if (isChecking || !dataLoaded) return;
 
+        // Не восстанавливаем старую дуэль если уже идёт поиск/битва/результаты.
+        // Это защищает от гонки: смена duelId пересоздаёт handleDuelStarted (useCallback),
+        // что вызывает этот эффект повторно — при активном режиме просто выходим.
+        if (mode === 'finding' || mode === 'battle' || mode === 'result') return;
+
         // Проверяем URL параметр duelId (приоритет выше)
         const urlDuelId = searchParams.get('duelId');
 
@@ -461,8 +466,8 @@ export default function Duel() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
         // FIX: используем activeDuel?.duelId вместо activeDuel — эффект не должен
         // перезапускаться когда меняется только mode/currentIndex внутри activeDuel.
-        // Это предотвращает гонку: updateActiveDuel({mode:'result'}) → effect re-runs → handleDuelStarted → setMode('battle')
-    }, [isChecking, activeDuel?.duelId, searchParams, dataLoaded, handleDuelStarted]);
+        // mode добавлен чтобы guard (finding/battle/result) работал при re-run.
+    }, [isChecking, activeDuel?.duelId, searchParams, dataLoaded, handleDuelStarted, mode]);
 
     useEffect(() => {
         // Показываем уведомления только после полной загрузки данных
@@ -931,7 +936,11 @@ export default function Duel() {
 
         console.log('[Duel] 🔍 handleFindMatch initiated:', { immediateBot, argRematchOpponent, rematchOpponent });
 
-        // Сбрасываем старые идентификаторы перед началом нового поиска
+        // Сбрасываем старые идентификаторы перед началом нового поиска.
+        // КРИТИЧНО: clearActiveDuel() должен быть вызван ДО setDuelId(null),
+        // иначе смена duelId пересоздаёт handleDuelStarted → restore effect
+        // срабатывает и восстанавливает старую дуэль поверх новой.
+        clearActiveDuel();
         setCreatedCode(null);
         setDuelId(null);
         setDuelCode(null);
