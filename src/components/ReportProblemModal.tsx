@@ -9,9 +9,11 @@ import {
   X
 } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useUserContext } from "@/contexts/UserContext";
 import { ResponsiveModal } from "@/components/ui/responsive-modal";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
+import { getSupabaseClient } from "@/integrations/supabase/lazyClient";
 
 interface ReportProblemModalProps {
   open: boolean;
@@ -50,11 +52,21 @@ const reportTypes: { id: ReportType; icon: any; label: { es: string; ru: string 
   }
 ];
 
+const REPORT_DESCRIPTIONS: Record<ReportType, { es: string; ru: string }> = {
+  wrong_translation: { es: "Traducción incorrecta", ru: "Неправильный перевод" },
+  wrong_answer:      { es: "Respuesta incorrecta",  ru: "Неправильный ответ" },
+  wrong_image:       { es: "Imagen incorrecta",     ru: "Неправильное изображение" },
+  unclear_question:  { es: "Pregunta confusa",      ru: "Непонятный вопрос" },
+  other:             { es: "Otro problema",          ru: "Другая проблема" },
+};
+
 export function ReportProblemModal({ open, onOpenChange, questionId, questionText }: ReportProblemModalProps) {
   const [reportType, setReportType] = useState<ReportType | null>(null);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const { language } = useLanguage();
+  const { profileId } = useUserContext();
   const lang = language === "es" ? "es" : "ru";
 
   // Reset state when opening
@@ -62,11 +74,40 @@ export function ReportProblemModal({ open, onOpenChange, questionId, questionTex
     if (open) {
       setReportType(null);
       setIsSuccess(false);
+      setIsSubmitting(false);
     }
   }, [open]);
 
-  const handleSelectType = (type: ReportType) => {
+  const handleSelectType = async (type: ReportType) => {
+    if (isSubmitting) return;
     setReportType(type);
+    setIsSubmitting(true);
+
+    try {
+      const supabase = await getSupabaseClient();
+      const description = questionText
+        ? `${REPORT_DESCRIPTIONS[type][lang]}: "${questionText.substring(0, 200)}"`
+        : REPORT_DESCRIPTIONS[type][lang];
+
+      const { error } = await supabase
+        .from("question_reports")
+        .insert({
+          question_id: questionId,
+          user_id: profileId!,
+          report_type: type,
+          description,
+          status: "pending",
+        });
+
+      if (error) {
+        console.error("[ReportProblemModal] Insert error:", error);
+      }
+    } catch (err) {
+      console.error("[ReportProblemModal] Unexpected error:", err);
+    } finally {
+      setIsSubmitting(false);
+    }
+
     setIsSuccess(true);
     setTimeout(() => {
       onOpenChange(false);
