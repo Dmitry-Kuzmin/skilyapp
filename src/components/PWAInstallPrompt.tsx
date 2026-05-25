@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { X, Smartphone } from 'lucide-react';
 import { isTelegramMiniApp } from '@/lib/telegram';
+import { useUserContext } from '@/contexts/UserContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 /**
  * Умный PWA-промпт: показывается только на iOS Safari (мобайл).
@@ -41,6 +43,8 @@ function wasDismissedRecently(): boolean {
 }
 
 export function PWAInstallPrompt() {
+  const { isAuthenticated } = useUserContext();
+  const { t } = useLanguage();
   const [visible, setVisible] = useState(false);
   const [mounted, setMounted] = useState(false);
 
@@ -48,6 +52,7 @@ export function PWAInstallPrompt() {
     setMounted(true);
 
     const shouldShow =
+      isAuthenticated &&
       isIosSafariMobile() &&
       !isStandaloneMode() &&
       !isTelegramMiniApp() &&
@@ -58,7 +63,7 @@ export function PWAInstallPrompt() {
       const timer = setTimeout(() => setVisible(true), 3000);
       return () => clearTimeout(timer);
     }
-  }, []);
+  }, [isAuthenticated]);
 
   const handleDismiss = () => {
     setVisible(false);
@@ -103,29 +108,22 @@ export function PWAInstallPrompt() {
           {/* Текст */}
           <div className="flex flex-col gap-1 min-w-0">
             <p className="font-bold text-white text-sm leading-tight">
-              Добавьте Skily на экран «Домой»
+              {t('pwaPrompt.title')}
             </p>
             <p className="text-white/50 text-xs leading-relaxed">
-              Быстрый доступ без браузера. Работает как приложение.
+              {t('pwaPrompt.subtitle')}
             </p>
 
             {/* Инструкция */}
             <div className="mt-2 flex flex-col gap-1">
               <div className="flex items-center gap-2 text-white/70 text-xs">
                 <span className="shrink-0 text-base">①</span>
-                <span>
-                  Нажмите{' '}
-                  <span className="inline-flex items-center gap-0.5 bg-white/10 rounded px-1 py-0.5 font-mono text-[10px]">
-                    ⎙
-                  </span>{' '}
-                  в панели Safari
-                </span>
+                <span>{t('pwaPrompt.step1')}</span>
               </div>
               <div className="flex items-center gap-2 text-white/70 text-xs">
                 <span className="shrink-0 text-base">②</span>
                 <span>
-                  Выберите{' '}
-                  <span className="text-indigo-400 font-medium">«На экран "Домой"»</span>
+                  <span className="text-indigo-400 font-medium">{t('pwaPrompt.step2')}</span>
                 </span>
               </div>
             </div>

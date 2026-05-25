@@ -2551,5 +2551,11 @@ export const es = {
     perk4: "Solo se cobra el 4.º día",
     cta: "Registrarme gratis →",
     skip: "No, gracias"
+  },
+  pwaPrompt: {
+    title: "Añade Skily a la pantalla de inicio",
+    subtitle: "Acceso rápido sin navegador. Funciona como una app.",
+    step1: "Pulsa ⎙ en la barra de Safari",
+    step2: "Elige «Añadir a pantalla de inicio»"
   }
 } as const;

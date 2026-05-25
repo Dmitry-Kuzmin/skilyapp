@@ -2544,5 +2544,11 @@ export const en = {
     perk4: "Charged only on day 4",
     cta: "Sign up free →",
     skip: "No, thanks"
+  },
+  pwaPrompt: {
+    title: "Add Skily to your Home Screen",
+    subtitle: "Quick access without a browser. Works like an app.",
+    step1: "Tap ⎙ in the Safari bar",
+    step2: "Select «Add to Home Screen»"
   }
 };
