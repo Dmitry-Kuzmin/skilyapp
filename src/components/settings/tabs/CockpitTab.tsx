@@ -4,8 +4,8 @@
  * Звук, вибрация, игровой HUD
  */
 
-import React from 'react';
-import { Volume2, VolumeX, Vibrate, Sparkles, Bell, BellOff } from 'lucide-react';
+import React, { useState } from 'react';
+import { Volume2, VolumeX, Vibrate, Sparkles, Bell, BellOff, CalendarClock } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { useSettingsStore } from '@/store/settingsStore';
 import { sounds } from '@/lib/sounds';
@@ -14,6 +14,8 @@ import { toast } from 'sonner';
 import { CyberSwitch } from '../ui/CyberSwitch';
 import { CyberSlider } from '../ui/CyberSlider';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { cn } from '@/lib/utils';
+import { supabase } from '@/integrations/supabase/client';
 
 // === COMPONENTS ===
 const SectionTitle: React.FC<{ title: string }> = ({ title }) => (
@@ -46,20 +48,65 @@ const SettingRow: React.FC<{
     </div>
 );
 
+const INTENSITY_OPTIONS = [
+    {
+        value: 'light' as const,
+        icon: '🌱',
+        label: { ru: 'Лайт', es: 'Suave', en: 'Light' },
+        desc: { ru: '1–2 задачи · до 15 мин', es: '1–2 tareas · 15 min', en: '1–2 tasks · 15 min' },
+    },
+    {
+        value: 'standard' as const,
+        icon: '⚡',
+        label: { ru: 'Стандарт', es: 'Estándar', en: 'Standard' },
+        desc: { ru: '3–4 задачи · 30–40 мин', es: '3–4 tareas · 30–40 min', en: '3–4 tasks · 30–40 min' },
+    },
+    {
+        value: 'hardcore' as const,
+        icon: '🔥',
+        label: { ru: 'Хардкор', es: 'Intensivo', en: 'Hardcore' },
+        desc: { ru: '5+ задач · 60+ мин', es: '5+ tareas · 60+ min', en: '5+ tasks · 60+ min' },
+    },
+];
+
 export const CockpitTab: React.FC = () => {
-    const { t } = useLanguage();
+    const { t, language } = useLanguage();
     const {
         soundEnabled,
         soundVolume,
         hapticEnabled,
         adasHints,
         duelNotifications,
+        trackIntensity,
         toggleSound,
         setSoundVolume,
         toggleHaptic,
         toggleAdasHints,
         toggleDuelNotifications,
+        setTrackIntensity,
     } = useSettingsStore();
+
+    const [intensityChanged, setIntensityChanged] = useState(false);
+
+    const handleIntensitySelect = async (value: 'light' | 'standard' | 'hardcore') => {
+        if (value === trackIntensity) return;
+        triggerHaptic('light');
+        setTrackIntensity(value); // локальный store — мгновенно
+        setIntensityChanged(true);
+
+        // Синк в БД — RPC запишет в profiles.track_intensity
+        const { error } = await supabase.rpc('set_track_intensity', { p_intensity: value });
+        if (error) {
+            console.error('[CockpitTab] set_track_intensity error:', error);
+        }
+
+        const msg = language === 'es'
+            ? '✅ Guardado — se aplicará mañana'
+            : language === 'en'
+            ? '✅ Saved — applies from tomorrow'
+            : '✅ Сохранено — задания обновятся завтра';
+        toast.success(msg, { duration: 3000 });
+    };
 
     const handleSoundToggle = () => {
         triggerHaptic('medium');
@@ -105,6 +152,63 @@ export const CockpitTab: React.FC = () => {
 
     return (
         <div className="space-y-6">
+            {/* Трек дня — Интенсивность */}
+            <div>
+                <SectionTitle title={
+                    language === 'es' ? 'Intensidad del día'
+                    : language === 'en' ? 'Daily track intensity'
+                    : 'Интенсивность трека дня'
+                } />
+                <div className="flex flex-col gap-2">
+                    {INTENSITY_OPTIONS.map((opt) => {
+                        const selected = trackIntensity === opt.value;
+                        return (
+                            <button
+                                key={opt.value}
+                                onClick={() => handleIntensitySelect(opt.value)}
+                                className={cn(
+                                    'flex items-center gap-3 p-3 rounded-2xl border text-left transition-all w-full',
+                                    selected
+                                        ? 'bg-indigo-50 dark:bg-indigo-500/15 border-indigo-300 dark:border-indigo-500/40 ring-1 ring-indigo-200 dark:ring-indigo-500/20'
+                                        : 'bg-slate-50 dark:bg-slate-800/60 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600'
+                                )}
+                            >
+                                <span className="text-lg">{opt.icon}</span>
+                                <div className="flex-1 min-w-0">
+                                    <span className="text-sm font-semibold text-slate-900 dark:text-slate-100 block">
+                                        {opt.label[language as 'ru' | 'es' | 'en'] ?? opt.label.en}
+                                    </span>
+                                    <span className="text-xs text-slate-500 dark:text-slate-400">
+                                        {opt.desc[language as 'ru' | 'es' | 'en'] ?? opt.desc.en}
+                                    </span>
+                                </div>
+                                {selected && (
+                                    <div className="w-5 h-5 rounded-full bg-indigo-500 flex items-center justify-center shrink-0">
+                                        <svg viewBox="0 0 10 10" className="w-3 h-3" fill="none">
+                                            <path d="M2 5l2.5 2.5L8 3" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                                        </svg>
+                                    </div>
+                                )}
+                            </button>
+                        );
+                    })}
+                </div>
+
+                {/* Hint: applies tomorrow */}
+                <div className="mt-3 flex items-start gap-2 px-3 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800/60">
+                    <CalendarClock className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500 shrink-0 mt-[1px]" />
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-snug">
+                        {language === 'es'
+                            ? 'Las misiones de hoy ya están asignadas. El nuevo ritmo se aplicará a partir de mañana.'
+                            : language === 'en'
+                            ? "Today's tasks are already set. The new intensity applies from tomorrow."
+                            : 'Задания на сегодня уже назначены. Новый ритм применится с завтрашнего дня.'}
+                    </p>
+                </div>
+            </div>
+
+            <Separator className="bg-slate-200 dark:bg-slate-700" />
+
             {/* Аудио */}
             <div>
                 <SectionTitle title={t('unifiedSettings.cockpitKeys.audio')} />

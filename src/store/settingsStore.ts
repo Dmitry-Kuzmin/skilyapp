@@ -24,6 +24,7 @@ export interface SettingsState {
     performanceMode: boolean; // Экономный режим (отключает анимации)
     navLayout: NavLayout; // Верхняя шапка или левый сайдбар
     sidebarCollapsed: boolean; // Сайдбар свёрнут (только иконки)
+    sidebarIsOpen: boolean; // Runtime: раскрыт ли сайдбар прямо сейчас (hover или pinned)
 
     // === Cockpit Settings ===
     soundEnabled: boolean;
@@ -35,6 +36,7 @@ export interface SettingsState {
     duelNotifications: boolean;
     examDate: string | null; // ISO Date string: "2024-05-15"
     examCity: string | null; // Город сдачи экзамена: "ALICANTE"
+    trackIntensity: 'light' | 'standard' | 'hardcore'; // Интенсивность трека дня
 
     // === User Info (cached) ===
     userLevel: number;
@@ -55,6 +57,7 @@ export interface SettingsActions {
     setNavLayout: (layout: NavLayout) => void;
     setSidebarCollapsed: (collapsed: boolean) => void;
     toggleSidebarCollapsed: () => void;
+    setSidebarIsOpen: (open: boolean) => void;
 
     // Cockpit settings
     toggleSound: () => void;
@@ -69,6 +72,7 @@ export interface SettingsActions {
     setUserInfo: (level: number, title: string) => void;
     setExamDate: (date: string | null) => void;
     setExamCity: (city: string | null) => void;
+    setTrackIntensity: (intensity: 'light' | 'standard' | 'hardcore') => void;
 
     // Bulk update
     updateSettings: (settings: Partial<SettingsState>) => void;
@@ -87,7 +91,8 @@ const initialState: SettingsState = {
     theme: 'dark',
     performanceMode: false,
     navLayout: 'top',
-    sidebarCollapsed: false,
+    sidebarCollapsed: true,
+    sidebarIsOpen: false,
 
     // Cockpit
     soundEnabled: true,
@@ -99,6 +104,7 @@ const initialState: SettingsState = {
     duelNotifications: true,
     examDate: null,
     examCity: null,
+    trackIntensity: 'standard',
 
     // User
     userLevel: 1,
@@ -123,6 +129,7 @@ export const useSettingsStore = create<SettingsStore>()(
             setNavLayout: (navLayout) => set({ navLayout }),
             setSidebarCollapsed: (sidebarCollapsed) => set({ sidebarCollapsed }),
             toggleSidebarCollapsed: () => set((state) => ({ sidebarCollapsed: !state.sidebarCollapsed })),
+            setSidebarIsOpen: (sidebarIsOpen) => set({ sidebarIsOpen }),
 
             // === Cockpit settings ===
             toggleSound: () => set((state) => ({ soundEnabled: !state.soundEnabled })),
@@ -137,6 +144,7 @@ export const useSettingsStore = create<SettingsStore>()(
             setUserInfo: (userLevel, userTitle) => set({ userLevel, userTitle }),
             setExamDate: (examDate) => set({ examDate }),
             setExamCity: (examCity) => set({ examCity }),
+            setTrackIntensity: (trackIntensity) => set({ trackIntensity }),
 
             // === Bulk update ===
             updateSettings: (settings) => set((state) => ({ ...state, ...settings })),
@@ -166,6 +174,7 @@ export const useSettingsStore = create<SettingsStore>()(
                 duelNotifications: state.duelNotifications,
                 examDate: state.examDate,
                 examCity: state.examCity,
+                trackIntensity: state.trackIntensity,
             }),
         }
     )
