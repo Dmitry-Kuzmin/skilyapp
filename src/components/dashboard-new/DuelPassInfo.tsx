@@ -5,7 +5,6 @@ import { useModalRoute } from '@/hooks/useModalRoute';
 import { playClickSound } from '@/services/audioService';
 import { useTheme } from 'next-themes';
 import { useDuelPassInfo } from '@/hooks/useDuelPassInfo';
-import { DailyQuestWidget } from '@/components/duel/pass/DailyQuestWidget';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 interface DuelPassInfoProps {
@@ -124,7 +123,7 @@ export const DuelPassInfo: React.FC<DuelPassInfoProps> = React.memo(({ className
   return (
     <div
       onClick={handleClick}
-      className={`${className} ${containerClass} rounded-3xl xl:rounded-[2.5rem] p-4 md:p-5 shadow-lg border flex flex-col gap-2.5 backdrop-blur-sm cursor-pointer transition-all duration-300 group h-full`}
+      className={`${className} ${containerClass} rounded-3xl xl:rounded-[2.5rem] p-4 md:p-5 shadow-lg border flex flex-col justify-between gap-2 backdrop-blur-sm cursor-pointer transition-all duration-300 group h-full`}
     >
       {/* Header */}
       <div className="flex items-center justify-between">
@@ -189,11 +188,6 @@ export const DuelPassInfo: React.FC<DuelPassInfoProps> = React.memo(({ className
         <p className={`text-[10px] ${textSecondaryClass} leading-tight`}>
           {dp('widget.toNext')} <span className={`${isDarkTheme ? 'text-yellow-400' : 'text-yellow-600'} font-semibold`}>{duelPassData.nextLevelSP} SP</span>
         </p>
-      </div>
-
-      {/* Daily Quests — кликаем по квестам без открытия модалки */}
-      <div onClick={(e) => e.stopPropagation()} className="-my-1">
-        <DailyQuestWidget />
       </div>
 
       {/* Stats */}
