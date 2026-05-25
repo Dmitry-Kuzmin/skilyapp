@@ -134,6 +134,44 @@ const SidebarNavItem = memo(({ item, open, pathname }: {
 });
 SidebarNavItem.displayName = "SidebarNavItem";
 
+/* ─────────── Nav Button (action, not route) ─────────── */
+
+const SidebarNavButton = memo(({ icon: Icon, label, open, onClick }: {
+  icon: LucideIcon; label: string; open: boolean; onClick: () => void;
+}) => (
+  <button
+    onClick={onClick}
+    className={cn(
+      "group relative flex items-center rounded-lg transition-all duration-150 select-none w-full",
+      "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary/40",
+      open ? "gap-3 px-3 h-10 mx-0" : "justify-center w-10 h-10 mx-auto",
+      "text-muted-foreground/55 hover:text-muted-foreground/90 hover:bg-white/[0.04]",
+    )}
+    style={{ WebkitTapHighlightColor: "transparent" }}
+  >
+    <Icon className="shrink-0 transition-colors duration-150 w-5 h-5 text-inherit" strokeWidth={1.6} />
+    <AnimatePresence initial={false}>
+      {open && (
+        <motion.span
+          initial={{ opacity: 0, width: 0 }}
+          animate={{ opacity: 1, width: "auto" }}
+          exit={{ opacity: 0, width: 0 }}
+          transition={{ duration: 0.15, ease: "easeOut" }}
+          className="truncate text-[13px] leading-none overflow-hidden whitespace-nowrap font-medium"
+        >
+          {label}
+        </motion.span>
+      )}
+    </AnimatePresence>
+    {!open && (
+      <span className="pointer-events-none absolute left-full ml-3 z-[60] whitespace-nowrap rounded-lg bg-popover/95 backdrop-blur-sm border border-border/60 px-2.5 py-1.5 text-[12px] font-medium text-popover-foreground shadow-xl opacity-0 translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-150">
+        {label}
+      </span>
+    )}
+  </button>
+));
+SidebarNavButton.displayName = "SidebarNavButton";
+
 /* ─────────── Divider ─────────── */
 
 const Divider = memo(({ label, open }: { label?: string; open: boolean }) => {
@@ -427,7 +465,7 @@ export const AppSidebar = memo(({
             <SidebarNavItem key={item.href} item={item} open={isOpen} pathname={pathname} />
           ))}
           {isAuthenticated && (
-            <SidebarButton
+            <SidebarNavButton
               icon={BarChart2}
               label={s.statistics}
               open={isOpen}
