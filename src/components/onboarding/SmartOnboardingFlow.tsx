@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
     Check, Globe, ArrowRight, ChevronLeft, Monitor,
     Car, Bike, Truck, Bus, Bell,
+    Languages, GraduationCap, Sparkles,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useCountry } from '@/contexts/CountryContext';
@@ -21,79 +22,88 @@ type Step = 'language' | 'country' | 'category' | 'notifications';
 // ── UI text (bootstrapped here — not via useLanguage since language isn't set yet) ─
 const OB_TEXT = {
     es: {
-        langTitle: '¡HOLA!',
-        langSubtitle: '¿En qué idioma quieres estudiar?',
-        expatTitle: 'MODO EXPAT ACTIVADO',
+        langLabel: 'Idioma',
+        langTitle: 'Elige el idioma',
+        langSubtitle: 'Puedes cambiarlo más tarde en ajustes',
+        expatTitle: 'Disponible en ruso',
         expatFeatures: [
-            'Duelos PvP con jugadores rusohablantes',
-            'Curso "Términos DGT" en ruso',
             'Traducción de preguntas en los tests',
+            'Curso «Términos DGT» en ruso',
+            'Modos y juegos especiales',
         ],
-        countryTitle: 'TU PAÍS',
+        countryLabel: 'País',
+        countryTitle: 'Tu país',
         countryDesc: 'Define el banco de preguntas y las reglas del examen',
         changeCountry: 'Cambiar',
-        categoryTitle: 'CATEGORÍA',
+        categoryLabel: 'Categoría',
+        categoryTitle: 'Categoría de carné',
         categoryDesc: 'Tipo de vehículo',
-        notifTitle: 'RECORDATORIOS',
+        notifTitle: 'Recordatorios',
         notifDesc: 'Recibe recordatorios diarios de estudio',
         enableNotif: 'Activar notificaciones',
         later: 'Ahora no',
         saving: 'Guardando...',
         next: 'Continuar',
         finish: 'Empezar',
-        done: '¡Todo listo! Empecemos 🚗',
+        done: '¡Todo listo!',
         questions: 'Preguntas',
         duration: 'Duración',
         passing: 'Aprobado',
     },
     ru: {
-        langTitle: 'ПРИВЕТ!',
-        langSubtitle: 'На каком языке хочешь учиться?',
-        expatTitle: 'РЕЖИМ ЭКСПАТА',
+        langLabel: 'Язык',
+        langTitle: 'Выбери язык',
+        langSubtitle: 'Можно поменять позже в настройках',
+        expatTitle: 'Доступно на русском',
         expatFeatures: [
-            'PvP дуэли с русскими игроками',
-            'Курс «Термины DGT» на русском',
             'Перевод вопросов прямо в тестах',
+            'Курс «Термины DGT» на русском',
+            'Специальные режимы и игры',
         ],
-        countryTitle: 'ТВОЯ СТРАНА',
+        countryLabel: 'Страна',
+        countryTitle: 'Твоя страна',
         countryDesc: 'Определяет базу вопросов и правила экзамена',
         changeCountry: 'Сменить',
-        categoryTitle: 'КАТЕГОРИЯ ПРАВ',
+        categoryLabel: 'Категория',
+        categoryTitle: 'Категория прав',
         categoryDesc: 'Тип транспортного средства',
-        notifTitle: 'НАПОМИНАНИЯ',
+        notifTitle: 'Напоминания',
         notifDesc: 'Ежедневные напоминания об учёбе',
         enableNotif: 'Включить уведомления',
         later: 'Позже',
         saving: 'Сохранение...',
         next: 'Продолжить',
         finish: 'Начать',
-        done: 'Готово! Начинаем подготовку 🚗',
+        done: 'Готово!',
         questions: 'Вопросов',
         duration: 'На экзамен',
         passing: 'Для сдачи',
     },
     en: {
-        langTitle: 'HELLO!',
-        langSubtitle: 'What language do you want to study in?',
-        expatTitle: 'EXPAT MODE ON',
+        langLabel: 'Language',
+        langTitle: 'Choose language',
+        langSubtitle: 'You can change it later in settings',
+        expatTitle: 'Available in Russian',
         expatFeatures: [
-            'PvP duels with Russian-speaking players',
+            'Question translations in tests',
             'DGT Terms course in Russian',
-            'Question translations inside tests',
+            'Special modes and games',
         ],
-        countryTitle: 'YOUR COUNTRY',
+        countryLabel: 'Country',
+        countryTitle: 'Your country',
         countryDesc: 'Determines question bank and exam rules',
         changeCountry: 'Change',
-        categoryTitle: 'LICENSE CATEGORY',
+        categoryLabel: 'Category',
+        categoryTitle: 'License category',
         categoryDesc: 'Type of vehicle',
-        notifTitle: 'REMINDERS',
+        notifTitle: 'Reminders',
         notifDesc: 'Daily study reminders',
         enableNotif: 'Enable notifications',
         later: 'Later',
         saving: 'Saving...',
         next: 'Continue',
         finish: 'Get started',
-        done: "All set! Let's go 🚗",
+        done: 'All set!',
         questions: 'Questions',
         duration: 'Duration',
         passing: 'To pass',
@@ -101,13 +111,13 @@ const OB_TEXT = {
 } as const;
 type OBLang = keyof typeof OB_TEXT;
 
-const LANG_OPTIONS: { code: OBLang; flag: string; label: string }[] = [
-    { code: 'es', flag: '🇪🇸', label: 'Español' },
-    { code: 'ru', flag: '🇷🇺', label: 'Русский' },
-    { code: 'en', flag: '🇬🇧', label: 'English' },
+const LANG_OPTIONS: { code: OBLang; badge: string; label: string }[] = [
+    { code: 'es', badge: 'ES', label: 'Español' },
+    { code: 'ru', badge: 'РУ', label: 'Русский' },
+    { code: 'en', badge: 'EN', label: 'English' },
 ];
 
-const EXPAT_ICONS = ['🎮', '📚', '🔤'];
+const EXPAT_FEATURE_ICONS = [Languages, GraduationCap, Sparkles];
 
 // ── Category metadata ────────────────────────────────────────────────────────
 const CATEGORY_LABELS: Record<OBLang, Record<string, { title: string; desc: string }>> = {
@@ -351,21 +361,26 @@ export const SmartOnboardingFlow: React.FC = () => {
     if (!isVisible || !selectedCountry) return null;
 
     return (
-        <div className="fixed inset-0 z-[100] bg-zinc-950 flex flex-col overflow-hidden">
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_0%,rgba(59,130,246,0.07),transparent_55%)] pointer-events-none" />
+        <div
+            className="fixed inset-0 z-[100] bg-zinc-950 flex flex-col overflow-hidden"
+            style={{
+                paddingTop: 'max(env(safe-area-inset-top, 0px), var(--app-safe-top, 0px))',
+            }}
+        >
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_0%,rgba(99,102,241,0.06),transparent_55%)] pointer-events-none" />
 
             {/* Header */}
-            <div className="relative z-10 flex items-center justify-between px-6 pt-8 pb-3 shrink-0">
-                <img src="/logo/skily-logo-current.svg" alt="Skily" className="h-7 w-auto" />
-                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/[0.04] border border-white/[0.05]">
+            <div className="relative z-10 flex items-center justify-between px-6 sm:px-8 pt-6 pb-3 shrink-0 w-full max-w-md mx-auto">
+                <img src="/logo/skily-logo-current.svg" alt="Skily" className="h-6 w-auto opacity-90" />
+                <div className="flex items-center gap-1.5">
                     {steps.map((_, i) => (
                         <div
                             key={i}
                             className={cn(
-                                'h-1.5 rounded-full transition-all duration-500',
-                                i === currentStepIndex ? 'w-6 bg-blue-500'
-                                    : i < currentStepIndex ? 'w-1.5 bg-blue-500/40'
-                                    : 'w-1.5 bg-white/10',
+                                'h-1 rounded-full transition-all duration-500',
+                                i === currentStepIndex ? 'w-5 bg-white'
+                                    : i < currentStepIndex ? 'w-1 bg-white/50'
+                                    : 'w-1 bg-white/15',
                             )}
                         />
                     ))}
@@ -373,7 +388,7 @@ export const SmartOnboardingFlow: React.FC = () => {
             </div>
 
             {/* Content */}
-            <div className="relative z-10 flex-1 overflow-hidden">
+            <div className="relative z-10 flex-1 overflow-hidden w-full max-w-md mx-auto">
                 <AnimatePresence mode="wait" custom={direction}>
 
                     {/* ── STEP 1: Language ── */}
@@ -383,52 +398,61 @@ export const SmartOnboardingFlow: React.FC = () => {
                             custom={direction}
                             variants={pageVariants}
                             initial="enter" animate="center" exit="exit"
-                            className="absolute inset-0 flex flex-col items-center px-6 pt-6 pb-4 overflow-y-auto"
+                            className="absolute inset-0 flex flex-col px-6 sm:px-8 pt-8 pb-4 overflow-y-auto"
                         >
-                            <motion.h1
-                                custom={0} variants={itemVariants} initial="hidden" animate="visible"
-                                className="text-2xl font-black mb-1 text-white text-center"
-                            >
-                                {ui.langTitle}
-                            </motion.h1>
-                            <motion.p
-                                custom={1} variants={itemVariants} initial="hidden" animate="visible"
-                                className="text-zinc-500 text-sm mb-6 text-center"
-                            >
-                                {ui.langSubtitle}
-                            </motion.p>
+                            <motion.div custom={0} variants={itemVariants} initial="hidden" animate="visible">
+                                <div className="text-[11px] font-medium uppercase tracking-[0.18em] text-zinc-500 mb-2">
+                                    {ui.langLabel}
+                                </div>
+                                <h1 className="text-[28px] font-semibold text-white tracking-tight leading-tight mb-1.5">
+                                    {ui.langTitle}
+                                </h1>
+                                <p className="text-zinc-500 text-sm leading-relaxed">
+                                    {ui.langSubtitle}
+                                </p>
+                            </motion.div>
 
-                            <div className="w-full max-w-xs space-y-2.5">
+                            <div className="w-full space-y-2 mt-8">
                                 {LANG_OPTIONS.map((opt, i) => {
                                     const isSelected = selectedLang === opt.code;
                                     return (
                                         <motion.div
                                             key={opt.code}
-                                            custom={i + 2} variants={itemVariants} initial="hidden" animate="visible"
+                                            custom={i + 1} variants={itemVariants} initial="hidden" animate="visible"
                                         >
                                             <motion.button
-                                                whileTap={{ scale: 0.98 }}
+                                                whileTap={{ scale: 0.99 }}
                                                 onClick={() => { haptic(); setSelectedLang(opt.code); }}
                                                 className={cn(
-                                                    'w-full h-16 rounded-2xl border transition-all flex items-center justify-between px-5',
+                                                    'w-full h-[60px] rounded-2xl border transition-all flex items-center justify-between px-4',
                                                     isSelected
-                                                        ? 'border-blue-500/50 bg-blue-500/[0.06]'
-                                                        : 'border-white/[0.06] bg-zinc-900/40 active:border-white/10',
+                                                        ? 'border-white/20 bg-white/[0.04]'
+                                                        : 'border-white/[0.06] bg-white/[0.015] hover:border-white/10 active:border-white/10',
                                                 )}
                                             >
-                                                <div className="flex items-center gap-4">
-                                                    <span className="text-2xl">{opt.flag}</span>
-                                                    <span className="font-bold text-sm text-zinc-100">{opt.label}</span>
+                                                <div className="flex items-center gap-3.5">
+                                                    <div className={cn(
+                                                        'w-10 h-10 rounded-xl flex items-center justify-center text-[11px] font-bold tracking-wider transition-all',
+                                                        isSelected ? 'bg-white text-zinc-950' : 'bg-white/[0.06] text-zinc-400',
+                                                    )}>
+                                                        {opt.badge}
+                                                    </div>
+                                                    <span className={cn(
+                                                        'font-medium text-[15px] transition-colors',
+                                                        isSelected ? 'text-white' : 'text-zinc-300',
+                                                    )}>
+                                                        {opt.label}
+                                                    </span>
                                                 </div>
                                                 <div className={cn(
-                                                    'w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all',
-                                                    isSelected ? 'bg-blue-500 border-blue-500' : 'border-white/10',
+                                                    'w-5 h-5 rounded-full border flex items-center justify-center transition-all',
+                                                    isSelected ? 'bg-white border-white' : 'border-white/20',
                                                 )}>
-                                                    {isSelected && <Check className="w-3 h-3 text-white stroke-[3px]" />}
+                                                    {isSelected && <Check className="w-3 h-3 text-zinc-950 stroke-[3px]" />}
                                                 </div>
                                             </motion.button>
 
-                                            {/* RU expat unlock block */}
+                                            {/* RU unlock block */}
                                             <AnimatePresence>
                                                 {isSelected && opt.code === 'ru' && (
                                                     <motion.div
@@ -438,22 +462,25 @@ export const SmartOnboardingFlow: React.FC = () => {
                                                         transition={{ duration: 0.3, ease: [0.25, 1, 0.5, 1] }}
                                                         className="overflow-hidden"
                                                     >
-                                                        <div className="rounded-2xl border border-indigo-500/25 bg-indigo-500/[0.06] p-4">
-                                                            <div className="flex items-center gap-2 mb-3">
-                                                                <div className="w-5 h-5 rounded-full bg-indigo-500 flex items-center justify-center shrink-0">
-                                                                    <Check className="w-3 h-3 text-white stroke-[3px]" />
-                                                                </div>
-                                                                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-400">
+                                                        <div className="rounded-2xl border border-indigo-500/20 bg-gradient-to-br from-indigo-500/[0.08] to-indigo-500/[0.02] p-4">
+                                                            <div className="flex items-center gap-2 mb-3.5">
+                                                                <Sparkles className="w-3.5 h-3.5 text-indigo-400" strokeWidth={2.5} />
+                                                                <span className="text-[11px] font-semibold tracking-wide text-indigo-300">
                                                                     {ui.expatTitle}
                                                                 </span>
                                                             </div>
-                                                            <div className="space-y-2">
-                                                                {ui.expatFeatures.map((feat, fi) => (
-                                                                    <div key={fi} className="flex items-center gap-2.5 text-zinc-300 text-xs">
-                                                                        <span className="text-base shrink-0">{EXPAT_ICONS[fi]}</span>
-                                                                        <span>{feat}</span>
-                                                                    </div>
-                                                                ))}
+                                                            <div className="space-y-2.5">
+                                                                {ui.expatFeatures.map((feat, fi) => {
+                                                                    const Icon = EXPAT_FEATURE_ICONS[fi];
+                                                                    return (
+                                                                        <div key={fi} className="flex items-center gap-3 text-zinc-200 text-[13px]">
+                                                                            <div className="w-7 h-7 rounded-lg bg-indigo-500/15 border border-indigo-500/15 flex items-center justify-center shrink-0">
+                                                                                <Icon className="w-3.5 h-3.5 text-indigo-300" strokeWidth={2} />
+                                                                            </div>
+                                                                            <span>{feat}</span>
+                                                                        </div>
+                                                                    );
+                                                                })}
                                                             </div>
                                                         </div>
                                                     </motion.div>
@@ -473,39 +500,38 @@ export const SmartOnboardingFlow: React.FC = () => {
                             custom={direction}
                             variants={pageVariants}
                             initial="enter" animate="center" exit="exit"
-                            className="absolute inset-0 flex flex-col items-center justify-center px-6 text-center"
+                            className="absolute inset-0 flex flex-col px-6 sm:px-8 pt-8 pb-4 overflow-y-auto"
                         >
-                            <motion.h1
-                                custom={0} variants={itemVariants} initial="hidden" animate="visible"
-                                className="text-2xl font-black mb-2 tracking-tight text-white"
-                            >
-                                {ui.countryTitle}
-                            </motion.h1>
-                            <motion.p
-                                custom={1} variants={itemVariants} initial="hidden" animate="visible"
-                                className="text-zinc-500 text-sm mb-8 max-w-[240px] leading-relaxed"
-                            >
-                                {ui.countryDesc}
-                            </motion.p>
+                            <motion.div custom={0} variants={itemVariants} initial="hidden" animate="visible">
+                                <div className="text-[11px] font-medium uppercase tracking-[0.18em] text-zinc-500 mb-2">
+                                    {ui.countryLabel}
+                                </div>
+                                <h1 className="text-[28px] font-semibold text-white tracking-tight leading-tight mb-1.5">
+                                    {ui.countryTitle}
+                                </h1>
+                                <p className="text-zinc-500 text-sm leading-relaxed">
+                                    {ui.countryDesc}
+                                </p>
+                            </motion.div>
 
                             <motion.div
-                                custom={2} variants={itemVariants} initial="hidden" animate="visible"
-                                className="w-full max-w-[280px]"
+                                custom={1} variants={itemVariants} initial="hidden" animate="visible"
+                                className="w-full mt-8"
                             >
-                                <div className="p-7 rounded-[2.5rem] bg-zinc-900/50 border border-white/[0.05] flex flex-col items-center gap-5">
-                                    <div className="text-6xl select-none">{selectedCountry.flag}</div>
+                                <div className="p-6 rounded-3xl bg-white/[0.025] border border-white/[0.06] flex flex-col items-center gap-4">
+                                    <div className="text-5xl select-none leading-none">{selectedCountry.flag}</div>
                                     <div className="text-center">
-                                        <div className="text-2xl font-bold text-white mb-1">{selectedCountry.nameRu}</div>
-                                        <div className="flex items-center justify-center gap-1.5 text-zinc-500 text-[9px] font-black uppercase tracking-[0.2em]">
-                                            <Monitor className="w-2.5 h-2.5 text-blue-500" />
-                                            {selectedCountry.authority} OFFICIAL
+                                        <div className="text-xl font-semibold text-white mb-1 tracking-tight">{selectedCountry.nameRu}</div>
+                                        <div className="flex items-center justify-center gap-1.5 text-zinc-500 text-[10px] font-medium uppercase tracking-[0.18em]">
+                                            <Monitor className="w-2.5 h-2.5" />
+                                            {selectedCountry.authority}
                                         </div>
                                     </div>
                                     <button
                                         onClick={handleSwitchCountry}
-                                        className="text-[10px] h-8 px-5 rounded-full border border-white/10 text-zinc-400 active:scale-95 transition-all uppercase tracking-widest flex items-center gap-2"
+                                        className="text-xs h-9 px-4 rounded-full border border-white/10 text-zinc-300 hover:bg-white/[0.04] active:scale-95 transition-all flex items-center gap-2"
                                     >
-                                        <Globe className="w-3 h-3" />
+                                        <Globe className="w-3.5 h-3.5" />
                                         {ui.changeCountry}
                                     </button>
                                 </div>
@@ -520,24 +546,23 @@ export const SmartOnboardingFlow: React.FC = () => {
                             custom={direction}
                             variants={pageVariants}
                             initial="enter" animate="center" exit="exit"
-                            className="absolute inset-0 flex flex-col items-center px-6 pt-4 pb-2"
+                            className="absolute inset-0 flex flex-col px-6 sm:px-8 pt-8 pb-4 overflow-y-auto"
                         >
-                            <motion.h1
-                                custom={0} variants={itemVariants} initial="hidden" animate="visible"
-                                className="text-2xl font-black mb-1 text-white text-center"
-                            >
-                                {ui.categoryTitle}
-                            </motion.h1>
-                            <motion.p
-                                custom={1} variants={itemVariants} initial="hidden" animate="visible"
-                                className="text-zinc-500 text-sm mb-6 text-center"
-                            >
-                                {ui.categoryDesc}
-                            </motion.p>
+                            <motion.div custom={0} variants={itemVariants} initial="hidden" animate="visible">
+                                <div className="text-[11px] font-medium uppercase tracking-[0.18em] text-zinc-500 mb-2">
+                                    {ui.categoryLabel}
+                                </div>
+                                <h1 className="text-[28px] font-semibold text-white tracking-tight leading-tight mb-1.5">
+                                    {ui.categoryTitle}
+                                </h1>
+                                <p className="text-zinc-500 text-sm leading-relaxed">
+                                    {ui.categoryDesc}
+                                </p>
+                            </motion.div>
 
                             <motion.div
-                                custom={2} variants={itemVariants} initial="hidden" animate="visible"
-                                className="w-full max-w-xs"
+                                custom={1} variants={itemVariants} initial="hidden" animate="visible"
+                                className="w-full mt-8"
                             >
                                 {selectedCountry.availableCategories.length === 1 ? (
                                     <SingleCategoryCard
@@ -547,41 +572,41 @@ export const SmartOnboardingFlow: React.FC = () => {
                                         ui={ui}
                                     />
                                 ) : (
-                                    <div className="grid grid-cols-2 gap-3">
+                                    <div className="grid grid-cols-2 gap-2.5">
                                         {selectedCountry.availableCategories.map((cat) => {
                                             const meta = getCategoryMeta(selectedLang, cat);
                                             const isSelected = selectedCategory === cat;
                                             return (
                                                 <motion.button
                                                     key={cat}
-                                                    whileTap={{ scale: 0.95 }}
+                                                    whileTap={{ scale: 0.97 }}
                                                     onClick={() => { haptic(); setSelectedCategory(cat); }}
                                                     className={cn(
-                                                        'relative flex flex-col items-center justify-between p-5 rounded-[2rem] border transition-all duration-300 cursor-pointer aspect-square',
+                                                        'relative flex flex-col items-start gap-3 p-4 rounded-2xl border transition-all aspect-square text-left',
                                                         isSelected
-                                                            ? 'border-blue-500 bg-blue-500/[0.07] shadow-[0_20px_40px_-10px_rgba(59,130,246,0.25)]'
-                                                            : 'border-white/[0.06] bg-white/[0.02] active:border-white/10',
+                                                            ? 'border-white/25 bg-white/[0.04]'
+                                                            : 'border-white/[0.06] bg-white/[0.015] hover:border-white/10',
                                                     )}
                                                 >
                                                     <div className={cn(
-                                                        'w-12 h-12 rounded-2xl flex items-center justify-center transition-all',
-                                                        isSelected ? 'bg-blue-500 text-white' : 'bg-white/[0.05] text-zinc-500',
+                                                        'w-10 h-10 rounded-xl flex items-center justify-center transition-all',
+                                                        isSelected ? 'bg-white text-zinc-950' : 'bg-white/[0.06] text-zinc-400',
                                                     )}>
                                                         {getCategoryIcon(cat)}
                                                     </div>
-                                                    <div className="text-center">
-                                                        <div className={cn('text-base font-black tracking-tight', isSelected ? 'text-white' : 'text-zinc-400')}>
+                                                    <div className="flex-1">
+                                                        <div className={cn('text-sm font-semibold tracking-tight', isSelected ? 'text-white' : 'text-zinc-300')}>
                                                             {meta.title}
                                                         </div>
-                                                        <div className={cn('text-[10px] font-medium leading-tight mt-0.5 whitespace-pre-line', isSelected ? 'text-zinc-300' : 'text-zinc-600')}>
+                                                        <div className={cn('text-[11px] mt-0.5 whitespace-pre-line leading-snug', isSelected ? 'text-zinc-400' : 'text-zinc-600')}>
                                                             {meta.desc}
                                                         </div>
                                                     </div>
                                                     <div className={cn(
-                                                        'w-7 h-7 rounded-full border-2 flex items-center justify-center transition-all',
-                                                        isSelected ? 'bg-blue-500 border-blue-400 text-white' : 'border-white/10',
+                                                        'absolute top-3 right-3 w-5 h-5 rounded-full border flex items-center justify-center transition-all',
+                                                        isSelected ? 'bg-white border-white' : 'border-white/15',
                                                     )}>
-                                                        <Check className={cn('w-3.5 h-3.5 stroke-[3px] transition-all', isSelected ? 'opacity-100' : 'opacity-0')} />
+                                                        <Check className={cn('w-3 h-3 stroke-[3px] transition-all text-zinc-950', isSelected ? 'opacity-100' : 'opacity-0')} />
                                                     </div>
                                                 </motion.button>
                                             );
@@ -599,40 +624,32 @@ export const SmartOnboardingFlow: React.FC = () => {
                             custom={direction}
                             variants={pageVariants}
                             initial="enter" animate="center" exit="exit"
-                            className="absolute inset-0 flex flex-col items-center justify-center px-6 text-center"
+                            className="absolute inset-0 flex flex-col px-6 sm:px-8 pt-8 pb-4 overflow-y-auto"
                         >
-                            <motion.div
-                                custom={0} variants={itemVariants} initial="hidden" animate="visible"
-                                className="w-20 h-20 rounded-[2rem] bg-blue-500/10 border border-blue-500/20 flex items-center justify-center mb-6"
-                            >
-                                <Bell className="w-9 h-9 text-blue-400" />
+                            <motion.div custom={0} variants={itemVariants} initial="hidden" animate="visible">
+                                <div className="w-12 h-12 rounded-2xl bg-white/[0.04] border border-white/[0.06] flex items-center justify-center mb-5">
+                                    <Bell className="w-5 h-5 text-zinc-300" strokeWidth={2} />
+                                </div>
+                                <h1 className="text-[28px] font-semibold text-white tracking-tight leading-tight mb-1.5">
+                                    {ui.notifTitle}
+                                </h1>
+                                <p className="text-zinc-500 text-sm leading-relaxed">
+                                    {ui.notifDesc}
+                                </p>
                             </motion.div>
-                            <motion.h1
-                                custom={1} variants={itemVariants} initial="hidden" animate="visible"
-                                className="text-2xl font-black mb-2 text-white"
-                            >
-                                {ui.notifTitle}
-                            </motion.h1>
-                            <motion.p
-                                custom={2} variants={itemVariants} initial="hidden" animate="visible"
-                                className="text-zinc-500 text-sm mb-8 max-w-[240px] leading-relaxed"
-                            >
-                                {ui.notifDesc}
-                            </motion.p>
                             <motion.div
-                                custom={3} variants={itemVariants} initial="hidden" animate="visible"
-                                className="w-full max-w-xs space-y-3"
+                                custom={1} variants={itemVariants} initial="hidden" animate="visible"
+                                className="w-full mt-8 space-y-2.5"
                             >
                                 <button
                                     onClick={requestNotifications}
-                                    className="w-full h-14 rounded-2xl bg-blue-500 text-white font-black text-[11px] uppercase tracking-[0.15em] flex items-center justify-center gap-2 active:scale-[0.98] transition-all shadow-xl shadow-blue-500/20"
+                                    className="w-full h-13 py-3.5 rounded-2xl bg-white text-zinc-950 font-semibold text-sm flex items-center justify-center gap-2 active:scale-[0.98] transition-all"
                                 >
-                                    <Bell className="w-4 h-4" />
                                     {ui.enableNotif}
                                 </button>
                                 <button
                                     onClick={saveOnboardingData}
-                                    className="w-full h-12 text-zinc-500 text-xs font-semibold active:text-zinc-300 transition-colors"
+                                    className="w-full h-11 text-zinc-500 text-sm font-medium hover:text-zinc-300 active:text-zinc-300 transition-colors"
                                 >
                                     {ui.later}
                                 </button>
@@ -644,8 +661,11 @@ export const SmartOnboardingFlow: React.FC = () => {
             </div>
 
             {/* Footer */}
-            <div className="relative z-10 px-6 pb-10 pt-4 shrink-0 w-full max-w-lg mx-auto">
-                <div className="flex items-center gap-3">
+            <div
+                className="relative z-10 px-6 sm:px-8 pt-3 shrink-0 w-full max-w-md mx-auto"
+                style={{ paddingBottom: 'max(env(safe-area-inset-bottom, 0px), 1.5rem)' }}
+            >
+                <div className="flex items-center gap-2.5">
                     <AnimatePresence>
                         {currentStepIndex > 0 && currentStep !== 'notifications' && (
                             <motion.button
@@ -653,9 +673,9 @@ export const SmartOnboardingFlow: React.FC = () => {
                                 animate={{ opacity: 1, width: 52 }}
                                 exit={{ opacity: 0, width: 0 }}
                                 onClick={goBack}
-                                className="h-14 w-[52px] flex items-center justify-center rounded-2xl bg-zinc-900/60 border border-white/[0.06] text-zinc-500 active:scale-90 transition-all shrink-0"
+                                className="h-13 w-[52px] py-3.5 flex items-center justify-center rounded-2xl bg-white/[0.04] border border-white/[0.06] text-zinc-400 hover:bg-white/[0.06] active:scale-95 transition-all shrink-0"
                             >
-                                <ChevronLeft className="w-5 h-5" />
+                                <ChevronLeft className="w-5 h-5" strokeWidth={2.5} />
                             </motion.button>
                         )}
                     </AnimatePresence>
@@ -665,10 +685,10 @@ export const SmartOnboardingFlow: React.FC = () => {
                             onClick={goNext}
                             disabled={isSaving}
                             className={cn(
-                                'flex-1 h-14 rounded-2xl flex items-center justify-center gap-2.5 font-black text-[11px] uppercase tracking-[0.15em] transition-all active:scale-[0.98]',
+                                'flex-1 h-13 py-3.5 rounded-2xl flex items-center justify-center gap-2 font-semibold text-sm transition-all active:scale-[0.98]',
                                 isSaving
                                     ? 'bg-zinc-800 text-zinc-500 cursor-not-allowed'
-                                    : 'bg-white text-zinc-950 shadow-xl shadow-white/10',
+                                    : 'bg-white text-zinc-950',
                             )}
                         >
                             {isSaving ? (
@@ -676,7 +696,7 @@ export const SmartOnboardingFlow: React.FC = () => {
                             ) : (
                                 <>
                                     <span>{isLastStep ? ui.finish : ui.next}</span>
-                                    <ArrowRight className="w-4 h-4 stroke-[3px]" />
+                                    <ArrowRight className="w-4 h-4" strokeWidth={2.5} />
                                 </>
                             )}
                         </button>
@@ -695,40 +715,36 @@ function SingleCategoryCard({ cat, meta, country, ui }: {
     ui: typeof OB_TEXT[OBLang];
 }) {
     return (
-        <div className="w-full p-7 rounded-[2.5rem] bg-zinc-900/50 border border-blue-500/20 flex flex-col items-center gap-5 shadow-[0_30px_60px_-15px_rgba(59,130,246,0.15)]">
-            <div className="w-20 h-20 rounded-[2rem] bg-blue-500 flex items-center justify-center shadow-xl shadow-blue-500/30">
+        <div className="w-full p-6 rounded-3xl bg-white/[0.025] border border-white/[0.06] flex flex-col items-center gap-4">
+            <div className="w-14 h-14 rounded-2xl bg-white text-zinc-950 flex items-center justify-center">
                 {getCategoryIcon(cat)}
             </div>
             <div className="text-center">
-                <div className="text-2xl font-black text-white mb-1">{meta.title}</div>
-                <div className="text-sm text-zinc-400 whitespace-pre-line">{meta.desc}</div>
+                <div className="text-xl font-semibold text-white tracking-tight mb-1">{meta.title}</div>
+                <div className="text-sm text-zinc-400 whitespace-pre-line leading-snug">{meta.desc}</div>
             </div>
             {country.metadata && (
-                <div className="flex gap-4 w-full">
+                <div className="flex gap-2 w-full">
                     {country.metadata.totalQuestions && (
-                        <div className="flex-1 text-center p-3 rounded-2xl bg-white/[0.03] border border-white/[0.04]">
-                            <div className="text-lg font-black text-white">{country.metadata.totalQuestions}</div>
-                            <div className="text-[9px] text-zinc-500 uppercase tracking-widest">{ui.questions}</div>
+                        <div className="flex-1 text-center p-2.5 rounded-xl bg-white/[0.03] border border-white/[0.04]">
+                            <div className="text-base font-semibold text-white">{country.metadata.totalQuestions}</div>
+                            <div className="text-[10px] text-zinc-500 uppercase tracking-wider mt-0.5">{ui.questions}</div>
                         </div>
                     )}
                     {country.metadata.examDuration && (
-                        <div className="flex-1 text-center p-3 rounded-2xl bg-white/[0.03] border border-white/[0.04]">
-                            <div className="text-lg font-black text-white">{country.metadata.examDuration}m</div>
-                            <div className="text-[9px] text-zinc-500 uppercase tracking-widest">{ui.duration}</div>
+                        <div className="flex-1 text-center p-2.5 rounded-xl bg-white/[0.03] border border-white/[0.04]">
+                            <div className="text-base font-semibold text-white">{country.metadata.examDuration}m</div>
+                            <div className="text-[10px] text-zinc-500 uppercase tracking-wider mt-0.5">{ui.duration}</div>
                         </div>
                     )}
                     {country.metadata.passingScore && (
-                        <div className="flex-1 text-center p-3 rounded-2xl bg-white/[0.03] border border-white/[0.04]">
-                            <div className="text-lg font-black text-white">{country.metadata.passingScore}%</div>
-                            <div className="text-[9px] text-zinc-500 uppercase tracking-widest">{ui.passing}</div>
+                        <div className="flex-1 text-center p-2.5 rounded-xl bg-white/[0.03] border border-white/[0.04]">
+                            <div className="text-base font-semibold text-white">{country.metadata.passingScore}%</div>
+                            <div className="text-[10px] text-zinc-500 uppercase tracking-wider mt-0.5">{ui.passing}</div>
                         </div>
                     )}
                 </div>
             )}
-            <div className="flex items-center gap-2 text-zinc-500 text-[9px] font-black uppercase tracking-[0.2em]">
-                <Monitor className="w-2.5 h-2.5 text-blue-500" />
-                {country.authority} OFFICIAL
-            </div>
         </div>
     );
 }
