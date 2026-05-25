@@ -24,7 +24,7 @@ const OB_TEXT = {
     es: {
         langLabel: 'Idioma',
         langTitle: 'Elige el idioma',
-        langSubtitle: 'Puedes cambiarlo más tarde en ajustes',
+        langSubtitle: 'De tu elección dependen las funciones disponibles. Puedes cambiarlo después en ajustes',
         expatTitle: 'Disponible en ruso',
         expatFeatures: [
             'Traducción de preguntas en los tests',
@@ -45,6 +45,7 @@ const OB_TEXT = {
         saving: 'Guardando...',
         next: 'Continuar',
         finish: 'Empezar',
+        skip: 'Omitir',
         done: '¡Todo listo!',
         questions: 'Preguntas',
         duration: 'Duración',
@@ -53,7 +54,7 @@ const OB_TEXT = {
     ru: {
         langLabel: 'Язык',
         langTitle: 'Выбери язык',
-        langSubtitle: 'Можно поменять позже в настройках',
+        langSubtitle: 'От выбора зависят возможности приложения. Поменять можно позже в настройках',
         expatTitle: 'Доступно на русском',
         expatFeatures: [
             'Перевод вопросов прямо в тестах',
@@ -74,6 +75,7 @@ const OB_TEXT = {
         saving: 'Сохранение...',
         next: 'Продолжить',
         finish: 'Начать',
+        skip: 'Пропустить',
         done: 'Готово!',
         questions: 'Вопросов',
         duration: 'На экзамен',
@@ -82,7 +84,7 @@ const OB_TEXT = {
     en: {
         langLabel: 'Language',
         langTitle: 'Choose language',
-        langSubtitle: 'You can change it later in settings',
+        langSubtitle: 'Your choice unlocks app features. You can change it later in settings',
         expatTitle: 'Available in Russian',
         expatFeatures: [
             'Question translations in tests',
@@ -103,6 +105,7 @@ const OB_TEXT = {
         saving: 'Saving...',
         next: 'Continue',
         finish: 'Get started',
+        skip: 'Skip',
         done: 'All set!',
         questions: 'Questions',
         duration: 'Duration',
@@ -314,6 +317,12 @@ export const SmartOnboardingFlow: React.FC = () => {
         }
     };
 
+    const skipOnboarding = () => {
+        haptic('light');
+        // Save with auto-detected defaults so we never show this again
+        saveOnboardingData();
+    };
+
     const saveOnboardingData = async () => {
         setIsSaving(true);
         try {
@@ -372,18 +381,28 @@ export const SmartOnboardingFlow: React.FC = () => {
             {/* Header */}
             <div className="relative z-10 flex items-center justify-between px-6 sm:px-8 pt-6 pb-3 shrink-0 w-full max-w-md mx-auto">
                 <img src="/logo/skily-logo-current.svg" alt="Skily" className="h-6 w-auto opacity-90" />
-                <div className="flex items-center gap-1.5">
-                    {steps.map((_, i) => (
-                        <div
-                            key={i}
-                            className={cn(
-                                'h-1 rounded-full transition-all duration-500',
-                                i === currentStepIndex ? 'w-5 bg-white'
-                                    : i < currentStepIndex ? 'w-1 bg-white/50'
-                                    : 'w-1 bg-white/15',
-                            )}
-                        />
-                    ))}
+                <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-1.5">
+                        {steps.map((_, i) => (
+                            <div
+                                key={i}
+                                className={cn(
+                                    'h-1 rounded-full transition-all duration-500',
+                                    i === currentStepIndex ? 'w-5 bg-white'
+                                        : i < currentStepIndex ? 'w-1 bg-white/50'
+                                        : 'w-1 bg-white/15',
+                                )}
+                            />
+                        ))}
+                    </div>
+                    {currentStep !== 'notifications' && !isSaving && (
+                        <button
+                            onClick={skipOnboarding}
+                            className="text-[11px] font-medium text-zinc-500 hover:text-zinc-300 active:text-zinc-300 transition-colors"
+                        >
+                            {ui.skip}
+                        </button>
+                    )}
                 </div>
             </div>
 
@@ -518,7 +537,11 @@ export const SmartOnboardingFlow: React.FC = () => {
                                 custom={1} variants={itemVariants} initial="hidden" animate="visible"
                                 className="w-full mt-8"
                             >
-                                <div className="p-6 rounded-3xl bg-white/[0.025] border border-white/[0.06] flex flex-col items-center gap-4">
+                                <div className="relative p-6 rounded-3xl bg-white/[0.025] border border-emerald-500/30 flex flex-col items-center gap-4">
+                                    {/* Selected indicator */}
+                                    <div className="absolute top-4 right-4 w-6 h-6 rounded-full bg-emerald-500 flex items-center justify-center shadow-lg shadow-emerald-500/30">
+                                        <Check className="w-3.5 h-3.5 text-white stroke-[3px]" />
+                                    </div>
                                     <div className="text-5xl select-none leading-none">{selectedCountry.flag}</div>
                                     <div className="text-center">
                                         <div className="text-xl font-semibold text-white mb-1 tracking-tight">{selectedCountry.nameRu}</div>
