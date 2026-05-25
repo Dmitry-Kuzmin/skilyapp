@@ -505,13 +505,17 @@ const Layout = memo(({ children, hideNavigation = false }: LayoutProps) => {
           "flex-1 flex flex-col min-h-0",
           !hideNavigation && !isFullscreenMode && "has-bottom-nav",
           isAuthenticated && !hideNavigation && !isFullscreenMode && "has-bottom-widgets",
+          // Margin только под закреплённую ширину.
+          // Hover-overlay не сдвигает контент (sidebar поверх, fixed).
           !hideNavigation && isSidebarMode && !isFullscreenMode && (
-            sidebarCollapsed ? "md:ml-[56px]" : "md:ml-[232px]"
+            sidebarCollapsed
+              ? "md:ml-[56px]"   // hover-режим: narrow всегда
+              : "md:ml-[232px]"  // pinned open
           ),
         )}
         style={
           !hideNavigation && isSidebarMode && !isFullscreenMode
-            ? { transition: "margin-left 0.28s cubic-bezier(0.32, 0, 0.18, 1)" }
+            ? { transition: "margin-left 0.32s cubic-bezier(0.32, 0, 0.18, 1)" }
             : undefined
         }
       >

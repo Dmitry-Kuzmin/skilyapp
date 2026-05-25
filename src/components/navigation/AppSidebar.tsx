@@ -1,11 +1,11 @@
-import { memo, Suspense, lazy, useCallback, useMemo } from "react";
+import { memo, Suspense, lazy, useCallback, useMemo, useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "@/components/optimized/Motion";
 import {
   Home, FileText, BookOpen, Gamepad2, Swords, SignpostBig,
-  Newspaper, BookMarked, Settings, ChevronsLeft, ChevronsRight,
+  Newspaper, BookMarked, Settings, Pin, PinOff,
   Shield as AdminShield, HelpCircle, GraduationCap,
-  LogIn, Bell, LogOut, Crown, ChevronRight,
+  LogIn, Bell, LogOut, Crown,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -32,6 +32,7 @@ const i18n: Record<Language, Record<string, string>> = {
     admin: "Admin", settings: "Configuración", help: "Ayuda", login: "Iniciar sesión",
     library: "Biblioteca", system: "Sistema", notifications: "Notificaciones",
     premium: "Premium", free: "Gratuito", logout: "Cerrar sesión",
+    pin: "Fijar panel", unpin: "Desfijar panel",
   },
   ru: {
     home: "Главная", tests: "Тесты", learning: "Обучение", games: "Игры",
@@ -39,6 +40,7 @@ const i18n: Record<Language, Record<string, string>> = {
     admin: "Админ", settings: "Настройки", help: "Помощь", login: "Войти",
     library: "Библиотека", system: "Система", notifications: "Уведомления",
     premium: "Premium", free: "Бесплатный", logout: "Выйти",
+    pin: "Закрепить панель", unpin: "Открепить панель",
   },
   en: {
     home: "Home", tests: "Tests", learning: "Learning", games: "Games",
@@ -46,6 +48,7 @@ const i18n: Record<Language, Record<string, string>> = {
     admin: "Admin", settings: "Settings", help: "Help", login: "Log in",
     library: "Library", system: "System", notifications: "Notifications",
     premium: "Premium", free: "Free", logout: "Log out",
+    pin: "Pin sidebar", unpin: "Unpin sidebar",
   },
 };
 
@@ -61,21 +64,20 @@ const isPathActive = (pathname: string, item: SidebarItem) => {
   return paths.some((p) => pathname === p || pathname.startsWith(`${p}/`));
 };
 
-/* ─────────── SidebarNavItem ─────────── */
+/* ─────────── Nav Item ─────────── */
 
-const SidebarNavItem = memo(({ item, collapsed, pathname }: {
-  item: SidebarItem; collapsed: boolean; pathname: string;
+const SidebarNavItem = memo(({ item, open, pathname }: {
+  item: SidebarItem; open: boolean; pathname: string;
 }) => {
   const active = isPathActive(pathname, item);
   const Icon = item.icon;
   return (
     <NavLink
       to={item.href}
-      title={collapsed ? item.name : undefined}
       className={cn(
-        "group relative flex items-center rounded-lg transition-all duration-150 select-none",
+        "group relative flex items-center rounded-xl transition-all duration-150 select-none",
         "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary/40",
-        collapsed ? "justify-center w-9 h-9 mx-auto" : "gap-3 px-3 h-9",
+        open ? "gap-3 px-3 h-9 mx-0" : "justify-center w-9 h-9 mx-auto",
         active
           ? "bg-white/[0.08] text-foreground"
           : "text-muted-foreground/55 hover:text-muted-foreground/90 hover:bg-white/[0.04]",
@@ -93,21 +95,33 @@ const SidebarNavItem = memo(({ item, collapsed, pathname }: {
       <Icon
         className={cn(
           "shrink-0 transition-colors duration-150",
-          collapsed ? "w-[17px] h-[17px]" : "w-4 h-4",
+          open ? "w-4 h-4" : "w-[17px] h-[17px]",
           active ? "text-primary" : "text-inherit",
         )}
         strokeWidth={active ? 2.2 : 1.6}
       />
-      {!collapsed && (
-        <span className={cn("truncate text-[13px] leading-none", active ? "font-semibold" : "font-medium")}>
-          {item.name}
-        </span>
-      )}
+      <AnimatePresence initial={false}>
+        {open && (
+          <motion.span
+            initial={{ opacity: 0, width: 0 }}
+            animate={{ opacity: 1, width: "auto" }}
+            exit={{ opacity: 0, width: 0 }}
+            transition={{ duration: 0.15, ease: "easeOut" }}
+            className={cn(
+              "truncate text-[13px] leading-none overflow-hidden whitespace-nowrap",
+              active ? "font-semibold" : "font-medium",
+            )}
+          >
+            {item.name}
+          </motion.span>
+        )}
+      </AnimatePresence>
       {item.isActiveDuel && (
         <span className="absolute top-1 right-1 w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
       )}
-      {collapsed && (
-        <span className="pointer-events-none absolute left-full ml-2 z-[60] whitespace-nowrap rounded-md bg-popover/95 backdrop-blur border border-border/60 px-2 py-1 text-[11px] font-medium text-popover-foreground shadow-lg opacity-0 translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-100">
+      {/* Tooltip только когда закрыт */}
+      {!open && (
+        <span className="pointer-events-none absolute left-full ml-3 z-[60] whitespace-nowrap rounded-lg bg-popover/95 backdrop-blur-sm border border-border/60 px-2.5 py-1.5 text-[12px] font-medium text-popover-foreground shadow-xl opacity-0 translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-150">
           {item.name}
         </span>
       )}
@@ -118,47 +132,65 @@ SidebarNavItem.displayName = "SidebarNavItem";
 
 /* ─────────── Divider ─────────── */
 
-const Divider = memo(({ label, collapsed }: { label?: string; collapsed: boolean }) => {
-  if (collapsed) return <div className="my-1.5 mx-2 h-px bg-white/[0.06]" />;
-  if (!label) return <div className="my-1.5 mx-2 h-px bg-white/[0.06]" />;
+const Divider = memo(({ label, open }: { label?: string; open: boolean }) => {
+  if (!open || !label) return <div className="my-1.5 mx-2 h-px bg-white/[0.06]" />;
   return (
     <div className="flex items-center gap-2 px-3 pt-3 pb-1">
-      <span className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground/30 select-none whitespace-nowrap">
-        {label}
-      </span>
+      <AnimatePresence initial={false}>
+        <motion.span
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.12 }}
+          className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground/30 select-none whitespace-nowrap"
+        >
+          {label}
+        </motion.span>
+      </AnimatePresence>
       <span className="flex-1 h-px bg-white/[0.04]" />
     </div>
   );
 });
 Divider.displayName = "Divider";
 
-/* ─────────── SidebarButton ─────────── */
+/* ─────────── Sidebar Button ─────────── */
 
-const SidebarButton = memo(({ icon: Icon, label, collapsed, onClick, badge }: {
-  icon: LucideIcon; label: string; collapsed: boolean; onClick: () => void; badge?: number;
+const SidebarButton = memo(({ icon: Icon, label, open, onClick, badge }: {
+  icon: LucideIcon; label: string; open: boolean; onClick: () => void; badge?: number;
 }) => (
   <button
     onClick={onClick}
-    title={collapsed ? label : undefined}
     className={cn(
-      "group relative flex items-center rounded-lg transition-all duration-150 select-none w-full",
+      "group relative flex items-center rounded-xl transition-all duration-150 select-none w-full",
       "text-muted-foreground/55 hover:text-muted-foreground/90 hover:bg-white/[0.04]",
       "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary/40",
-      collapsed ? "justify-center w-9 h-9 mx-auto" : "gap-3 px-3 h-9",
+      open ? "gap-3 px-3 h-9" : "justify-center w-9 h-9 mx-auto",
     )}
   >
     <Icon className="w-4 h-4 shrink-0 text-inherit transition-colors" strokeWidth={1.6} />
-    {!collapsed && <span className="text-[13px] font-medium truncate">{label}</span>}
+    <AnimatePresence initial={false}>
+      {open && (
+        <motion.span
+          initial={{ opacity: 0, width: 0 }}
+          animate={{ opacity: 1, width: "auto" }}
+          exit={{ opacity: 0, width: 0 }}
+          transition={{ duration: 0.15, ease: "easeOut" }}
+          className="text-[13px] font-medium truncate overflow-hidden whitespace-nowrap flex-1"
+        >
+          {label}
+        </motion.span>
+      )}
+    </AnimatePresence>
     {badge != null && badge > 0 && (
       <span className={cn(
-        "flex items-center justify-center min-w-[16px] h-4 rounded-full bg-primary/20 text-[10px] font-bold text-primary",
-        collapsed ? "absolute -top-0.5 -right-0.5" : "ml-auto px-1",
+        "flex items-center justify-center min-w-[16px] h-4 rounded-full bg-primary/20 text-[10px] font-bold text-primary px-1",
+        !open && "absolute -top-0.5 -right-0.5",
       )}>
         {badge > 99 ? "99+" : badge}
       </span>
     )}
-    {collapsed && (
-      <span className="pointer-events-none absolute left-full ml-2 z-[60] whitespace-nowrap rounded-md bg-popover/95 backdrop-blur border border-border/60 px-2 py-1 text-[11px] font-medium text-popover-foreground shadow-lg opacity-0 translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-100">
+    {!open && (
+      <span className="pointer-events-none absolute left-full ml-3 z-[60] whitespace-nowrap rounded-lg bg-popover/95 backdrop-blur-sm border border-border/60 px-2.5 py-1.5 text-[12px] font-medium text-popover-foreground shadow-xl opacity-0 translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-150">
         {label}
       </span>
     )}
@@ -168,10 +200,8 @@ SidebarButton.displayName = "SidebarButton";
 
 /* ─────────── Profile Row ─────────── */
 
-const SidebarProfileRow = memo(({
-  collapsed, s, onOpenNotifications, profileId, logout,
-}: {
-  collapsed: boolean;
+const SidebarProfileRow = memo(({ open, s, onOpenNotifications, profileId, logout }: {
+  open: boolean;
   s: Record<string, string>;
   onOpenNotifications: () => void;
   profileId: string | null;
@@ -183,7 +213,6 @@ const SidebarProfileRow = memo(({
   const queryClient = useQueryClient();
 
   const displayName = profile?.first_name || profile?.username || "—";
-  const subscriptionLabel = isPremium ? s.premium : s.free;
   const isPremiumUser = isPremium
     || profile?.subscription_status === 'pro'
     || profile?.subscription_status === 'lifetime'
@@ -196,12 +225,9 @@ const SidebarProfileRow = memo(({
 
   if (loading && !profile) {
     return (
-      <div className={cn(
-        "flex items-center gap-2.5 px-2 py-2 rounded-xl",
-        collapsed ? "justify-center" : "",
-      )}>
-        <div className="w-8 h-8 rounded-full bg-white/[0.06] animate-pulse shrink-0" />
-        {!collapsed && <div className="flex-1 space-y-1.5">
+      <div className={cn("flex items-center gap-2.5 px-2 py-1.5 rounded-xl", !open && "justify-center")}>
+        <div className="w-7 h-7 rounded-full bg-white/[0.06] animate-pulse shrink-0" />
+        {open && <div className="flex-1 space-y-1.5">
           <div className="h-2.5 w-20 rounded bg-white/[0.06] animate-pulse" />
           <div className="h-2 w-12 rounded bg-white/[0.04] animate-pulse" />
         </div>}
@@ -209,15 +235,17 @@ const SidebarProfileRow = memo(({
     );
   }
 
-  if (collapsed) {
+  if (!open) {
     return (
       <button
         onClick={() => openSettings("account")}
         title={displayName}
-        className="group relative w-9 h-9 mx-auto flex items-center justify-center rounded-lg hover:bg-white/[0.06] transition-colors"
+        className="group relative w-9 h-9 mx-auto flex items-center justify-center rounded-xl hover:bg-white/[0.06] transition-colors"
       >
-        <UserAvatar profileId={profileId} size="sm" forcePremium={isPremiumUser} />
-        <span className="pointer-events-none absolute left-full ml-2 z-[60] whitespace-nowrap rounded-md bg-popover/95 backdrop-blur border border-border/60 px-2 py-1 text-[11px] font-medium text-popover-foreground shadow-lg opacity-0 translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-100">
+        <div className="w-7 h-7 flex items-center justify-center">
+          <UserAvatar profileId={profileId} size="sm" forcePremium={isPremiumUser} />
+        </div>
+        <span className="pointer-events-none absolute left-full ml-3 z-[60] whitespace-nowrap rounded-lg bg-popover/95 backdrop-blur-sm border border-border/60 px-2.5 py-1.5 text-[12px] font-medium text-popover-foreground shadow-xl opacity-0 translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-150">
           {displayName}
         </span>
       </button>
@@ -229,30 +257,21 @@ const SidebarProfileRow = memo(({
       onClick={() => openSettings("account")}
       className="w-full flex items-center gap-2.5 px-2 py-1.5 rounded-xl hover:bg-white/[0.05] transition-colors group text-left focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary/40"
     >
-      {/* Avatar — жёсткий контейнер чтобы premium-ring не сдвигал */}
       <div className="shrink-0 w-7 h-7 flex items-center justify-center">
         <UserAvatar profileId={profileId} size="sm" forcePremium={isPremiumUser} />
       </div>
-
-      {/* Name + badge */}
       <div className="flex-1 min-w-0">
-        <p className="text-[13px] font-semibold text-foreground truncate leading-snug">
-          {displayName}
-        </p>
+        <p className="text-[13px] font-semibold text-foreground truncate leading-snug">{displayName}</p>
         <div className="flex items-center gap-1">
-          {isPremiumUser && (
-            <Crown className="w-2.5 h-2.5 text-amber-400 shrink-0" strokeWidth={2} />
-          )}
+          {isPremiumUser && <Crown className="w-2.5 h-2.5 text-amber-400 shrink-0" strokeWidth={2} />}
           <span className={cn(
             "text-[10px] font-medium leading-none truncate",
             isPremiumUser ? "text-amber-400/80" : "text-muted-foreground/45",
           )}>
-            {subscriptionLabel}
+            {isPremiumUser ? s.premium : s.free}
           </span>
         </div>
       </div>
-
-      {/* Logout — появляется при hover */}
       <div
         role="button"
         tabIndex={-1}
@@ -270,7 +289,7 @@ SidebarProfileRow.displayName = "SidebarProfileRow";
 /* ═══════════════════ MAIN SIDEBAR ═══════════════ */
 
 const SIDEBAR_W = 232;
-const SIDEBAR_COLLAPSED_W = 56;
+const SIDEBAR_NARROW_W = 56;
 
 export const AppSidebar = memo(({
   notificationsApi,
@@ -284,18 +303,34 @@ export const AppSidebar = memo(({
   const { pathname } = useLocation();
   const { isAuthenticated, profileId, logout } = useUserContext();
   const { language } = useLanguage();
-  const { sidebarCollapsed, toggleSidebarCollapsed, openSettings } = useSettingsStore();
+  const { sidebarCollapsed, setSidebarCollapsed, openSettings } = useSettingsStore();
   const { isAdmin } = useIsAdmin();
   const { activeDuel } = useActiveDuel();
-  const collapsed = sidebarCollapsed;
-  const w = collapsed ? SIDEBAR_COLLAPSED_W : SIDEBAR_W;
+
+  // Pinned = sidebarCollapsed is false (user locked it open)
+  // Hover = временно раскрыт наведением
+  const isPinned = !sidebarCollapsed;
+  const [isHovered, setIsHovered] = useState(false);
+
+  // Sidebar показывает текст если: закреплён открытым ИЛИ наведён
+  const isOpen = isPinned || isHovered;
+  const w = isOpen ? SIDEBAR_W : SIDEBAR_NARROW_W;
 
   const s = i18n[language] ?? i18n.en;
 
-  const handleToggle = useCallback(() => {
+  const handleMouseEnter = useCallback(() => {
+    if (!isPinned) setIsHovered(true);
+  }, [isPinned]);
+
+  const handleMouseLeave = useCallback(() => {
+    setIsHovered(false);
+  }, []);
+
+  const handlePinToggle = useCallback(() => {
     triggerHaptic("light");
-    toggleSidebarCollapsed();
-  }, [toggleSidebarCollapsed]);
+    // Закрепляем открытым или возвращаем в hover-режим
+    setSidebarCollapsed(isPinned); // если pinned → unpin (collapsed=true), если не pinned → pin (collapsed=false)
+  }, [isPinned, setSidebarCollapsed]);
 
   const mainItems = useMemo<SidebarItem[]>(() => [
     { name: s.home, href: "/dashboard", icon: Home, matchPaths: ["/dashboard"] },
@@ -318,86 +353,122 @@ export const AppSidebar = memo(({
   return (
     <motion.aside
       animate={{ width: w }}
-      transition={{ type: "spring", stiffness: 400, damping: 36 }}
+      transition={{ type: "spring", stiffness: 420, damping: 38, mass: 0.8 }}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
       className={cn(
         "fixed left-0 top-0 z-50 h-dvh hidden md:flex flex-col",
+        // Скругление правой стороны — как на макетах
+        "rounded-r-2xl",
         "border-r border-white/[0.06] bg-background",
+        // Тень при hover-overlay (не закреплён, просто наведён)
+        isHovered && !isPinned && "shadow-[4px_0_24px_rgba(0,0,0,0.25)]",
+        "overflow-hidden",
       )}
-      style={{ width: w }}
+      style={{ width: SIDEBAR_NARROW_W }} // начальное значение до hydration
     >
-      {/* ── Header: Logo + Context ── */}
+      {/* ── Header ── */}
       <div className={cn(
-        "flex items-center shrink-0 h-14 overflow-visible",
-        collapsed ? "justify-center px-1.5" : "px-3",
+        "flex items-center shrink-0 h-14",
+        isOpen ? "px-3 gap-2" : "justify-center px-1.5",
       )}>
-        <NavLink to="/dashboard" className="shrink-0 flex items-center rounded-lg focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary/40">
-          <LandingLogo variant="bold" showText={!collapsed} />
+        <NavLink
+          to="/dashboard"
+          className="shrink-0 flex items-center rounded-lg focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary/40"
+        >
+          <LandingLogo variant="bold" showText={isOpen} />
         </NavLink>
-        {!collapsed && isAuthenticated && (
-          <>
-            <div className="h-5 w-px bg-white/[0.08] mx-2 shrink-0" />
-            <ContextSwitcher embedded className="shrink-0 shadow-none text-xs !px-1.5 !h-7" />
-          </>
-        )}
+
+        <AnimatePresence initial={false}>
+          {isOpen && isAuthenticated && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.8 }}
+              transition={{ duration: 0.15 }}
+              className="flex items-center gap-1.5 ml-auto shrink-0"
+            >
+              <div className="h-5 w-px bg-white/[0.08]" />
+              <ContextSwitcher embedded className="shadow-none text-xs !px-1.5 !h-7" />
+              {/* Pin toggle */}
+              <button
+                onClick={handlePinToggle}
+                title={isPinned ? s.unpin : s.pin}
+                className="w-6 h-6 flex items-center justify-center rounded-lg text-muted-foreground/30 hover:text-muted-foreground/70 hover:bg-white/[0.06] transition-colors"
+              >
+                {isPinned
+                  ? <PinOff className="w-3 h-3" strokeWidth={2} />
+                  : <Pin className="w-3 h-3" strokeWidth={2} />
+                }
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       {/* ── Nav ── */}
       <nav className="flex-1 overflow-y-auto overflow-x-hidden px-2 pt-1 pb-1 scrollbar-none">
         <div className="space-y-0.5">
           {mainItems.map((item) => (
-            <SidebarNavItem key={item.href} item={item} collapsed={collapsed} pathname={pathname} />
+            <SidebarNavItem key={item.href} item={item} open={isOpen} pathname={pathname} />
           ))}
         </div>
 
-        <Divider label={s.library} collapsed={collapsed} />
+        <Divider label={s.library} open={isOpen} />
 
         <div className="space-y-0.5">
           {libraryItems.map((item) => (
-            <SidebarNavItem key={item.href} item={item} collapsed={collapsed} pathname={pathname} />
+            <SidebarNavItem key={item.href} item={item} open={isOpen} pathname={pathname} />
           ))}
         </div>
 
         {isAuthenticated && isAdmin && (
           <>
-            <Divider collapsed={collapsed} />
+            <Divider open={isOpen} />
             <SidebarNavItem
               item={{ name: s.admin, href: "/admin", icon: AdminShield, matchPaths: ["/admin"] }}
-              collapsed={collapsed}
+              open={isOpen}
               pathname={pathname}
             />
           </>
         )}
       </nav>
 
-      {/* ── Wallet ── */}
-      {isAuthenticated && !collapsed && (
-        <div className="shrink-0 px-2.5 py-1.5 border-t border-white/[0.06] overflow-hidden">
+      {/* ── Wallet (только раскрытый) ── */}
+      {isAuthenticated && isOpen && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.15 }}
+          className="shrink-0 px-2.5 py-1.5 border-t border-white/[0.06] overflow-hidden"
+        >
           <div className="flex items-center gap-1 overflow-x-auto scrollbar-none">
             <WalletWidget />
           </div>
-        </div>
+        </motion.div>
       )}
 
-      {/* ── Bottom: utility buttons ── */}
+      {/* ── Bottom buttons ── */}
       <div className={cn(
         "shrink-0 border-t border-white/[0.06] px-2 pt-1.5 pb-1 space-y-0.5",
-        collapsed && "flex flex-col items-center",
+        !isOpen && "flex flex-col items-center",
       )}>
         {isAuthenticated && (
-          <SidebarButton icon={Bell} label={s.notifications} collapsed={collapsed} onClick={onOpenNotifications} badge={unreadCount} />
+          <SidebarButton icon={Bell} label={s.notifications} open={isOpen} onClick={onOpenNotifications} badge={unreadCount} />
         )}
-        <SidebarButton icon={HelpCircle} label={s.help} collapsed={collapsed} onClick={() => window.open("/help", "_self")} />
-        <SidebarButton icon={Settings} label={s.settings} collapsed={collapsed} onClick={() => openSettings("general")} />
+        <SidebarButton icon={HelpCircle} label={s.help} open={isOpen} onClick={() => window.open("/help", "_self")} />
+        <SidebarButton icon={Settings} label={s.settings} open={isOpen} onClick={() => openSettings("general")} />
       </div>
 
       {/* ── Profile row ── */}
       <div className={cn(
         "shrink-0 border-t border-white/[0.06] px-2 py-2",
-        collapsed && "flex flex-col items-center",
+        !isOpen && "flex flex-col items-center",
       )}>
         {isAuthenticated ? (
           <SidebarProfileRow
-            collapsed={collapsed}
+            open={isOpen}
             s={s}
             onOpenNotifications={onOpenNotifications}
             profileId={profileId}
@@ -407,28 +478,16 @@ export const AppSidebar = memo(({
           <button
             onClick={onOpenAuth}
             className={cn(
-              "flex items-center gap-2.5 rounded-lg h-9 text-[13px] font-semibold transition-all w-full",
+              "flex items-center gap-2.5 rounded-xl h-9 text-[13px] font-semibold transition-all w-full",
               "bg-primary/10 text-primary hover:bg-primary/15",
-              collapsed ? "justify-center w-9 mx-auto" : "px-3",
+              !isOpen ? "justify-center w-9 mx-auto" : "px-3",
             )}
           >
             <LogIn className="w-4 h-4 shrink-0" strokeWidth={1.8} />
-            {!collapsed && <span>{s.login}</span>}
+            {isOpen && <span>{s.login}</span>}
           </button>
         )}
       </div>
-
-      {/* ── Collapse toggle ── */}
-      <button
-        onClick={handleToggle}
-        className="absolute z-[51] flex items-center justify-center rounded-full w-5 h-5 bg-background border border-white/[0.1] shadow-sm text-muted-foreground/40 hover:text-muted-foreground hover:border-white/[0.2] hover:bg-muted/60 transition-all duration-150 top-[23px] -right-[10px]"
-        title={collapsed ? "Развернуть" : "Свернуть"}
-      >
-        {collapsed
-          ? <ChevronsRight className="w-2.5 h-2.5" strokeWidth={2.5} />
-          : <ChevronsLeft className="w-2.5 h-2.5" strokeWidth={2.5} />
-        }
-      </button>
     </motion.aside>
   );
 });
