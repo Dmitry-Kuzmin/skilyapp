@@ -1,5 +1,5 @@
 import React, { useMemo, useCallback, useState, lazy, Suspense } from 'react';
-import { Power, Volume2, Play, Bell, CheckCircle, Star, Circle, Zap, FileText, Coins, BookOpen, ArrowRight, Target, BarChart2, Sparkles } from 'lucide-react';
+import { Power, Volume2, Play, Bell, CheckCircle, Star, Circle, Zap, FileText, Coins, BookOpen, Target, BarChart2, Sparkles, SendHorizonal } from 'lucide-react';
 import { ContextSwitcher } from '@/components/shared';
 import { usePDDContext } from '@/contexts/PDDContext';
 import { useUserContext } from '@/contexts/UserContext';
@@ -261,7 +261,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
           </div>
 
           {/* 3. DUEL PASS INFO */}
-          <div className="md:col-span-1 lg:col-span-1 xl:col-span-1 flex flex-col">
+          <div className="md:col-span-1 lg:col-span-1 xl:col-span-1">
             <Suspense fallback={<ComponentSkeleton />}>
               <DuelPassInfo />
             </Suspense>
@@ -342,54 +342,142 @@ const DuelPassSeasonModalWrapper = () => {
   );
 };
 
-// Карточка AI-чата в дашборде — открывает глобальный AIChatWidget (Vaul drawer)
-// Единый источник лимитов, единая история сообщений
+// Quick prompts per language — самые частые "спотыкания" DGT
+const QUICK_PROMPTS: Record<string, { label: string; full: string }[]> = {
+  es: [
+    { label: 'Velocidad', full: '¿Cuál es la velocidad máxima en autopista?' },
+    { label: 'Preferencia', full: '¿Quién tiene preferencia en un cruce sin señales?' },
+    { label: 'Alcohol', full: '¿Cuál es el límite de alcohol al conducir?' },
+    { label: 'Stop', full: '¿Qué significa la señal de stop?' },
+    { label: 'Puntos', full: '¿Cuántos puntos tiene el carné nuevo?' },
+  ],
+  ru: [
+    { label: 'Скорость', full: 'Максимальная скорость на автостраде Испании?' },
+    { label: 'Приоритет', full: 'Кто имеет приоритет на нерегулируемом перекрёстке?' },
+    { label: 'Алкоголь', full: 'Допустимый уровень алкоголя за рулём?' },
+    { label: 'Знак стоп', full: 'Что означает знак «Уступи дорогу»?' },
+    { label: 'Баллы', full: 'Сколько баллов у новых прав?' },
+  ],
+  en: [
+    { label: 'Speed', full: 'What is the maximum speed on a motorway?' },
+    { label: 'Right of way', full: 'Who has right of way at an unmarked junction?' },
+    { label: 'Alcohol', full: 'What is the alcohol limit for drivers?' },
+    { label: 'Stop sign', full: 'What does a stop sign legally require?' },
+    { label: 'Points', full: 'How many points does a new licence have?' },
+  ],
+};
+
+// Карточка AI-чата в дашборде — инпут + quick prompts → открывает AIChatWidget с готовым ответом
 const SkilyChatCard = () => {
+  const openChatWithMessage = useAIChatStore((s) => s.openChatWithMessage);
   const openChat = useAIChatStore((s) => s.openChat);
   const { resolvedTheme } = useTheme();
   const isDark = (resolvedTheme ?? 'dark') !== 'light';
-  const { t } = useLanguage();
+  const { language } = useLanguage();
+  const [inputVal, setInputVal] = useState('');
+
+  const lang = (language === 'ru' || language === 'en') ? language : 'es';
+  const prompts = QUICK_PROMPTS[lang];
+  // Показываем 3 чипа, ротируем каждый час
+  const hourSlot = new Date().getHours() % (prompts.length - 2);
+  const visiblePrompts = prompts.slice(hourSlot, hourSlot + 3);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const msg = inputVal.trim();
+    if (!msg) return;
+    playClickSound();
+    setInputVal('');
+    openChatWithMessage(msg);
+  };
+
+  const handlePromptClick = (full: string) => {
+    playClickSound();
+    openChatWithMessage(full);
+  };
+
+  const placeholder = lang === 'ru'
+    ? 'Спроси Skily AI...'
+    : lang === 'en'
+      ? 'Ask Skily AI...'
+      : 'Pregunta a Skily AI...';
 
   return (
-    <motion.div
-      whileHover={{ scale: 1.01 }}
-      whileTap={{ scale: 0.98 }}
-      onClick={() => { playClickSound(); openChat(); }}
-      className={cn(
-        "rounded-3xl p-5 shadow-lg border flex flex-col justify-between cursor-pointer relative overflow-hidden transition-all",
-        isDark
-          ? "bg-slate-800/80 backdrop-blur-md border-slate-700 hover:border-slate-600"
-          : "bg-white border-slate-200/80 hover:border-slate-300 shadow-[0_20px_45px_rgba(0,0,0,0.06)]"
-      )}
-    >
-      <div className="absolute inset-0 bg-gradient-to-b from-indigo-500/5 to-transparent opacity-0 hover:opacity-100 transition-opacity" />
+    <div className={cn(
+      "rounded-3xl p-5 shadow-lg border flex flex-col relative overflow-hidden transition-all",
+      isDark
+        ? "bg-slate-800/80 backdrop-blur-md border-slate-700"
+        : "bg-white border-slate-200/80 shadow-[0_20px_45px_rgba(0,0,0,0.06)]"
+    )}>
+      <div className="absolute inset-0 bg-gradient-to-b from-indigo-500/5 to-transparent pointer-events-none" />
 
-      <div className="flex flex-col items-center justify-center flex-1 relative z-10 py-4">
-        <div className="mb-4">
-          <AISphere size="md" />
-        </div>
-        <div className="text-center">
-          <h3 className={cn("font-bold text-lg tracking-tight", isDark ? "text-white" : "text-slate-900")}>
-            {t('skilyChat.title')}
-          </h3>
-          <p className={cn("text-xs mt-1 font-medium", isDark ? "text-slate-400" : "text-slate-500")}>
-            {t('skilyChat.subtitle')}
+      {/* Header */}
+      <button
+        onClick={() => { playClickSound(); openChat(); }}
+        className="flex items-center gap-3 mb-4 relative z-10"
+      >
+        <AISphere size="sm" />
+        <div className="text-left">
+          <p className={cn("font-bold text-sm leading-tight", isDark ? "text-white" : "text-slate-900")}>
+            Skily AI
+          </p>
+          <p className={cn("text-[10px] mt-0.5", isDark ? "text-slate-400" : "text-slate-500")}>
+            {lang === 'ru' ? 'Спроси о DGT' : lang === 'en' ? 'Ask about DGT' : 'Pregúntame sobre la DGT'}
           </p>
         </div>
+      </button>
+
+      {/* Chips — pill-форма с мягкой заливкой, без border */}
+      <div className="flex flex-row gap-1.5 flex-wrap mb-4 relative z-10">
+        {visiblePrompts.map(({ label, full }) => (
+          <button
+            key={full}
+            onClick={() => handlePromptClick(full)}
+            className={cn(
+              "text-[11px] font-medium py-1 px-3 rounded-full transition-all whitespace-nowrap",
+              "hover:scale-[1.03] active:scale-[0.97]",
+              isDark
+                ? "bg-white/6 hover:bg-white/10 text-slate-300"
+                : "bg-black/[0.05] hover:bg-black/[0.09] text-slate-500"
+            )}
+          >
+            <span className={cn("mr-1 text-[10px]", isDark ? "text-indigo-400" : "text-indigo-400")}>✦</span>{label}
+          </button>
+        ))}
       </div>
 
-      <div className="relative z-10 w-full mt-3">
+      {/* Инпут — капсула с мягкой заливкой */}
+      <form onSubmit={handleSubmit} className="relative z-10">
         <div className={cn(
-          "w-full py-3.5 px-4 rounded-xl font-black text-xs uppercase tracking-[0.1em] flex items-center justify-center gap-2 border shadow-sm",
+          "flex items-center gap-2 rounded-2xl px-4 py-2.5 transition-all",
           isDark
-            ? "bg-slate-700 text-white border-slate-600"
-            : "bg-white text-slate-950 border-slate-200"
+            ? "bg-white/6 focus-within:bg-white/9"
+            : "bg-black/[0.04] focus-within:bg-black/[0.07]"
         )}>
-          <Sparkles size={13} className="opacity-70" />
-          <span>{t('skilyChat.title') || 'AI Assistant'}</span>
-          <ArrowRight size={13} className="opacity-70" />
+          <input
+            type="text"
+            value={inputVal}
+            onChange={(e) => setInputVal(e.target.value)}
+            placeholder={placeholder}
+            className={cn(
+              "flex-1 bg-transparent text-xs outline-none min-w-0",
+              isDark ? "text-white placeholder:text-slate-500" : "text-slate-900 placeholder:text-slate-400"
+            )}
+          />
+          <button
+            type="submit"
+            disabled={!inputVal.trim()}
+            className={cn(
+              "shrink-0 w-5 h-5 rounded-full flex items-center justify-center transition-all",
+              inputVal.trim()
+                ? "bg-indigo-500 text-white hover:bg-indigo-600"
+                : isDark ? "bg-white/10 text-slate-500" : "bg-black/10 text-slate-400"
+            )}
+          >
+            <SendHorizonal size={10} />
+          </button>
         </div>
-      </div>
-    </motion.div>
+      </form>
+    </div>
   );
 };
