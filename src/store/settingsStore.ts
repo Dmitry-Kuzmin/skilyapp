@@ -142,9 +142,16 @@ export const useSettingsStore = create<SettingsStore>()(
             updateSettings: (settings) => set((state) => ({ ...state, ...settings })),
         }),
         {
-            name: 'sdadim-settings', // Key in localStorage
+            name: 'sdadim-settings',
+            version: 2, // v2: sidebar defaults to hover-mode (collapsed=true)
+            migrate: (persisted: any, version: number) => {
+                if (version < 2) {
+                    // Сбрасываем sidebarCollapsed в true → hover-режим по умолчанию
+                    return { ...persisted, sidebarCollapsed: true };
+                }
+                return persisted;
+            },
             partialize: (state) => ({
-                // Сохраняем только настройки, не состояние модалки
                 language: state.language,
                 theme: state.theme,
                 performanceMode: state.performanceMode,
