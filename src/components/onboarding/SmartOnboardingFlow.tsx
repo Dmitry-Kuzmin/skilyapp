@@ -4,6 +4,7 @@ import {
     Check, Globe, ArrowRight, ChevronLeft, Monitor,
     Car, Bike, Truck, Bus, Bell,
     Languages, GraduationCap, Sparkles,
+    Brain, Swords, ClipboardList, BookOpen,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useCountry } from '@/contexts/CountryContext';
@@ -122,6 +123,114 @@ const LANG_OPTIONS: { code: OBLang; badge: string; label: string }[] = [
 
 const EXPAT_FEATURE_ICONS = [Languages, GraduationCap, Sparkles];
 
+// ── Feature tour ─────────────────────────────────────────────────────────────
+type TourSlideData = {
+    iconBg: string;
+    glow: string;
+    Icon: React.ComponentType<{ className?: string; strokeWidth?: number }>;
+    title: string;
+    desc: string;
+};
+
+const TOUR_SLIDES_DATA: Record<OBLang, TourSlideData[]> = {
+    es: [
+        {
+            iconBg: 'linear-gradient(135deg, #8b5cf6, #6d28d9)',
+            glow: 'rgba(139,92,246,0.18)',
+            Icon: Brain,
+            title: 'Tu tutor con IA',
+            desc: 'Explica cualquier pregunta, señal o norma. Chatea cuando quieras y recibe respuestas con imágenes.',
+        },
+        {
+            iconBg: 'linear-gradient(135deg, #f97316, #d97706)',
+            glow: 'rgba(249,115,22,0.15)',
+            Icon: Swords,
+            title: 'Duelos en tiempo real',
+            desc: 'Reta a otros estudiantes en vivo. Gana monedas, sube posiciones y domina el ranking.',
+        },
+        {
+            iconBg: 'linear-gradient(135deg, #10b981, #059669)',
+            glow: 'rgba(16,185,129,0.15)',
+            Icon: ClipboardList,
+            title: 'Tests oficiales DGT',
+            desc: '800+ preguntas con explicaciones detalladas. Modo examen y análisis completo de tus errores.',
+        },
+        {
+            iconBg: 'linear-gradient(135deg, #f43f5e, #be123c)',
+            glow: 'rgba(244,63,94,0.15)',
+            Icon: BookOpen,
+            title: 'Señales y fichas',
+            desc: 'Aprende señales con tarjetas interactivas. Rápido, visual e ideal para repasar en cualquier momento.',
+        },
+    ],
+    ru: [
+        {
+            iconBg: 'linear-gradient(135deg, #8b5cf6, #6d28d9)',
+            glow: 'rgba(139,92,246,0.18)',
+            Icon: Brain,
+            title: 'AI-наставник',
+            desc: 'Объясняет любой вопрос, знак и правило. Отвечает в чате с картинками и примерами.',
+        },
+        {
+            iconBg: 'linear-gradient(135deg, #f97316, #d97706)',
+            glow: 'rgba(249,115,22,0.15)',
+            Icon: Swords,
+            title: 'Дуэли вживую',
+            desc: 'Соревнуйся с учениками в реальном времени. Зарабатывай монеты и попадай в топ рейтинга.',
+        },
+        {
+            iconBg: 'linear-gradient(135deg, #10b981, #059669)',
+            glow: 'rgba(16,185,129,0.15)',
+            Icon: ClipboardList,
+            title: 'Тесты DGT',
+            desc: '800+ вопросов с подробными объяснениями. Режим экзамена и детальный анализ ошибок.',
+        },
+        {
+            iconBg: 'linear-gradient(135deg, #f43f5e, #be123c)',
+            glow: 'rgba(244,63,94,0.15)',
+            Icon: BookOpen,
+            title: 'Знаки и флэшкарты',
+            desc: 'Учи дорожные знаки с интерактивными карточками. Быстро, наглядно и в любом месте.',
+        },
+    ],
+    en: [
+        {
+            iconBg: 'linear-gradient(135deg, #8b5cf6, #6d28d9)',
+            glow: 'rgba(139,92,246,0.18)',
+            Icon: Brain,
+            title: 'AI Tutor',
+            desc: 'Explains any question, sign, or rule. Chat anytime and get answers with images and examples.',
+        },
+        {
+            iconBg: 'linear-gradient(135deg, #f97316, #d97706)',
+            glow: 'rgba(249,115,22,0.15)',
+            Icon: Swords,
+            title: 'Live Duels',
+            desc: 'Compete with real students in real time. Earn coins and climb the global ranking.',
+        },
+        {
+            iconBg: 'linear-gradient(135deg, #10b981, #059669)',
+            glow: 'rgba(16,185,129,0.15)',
+            Icon: ClipboardList,
+            title: 'Official DGT Tests',
+            desc: '800+ questions with detailed explanations. Exam mode and full error analysis.',
+        },
+        {
+            iconBg: 'linear-gradient(135deg, #f43f5e, #be123c)',
+            glow: 'rgba(244,63,94,0.15)',
+            Icon: BookOpen,
+            title: 'Signs & Flashcards',
+            desc: 'Learn road signs with interactive cards. Fast, visual, and perfect for revision anywhere.',
+        },
+    ],
+};
+
+const TOUR_UI_TEXT: Record<OBLang, { skip: string; next: string; getStarted: string }> = {
+    es: { skip: 'Omitir', next: 'Siguiente', getStarted: '¡Empezar!' },
+    ru: { skip: 'Пропустить', next: 'Далее', getStarted: 'Поехали!' },
+    en: { skip: 'Skip', next: 'Next', getStarted: "Let's go!" },
+};
+
 // ── Category metadata ────────────────────────────────────────────────────────
 const CATEGORY_LABELS: Record<OBLang, Record<string, { title: string; desc: string }>> = {
     es: {
@@ -196,6 +305,9 @@ export const SmartOnboardingFlow: React.FC = () => {
     const [isSaving, setIsSaving] = useState(false);
     const [isVisible, setIsVisible] = useState(false);
     const [autoDetectDone, setAutoDetectDone] = useState(false);
+    const [showTour, setShowTour] = useState(false);
+    const [tourStep, setTourStep] = useState(0);
+    const [tourDirection, setTourDirection] = useState<1 | -1>(1);
     const [notifPermission, setNotifPermission] = useState<NotificationPermission>(
         () => typeof window !== 'undefined' && 'Notification' in window
             ? Notification.permission
@@ -357,7 +469,7 @@ export const SmartOnboardingFlow: React.FC = () => {
                     .eq('id', profileId);
             }
 
-            setIsVisible(false);
+            setShowTour(true);
             toast.success(ui.done);
         } catch (err) {
             console.error('[Onboarding] save failed:', err);
@@ -368,6 +480,142 @@ export const SmartOnboardingFlow: React.FC = () => {
     };
 
     if (!isVisible || !selectedCountry) return null;
+
+    // ── Feature tour (shown after config steps) ─────────────────────────────
+    if (showTour) {
+        const slides = TOUR_SLIDES_DATA[selectedLang];
+        const tourUi = TOUR_UI_TEXT[selectedLang];
+        const slide = slides[tourStep];
+        const isLastTourSlide = tourStep === slides.length - 1;
+
+        const nextTourSlide = () => {
+            if (isLastTourSlide) {
+                setIsVisible(false);
+            } else {
+                setTourDirection(1);
+                setTourStep(s => s + 1);
+            }
+        };
+        const prevTourSlide = () => {
+            if (tourStep > 0) {
+                setTourDirection(-1);
+                setTourStep(s => s - 1);
+            }
+        };
+
+        return (
+            <div
+                className="fixed inset-0 z-[100] bg-zinc-950 flex flex-col overflow-hidden"
+                style={{ paddingTop: 'max(env(safe-area-inset-top, 0px), var(--app-safe-top, 0px))' }}
+            >
+                {/* Dynamic background glow — changes with slide */}
+                <AnimatePresence mode="wait">
+                    <motion.div
+                        key={tourStep}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.6 }}
+                        className="absolute inset-0 pointer-events-none"
+                        style={{
+                            background: `radial-gradient(ellipse at 50% 25%, ${slide.glow}, transparent 60%)`,
+                        }}
+                    />
+                </AnimatePresence>
+
+                {/* Header */}
+                <div className="relative z-10 flex items-center justify-between px-6 sm:px-8 pt-6 pb-3 shrink-0 w-full max-w-md mx-auto">
+                    <img src="/logo/skily-logo-current.svg" alt="Skily" className="h-9 w-auto" />
+                    <button
+                        onClick={() => setIsVisible(false)}
+                        className="text-[11px] font-medium text-zinc-500 hover:text-zinc-300 transition-colors"
+                    >
+                        {tourUi.skip}
+                    </button>
+                </div>
+
+                {/* Slide content */}
+                <div className="relative z-10 flex-1 flex flex-col items-center justify-center w-full max-w-md mx-auto overflow-hidden px-8">
+                    <AnimatePresence mode="wait" custom={tourDirection}>
+                        <motion.div
+                            key={tourStep}
+                            custom={tourDirection}
+                            variants={pageVariants}
+                            initial="enter" animate="center" exit="exit"
+                            drag="x"
+                            dragConstraints={{ left: 0, right: 0 }}
+                            dragElastic={0.25}
+                            onDragEnd={(_, info) => {
+                                if (info.offset.x < -60 && !isLastTourSlide) nextTourSlide();
+                                else if (info.offset.x > 60 && tourStep > 0) prevTourSlide();
+                            }}
+                            className="w-full flex flex-col items-center text-center select-none"
+                            style={{ cursor: 'grab' }}
+                        >
+                            {/* Icon block */}
+                            <motion.div
+                                initial={{ scale: 0.85, opacity: 0 }}
+                                animate={{ scale: 1, opacity: 1 }}
+                                transition={{ delay: 0.05, duration: 0.4, ease: [0.25, 1, 0.5, 1] }}
+                                className="w-[120px] h-[120px] rounded-[32px] flex items-center justify-center mb-9 shadow-2xl"
+                                style={{ background: slide.iconBg }}
+                            >
+                                <slide.Icon className="w-[52px] h-[52px] text-white" strokeWidth={1.5} />
+                            </motion.div>
+
+                            <motion.h2
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.1, duration: 0.35 }}
+                                className="text-[26px] font-bold text-white tracking-tight leading-tight mb-3"
+                            >
+                                {slide.title}
+                            </motion.h2>
+                            <motion.p
+                                initial={{ opacity: 0, y: 8 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.15, duration: 0.35 }}
+                                className="text-zinc-400 text-[15px] leading-relaxed max-w-[280px]"
+                            >
+                                {slide.desc}
+                            </motion.p>
+                        </motion.div>
+                    </AnimatePresence>
+                </div>
+
+                {/* Footer */}
+                <div
+                    className="relative z-10 px-6 sm:px-8 pt-3 shrink-0 w-full max-w-md mx-auto"
+                    style={{ paddingBottom: 'max(env(safe-area-inset-bottom, 0px), 1.5rem)' }}
+                >
+                    {/* Progress dots */}
+                    <div className="flex justify-center gap-2 mb-5">
+                        {slides.map((_, i) => (
+                            <button
+                                key={i}
+                                onClick={() => {
+                                    setTourDirection(i > tourStep ? 1 : -1);
+                                    setTourStep(i);
+                                }}
+                                className={cn(
+                                    'h-1.5 rounded-full transition-all duration-500',
+                                    i === tourStep ? 'w-7 bg-white' : 'w-2 bg-white/20 hover:bg-white/35',
+                                )}
+                            />
+                        ))}
+                    </div>
+
+                    <button
+                        onClick={nextTourSlide}
+                        className="w-full h-13 py-3.5 rounded-2xl bg-white text-zinc-950 font-semibold text-sm flex items-center justify-center gap-2 active:scale-[0.98] transition-all"
+                    >
+                        <span>{isLastTourSlide ? tourUi.getStarted : tourUi.next}</span>
+                        {!isLastTourSlide && <ArrowRight className="w-4 h-4" strokeWidth={2.5} />}
+                    </button>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div
@@ -380,7 +628,7 @@ export const SmartOnboardingFlow: React.FC = () => {
 
             {/* Header */}
             <div className="relative z-10 flex items-center justify-between px-6 sm:px-8 pt-6 pb-3 shrink-0 w-full max-w-md mx-auto">
-                <img src="/logo/skily-logo-current.svg" alt="Skily" className="h-6 w-auto opacity-90" />
+                <img src="/logo/skily-logo-current.svg" alt="Skily" className="h-9 w-auto" />
                 <div className="flex items-center gap-4">
                     <div className="flex items-center gap-1.5">
                         {steps.map((_, i) => (
