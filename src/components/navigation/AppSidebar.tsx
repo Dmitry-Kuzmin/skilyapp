@@ -1,10 +1,11 @@
 import { memo, Suspense, lazy, useCallback, useMemo } from "react";
-import { NavLink, useLocation, useNavigate } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "@/components/optimized/Motion";
 import {
   Home, FileText, BookOpen, Gamepad2, Swords, SignpostBig,
-  Newspaper, BookMarked, Settings, PanelLeftClose, PanelLeftOpen,
-  Trophy, Shield as AdminShield,
+  Newspaper, BookMarked, Settings, ChevronsLeft, ChevronsRight,
+  Shield as AdminShield, HelpCircle, GraduationCap,
+  LogIn,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -15,8 +16,6 @@ import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { LandingLogo } from "@/components/landing/LandingLogo";
 import { ContextSwitcher } from "@/components/shared/ContextSwitcher";
 import { WalletWidget } from "./WalletWidget";
-import { AchievementsWidget } from "./AchievementsWidget";
-import { ActiveDuelWidget } from "./ActiveDuelWidget";
 import { useActiveDuel } from "@/hooks/useActiveDuel";
 import { triggerHaptic } from "@/lib/haptics";
 
@@ -24,32 +23,25 @@ const UserProfilePopover = lazy(() =>
   import("@/components/UserProfilePopover").then((m) => ({ default: m.UserProfilePopover }))
 );
 
-type NavItem = {
+type SidebarItem = {
   name: string;
   href: string;
   icon: LucideIcon;
   matchPaths?: string[];
   isActiveDuel?: boolean;
-  badge?: string;
 };
 
-type NavGroup = {
-  label?: string;
-  items: NavItem[];
+const isPathActive = (pathname: string, item: SidebarItem) => {
+  const paths = item.matchPaths?.length ? item.matchPaths : [item.href];
+  return paths.some((p) => pathname === p || pathname.startsWith(`${p}/`));
 };
 
-const isPathActive = (pathname: string, item: NavItem) => {
-  const candidates = item.matchPaths?.length ? item.matchPaths : [item.href];
-  return candidates.some((base) => pathname === base || pathname.startsWith(`${base}/`));
-};
+/* ─────────────────── Nav Item ─────────────────── */
 
-// Single nav item row
 const SidebarNavItem = memo(({
-  item,
-  collapsed,
-  pathname,
+  item, collapsed, pathname,
 }: {
-  item: NavItem;
+  item: SidebarItem;
   collapsed: boolean;
   pathname: string;
 }) => {
@@ -61,67 +53,114 @@ const SidebarNavItem = memo(({
       to={item.href}
       title={collapsed ? item.name : undefined}
       className={cn(
-        "group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-150 select-none",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50",
+        "group relative flex items-center rounded-lg transition-all duration-150 select-none",
+        "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary/40",
+        collapsed ? "justify-center w-10 h-10 mx-auto" : "gap-3 px-3 h-9",
         active
-          ? "bg-primary/10 text-primary"
-          : "text-muted-foreground/70 hover:bg-white/5 hover:text-foreground",
-        collapsed && "justify-center px-2"
+          ? "bg-white/[0.07] text-foreground"
+          : "text-muted-foreground/60 hover:text-muted-foreground hover:bg-white/[0.04]",
       )}
       style={{ WebkitTapHighlightColor: "transparent" }}
     >
-      {/* Active indicator bar */}
       {active && (
-        <motion.div
-          layoutId="sidebar-active-bar"
-          className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full bg-primary"
-          transition={{ type: "spring", stiffness: 500, damping: 35 }}
+        <motion.span
+          layoutId="sidebar-indicator"
+          className="absolute left-0 top-1/2 -translate-y-1/2 w-[2px] rounded-r bg-primary"
+          style={{ height: 16 }}
+          transition={{ type: "spring", stiffness: 500, damping: 38 }}
         />
       )}
 
       <Icon
-        className={cn("w-[18px] h-[18px] shrink-0", active ? "text-primary" : "text-muted-foreground/60 group-hover:text-foreground/70")}
-        strokeWidth={active ? 2.25 : 1.75}
+        className={cn(
+          "shrink-0 transition-colors duration-150",
+          collapsed ? "w-[18px] h-[18px]" : "w-4 h-4",
+          active ? "text-primary" : "text-muted-foreground/50 group-hover:text-muted-foreground/80"
+        )}
+        strokeWidth={active ? 2.2 : 1.6}
       />
 
       {!collapsed && (
-        <span className="truncate leading-tight">{item.name}</span>
-      )}
-
-      {/* Active duel pulse */}
-      {item.isActiveDuel && (
-        <motion.div
-          className="absolute top-2 right-2 w-1.5 h-1.5 bg-green-400 rounded-full"
-          animate={{ scale: [1, 1.3, 1], opacity: [1, 0.6, 1] }}
-          transition={{ duration: 2, repeat: Infinity }}
-        />
-      )}
-
-      {/* Tooltip on collapsed */}
-      {collapsed && (
-        <div className="pointer-events-none absolute left-full ml-3 z-50 whitespace-nowrap rounded-lg bg-popover border border-border/50 px-2.5 py-1.5 text-xs font-medium text-popover-foreground shadow-xl opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 transition-all duration-150">
+        <span className={cn(
+          "truncate text-[13px] leading-none",
+          active ? "font-semibold" : "font-medium"
+        )}>
           {item.name}
-        </div>
+        </span>
+      )}
+
+      {item.isActiveDuel && (
+        <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
+      )}
+
+      {/* Tooltip (collapsed) */}
+      {collapsed && (
+        <span className={cn(
+          "pointer-events-none absolute left-full ml-2.5 z-[60] whitespace-nowrap",
+          "rounded-md bg-popover/95 backdrop-blur border border-border/60 px-2 py-1",
+          "text-[11px] font-medium text-popover-foreground shadow-lg",
+          "opacity-0 translate-x-1 group-hover:opacity-100 group-hover:translate-x-0",
+          "transition-all duration-100"
+        )}>
+          {item.name}
+        </span>
       )}
     </NavLink>
   );
 });
-
 SidebarNavItem.displayName = "SidebarNavItem";
 
-// Group label
-const GroupLabel = memo(({ label, collapsed }: { label: string; collapsed: boolean }) => {
-  if (collapsed) {
-    return <div className="mx-auto h-px w-6 bg-border/40 my-2" />;
-  }
+/* ─────────────────── Divider ─────────────────── */
+
+const Divider = memo(({ label, collapsed }: { label?: string; collapsed: boolean }) => {
+  if (collapsed) return <div className="my-2 mx-3 h-px bg-border/20" />;
+  if (!label) return <div className="my-2 mx-3 h-px bg-border/20" />;
   return (
-    <p className="px-3 pt-2 pb-1 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/40 select-none">
-      {label}
-    </p>
+    <div className="flex items-center gap-2 px-3 pt-3 pb-1">
+      <span className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground/30 select-none">
+        {label}
+      </span>
+      <span className="flex-1 h-px bg-border/15" />
+    </div>
   );
 });
+Divider.displayName = "Divider";
 
-GroupLabel.displayName = "GroupLabel";
+/* ─────────────────── Sidebar Button (non-link) ─ */
+
+const SidebarButton = memo(({
+  icon: Icon, label, collapsed, onClick,
+}: {
+  icon: LucideIcon;
+  label: string;
+  collapsed: boolean;
+  onClick: () => void;
+}) => (
+  <button
+    onClick={onClick}
+    title={collapsed ? label : undefined}
+    className={cn(
+      "group relative flex items-center rounded-lg transition-all duration-150 select-none w-full",
+      "text-muted-foreground/60 hover:text-muted-foreground hover:bg-white/[0.04]",
+      "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary/40",
+      collapsed ? "justify-center w-10 h-10 mx-auto" : "gap-3 px-3 h-9",
+    )}
+  >
+    <Icon className="w-4 h-4 shrink-0 text-muted-foreground/50 group-hover:text-muted-foreground/80 transition-colors" strokeWidth={1.6} />
+    {!collapsed && <span className="text-[13px] font-medium truncate">{label}</span>}
+    {collapsed && (
+      <span className="pointer-events-none absolute left-full ml-2.5 z-[60] whitespace-nowrap rounded-md bg-popover/95 backdrop-blur border border-border/60 px-2 py-1 text-[11px] font-medium text-popover-foreground shadow-lg opacity-0 translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-100">
+        {label}
+      </span>
+    )}
+  </button>
+));
+SidebarButton.displayName = "SidebarButton";
+
+/* ═══════════════════ MAIN SIDEBAR ═══════════════ */
+
+const SIDEBAR_W = 232;
+const SIDEBAR_COLLAPSED_W = 56;
 
 export const AppSidebar = memo(({
   notificationsApi,
@@ -132,178 +171,129 @@ export const AppSidebar = memo(({
   onOpenNotifications: () => void;
   onOpenAuth: () => void;
 }) => {
-  const location = useLocation();
-  const navigate = useNavigate();
+  const { pathname } = useLocation();
   const { isAuthenticated } = useUserContext();
   const { t } = useLanguage();
   const { sidebarCollapsed, toggleSidebarCollapsed, openSettings } = useSettingsStore();
   const { isAdmin } = useIsAdmin();
   const { activeDuel } = useActiveDuel();
+  const collapsed = sidebarCollapsed;
+  const w = collapsed ? SIDEBAR_COLLAPSED_W : SIDEBAR_W;
 
   const handleToggle = useCallback(() => {
     triggerHaptic("light");
     toggleSidebarCollapsed();
   }, [toggleSidebarCollapsed]);
 
-  const coreItems = useMemo<NavItem[]>(() => [
+  /* ── Navigation groups ──────────────────────── */
+
+  const mainItems = useMemo<SidebarItem[]>(() => [
     { name: t("home"), href: "/dashboard", icon: Home, matchPaths: ["/dashboard"] },
     { name: t("tests"), href: "/tests", icon: FileText, matchPaths: ["/tests", "/test"] },
     { name: t("learning"), href: "/learning", icon: BookOpen, matchPaths: ["/learning", "/learning-map", "/topic", "/subtopic"] },
     activeDuel && activeDuel.mode !== "result"
-      ? { name: "Дуэль", href: `/games/duel?duelId=${activeDuel.duelId}`, icon: Swords, isActiveDuel: true, matchPaths: ["/games/duel"] }
+      ? { name: t("games") + " · Live", href: `/games/duel?duelId=${activeDuel.duelId}`, icon: Swords, isActiveDuel: true, matchPaths: ["/games/duel"] }
       : { name: t("games"), href: "/games", icon: Gamepad2, matchPaths: ["/games"] },
   ], [t, activeDuel]);
 
-  const resourceItems = useMemo<NavItem[]>(() => [
-    { name: "Знаки ПДД", href: "/road-signs", icon: SignpostBig, matchPaths: ["/road-signs"] },
-    { name: "Блог", href: "/blog", icon: Newspaper, matchPaths: ["/blog"] },
-    { name: "Словарь", href: "/dictionary", icon: BookMarked, matchPaths: ["/dictionary"] },
-    { name: "Рейтинг", href: "/hall-of-fame", icon: Trophy, matchPaths: ["/hall-of-fame"] },
-  ], []);
-
-  const w = sidebarCollapsed ? 64 : 220;
+  const libraryItems = useMemo<SidebarItem[]>(() => [
+    { name: t("roadSigns") || "Знаки", href: "/road-signs", icon: SignpostBig, matchPaths: ["/road-signs"] },
+    { name: t("dictionary") || "Словарь", href: "/dictionary", icon: BookMarked, matchPaths: ["/dictionary"] },
+    { name: t("blog") || "Блог", href: "/blog", icon: Newspaper, matchPaths: ["/blog", "/article"] },
+    { name: "Справочник", href: "/learn/russia/handbook", icon: GraduationCap, matchPaths: ["/learn/russia/handbook"] },
+  ], [t]);
 
   return (
     <motion.aside
       animate={{ width: w }}
-      transition={{ type: "spring", stiffness: 380, damping: 34 }}
+      transition={{ type: "spring", stiffness: 400, damping: 36 }}
       className={cn(
-        "fixed left-0 top-0 z-50 h-full hidden md:flex flex-col",
-        "border-r border-border/40 bg-background/95 backdrop-blur-xl",
-        "overflow-hidden"
+        "fixed left-0 top-0 z-50 h-dvh hidden md:flex flex-col",
+        "border-r border-white/[0.06] bg-background",
       )}
       style={{ width: w }}
     >
-      {/* ── Logo ─────────────────────────────────────── */}
+      {/* ── Header ────────────────────────────── */}
       <div className={cn(
-        "flex items-center shrink-0 border-b border-border/30",
-        sidebarCollapsed ? "h-16 justify-center px-2" : "h-16 px-4 gap-2"
+        "flex items-center shrink-0 h-14",
+        collapsed ? "justify-center px-1" : "px-4 gap-2"
       )}>
-        {sidebarCollapsed ? (
-          <NavLink to="/dashboard" className="rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">
-            <LandingLogo variant="bold" showText={false} />
-          </NavLink>
-        ) : (
-          <>
-            <NavLink to="/dashboard" className="min-w-0 flex-1 flex items-center rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">
-              <LandingLogo variant="bold" showText={true} />
-            </NavLink>
-            {/* Collapse toggle */}
-            <button
-              onClick={handleToggle}
-              className="shrink-0 w-7 h-7 flex items-center justify-center rounded-lg text-muted-foreground/50 hover:text-foreground hover:bg-white/5 transition-colors"
-              title="Свернуть"
-            >
-              <PanelLeftClose className="w-4 h-4" />
-            </button>
-          </>
-        )}
+        <NavLink
+          to="/dashboard"
+          className="flex items-center rounded-lg focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary/40"
+        >
+          <LandingLogo variant="bold" showText={!collapsed} />
+        </NavLink>
       </div>
 
-      {/* ── Context Switcher (expanded only) ─────────── */}
-      <AnimatePresence>
-        {!sidebarCollapsed && isAuthenticated && (
+      {/* ── Context Switcher ─────────────────── */}
+      <AnimatePresence initial={false}>
+        {!collapsed && isAuthenticated && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.18 }}
-            className="px-3 pt-2 pb-1 border-b border-border/20 shrink-0 overflow-hidden"
+            transition={{ duration: 0.15 }}
+            className="px-2.5 pb-1.5 shrink-0 overflow-hidden"
           >
-            <ContextSwitcher embedded className="w-full px-1.5 shadow-none text-xs" />
+            <ContextSwitcher embedded className="w-full shadow-none text-xs" />
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* ── Navigation ───────────────────────────────── */}
-      <nav className="flex-1 overflow-y-auto overflow-x-hidden px-2 py-3 space-y-0.5 scrollbar-none">
-        {/* Core group */}
+      {/* ── Main nav ─────────────────────────── */}
+      <nav className="flex-1 overflow-y-auto overflow-x-hidden px-2 pt-2 pb-1 space-y-0.5 scrollbar-none">
         <div className="space-y-0.5">
-          {!sidebarCollapsed && <GroupLabel label="Навигация" collapsed={sidebarCollapsed} />}
-          {coreItems.map((item) => (
-            <SidebarNavItem key={item.name} item={item} collapsed={sidebarCollapsed} pathname={location.pathname} />
+          {mainItems.map((item) => (
+            <SidebarNavItem key={item.href} item={item} collapsed={collapsed} pathname={pathname} />
           ))}
         </div>
 
-        {/* Resources group */}
-        <div className="space-y-0.5 pt-2">
-          <GroupLabel label="Материалы" collapsed={sidebarCollapsed} />
-          {resourceItems.map((item) => (
-            <SidebarNavItem key={item.name} item={item} collapsed={sidebarCollapsed} pathname={location.pathname} />
+        <Divider label="Библиотека" collapsed={collapsed} />
+
+        <div className="space-y-0.5">
+          {libraryItems.map((item) => (
+            <SidebarNavItem key={item.href} item={item} collapsed={collapsed} pathname={pathname} />
           ))}
         </div>
 
-        {/* Admin */}
         {isAuthenticated && isAdmin && (
-          <div className="space-y-0.5 pt-2">
-            <GroupLabel label="Система" collapsed={sidebarCollapsed} />
+          <>
+            <Divider collapsed={collapsed} />
             <SidebarNavItem
-              item={{ name: "Админ", href: "/admin", icon: AdminShield, matchPaths: ["/admin"] }}
-              collapsed={sidebarCollapsed}
-              pathname={location.pathname}
+              item={{ name: "Админ-панель", href: "/admin", icon: AdminShield, matchPaths: ["/admin"] }}
+              collapsed={collapsed}
+              pathname={pathname}
             />
-          </div>
+          </>
         )}
       </nav>
 
-      {/* ── Wallet + Achievements ─────────────────────── */}
+      {/* ── Wallet (authenticated) ───────────── */}
       {isAuthenticated && (
         <div className={cn(
-          "shrink-0 border-t border-border/30 px-2 py-2",
-          sidebarCollapsed ? "flex flex-col items-center gap-1.5" : "space-y-1.5"
+          "shrink-0 px-2 py-1.5",
+          collapsed ? "flex justify-center" : "",
         )}>
-          {!sidebarCollapsed && (
-            <p className="px-1 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/40 select-none pb-0.5">
-              Аккаунт
-            </p>
-          )}
-          <div className={cn(sidebarCollapsed ? "w-full flex justify-center" : "")}>
-            <WalletWidget />
-          </div>
-          <div className={cn(sidebarCollapsed ? "w-full flex justify-center" : "")}>
-            <AchievementsWidget variant={sidebarCollapsed ? "mobile" : undefined} />
-          </div>
-          <div className={cn(sidebarCollapsed ? "w-full flex justify-center" : "")}>
-            <ActiveDuelWidget />
-          </div>
+          <WalletWidget className={collapsed ? "flex-col gap-1 [&>*]:scale-90" : ""} />
         </div>
       )}
 
-      {/* ── Bottom: Settings + Profile ───────────────── */}
+      {/* ── Bottom bar ───────────────────────── */}
       <div className={cn(
-        "shrink-0 border-t border-border/30 px-2 py-2",
-        sidebarCollapsed ? "flex flex-col items-center gap-1.5" : "space-y-0.5"
+        "shrink-0 border-t border-white/[0.06] px-2 py-2 space-y-0.5",
+        collapsed && "flex flex-col items-center"
       )}>
-        {/* Settings button */}
-        <button
-          onClick={() => openSettings("general")}
-          title={sidebarCollapsed ? "Настройки" : undefined}
-          className={cn(
-            "group relative w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-150",
-            "text-muted-foreground/70 hover:bg-white/5 hover:text-foreground",
-            sidebarCollapsed && "justify-center px-2"
-          )}
-        >
-          <Settings className="w-[18px] h-[18px] shrink-0 text-muted-foreground/60 group-hover:text-foreground/70" strokeWidth={1.75} />
-          {!sidebarCollapsed && <span className="truncate">Настройки</span>}
-          {sidebarCollapsed && (
-            <div className="pointer-events-none absolute left-full ml-3 z-50 whitespace-nowrap rounded-lg bg-popover border border-border/50 px-2.5 py-1.5 text-xs font-medium text-popover-foreground shadow-xl opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 transition-all duration-150">
-              Настройки
-            </div>
-          )}
-        </button>
+        <SidebarButton icon={HelpCircle} label="Помощь" collapsed={collapsed} onClick={() => window.open("/help", "_self")} />
+        <SidebarButton icon={Settings} label={t("settings") || "Настройки"} collapsed={collapsed} onClick={() => openSettings("general")} />
 
-        {/* Profile / Login */}
         {isAuthenticated ? (
-          <div className={cn(
-            "flex items-center",
-            sidebarCollapsed ? "justify-center" : "px-1 py-1"
-          )}>
+          <div className={cn("pt-1", collapsed ? "flex justify-center" : "px-0.5")}>
             <Suspense fallback={null}>
               <UserProfilePopover
                 notificationsApi={notificationsApi}
                 onOpenNotifications={onOpenNotifications}
-                compact={sidebarCollapsed}
+                compact={collapsed}
               />
             </Suspense>
           </div>
@@ -311,26 +301,35 @@ export const AppSidebar = memo(({
           <button
             onClick={onOpenAuth}
             className={cn(
-              "w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all",
-              "bg-primary/10 text-primary hover:bg-primary/20",
-              sidebarCollapsed && "justify-center px-2"
+              "flex items-center gap-3 rounded-lg h-9 text-[13px] font-semibold transition-all w-full",
+              "bg-primary/10 text-primary hover:bg-primary/15",
+              collapsed ? "justify-center w-10 mx-auto" : "px-3",
             )}
           >
-            {!sidebarCollapsed && <span>Войти</span>}
+            <LogIn className="w-4 h-4 shrink-0" strokeWidth={1.8} />
+            {!collapsed && <span>Войти</span>}
           </button>
         )}
       </div>
 
-      {/* ── Expand toggle (collapsed state) ──────────── */}
-      {sidebarCollapsed && (
-        <button
-          onClick={handleToggle}
-          className="absolute top-[18px] right-2 w-7 h-7 flex items-center justify-center rounded-lg text-muted-foreground/50 hover:text-foreground hover:bg-white/5 transition-colors"
-          title="Развернуть"
-        >
-          <PanelLeftOpen className="w-4 h-4" />
-        </button>
-      )}
+      {/* ── Collapse toggle ──────────────────── */}
+      <button
+        onClick={handleToggle}
+        className={cn(
+          "absolute z-10 flex items-center justify-center rounded-full",
+          "w-6 h-6 bg-background border border-white/[0.08] shadow-sm",
+          "text-muted-foreground/40 hover:text-muted-foreground hover:border-white/[0.15] hover:bg-muted/50",
+          "transition-all duration-150",
+          "top-[22px]",
+          collapsed ? "right-[-12px]" : "right-[-12px]",
+        )}
+        title={collapsed ? "Развернуть" : "Свернуть"}
+      >
+        {collapsed
+          ? <ChevronsRight className="w-3 h-3" strokeWidth={2} />
+          : <ChevronsLeft className="w-3 h-3" strokeWidth={2} />
+        }
+      </button>
     </motion.aside>
   );
 });

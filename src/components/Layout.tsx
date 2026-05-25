@@ -507,9 +507,8 @@ const Layout = memo(({ children, hideNavigation = false }: LayoutProps) => {
           "flex-1 flex flex-col min-h-0",
           !hideNavigation && !isFullscreenMode && "has-bottom-nav",
           isAuthenticated && !hideNavigation && !isFullscreenMode && "has-bottom-widgets",
-          // Sidebar mode: отступ слева под сайдбар (анимируется через transition)
           !hideNavigation && isSidebarMode && !isFullscreenMode && (
-            sidebarCollapsed ? "md:ml-[64px]" : "md:ml-[220px]"
+            sidebarCollapsed ? "md:ml-[56px]" : "md:ml-[232px]"
           ),
         )}
         style={
