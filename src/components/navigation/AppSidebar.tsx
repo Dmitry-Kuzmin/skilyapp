@@ -5,12 +5,12 @@ import {
   Home, FileText, BookOpen, Gamepad2, Swords, SignpostBig,
   Newspaper, BookMarked, Settings, ChevronsLeft, ChevronsRight,
   Shield as AdminShield, HelpCircle, GraduationCap,
-  LogIn,
+  LogIn, Bell,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useUserContext } from "@/contexts/UserContext";
-import { useLanguage } from "@/contexts/LanguageContext";
+import { useLanguage, type Language } from "@/contexts/LanguageContext";
 import { useSettingsStore } from "@/store/settingsStore";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { LandingLogo } from "@/components/landing/LandingLogo";
@@ -22,6 +22,31 @@ import { triggerHaptic } from "@/lib/haptics";
 const UserProfilePopover = lazy(() =>
   import("@/components/UserProfilePopover").then((m) => ({ default: m.UserProfilePopover }))
 );
+
+/* ─────────── i18n for sidebar (hardcoded, avoids deep key issues) ─────────── */
+
+const sidebarI18n: Record<Language, Record<string, string>> = {
+  es: {
+    home: "Inicio", tests: "Pruebas", learning: "Aprendizaje", games: "Juegos",
+    signs: "Señales", dictionary: "Diccionario", blog: "Blog", handbook: "Manual",
+    admin: "Admin", settings: "Configuración", help: "Ayuda", login: "Iniciar sesión",
+    library: "Biblioteca", system: "Sistema",
+  },
+  ru: {
+    home: "Главная", tests: "Тесты", learning: "Обучение", games: "Игры",
+    signs: "Знаки ПДД", dictionary: "Словарь", blog: "Блог", handbook: "Справочник",
+    admin: "Админ", settings: "Настройки", help: "Помощь", login: "Войти",
+    library: "Библиотека", system: "Система",
+  },
+  en: {
+    home: "Home", tests: "Tests", learning: "Learning", games: "Games",
+    signs: "Road Signs", dictionary: "Dictionary", blog: "Blog", handbook: "Handbook",
+    admin: "Admin", settings: "Settings", help: "Help", login: "Log in",
+    library: "Library", system: "System",
+  },
+};
+
+/* ─────────── Types ─────────── */
 
 type SidebarItem = {
   name: string;
@@ -36,14 +61,10 @@ const isPathActive = (pathname: string, item: SidebarItem) => {
   return paths.some((p) => pathname === p || pathname.startsWith(`${p}/`));
 };
 
-/* ─────────────────── Nav Item ─────────────────── */
+/* ─────────── SidebarNavItem ─────────── */
 
-const SidebarNavItem = memo(({
-  item, collapsed, pathname,
-}: {
-  item: SidebarItem;
-  collapsed: boolean;
-  pathname: string;
+const SidebarNavItem = memo(({ item, collapsed, pathname }: {
+  item: SidebarItem; collapsed: boolean; pathname: string;
 }) => {
   const active = isPathActive(pathname, item);
   const Icon = item.icon;
@@ -55,10 +76,10 @@ const SidebarNavItem = memo(({
       className={cn(
         "group relative flex items-center rounded-lg transition-all duration-150 select-none",
         "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary/40",
-        collapsed ? "justify-center w-10 h-10 mx-auto" : "gap-3 px-3 h-9",
+        collapsed ? "justify-center w-9 h-9 mx-auto" : "gap-3 px-3 h-9",
         active
-          ? "bg-white/[0.07] text-foreground"
-          : "text-muted-foreground/60 hover:text-muted-foreground hover:bg-white/[0.04]",
+          ? "bg-white/[0.08] text-foreground"
+          : "text-muted-foreground/55 hover:text-muted-foreground/90 hover:bg-white/[0.04]",
       )}
       style={{ WebkitTapHighlightColor: "transparent" }}
     >
@@ -74,8 +95,8 @@ const SidebarNavItem = memo(({
       <Icon
         className={cn(
           "shrink-0 transition-colors duration-150",
-          collapsed ? "w-[18px] h-[18px]" : "w-4 h-4",
-          active ? "text-primary" : "text-muted-foreground/50 group-hover:text-muted-foreground/80"
+          collapsed ? "w-[17px] h-[17px]" : "w-4 h-4",
+          active ? "text-primary" : "text-inherit",
         )}
         strokeWidth={active ? 2.2 : 1.6}
       />
@@ -83,25 +104,18 @@ const SidebarNavItem = memo(({
       {!collapsed && (
         <span className={cn(
           "truncate text-[13px] leading-none",
-          active ? "font-semibold" : "font-medium"
+          active ? "font-semibold" : "font-medium",
         )}>
           {item.name}
         </span>
       )}
 
       {item.isActiveDuel && (
-        <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
+        <span className="absolute top-1 right-1 w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
       )}
 
-      {/* Tooltip (collapsed) */}
       {collapsed && (
-        <span className={cn(
-          "pointer-events-none absolute left-full ml-2.5 z-[60] whitespace-nowrap",
-          "rounded-md bg-popover/95 backdrop-blur border border-border/60 px-2 py-1",
-          "text-[11px] font-medium text-popover-foreground shadow-lg",
-          "opacity-0 translate-x-1 group-hover:opacity-100 group-hover:translate-x-0",
-          "transition-all duration-100"
-        )}>
+        <span className="pointer-events-none absolute left-full ml-2 z-[60] whitespace-nowrap rounded-md bg-popover/95 backdrop-blur border border-border/60 px-2 py-1 text-[11px] font-medium text-popover-foreground shadow-lg opacity-0 translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-100">
           {item.name}
         </span>
       )}
@@ -110,46 +124,49 @@ const SidebarNavItem = memo(({
 });
 SidebarNavItem.displayName = "SidebarNavItem";
 
-/* ─────────────────── Divider ─────────────────── */
+/* ─────────── Divider ─────────── */
 
 const Divider = memo(({ label, collapsed }: { label?: string; collapsed: boolean }) => {
-  if (collapsed) return <div className="my-2 mx-3 h-px bg-border/20" />;
-  if (!label) return <div className="my-2 mx-3 h-px bg-border/20" />;
+  if (collapsed) return <div className="my-1.5 mx-2 h-px bg-white/[0.06]" />;
+  if (!label) return <div className="my-1.5 mx-2 h-px bg-white/[0.06]" />;
   return (
     <div className="flex items-center gap-2 px-3 pt-3 pb-1">
-      <span className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground/30 select-none">
+      <span className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground/30 select-none whitespace-nowrap">
         {label}
       </span>
-      <span className="flex-1 h-px bg-border/15" />
+      <span className="flex-1 h-px bg-white/[0.04]" />
     </div>
   );
 });
 Divider.displayName = "Divider";
 
-/* ─────────────────── Sidebar Button (non-link) ─ */
+/* ─────────── SidebarButton (non-link) ─────────── */
 
-const SidebarButton = memo(({
-  icon: Icon, label, collapsed, onClick,
-}: {
-  icon: LucideIcon;
-  label: string;
-  collapsed: boolean;
-  onClick: () => void;
+const SidebarButton = memo(({ icon: Icon, label, collapsed, onClick, badge }: {
+  icon: LucideIcon; label: string; collapsed: boolean; onClick: () => void; badge?: number;
 }) => (
   <button
     onClick={onClick}
     title={collapsed ? label : undefined}
     className={cn(
       "group relative flex items-center rounded-lg transition-all duration-150 select-none w-full",
-      "text-muted-foreground/60 hover:text-muted-foreground hover:bg-white/[0.04]",
+      "text-muted-foreground/55 hover:text-muted-foreground/90 hover:bg-white/[0.04]",
       "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary/40",
-      collapsed ? "justify-center w-10 h-10 mx-auto" : "gap-3 px-3 h-9",
+      collapsed ? "justify-center w-9 h-9 mx-auto" : "gap-3 px-3 h-9",
     )}
   >
-    <Icon className="w-4 h-4 shrink-0 text-muted-foreground/50 group-hover:text-muted-foreground/80 transition-colors" strokeWidth={1.6} />
+    <Icon className="w-4 h-4 shrink-0 text-inherit transition-colors" strokeWidth={1.6} />
     {!collapsed && <span className="text-[13px] font-medium truncate">{label}</span>}
+    {badge != null && badge > 0 && (
+      <span className={cn(
+        "flex items-center justify-center min-w-[16px] h-4 rounded-full bg-primary text-[10px] font-bold text-primary-foreground",
+        collapsed ? "absolute -top-0.5 -right-0.5" : "ml-auto",
+      )}>
+        {badge > 99 ? "99+" : badge}
+      </span>
+    )}
     {collapsed && (
-      <span className="pointer-events-none absolute left-full ml-2.5 z-[60] whitespace-nowrap rounded-md bg-popover/95 backdrop-blur border border-border/60 px-2 py-1 text-[11px] font-medium text-popover-foreground shadow-lg opacity-0 translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-100">
+      <span className="pointer-events-none absolute left-full ml-2 z-[60] whitespace-nowrap rounded-md bg-popover/95 backdrop-blur border border-border/60 px-2 py-1 text-[11px] font-medium text-popover-foreground shadow-lg opacity-0 translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-100">
         {label}
       </span>
     )}
@@ -173,35 +190,39 @@ export const AppSidebar = memo(({
 }) => {
   const { pathname } = useLocation();
   const { isAuthenticated } = useUserContext();
-  const { t } = useLanguage();
+  const { language } = useLanguage();
   const { sidebarCollapsed, toggleSidebarCollapsed, openSettings } = useSettingsStore();
   const { isAdmin } = useIsAdmin();
   const { activeDuel } = useActiveDuel();
   const collapsed = sidebarCollapsed;
   const w = collapsed ? SIDEBAR_COLLAPSED_W : SIDEBAR_W;
 
+  const s = sidebarI18n[language] || sidebarI18n.en;
+
   const handleToggle = useCallback(() => {
     triggerHaptic("light");
     toggleSidebarCollapsed();
   }, [toggleSidebarCollapsed]);
 
-  /* ── Navigation groups ──────────────────────── */
+  /* ── Nav items ──────────────────────── */
 
   const mainItems = useMemo<SidebarItem[]>(() => [
-    { name: t("home"), href: "/dashboard", icon: Home, matchPaths: ["/dashboard"] },
-    { name: t("tests"), href: "/tests", icon: FileText, matchPaths: ["/tests", "/test"] },
-    { name: t("learning"), href: "/learning", icon: BookOpen, matchPaths: ["/learning", "/learning-map", "/topic", "/subtopic"] },
+    { name: s.home, href: "/dashboard", icon: Home, matchPaths: ["/dashboard"] },
+    { name: s.tests, href: "/tests", icon: FileText, matchPaths: ["/tests", "/test"] },
+    { name: s.learning, href: "/learning", icon: BookOpen, matchPaths: ["/learning", "/learning-map", "/topic", "/subtopic"] },
     activeDuel && activeDuel.mode !== "result"
-      ? { name: t("games") + " · Live", href: `/games/duel?duelId=${activeDuel.duelId}`, icon: Swords, isActiveDuel: true, matchPaths: ["/games/duel"] }
-      : { name: t("games"), href: "/games", icon: Gamepad2, matchPaths: ["/games"] },
-  ], [t, activeDuel]);
+      ? { name: s.games, href: `/games/duel?duelId=${activeDuel.duelId}`, icon: Swords, isActiveDuel: true, matchPaths: ["/games/duel"] }
+      : { name: s.games, href: "/games", icon: Gamepad2, matchPaths: ["/games"] },
+  ], [s, activeDuel]);
 
   const libraryItems = useMemo<SidebarItem[]>(() => [
-    { name: t("roadSigns") || "Знаки", href: "/road-signs", icon: SignpostBig, matchPaths: ["/road-signs"] },
-    { name: t("dictionary") || "Словарь", href: "/dictionary", icon: BookMarked, matchPaths: ["/dictionary"] },
-    { name: t("blog") || "Блог", href: "/blog", icon: Newspaper, matchPaths: ["/blog", "/article"] },
-    { name: "Справочник", href: "/learn/russia/handbook", icon: GraduationCap, matchPaths: ["/learn/russia/handbook"] },
-  ], [t]);
+    { name: s.signs, href: "/road-signs", icon: SignpostBig, matchPaths: ["/road-signs"] },
+    { name: s.dictionary, href: "/dictionary", icon: BookMarked, matchPaths: ["/dictionary"] },
+    { name: s.blog, href: "/blog", icon: Newspaper, matchPaths: ["/blog", "/article"] },
+    { name: s.handbook, href: "/learn/russia/handbook", icon: GraduationCap, matchPaths: ["/learn/russia/handbook"] },
+  ], [s]);
+
+  const unreadCount = notificationsApi?.unreadCount ?? 0;
 
   return (
     <motion.aside
@@ -213,43 +234,35 @@ export const AppSidebar = memo(({
       )}
       style={{ width: w }}
     >
-      {/* ── Header ────────────────────────────── */}
+      {/* ── Header: Logo + Divider + Context ─── */}
       <div className={cn(
-        "flex items-center shrink-0 h-14",
-        collapsed ? "justify-center px-1" : "px-4 gap-2"
+        "flex items-center shrink-0 h-14 gap-0 overflow-visible",
+        collapsed ? "justify-center px-1.5" : "px-3",
       )}>
         <NavLink
           to="/dashboard"
-          className="flex items-center rounded-lg focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary/40"
+          className="shrink-0 flex items-center rounded-lg focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary/40"
         >
           <LandingLogo variant="bold" showText={!collapsed} />
         </NavLink>
+
+        {!collapsed && isAuthenticated && (
+          <>
+            <div className="h-6 w-px bg-white/[0.08] mx-2 shrink-0" />
+            <ContextSwitcher embedded className="shrink-0 shadow-none text-xs !px-1.5 !h-7" />
+          </>
+        )}
       </div>
 
-      {/* ── Context Switcher ─────────────────── */}
-      <AnimatePresence initial={false}>
-        {!collapsed && isAuthenticated && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.15 }}
-            className="px-2.5 pb-1.5 shrink-0 overflow-hidden"
-          >
-            <ContextSwitcher embedded className="w-full shadow-none text-xs" />
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* ── Main nav ─────────────────────────── */}
-      <nav className="flex-1 overflow-y-auto overflow-x-hidden px-2 pt-2 pb-1 space-y-0.5 scrollbar-none">
+      {/* ── Main nav ─────────────────────── */}
+      <nav className="flex-1 overflow-y-auto overflow-x-hidden px-2 pt-1 pb-1 scrollbar-none">
         <div className="space-y-0.5">
           {mainItems.map((item) => (
             <SidebarNavItem key={item.href} item={item} collapsed={collapsed} pathname={pathname} />
           ))}
         </div>
 
-        <Divider label="Библиотека" collapsed={collapsed} />
+        <Divider label={s.library} collapsed={collapsed} />
 
         <div className="space-y-0.5">
           {libraryItems.map((item) => (
@@ -261,7 +274,7 @@ export const AppSidebar = memo(({
           <>
             <Divider collapsed={collapsed} />
             <SidebarNavItem
-              item={{ name: "Админ-панель", href: "/admin", icon: AdminShield, matchPaths: ["/admin"] }}
+              item={{ name: s.admin, href: "/admin", icon: AdminShield, matchPaths: ["/admin"] }}
               collapsed={collapsed}
               pathname={pathname}
             />
@@ -269,26 +282,38 @@ export const AppSidebar = memo(({
         )}
       </nav>
 
-      {/* ── Wallet (authenticated) ───────────── */}
-      {isAuthenticated && (
-        <div className={cn(
-          "shrink-0 px-2 py-1.5",
-          collapsed ? "flex justify-center" : "",
-        )}>
-          <WalletWidget className={collapsed ? "flex-col gap-1 [&>*]:scale-90" : ""} />
+      {/* ── Wallet (compact, no overflow) ──── */}
+      {isAuthenticated && !collapsed && (
+        <div className="shrink-0 px-2.5 py-1.5 border-t border-white/[0.06] overflow-hidden">
+          <div className="flex items-center gap-1 overflow-x-auto scrollbar-none">
+            <WalletWidget />
+          </div>
         </div>
       )}
 
-      {/* ── Bottom bar ───────────────────────── */}
+      {/* ── Bottom bar ───────────────────── */}
       <div className={cn(
         "shrink-0 border-t border-white/[0.06] px-2 py-2 space-y-0.5",
-        collapsed && "flex flex-col items-center"
+        collapsed && "flex flex-col items-center",
       )}>
-        <SidebarButton icon={HelpCircle} label="Помощь" collapsed={collapsed} onClick={() => window.open("/help", "_self")} />
-        <SidebarButton icon={Settings} label={t("settings") || "Настройки"} collapsed={collapsed} onClick={() => openSettings("general")} />
+        {isAuthenticated && (
+          <SidebarButton
+            icon={Bell}
+            label={s.help === "Ayuda" ? "Notificaciones" : language === "ru" ? "Уведомления" : "Notifications"}
+            collapsed={collapsed}
+            onClick={onOpenNotifications}
+            badge={unreadCount}
+          />
+        )}
+        <SidebarButton icon={HelpCircle} label={s.help} collapsed={collapsed} onClick={() => window.open("/help", "_self")} />
+        <SidebarButton icon={Settings} label={s.settings} collapsed={collapsed} onClick={() => openSettings("general")} />
 
+        {/* Profile row */}
         {isAuthenticated ? (
-          <div className={cn("pt-1", collapsed ? "flex justify-center" : "px-0.5")}>
+          <div className={cn(
+            "pt-1.5 mt-0.5 border-t border-white/[0.06]",
+            collapsed ? "flex justify-center w-full" : "",
+          )}>
             <Suspense fallback={null}>
               <UserProfilePopover
                 notificationsApi={notificationsApi}
@@ -301,33 +326,32 @@ export const AppSidebar = memo(({
           <button
             onClick={onOpenAuth}
             className={cn(
-              "flex items-center gap-3 rounded-lg h-9 text-[13px] font-semibold transition-all w-full",
+              "flex items-center gap-3 rounded-lg h-9 text-[13px] font-semibold transition-all w-full mt-1",
               "bg-primary/10 text-primary hover:bg-primary/15",
-              collapsed ? "justify-center w-10 mx-auto" : "px-3",
+              collapsed ? "justify-center w-9 mx-auto" : "px-3",
             )}
           >
             <LogIn className="w-4 h-4 shrink-0" strokeWidth={1.8} />
-            {!collapsed && <span>Войти</span>}
+            {!collapsed && <span>{s.login}</span>}
           </button>
         )}
       </div>
 
-      {/* ── Collapse toggle ──────────────────── */}
+      {/* ── Collapse toggle pill ─────────── */}
       <button
         onClick={handleToggle}
         className={cn(
-          "absolute z-10 flex items-center justify-center rounded-full",
-          "w-6 h-6 bg-background border border-white/[0.08] shadow-sm",
-          "text-muted-foreground/40 hover:text-muted-foreground hover:border-white/[0.15] hover:bg-muted/50",
+          "absolute z-[51] flex items-center justify-center rounded-full",
+          "w-5 h-5 bg-background border border-white/[0.1] shadow-sm",
+          "text-muted-foreground/40 hover:text-muted-foreground hover:border-white/[0.2] hover:bg-muted/60",
           "transition-all duration-150",
-          "top-[22px]",
-          collapsed ? "right-[-12px]" : "right-[-12px]",
+          "top-[23px] -right-[10px]",
         )}
-        title={collapsed ? "Развернуть" : "Свернуть"}
+        title={collapsed ? s.settings : s.settings}
       >
         {collapsed
-          ? <ChevronsRight className="w-3 h-3" strokeWidth={2} />
-          : <ChevronsLeft className="w-3 h-3" strokeWidth={2} />
+          ? <ChevronsRight className="w-2.5 h-2.5" strokeWidth={2.5} />
+          : <ChevronsLeft className="w-2.5 h-2.5" strokeWidth={2.5} />
         }
       </button>
     </motion.aside>
