@@ -233,17 +233,31 @@ export const Dashboard: React.FC<DashboardProps> = ({
             />
           </div>
 
-          {/* 2. DUEL PASS INFO */}
+          {/* 2. EXAM READINESS — AI прогноз сдачи (для новичков: баннер "Первый тест") */}
+          <div className="md:col-span-1 lg:col-span-1 xl:col-span-1">
+            <Suspense fallback={<ComponentSkeleton />}>
+              <ExamReadiness
+                averageScore={stats.averageScore}
+                testsCompleted={stats.testsCompleted}
+                status={readinessStatus?.status}
+                statusText={readinessStatus?.statusText}
+                shortText={readinessStatus?.shortText}
+                description={readinessStatus?.description}
+                studyProgress={readinessStatus?.studyProgress}
+                lifetimeAttempts={readinessStatus?.lifetimeAttempts}
+                profileId={profileId}
+                licensePoints={userProfile?.license_points || 8}
+                onStartTest={handleStartQuiz}
+                onTelemetryClick={() => setTelemetryOpen(true)}
+              />
+            </Suspense>
+          </div>
+
+          {/* 3. DUEL PASS INFO */}
           <div className="md:col-span-1 lg:col-span-1 xl:col-span-1">
             <Suspense fallback={<ComponentSkeleton />}>
               <DuelPassInfo />
             </Suspense>
-          </div>
-
-
-          {/* 4. SKILY CHAT — открывает глобальный AIChatWidget */}
-          <div className="md:col-span-1 lg:col-span-1 xl:col-span-1">
-            <SkilyChatCard />
           </div>
 
           {/* 4+5. PREMIUM + BLOG stacked in one column */}
@@ -265,24 +279,9 @@ export const Dashboard: React.FC<DashboardProps> = ({
             </div>
           )}
 
-          {/* 6. EXAM READINESS */}
+          {/* 6. SKILY CHAT — последний виджет */}
           <div className="md:col-span-1 lg:col-span-1 xl:col-span-1">
-            <Suspense fallback={<ComponentSkeleton />}>
-              <ExamReadiness
-                averageScore={stats.averageScore}
-                testsCompleted={stats.testsCompleted}
-                status={readinessStatus?.status}
-                statusText={readinessStatus?.statusText}
-                shortText={readinessStatus?.shortText}
-                description={readinessStatus?.description}
-                studyProgress={readinessStatus?.studyProgress}
-                lifetimeAttempts={readinessStatus?.lifetimeAttempts}
-                profileId={profileId}
-                licensePoints={userProfile?.license_points || 8}
-                onStartTest={handleStartQuiz}
-                onTelemetryClick={() => setTelemetryOpen(true)}
-              />
-            </Suspense>
+            <SkilyChatCard />
           </div>
 
         </div>

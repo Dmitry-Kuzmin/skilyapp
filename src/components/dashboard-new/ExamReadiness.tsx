@@ -391,20 +391,24 @@ export const ExamReadiness = React.memo<ExamReadinessProps>(({
               transition={{ delay: 0.2, duration: 0.4 }}
               onClick={handleFirstTest}
               className="absolute inset-2 rounded-full flex flex-col items-center justify-center gap-2 cursor-pointer active:scale-[0.97] transition-transform"
-              style={{ backdropFilter: 'blur(6px)', WebkitBackdropFilter: 'blur(6px)', background: isDarkTheme ? 'rgba(15,23,42,0.72)' : 'rgba(255,255,255,0.72)' }}
+              style={{ backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', background: isDarkTheme ? 'rgba(15,23,42,0.80)' : 'rgba(255,255,255,0.85)' }}
             >
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/30">
-                <Play className="w-4 h-4 text-white fill-white translate-x-px" />
+              {/* Pulsing ring */}
+              <div className="relative">
+                <div className="absolute inset-0 rounded-xl bg-blue-500/40 animate-ping" />
+                <div className="relative w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/40">
+                  <Play className="w-5 h-5 text-white fill-white translate-x-px" />
+                </div>
               </div>
               <div className="text-center px-3">
-                <p className={`text-[11px] font-black leading-tight ${textPrimaryClass}`}>
-                  {language === 'es' ? 'Primer test' : language === 'ru' ? 'Первый тест' : 'First test'}
+                <p className={`text-[12px] font-black leading-tight ${textPrimaryClass}`}>
+                  {language === 'es' ? '¡Empieza ahora!' : language === 'ru' ? 'Начать обучение' : 'Start learning'}
                 </p>
-                <p className="text-[9px] text-slate-400 leading-tight mt-0.5">
-                  {language === 'es' ? 'La IA calculará tu nivel' : language === 'ru' ? 'ИИ рассчитает прогноз' : 'AI will predict your score'}
+                <p className={`text-[9px] leading-tight mt-0.5 ${textSecondaryClass}`}>
+                  {language === 'es' ? 'La IA calculará tu nivel' : language === 'ru' ? 'ИИ рассчитает твой прогноз' : 'AI will predict your score'}
                 </p>
               </div>
-              <span className="text-[9px] font-bold px-2.5 py-0.5 rounded-full bg-blue-500/20 text-blue-400 border border-blue-500/30">
+              <span className="text-[9px] font-bold px-2.5 py-1 rounded-full bg-blue-500/20 text-blue-400 border border-blue-500/30">
                 {language === 'es' ? '10 preguntas · 5 min' : language === 'ru' ? '10 вопросов · 5 мин' : '10 questions · 5 min'}
               </span>
             </motion.button>
