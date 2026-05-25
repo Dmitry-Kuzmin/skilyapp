@@ -306,14 +306,26 @@ const TestResults = () => {
       questSyncRef.current = true;
 
       try {
-        const hasNoErrors = answers.length > 0 && answers.every(a => a.isCorrect);
+        const correctCount = answers.filter(a => a.isCorrect).length;
+        const hasNoErrors = answers.length > 0 && correctCount === answers.length;
         const updates: QuestUpdateParams[] = [];
 
         if (answers.length > 0) {
           updates.push({ userId, category: 'questions', delta: answers.length });
         }
-        if (hasNoErrors) {
-          updates.push({ userId, category: 'accuracy', delta: answers.length });
+        if (correctCount > 0) {
+          updates.push({ userId, category: 'accuracy', delta: correctCount });
+        }
+
+        // streak_correct — max consecutive correct answers in this session
+        let maxStreak = 0;
+        let curStreak = 0;
+        for (const a of answers) {
+          if (a.isCorrect) { curStreak++; maxStreak = Math.max(maxStreak, curStreak); }
+          else { curStreak = 0; }
+        }
+        if (maxStreak > 0) {
+          updates.push({ userId, category: 'streak_correct', delta: maxStreak, setAbsolute: true });
         }
         if (mode === 'exam' || mode === 'exam-russia') {
           updates.push({ userId, category: 'exams', delta: 1 });
@@ -329,7 +341,7 @@ const TestResults = () => {
     };
     syncQuests();
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [state]);
+  }, [state, contextProfileId]);
 
   // Invalidate cache
   useEffect(() => {

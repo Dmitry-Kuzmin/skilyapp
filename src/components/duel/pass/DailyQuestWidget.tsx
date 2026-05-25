@@ -3,26 +3,32 @@ import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useUserContext } from "@/contexts/UserContext";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { Check, Flame, Trophy, Target, Zap, Clock, Sparkles, Loader2 } from "lucide-react";
+import { Check, Clock, Sparkles, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
 
 const QUEST_TRANSLATIONS: Record<string, Record<string, string>> = {
-  warmup:          { ru: "Ответь на 10 вопросов",            es: "Responde 10 preguntas",            en: "Answer 10 questions" },
-  early_bird:      { ru: "Пройди 5 вопросов в практике",     es: "Practica 5 preguntas",             en: "Practice 5 questions" },
-  marathon:        { ru: "Ответь на 50 вопросов",            es: "Responde 50 preguntas",            en: "Answer 50 questions" },
-  centurion:       { ru: "Ответь на 100 вопросов за день",   es: "Responde 100 preguntas en un día", en: "Answer 100 questions" },
-  duelist_1:       { ru: "Сыграй 1 дуэль",                  es: "Juega 1 duelo",                    en: "Play 1 duel" },
-  duel_master:     { ru: "Выиграй 5 дуэлей",                es: "Gana 5 duelos",                    en: "Win 5 duels" },
-  duel_streak:     { ru: "Выиграй 3 дуэли подряд",          es: "Gana 3 duelos seguidos",           en: "Win 3 duels in a row" },
-  winner:          { ru: "Одержи 1 победу в дуэли",         es: "Consigue 1 victoria en duelo",     en: "Get 1 duel win" },
-  sniper:          { ru: "15 вопросов без ошибок подряд",    es: "15 preguntas seguidas sin errores",en: "15 questions in a row without mistakes" },
-  question_master: { ru: "30 вопросов без ошибок",           es: "30 preguntas sin errores",         en: "30 questions without mistakes" },
-  ultra_accuracy:  { ru: "50 вопросов без ошибок",           es: "50 preguntas sin errores",         en: "50 questions without mistakes" },
-  exam_pass:       { ru: "Пройти 1 экзамен",                 es: "Completa 1 examen",                en: "Complete 1 exam" },
-  two_exams:       { ru: "Пройди 2 экзамена за день",        es: "Completa 2 exámenes en un día",    en: "Complete 2 exams today" },
-  perfect_exam:    { ru: "Сдай экзамен на 100%",             es: "Aprueba un examen con 100%",       en: "Pass an exam with 100%" },
+  warmup:          { ru: "Ответь на 10 вопросов",            es: "Responde 10 preguntas",              en: "Answer 10 questions" },
+  early_bird:      { ru: "Пройди 5 вопросов в практике",     es: "Practica 5 preguntas",               en: "Practice 5 questions" },
+  marathon:        { ru: "Ответь на 50 вопросов",            es: "Responde 50 preguntas",              en: "Answer 50 questions" },
+  centurion:       { ru: "Ответь на 100 вопросов за день",   es: "Responde 100 preguntas en un día",   en: "Answer 100 questions" },
+  legend:          { ru: "150 вопросов за день",             es: "150 preguntas en un día",            en: "150 questions in one day" },
+  duelist_1:       { ru: "Сыграй 1 дуэль",                  es: "Juega 1 duelo",                      en: "Play 1 duel" },
+  gladiator:       { ru: "Сразись в 3 дуэлях",              es: "Juega 3 duelos",                     en: "Play 3 duels" },
+  duel_master:     { ru: "Выиграй 5 дуэлей",                es: "Gana 5 duelos",                      en: "Win 5 duels" },
+  dominator:       { ru: "Выиграй 6 дуэлей за день",        es: "Gana 6 duelos en un día",            en: "Win 6 duels today" },
+  duel_streak:     { ru: "Выиграй 3 дуэли подряд",          es: "Gana 3 duelos seguidos",             en: "Win 3 duels in a row" },
+  winner:          { ru: "Одержи 1 победу в дуэли",         es: "Consigue 1 victoria en duelo",       en: "Get 1 duel win" },
+  sniper:          { ru: "15 правильных подряд",             es: "15 aciertos seguidos",               en: "15 correct in a row" },
+  sharp_shooter:   { ru: "10 правильных подряд",             es: "10 aciertos seguidos",               en: "10 correct in a row" },
+  iron_focus:      { ru: "20 правильных подряд",             es: "20 aciertos seguidos",               en: "20 correct in a row" },
+  question_master: { ru: "30 правильных ответов",            es: "30 respuestas correctas",            en: "30 correct answers" },
+  ultra_accuracy:  { ru: "50 правильных ответов",            es: "50 respuestas correctas",            en: "50 correct answers" },
+  exam_pass:       { ru: "Пройти 1 экзамен",                 es: "Completa 1 examen",                  en: "Complete 1 exam" },
+  two_exams:       { ru: "Пройди 2 экзамена за день",        es: "Completa 2 exámenes en un día",      en: "Complete 2 exams today" },
+  exam_blitz:      { ru: "Пройди 3 экзамена за день",        es: "Supera 3 exámenes en un día",        en: "Pass 3 exams today" },
+  perfect_exam:    { ru: "Сдай экзамен на 100%",             es: "Aprueba un examen con 100%",         en: "Pass an exam with 100%" },
 };
 
 const CLAIM_LABEL: Record<string, string> = {
@@ -46,55 +52,20 @@ export type DailyQuest = {
   is_claimed: boolean;
 };
 
-// Вспомогательный компонент для кругового прогресса
-const CircularProgress = ({ progress, size = 32, strokeWidth = 2.5, completed = false, icon: Icon }: any) => {
-  const radius = (size - strokeWidth) / 2;
-  const circumference = radius * 2 * Math.PI;
-  const offset = circumference - (Math.min(progress, 1) * circumference);
-
-  return (
-    <div className="relative flex items-center justify-center shrink-0" style={{ width: size, height: size }}>
-      <svg className="absolute -rotate-90 transform" width={size} height={size}>
-        {/* Background track */}
-        <circle
-          className="text-foreground/10 dark:text-white/10"
-          stroke="currentColor"
-          strokeWidth={strokeWidth}
-          fill="transparent"
-          r={radius}
-          cx={size / 2}
-          cy={size / 2}
-        />
-        {/* Progress bar */}
-        <circle
-          className={cn(
-            "transition-all duration-700 ease-out",
-            completed ? "text-amber-400 drop-shadow-[0_0_4px_rgba(251,191,36,0.5)]" : "text-amber-500/60"
-          )}
-          stroke="currentColor"
-          strokeWidth={strokeWidth}
-          strokeDasharray={circumference}
-          strokeDashoffset={offset}
-          strokeLinecap="round"
-          fill="transparent"
-          r={radius}
-          cx={size / 2}
-          cy={size / 2}
-        />
-      </svg>
-      <div className={cn(
-        "relative z-10 transition-transform duration-300",
-        completed ? "scale-110" : "scale-100"
-      )}>
-        {completed ? (
-          <Check className="w-4 h-4 text-amber-600 dark:text-amber-400" />
-        ) : (
-          <Icon className="w-3.5 h-3.5 text-muted-foreground/30 dark:text-white/50" />
-        )}
-      </div>
-    </div>
-  );
-};
+// Checkbox-индикатор вместо кругового SVG
+const QuestCheckbox = ({ completed, claimed }: { completed: boolean; claimed: boolean }) => (
+  <div className={cn(
+    "w-[18px] h-[18px] rounded-[5px] border-[1.5px] flex items-center justify-center shrink-0 mt-[1px] transition-all duration-200",
+    completed
+      ? "bg-amber-400/15 border-amber-400/70"
+      : "border-border/40 bg-transparent",
+    claimed && "opacity-40",
+  )}>
+    {completed && (
+      <Check className="w-2.5 h-2.5 text-amber-500 dark:text-amber-400" strokeWidth={3} />
+    )}
+  </div>
+);
 
 export function DailyQuestWidget() {
   const { profileId } = useUserContext();
@@ -224,18 +195,6 @@ export function DailyQuestWidget() {
     }
   }, [profileId, claimingId, language]);
 
-  const getCategoryIcon = (category: string) => {
-    switch (category) {
-      case 'questions': return Target;
-      case 'duels': return Zap;
-      case 'duel_wins': return Zap;
-      case 'accuracy': return Target;
-      case 'exams': return Trophy;
-      case 'perfect_exams': return Trophy;
-      default: return Flame;
-    }
-  };
-
   if (loading && quests.length === 0) {
     return (
       <div className="space-y-4 py-2 px-1">
@@ -264,103 +223,82 @@ export function DailyQuestWidget() {
         </div>
       </div>
 
-      <div className="flex flex-col">
-        {quests.map((quest) => (
-          <div
-            key={quest.id}
-            className={cn(
-              "group flex items-center gap-3 py-1.5 border-b border-border dark:border-white/[0.03] last:border-0 transition-opacity",
-              quest.is_claimed && "opacity-40"
-            )}
-          >
-            {/* Круговой прогресс и иконка */}
-            <CircularProgress
-              progress={quest.current_progress / quest.target_value}
-              completed={quest.is_completed}
-              icon={getCategoryIcon(quest.category)}
-              size={20}
-              strokeWidth={1.8}
-            />
+      <div className="flex flex-col gap-0">
+        {quests.map((quest) => {
+          const progress = Math.min(quest.current_progress / quest.target_value, 1);
+          const showBar = !quest.is_completed && quest.target_value > 1;
+          return (
+            <div
+              key={quest.id}
+              className="group flex items-start gap-2.5 py-2 border-b border-border/30 dark:border-white/[0.04] last:border-0"
+            >
+              {/* Checkbox */}
+              <QuestCheckbox completed={quest.is_completed} claimed={quest.is_claimed} />
 
-            {/* Описание квеста и прогресс */}
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-1.5 overflow-hidden">
+              {/* Text + progress bar */}
+              <div className={cn("flex-1 min-w-0", quest.is_claimed && "opacity-40")}>
                 <span className={cn(
-                  "text-[13.5px] font-medium leading-none truncate transition-colors",
-                  quest.is_completed ? "text-amber-600 dark:text-amber-400/80" : "text-foreground/80 dark:text-slate-400"
+                  "text-[13px] font-medium leading-snug transition-all",
+                  quest.is_completed
+                    ? "line-through text-gray-400 dark:text-white/30"
+                    : "text-foreground/80 dark:text-slate-300",
                 )}>
                   {getQuestLabel(quest)}
                 </span>
-                {!quest.is_completed && quest.target_value > 1 && (
-                  <span className="text-[9px] font-bold text-muted-foreground tabular-nums shrink-0">
-                    {quest.current_progress}/{quest.target_value}
-                  </span>
+
+                {showBar && (
+                  <div className="mt-1.5 flex items-center gap-2">
+                    <div className="flex-1 h-[3px] bg-border/25 dark:bg-white/[0.06] rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-amber-400/70 rounded-full transition-all duration-700 ease-out"
+                        style={{ width: `${progress * 100}%` }}
+                      />
+                    </div>
+                    <span className="text-[10px] font-semibold text-muted-foreground/50 tabular-nums shrink-0">
+                      {quest.current_progress}/{quest.target_value}
+                    </span>
+                  </div>
                 )}
               </div>
-            </div>
 
-            <div className="shrink-0 flex items-center justify-end">
-              {quest.is_completed && !quest.is_claimed ? (
-                <div className="relative">
-                  {/* Subtle Golden Aura */}
-                  <motion.div
-                    animate={{
-                      opacity: [0.3, 0.6, 0.3],
-                      scale: [1, 1.05, 1],
-                    }}
-                    transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-                    className="absolute inset-0 blur-[8px] bg-amber-400/20 rounded-full"
-                  />
-                  
+              {/* Reward / Claim */}
+              <div className="shrink-0 flex items-start pt-[1px]">
+                {quest.is_completed && !quest.is_claimed ? (
                   <motion.button
-                    whileHover={{ scale: 1.05, translateY: -0.5 }}
+                    whileHover={{ scale: 1.04 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={() => handleClaimReward(quest)}
                     disabled={!!claimingId}
                     className={cn(
-                      "relative h-7 px-4 rounded-full font-black text-[9px] uppercase tracking-[0.15em] transition-all overflow-hidden",
-                      "bg-white dark:bg-slate-900 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-500/20 shadow-sm hover:shadow-md",
-                      "flex items-center justify-center gap-1.5 z-10",
+                      "relative h-6 px-2.5 rounded-md font-bold text-[10px] uppercase tracking-wide transition-all overflow-hidden",
+                      "bg-amber-400/15 text-amber-600 dark:text-amber-400 border border-amber-400/30 hover:bg-amber-400/25",
+                      "flex items-center gap-1",
                       claimingId === quest.id && "opacity-50 pointer-events-none"
                     )}
                   >
-                    {/* Glassy Shine overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-tr from-white/40 via-transparent to-transparent opacity-60" />
-                    
-                    {/* Shimmer line */}
-                    <motion.div
-                      animate={{
-                        x: ["-100%", "200%"],
-                      }}
-                      transition={{
-                        duration: 3,
-                        repeat: Infinity,
-                        ease: "linear",
-                        repeatDelay: 1.5,
-                      }}
-                      className="absolute inset-0 bg-gradient-to-r from-transparent via-amber-200/30 to-transparent -skew-x-12"
-                    />
-                    
                     {claimingId === quest.id ? (
-                      <Loader2 className="w-3 h-3 animate-spin text-amber-500" />
+                      <Loader2 className="w-3 h-3 animate-spin" />
                     ) : (
                       <>
-                        <span className="relative z-10">{CLAIM_LABEL[language] || "CLAIM"}</span>
-                        <Sparkles className="w-3 h-3 text-amber-500 animate-pulse relative z-10" />
+                        <Sparkles className="w-2.5 h-2.5" />
+                        <span>+{quest.reward_sp}</span>
                       </>
                     )}
                   </motion.button>
-                </div>
-              ) : (
-                <div className="flex items-center px-2 py-0.5 rounded-full bg-slate-100 dark:bg-white/5">
-                  <span className="text-[10px] font-black text-slate-400 dark:text-slate-500 tabular-nums">
+                ) : (
+                  <span className={cn(
+                    "text-[11px] font-semibold tabular-nums",
+                    quest.is_claimed
+                      ? "text-gray-400 line-through dark:text-white/25"
+                      : "text-gray-500 dark:text-white/40",
+                  )}>
                     +{quest.reward_sp} SP
                   </span>
-                </div>
-              )}
+                )}
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

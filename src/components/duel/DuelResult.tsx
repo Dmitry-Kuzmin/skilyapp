@@ -178,10 +178,14 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
           ];
           if (results.isWinner) {
             questParams.push({ userId: profileId, category: 'duel_wins', delta: 1 });
+            questParams.push({ userId: profileId, category: 'duel_streak', delta: 1 });
+          } else {
+            // reset duel win streak on loss or draw
+            questParams.push({ userId: profileId, category: 'duel_streak', delta: 0, setAbsolute: true });
           }
-          const hasNoErrors = myAnswers.every(a => a.is_correct);
-          if (hasNoErrors && myAnswers.length > 0) {
-            questParams.push({ userId: profileId, category: 'accuracy', delta: myAnswers.length });
+          const correctDuelCount = myAnswers.filter(a => a.is_correct).length;
+          if (correctDuelCount > 0) {
+            questParams.push({ userId: profileId, category: 'accuracy', delta: correctDuelCount });
           }
           await updateProgress(questParams);
           await supabase.functions.invoke('season-challenges-track', {
