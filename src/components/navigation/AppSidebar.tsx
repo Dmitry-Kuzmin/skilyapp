@@ -5,8 +5,10 @@ import {
   Home, FileText, BookOpen, Gamepad2, Swords, SignpostBig,
   Newspaper, BookMarked, Settings, Pin, PinOff,
   Shield as AdminShield, HelpCircle, GraduationCap,
-  LogIn, Bell, LogOut, Crown,
+  LogIn, Bell, LogOut, Crown, BarChart2,
 } from "lucide-react";
+
+const TelemetryOverlay = lazy(() => import("../telemetry/TelemetryOverlay").then(m => ({ default: m.TelemetryOverlay })));
 import type { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useUserContext } from "@/contexts/UserContext";
@@ -33,6 +35,7 @@ const i18n: Record<Language, Record<string, string>> = {
     library: "Biblioteca", system: "Sistema", notifications: "Notificaciones",
     premium: "Premium", free: "Gratuito", logout: "Cerrar sesión",
     pin: "Fijar panel", unpin: "Desfijar panel",
+    upgrade: "Obtener Premium", statistics: "Estadísticas",
   },
   ru: {
     home: "Главная", tests: "Тесты", learning: "Обучение", games: "Игры",
@@ -41,6 +44,7 @@ const i18n: Record<Language, Record<string, string>> = {
     library: "Библиотека", system: "Система", notifications: "Уведомления",
     premium: "Premium", free: "Бесплатный", logout: "Выйти",
     pin: "Закрепить панель", unpin: "Открепить панель",
+    upgrade: "Получить Premium", statistics: "Статистика",
   },
   en: {
     home: "Home", tests: "Tests", learning: "Learning", games: "Games",
@@ -49,6 +53,7 @@ const i18n: Record<Language, Record<string, string>> = {
     library: "Library", system: "System", notifications: "Notifications",
     premium: "Premium", free: "Free", logout: "Log out",
     pin: "Pin sidebar", unpin: "Unpin sidebar",
+    upgrade: "Get Premium", statistics: "Statistics",
   },
 };
 
@@ -75,9 +80,9 @@ const SidebarNavItem = memo(({ item, open, pathname }: {
     <NavLink
       to={item.href}
       className={cn(
-        "group relative flex items-center rounded-xl transition-all duration-150 select-none",
+        "group relative flex items-center rounded-lg transition-all duration-150 select-none",
         "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary/40",
-        open ? "gap-3 px-3 h-9 mx-0" : "justify-center w-9 h-9 mx-auto",
+        open ? "gap-3 px-3 h-10 mx-0" : "justify-center w-10 h-10 mx-auto",
         active
           ? "bg-white/[0.08] text-foreground"
           : "text-muted-foreground/55 hover:text-muted-foreground/90 hover:bg-white/[0.04]",
@@ -94,11 +99,10 @@ const SidebarNavItem = memo(({ item, open, pathname }: {
       )}
       <Icon
         className={cn(
-          "shrink-0 transition-colors duration-150",
-          open ? "w-4 h-4" : "w-[17px] h-[17px]",
+          "shrink-0 transition-colors duration-150 w-5 h-5",
           active ? "text-primary" : "text-inherit",
         )}
-        strokeWidth={active ? 2.2 : 1.6}
+        strokeWidth={active ? 2.1 : 1.6}
       />
       <AnimatePresence initial={false}>
         {open && (
@@ -161,13 +165,13 @@ const SidebarButton = memo(({ icon: Icon, label, open, onClick, badge }: {
   <button
     onClick={onClick}
     className={cn(
-      "group relative flex items-center rounded-xl transition-all duration-150 select-none w-full",
+      "group relative flex items-center rounded-lg transition-all duration-150 select-none w-full",
       "text-muted-foreground/55 hover:text-muted-foreground/90 hover:bg-white/[0.04]",
       "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary/40",
-      open ? "gap-3 px-3 h-9" : "justify-center w-9 h-9 mx-auto",
+      open ? "gap-3 px-3 h-10" : "justify-center w-10 h-10 mx-auto",
     )}
   >
-    <Icon className="w-4 h-4 shrink-0 text-inherit transition-colors" strokeWidth={1.6} />
+    <Icon className="w-5 h-5 shrink-0 text-inherit transition-colors" strokeWidth={1.6} />
     <AnimatePresence initial={false}>
       {open && (
         <motion.span
@@ -240,7 +244,7 @@ const SidebarProfileRow = memo(({ open, s, onOpenNotifications, profileId, logou
       <button
         onClick={() => openSettings("account")}
         title={displayName}
-        className="group relative w-9 h-9 mx-auto flex items-center justify-center rounded-xl hover:bg-white/[0.06] transition-colors"
+        className="group relative w-10 h-10 mx-auto flex items-center justify-center rounded-lg hover:bg-white/[0.06] transition-colors"
       >
         <div className="w-7 h-7 flex items-center justify-center">
           <UserAvatar profileId={profileId} size="sm" forcePremium={isPremiumUser} />
@@ -288,8 +292,8 @@ SidebarProfileRow.displayName = "SidebarProfileRow";
 
 /* ═══════════════════ MAIN SIDEBAR ═══════════════ */
 
-const SIDEBAR_W = 232;
-const SIDEBAR_NARROW_W = 56;
+const SIDEBAR_W = 240;
+const SIDEBAR_NARROW_W = 77;
 
 export const AppSidebar = memo(({
   notificationsApi,
@@ -303,34 +307,39 @@ export const AppSidebar = memo(({
   const { pathname } = useLocation();
   const { isAuthenticated, profileId, logout } = useUserContext();
   const { language } = useLanguage();
-  const { sidebarCollapsed, setSidebarCollapsed, openSettings } = useSettingsStore();
+  const { sidebarCollapsed, setSidebarCollapsed, setSidebarIsOpen, openSettings } = useSettingsStore();
   const { isAdmin } = useIsAdmin();
   const { activeDuel } = useActiveDuel();
+  const { isPremium } = usePremium();
 
-  // Pinned = sidebarCollapsed is false (user locked it open)
-  // Hover = временно раскрыт наведением
   const isPinned = !sidebarCollapsed;
   const [isHovered, setIsHovered] = useState(false);
-
-  // Sidebar показывает текст если: закреплён открытым ИЛИ наведён
+  const [telemetryOpen, setTelemetryOpen] = useState(false);
   const isOpen = isPinned || isHovered;
   const w = isOpen ? SIDEBAR_W : SIDEBAR_NARROW_W;
 
   const s = i18n[language] ?? i18n.en;
 
   const handleMouseEnter = useCallback(() => {
-    if (!isPinned) setIsHovered(true);
-  }, [isPinned]);
+    if (!isPinned) {
+      setIsHovered(true);
+      setSidebarIsOpen(true);
+    }
+  }, [isPinned, setSidebarIsOpen]);
 
   const handleMouseLeave = useCallback(() => {
-    setIsHovered(false);
-  }, []);
+    if (!isPinned) {
+      setIsHovered(false);
+      setSidebarIsOpen(false);
+    }
+  }, [isPinned, setSidebarIsOpen]);
 
   const handlePinToggle = useCallback(() => {
     triggerHaptic("light");
-    // Закрепляем открытым или возвращаем в hover-режим
-    setSidebarCollapsed(isPinned); // если pinned → unpin (collapsed=true), если не pinned → pin (collapsed=false)
-  }, [isPinned, setSidebarCollapsed]);
+    const nextPinned = !isPinned;
+    setSidebarCollapsed(!nextPinned);
+    setSidebarIsOpen(nextPinned); // pinned → always open
+  }, [isPinned, setSidebarCollapsed, setSidebarIsOpen]);
 
   const mainItems = useMemo<SidebarItem[]>(() => [
     { name: s.home, href: "/dashboard", icon: Home, matchPaths: ["/dashboard"] },
@@ -351,21 +360,26 @@ export const AppSidebar = memo(({
   const unreadCount = notificationsApi?.unreadCount ?? 0;
 
   return (
+    <>
     <motion.aside
-      animate={{ width: w }}
-      transition={{ type: "spring", stiffness: 420, damping: 38, mass: 0.8 }}
+      initial={{ x: -16, opacity: 0 }}
+      animate={{ x: 0, opacity: 1, width: w }}
+      exit={{ x: -12, opacity: 0, transition: { duration: 0.18, ease: "easeIn" } }}
+      transition={{
+        x:       { type: "spring", stiffness: 340, damping: 30, mass: 0.9 },
+        opacity: { duration: 0.22, ease: "easeOut" },
+        width:   { type: "spring", stiffness: 420, damping: 38, mass: 0.8 },
+      }}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       className={cn(
         "fixed left-0 top-0 z-50 h-dvh hidden md:flex flex-col",
-        // Скругление правой стороны — как на макетах
-        "rounded-r-2xl",
-        "border-r border-white/[0.06] bg-background",
-        // Тень при hover-overlay (не закреплён, просто наведён)
+        "rounded-r-[32px]",
+        "bg-background",
         isHovered && !isPinned && "shadow-[4px_0_24px_rgba(0,0,0,0.25)]",
         "overflow-hidden",
       )}
-      style={{ width: SIDEBAR_NARROW_W }} // начальное значение до hydration
+      style={{ width: SIDEBAR_NARROW_W }}
     >
       {/* ── Header ── */}
       <div className={cn(
@@ -389,7 +403,7 @@ export const AppSidebar = memo(({
               className="flex items-center gap-1.5 ml-auto shrink-0"
             >
               <div className="h-5 w-px bg-white/[0.08]" />
-              <ContextSwitcher embedded className="shadow-none text-xs !px-1.5 !h-7" />
+              <ContextSwitcher sidebarVariant />
               {/* Pin toggle */}
               <button
                 onClick={handlePinToggle}
@@ -412,6 +426,14 @@ export const AppSidebar = memo(({
           {mainItems.map((item) => (
             <SidebarNavItem key={item.href} item={item} open={isOpen} pathname={pathname} />
           ))}
+          {isAuthenticated && (
+            <SidebarButton
+              icon={BarChart2}
+              label={s.statistics}
+              open={isOpen}
+              onClick={() => setTelemetryOpen(true)}
+            />
+          )}
         </div>
 
         <Divider label={s.library} open={isOpen} />
@@ -434,20 +456,6 @@ export const AppSidebar = memo(({
         )}
       </nav>
 
-      {/* ── Wallet (только раскрытый) ── */}
-      {isAuthenticated && isOpen && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.15 }}
-          className="shrink-0 px-2.5 py-1.5 border-t border-white/[0.06] overflow-hidden"
-        >
-          <div className="flex items-center gap-1 overflow-x-auto scrollbar-none">
-            <WalletWidget />
-          </div>
-        </motion.div>
-      )}
 
       {/* ── Bottom buttons ── */}
       <div className={cn(
@@ -460,6 +468,49 @@ export const AppSidebar = memo(({
         <SidebarButton icon={HelpCircle} label={s.help} open={isOpen} onClick={() => window.open("/help", "_self")} />
         <SidebarButton icon={Settings} label={s.settings} open={isOpen} onClick={() => openSettings("general")} />
       </div>
+
+      {/* ── Premium upsell (только для не-премиум) ── */}
+      {isAuthenticated && !isPremium && (
+        <div className={cn(
+          "shrink-0 px-2 pb-1.5",
+          !isOpen && "flex justify-center",
+        )}>
+          <button
+            onClick={() => import("@/store/modalStore").then(m => m.useModalStore.getState().openModal("PAYWALL"))}
+            className={cn(
+              "group relative flex items-center gap-2 transition-all duration-150 overflow-hidden",
+              isOpen
+                ? "w-full h-9 px-3 rounded-xl"
+                : "w-10 h-10 mx-auto justify-center rounded-xl",
+              "bg-gradient-to-r from-amber-500/15 to-orange-500/10",
+              "border border-amber-500/25 hover:border-amber-400/50",
+              "text-amber-500 hover:text-amber-400",
+            )}
+            title={!isOpen ? s.upgrade : undefined}
+          >
+            {/* Тихий shimmer */}
+            <motion.div
+              className="absolute inset-0 bg-gradient-to-r from-transparent via-amber-400/10 to-transparent -skew-x-12 pointer-events-none"
+              animate={{ x: ["-100%", "200%"] }}
+              transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut", repeatDelay: 2 }}
+            />
+            <Crown className="w-4 h-4 shrink-0 relative z-10" strokeWidth={1.8} />
+            <AnimatePresence initial={false}>
+              {isOpen && (
+                <motion.span
+                  initial={{ opacity: 0, width: 0 }}
+                  animate={{ opacity: 1, width: "auto" }}
+                  exit={{ opacity: 0, width: 0 }}
+                  transition={{ duration: 0.15 }}
+                  className="text-[13px] font-semibold truncate overflow-hidden whitespace-nowrap relative z-10"
+                >
+                  {s.upgrade}
+                </motion.span>
+              )}
+            </AnimatePresence>
+          </button>
+        </div>
+      )}
 
       {/* ── Profile row ── */}
       <div className={cn(
@@ -480,7 +531,7 @@ export const AppSidebar = memo(({
             className={cn(
               "flex items-center gap-2.5 rounded-xl h-9 text-[13px] font-semibold transition-all w-full",
               "bg-primary/10 text-primary hover:bg-primary/15",
-              !isOpen ? "justify-center w-9 mx-auto" : "px-3",
+              !isOpen ? "justify-center w-10 h-10 mx-auto" : "px-3",
             )}
           >
             <LogIn className="w-4 h-4 shrink-0" strokeWidth={1.8} />
@@ -489,6 +540,13 @@ export const AppSidebar = memo(({
         )}
       </div>
     </motion.aside>
+
+    {telemetryOpen && (
+      <Suspense fallback={null}>
+        <TelemetryOverlay open={telemetryOpen} onOpenChange={setTelemetryOpen} />
+      </Suspense>
+    )}
+    </>
   );
 });
 
