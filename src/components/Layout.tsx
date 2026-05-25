@@ -36,6 +36,8 @@ import { PWAInstallPrompt } from "./PWAInstallPrompt";
 import { ContextSwitcher } from "./shared/ContextSwitcher";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { Shield as AdminShield } from "lucide-react";
+import { useSettingsStore } from "@/store/settingsStore";
+import { AppSidebar } from "./navigation/AppSidebar";
 
 interface LayoutProps {
   children: ReactNode;
@@ -114,6 +116,8 @@ const Layout = memo(({ children, hideNavigation = false }: LayoutProps) => {
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const { isAdmin } = useIsAdmin();
+  const { navLayout, sidebarCollapsed } = useSettingsStore();
+  const isSidebarMode = navLayout === 'sidebar' && !isTelegramMiniApp();
   const isTelegramApp = isTelegramMiniApp();
   const isMobile = useIsMobile();
   const [isTelegramMobilePlatform, setIsTelegramMobilePlatform] = useState<boolean | null>(null);
@@ -338,8 +342,17 @@ const Layout = memo(({ children, hideNavigation = false }: LayoutProps) => {
 
       {/* УБРАНО: TelegramSafeAreaDebug - debug overlay убран для продакшена */}
 
+      {/* Sidebar Navigation (desktop, sidebar mode) */}
+      {!hideNavigation && isSidebarMode && isMounted && (
+        <AppSidebar
+          notificationsApi={notificationsApi}
+          onOpenNotifications={handleOpenNotifications}
+          onOpenAuth={handleOpenAuth}
+        />
+      )}
+
       {/* Top Navigation for Desktop - Hide only when hideNavigation */}
-      {!hideNavigation && (
+      {!hideNavigation && !isSidebarMode && (
         !isMounted ? (
           <HeaderSkeleton />
         ) : (
@@ -473,8 +486,8 @@ const Layout = memo(({ children, hideNavigation = false }: LayoutProps) => {
         )
       )}
 
-      {/* Wallet Widget Bar - отдельная строка под header на средних экранах (планшеты) */}
-      {!hideNavigation && isAuthenticated && !isTelegramApp && (
+      {/* Wallet Widget Bar - отдельная строка под header на средних экранах (планшеты, только top режим) */}
+      {!hideNavigation && !isSidebarMode && isAuthenticated && !isTelegramApp && (
         <div className="hidden md:flex xl:hidden border-b border-border/50 backdrop-blur-xl bg-background/95 sticky top-16 z-40">
           <div className="container mx-auto px-4 py-2">
             <div className="flex items-center justify-end w-full gap-2">
@@ -491,12 +504,19 @@ const Layout = memo(({ children, hideNavigation = false }: LayoutProps) => {
         ref={mainContentRef}
         className={cn(
           "telegram-main-content bg-transparent relative z-1",
-          "flex-1 flex flex-col min-h-0", // Позволяем контенту растягиваться и не схлопываться
+          "flex-1 flex flex-col min-h-0",
           !hideNavigation && !isFullscreenMode && "has-bottom-nav",
           isAuthenticated && !hideNavigation && !isFullscreenMode && "has-bottom-widgets",
-          // CSS в index.css применяет padding-top через:
-          // .telegram-mobile-app .telegram-main-content { padding-top: max(...) }
+          // Sidebar mode: отступ слева под сайдбар (анимируется через transition)
+          !hideNavigation && isSidebarMode && !isFullscreenMode && (
+            sidebarCollapsed ? "md:ml-[64px]" : "md:ml-[220px]"
+          ),
         )}
+        style={
+          !hideNavigation && isSidebarMode && !isFullscreenMode
+            ? { transition: "margin-left 0.28s cubic-bezier(0.32, 0, 0.18, 1)" }
+            : undefined
+        }
       >
         {children}
       </main>

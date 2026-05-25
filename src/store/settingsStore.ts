@@ -10,6 +10,7 @@ import { persist } from 'zustand/middleware';
 
 export type ThemeMode = 'light' | 'dark' | 'system';
 export type LanguageCode = 'ru' | 'en' | 'es';
+export type NavLayout = 'top' | 'sidebar';
 
 export interface SettingsState {
     // === Modal State ===
@@ -21,6 +22,8 @@ export interface SettingsState {
     language: LanguageCode;
     theme: ThemeMode;
     performanceMode: boolean; // Экономный режим (отключает анимации)
+    navLayout: NavLayout; // Верхняя шапка или левый сайдбар
+    sidebarCollapsed: boolean; // Сайдбар свёрнут (только иконки)
 
     // === Cockpit Settings ===
     soundEnabled: boolean;
@@ -49,6 +52,9 @@ export interface SettingsActions {
     setLanguage: (lang: LanguageCode) => void;
     setTheme: (theme: ThemeMode) => void;
     togglePerformanceMode: () => void;
+    setNavLayout: (layout: NavLayout) => void;
+    setSidebarCollapsed: (collapsed: boolean) => void;
+    toggleSidebarCollapsed: () => void;
 
     // Cockpit settings
     toggleSound: () => void;
@@ -80,6 +86,8 @@ const initialState: SettingsState = {
     language: 'ru',
     theme: 'dark',
     performanceMode: false,
+    navLayout: 'top',
+    sidebarCollapsed: false,
 
     // Cockpit
     soundEnabled: true,
@@ -112,6 +120,9 @@ export const useSettingsStore = create<SettingsStore>()(
             setLanguage: (language) => set({ language }),
             setTheme: (theme) => set({ theme }),
             togglePerformanceMode: () => set((state) => ({ performanceMode: !state.performanceMode })),
+            setNavLayout: (navLayout) => set({ navLayout }),
+            setSidebarCollapsed: (sidebarCollapsed) => set({ sidebarCollapsed }),
+            toggleSidebarCollapsed: () => set((state) => ({ sidebarCollapsed: !state.sidebarCollapsed })),
 
             // === Cockpit settings ===
             toggleSound: () => set((state) => ({ soundEnabled: !state.soundEnabled })),
@@ -137,6 +148,8 @@ export const useSettingsStore = create<SettingsStore>()(
                 language: state.language,
                 theme: state.theme,
                 performanceMode: state.performanceMode,
+                navLayout: state.navLayout,
+                sidebarCollapsed: state.sidebarCollapsed,
                 soundEnabled: state.soundEnabled,
                 soundVolume: state.soundVolume,
                 hapticEnabled: state.hapticEnabled,

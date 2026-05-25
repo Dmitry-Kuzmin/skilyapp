@@ -5,9 +5,9 @@
  */
 
 import React from 'react';
-import { Sun, Moon, Smartphone, Zap, Calendar as CalendarIcon } from 'lucide-react';
+import { Sun, Moon, Smartphone, Zap, Calendar as CalendarIcon, PanelTop, PanelLeft } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
-import { useSettingsStore, type ThemeMode, type LanguageCode } from '@/store/settingsStore';
+import { useSettingsStore, type ThemeMode, type LanguageCode, type NavLayout } from '@/store/settingsStore';
 import { useTheme } from 'next-themes';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { toast } from 'sonner';
@@ -74,9 +74,11 @@ export const GeneralTab: React.FC = () => {
         language,
         theme,
         performanceMode,
+        navLayout,
         setLanguage,
         setTheme,
         togglePerformanceMode,
+        setNavLayout,
     } = useSettingsStore();
 
     const { setTheme: setNextTheme, resolvedTheme, theme: nextTheme } = useTheme();
@@ -120,6 +122,12 @@ export const GeneralTab: React.FC = () => {
         setContextLanguage(lang);
         const labels = { ru: 'Русский', en: 'English', es: 'Español' };
         toast.success(`${t('language')}: ${labels[lang]}`, { duration: 1500 });
+    };
+
+    const handleNavLayoutChange = (layout: NavLayout) => {
+        triggerHaptic('medium');
+        setNavLayout(layout);
+        toast.success(layout === 'sidebar' ? 'Левая панель включена' : 'Верхняя шапка включена', { duration: 1500 });
     };
 
     const handlePerformanceToggle = () => {
@@ -263,6 +271,56 @@ export const GeneralTab: React.FC = () => {
                             )}>
                                 {t_mode.label}
                             </span>
+                        </button>
+                    ))}
+                </div>
+            </div>
+
+            <Separator className="bg-slate-200 dark:bg-slate-700" />
+
+            {/* Навигация */}
+            <div>
+                <SectionTitle title="Навигация" />
+                <div className="grid grid-cols-2 gap-2">
+                    {[
+                        {
+                            id: 'top' as NavLayout,
+                            label: 'Верхняя шапка',
+                            description: 'Классический вид',
+                            icon: <PanelTop className="w-5 h-5" />,
+                        },
+                        {
+                            id: 'sidebar' as NavLayout,
+                            label: 'Левая панель',
+                            description: 'Больше пунктов меню',
+                            icon: <PanelLeft className="w-5 h-5" />,
+                        },
+                    ].map((option) => (
+                        <button
+                            key={option.id}
+                            onClick={() => handleNavLayoutChange(option.id)}
+                            className={cn(
+                                "p-4 rounded-xl border-2 transition-all flex flex-col items-center gap-2 text-center",
+                                "hover:scale-[1.02] active:scale-[0.98]",
+                                navLayout === option.id
+                                    ? "border-indigo-500 bg-indigo-50 dark:bg-indigo-500/10"
+                                    : "border-slate-200 dark:border-slate-700 hover:border-indigo-300 dark:hover:border-indigo-500/50"
+                            )}
+                        >
+                            <span className={cn(navLayout === option.id ? "text-indigo-500" : "text-slate-400")}>
+                                {option.icon}
+                            </span>
+                            <div>
+                                <span className={cn(
+                                    "text-xs font-semibold block",
+                                    navLayout === option.id ? "text-indigo-600 dark:text-indigo-400" : "text-slate-700 dark:text-slate-300"
+                                )}>
+                                    {option.label}
+                                </span>
+                                <span className="text-[10px] text-slate-400 dark:text-slate-500">
+                                    {option.description}
+                                </span>
+                            </div>
                         </button>
                     ))}
                 </div>
