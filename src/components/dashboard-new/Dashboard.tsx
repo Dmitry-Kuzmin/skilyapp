@@ -16,6 +16,7 @@ import { cn } from '@/lib/utils';
 import { DashboardSkeleton } from "./DashboardSkeleton";
 import { LicenseCard } from './LicenseCard';
 import { CompactStreakJewel } from '@/components/shared/CompactStreakJewel';
+import { DashboardHeader } from './DashboardHeader';
 
 // Lazy load heavy dashboard components
 const ExamReadiness = lazy(() => import('./ExamReadiness').then(m => ({ default: m.ExamReadiness })));
@@ -25,6 +26,7 @@ const DuelPassSeasonModal = lazy(() => import('../monetization/DuelPassSeasonMod
 const TelemetryOverlay = lazy(() => import('../telemetry/TelemetryOverlay').then(m => ({ default: m.TelemetryOverlay })));
 const CourseBanner = lazy(() => import('./CourseBanner').then(m => ({ default: m.CourseBanner })));
 const BlogWidget = lazy(() => import('./BlogWidget').then(m => ({ default: m.BlogWidget })));
+const TodayTrack = lazy(() => import('./TodayTrack').then(m => ({ default: m.TodayTrack })));
 
 // Fallback component for lazy loading
 const ComponentSkeleton = () => (
@@ -199,13 +201,18 @@ export const Dashboard: React.FC<DashboardProps> = ({
     <div className="w-full px-4 sm:px-6 lg:px-10 pt-0 md:pt-6 pb-2 md:pb-8 font-sans">
       <div className="max-w-[1370px] mx-auto space-y-6">
 
-        {/* Header */}
-        <div className="mb-6 animate-fade-in">
-          <div className="flex items-center justify-start gap-1.5 sm:gap-3 flex-nowrap min-w-0 max-w-full">
-            {/* Context Switcher (Country | Category) */}
-            <ContextSwitcher className="shrink-0 md:hidden" />
-          </div>
+        {/* Mobile context switcher (desktop has DashboardHeader) */}
+        <div className="flex md:hidden mb-2">
+          <ContextSwitcher className="shrink-0" />
         </div>
+
+        {/* Dashboard Header — только desktop */}
+        <DashboardHeader
+          firstName={userProfile?.first_name ?? null}
+          streak={stats.currentStreak}
+          language={language as "ru" | "es" | "en"}
+          onStartTest={handleStartQuiz}
+        />
 
 
         {/* BENTO GRID */}
@@ -257,6 +264,13 @@ export const Dashboard: React.FC<DashboardProps> = ({
           <div className="md:col-span-1 lg:col-span-1 xl:col-span-1 flex flex-col">
             <Suspense fallback={<ComponentSkeleton />}>
               <DuelPassInfo />
+            </Suspense>
+          </div>
+
+          {/* 3½. TODAY'S TRACK */}
+          <div className="md:col-span-1 lg:col-span-1 xl:col-span-1 flex flex-col">
+            <Suspense fallback={<ComponentSkeleton />}>
+              <TodayTrack />
             </Suspense>
           </div>
 
