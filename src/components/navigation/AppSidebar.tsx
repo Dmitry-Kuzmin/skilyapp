@@ -225,45 +225,44 @@ const SidebarProfileRow = memo(({
   }
 
   return (
-    <div className="flex items-center gap-2 px-1 py-1 rounded-xl hover:bg-white/[0.04] transition-colors group">
-      {/* Avatar */}
-      <button
-        onClick={() => openSettings("account")}
-        className="shrink-0 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary/40 rounded-full"
-      >
+    <button
+      onClick={() => openSettings("account")}
+      className="w-full flex items-center gap-2.5 px-2 py-1.5 rounded-xl hover:bg-white/[0.05] transition-colors group text-left focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary/40"
+    >
+      {/* Avatar — жёсткий контейнер чтобы premium-ring не сдвигал */}
+      <div className="shrink-0 w-7 h-7 flex items-center justify-center">
         <UserAvatar profileId={profileId} size="sm" forcePremium={isPremiumUser} />
-      </button>
+      </div>
 
-      {/* Name + status */}
-      <button
-        onClick={() => openSettings("account")}
-        className="flex-1 min-w-0 text-left focus-visible:outline-none"
-      >
-        <p className="text-[13px] font-semibold text-foreground truncate leading-tight">
+      {/* Name + badge */}
+      <div className="flex-1 min-w-0">
+        <p className="text-[13px] font-semibold text-foreground truncate leading-snug">
           {displayName}
         </p>
-        <div className="flex items-center gap-1 mt-0.5">
+        <div className="flex items-center gap-1">
           {isPremiumUser && (
             <Crown className="w-2.5 h-2.5 text-amber-400 shrink-0" strokeWidth={2} />
           )}
           <span className={cn(
-            "text-[10px] font-medium leading-tight truncate",
-            isPremiumUser ? "text-amber-400/80" : "text-muted-foreground/50",
+            "text-[10px] font-medium leading-none truncate",
+            isPremiumUser ? "text-amber-400/80" : "text-muted-foreground/45",
           )}>
             {subscriptionLabel}
           </span>
         </div>
-      </button>
+      </div>
 
-      {/* Logout */}
-      <button
-        onClick={handleLogout}
+      {/* Logout — появляется при hover */}
+      <div
+        role="button"
+        tabIndex={-1}
+        onClick={(e) => { e.stopPropagation(); handleLogout(); }}
         title={s.logout}
-        className="shrink-0 w-7 h-7 flex items-center justify-center rounded-lg text-muted-foreground/30 hover:text-muted-foreground/70 hover:bg-white/[0.06] transition-colors opacity-0 group-hover:opacity-100"
+        className="shrink-0 w-6 h-6 flex items-center justify-center rounded-lg text-muted-foreground/25 hover:text-muted-foreground/60 hover:bg-white/[0.06] transition-all opacity-0 group-hover:opacity-100"
       >
-        <LogOut className="w-3.5 h-3.5" strokeWidth={1.8} />
-      </button>
-    </div>
+        <LogOut className="w-3 h-3" strokeWidth={1.8} />
+      </div>
+    </button>
   );
 });
 SidebarProfileRow.displayName = "SidebarProfileRow";

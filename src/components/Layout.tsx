@@ -422,10 +422,9 @@ const Layout = memo(({ children, hideNavigation = false }: LayoutProps) => {
                 <div className="flex items-center gap-0.5 min-w-0 flex-shrink-0">
                   {isAuthenticated && (
                     <>
-                      {/* Wallet + Achievements widgets в header на больших экранах */}
+                      {/* Wallet widget в header на больших экранах (XP скрыт) */}
                       <div className="hidden xl:flex items-center gap-2 min-w-0 flex-shrink-0 mr-1">
                         <WalletWidget />
-                        <AchievementsWidget />
                       </div>
                       <Button
                         type="button"
@@ -492,7 +491,6 @@ const Layout = memo(({ children, hideNavigation = false }: LayoutProps) => {
           <div className="container mx-auto px-4 py-2">
             <div className="flex items-center justify-end w-full gap-2">
               <WalletWidget />
-              <AchievementsWidget />
             </div>
           </div>
         </div>
@@ -543,8 +541,7 @@ const Layout = memo(({ children, hideNavigation = false }: LayoutProps) => {
             {isAuthenticated && (
               <div className="px-3 pt-1.5 pb-1 border-b border-border/25 flex-shrink-0 flex flex-wrap items-center gap-2">
                 <WalletWidget />
-                <AchievementsWidget variant="mobile" />
-                {/* Active Duel Widget для мобильных */}
+                {/* XP скрыт: <AchievementsWidget variant="mobile" /> */}
                 <ActiveDuelWidget />
               </div>
             )}
