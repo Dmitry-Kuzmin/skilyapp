@@ -5,7 +5,7 @@ import {
   Home, FileText, BookOpen, Gamepad2, Swords, SignpostBig,
   Newspaper, BookMarked, Settings, ChevronsLeft, ChevronsRight,
   Shield as AdminShield, HelpCircle, GraduationCap,
-  LogIn, Bell,
+  LogIn, Bell, LogOut, Crown, ChevronRight,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -18,42 +18,42 @@ import { ContextSwitcher } from "@/components/shared/ContextSwitcher";
 import { WalletWidget } from "./WalletWidget";
 import { useActiveDuel } from "@/hooks/useActiveDuel";
 import { triggerHaptic } from "@/lib/haptics";
+import { useProfileData } from "@/hooks/useProfileData";
+import { usePremium } from "@/hooks/usePremium";
+import { UserAvatar } from "@/components/UserAvatar";
+import { useQueryClient } from "@tanstack/react-query";
 
-const UserProfilePopover = lazy(() =>
-  import("@/components/UserProfilePopover").then((m) => ({ default: m.UserProfilePopover }))
-);
+/* ─────────── i18n ─────────── */
 
-/* ─────────── i18n for sidebar (hardcoded, avoids deep key issues) ─────────── */
-
-const sidebarI18n: Record<Language, Record<string, string>> = {
+const i18n: Record<Language, Record<string, string>> = {
   es: {
     home: "Inicio", tests: "Pruebas", learning: "Aprendizaje", games: "Juegos",
     signs: "Señales", dictionary: "Diccionario", blog: "Blog", handbook: "Manual",
     admin: "Admin", settings: "Configuración", help: "Ayuda", login: "Iniciar sesión",
-    library: "Biblioteca", system: "Sistema",
+    library: "Biblioteca", system: "Sistema", notifications: "Notificaciones",
+    premium: "Premium", free: "Gratuito", logout: "Cerrar sesión",
   },
   ru: {
     home: "Главная", tests: "Тесты", learning: "Обучение", games: "Игры",
     signs: "Знаки ПДД", dictionary: "Словарь", blog: "Блог", handbook: "Справочник",
     admin: "Админ", settings: "Настройки", help: "Помощь", login: "Войти",
-    library: "Библиотека", system: "Система",
+    library: "Библиотека", system: "Система", notifications: "Уведомления",
+    premium: "Premium", free: "Бесплатный", logout: "Выйти",
   },
   en: {
     home: "Home", tests: "Tests", learning: "Learning", games: "Games",
     signs: "Road Signs", dictionary: "Dictionary", blog: "Blog", handbook: "Handbook",
     admin: "Admin", settings: "Settings", help: "Help", login: "Log in",
-    library: "Library", system: "System",
+    library: "Library", system: "System", notifications: "Notifications",
+    premium: "Premium", free: "Free", logout: "Log out",
   },
 };
 
 /* ─────────── Types ─────────── */
 
 type SidebarItem = {
-  name: string;
-  href: string;
-  icon: LucideIcon;
-  matchPaths?: string[];
-  isActiveDuel?: boolean;
+  name: string; href: string; icon: LucideIcon;
+  matchPaths?: string[]; isActiveDuel?: boolean;
 };
 
 const isPathActive = (pathname: string, item: SidebarItem) => {
@@ -68,7 +68,6 @@ const SidebarNavItem = memo(({ item, collapsed, pathname }: {
 }) => {
   const active = isPathActive(pathname, item);
   const Icon = item.icon;
-
   return (
     <NavLink
       to={item.href}
@@ -91,7 +90,6 @@ const SidebarNavItem = memo(({ item, collapsed, pathname }: {
           transition={{ type: "spring", stiffness: 500, damping: 38 }}
         />
       )}
-
       <Icon
         className={cn(
           "shrink-0 transition-colors duration-150",
@@ -100,20 +98,14 @@ const SidebarNavItem = memo(({ item, collapsed, pathname }: {
         )}
         strokeWidth={active ? 2.2 : 1.6}
       />
-
       {!collapsed && (
-        <span className={cn(
-          "truncate text-[13px] leading-none",
-          active ? "font-semibold" : "font-medium",
-        )}>
+        <span className={cn("truncate text-[13px] leading-none", active ? "font-semibold" : "font-medium")}>
           {item.name}
         </span>
       )}
-
       {item.isActiveDuel && (
         <span className="absolute top-1 right-1 w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
       )}
-
       {collapsed && (
         <span className="pointer-events-none absolute left-full ml-2 z-[60] whitespace-nowrap rounded-md bg-popover/95 backdrop-blur border border-border/60 px-2 py-1 text-[11px] font-medium text-popover-foreground shadow-lg opacity-0 translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-100">
           {item.name}
@@ -140,7 +132,7 @@ const Divider = memo(({ label, collapsed }: { label?: string; collapsed: boolean
 });
 Divider.displayName = "Divider";
 
-/* ─────────── SidebarButton (non-link) ─────────── */
+/* ─────────── SidebarButton ─────────── */
 
 const SidebarButton = memo(({ icon: Icon, label, collapsed, onClick, badge }: {
   icon: LucideIcon; label: string; collapsed: boolean; onClick: () => void; badge?: number;
@@ -159,8 +151,8 @@ const SidebarButton = memo(({ icon: Icon, label, collapsed, onClick, badge }: {
     {!collapsed && <span className="text-[13px] font-medium truncate">{label}</span>}
     {badge != null && badge > 0 && (
       <span className={cn(
-        "flex items-center justify-center min-w-[16px] h-4 rounded-full bg-primary text-[10px] font-bold text-primary-foreground",
-        collapsed ? "absolute -top-0.5 -right-0.5" : "ml-auto",
+        "flex items-center justify-center min-w-[16px] h-4 rounded-full bg-primary/20 text-[10px] font-bold text-primary",
+        collapsed ? "absolute -top-0.5 -right-0.5" : "ml-auto px-1",
       )}>
         {badge > 99 ? "99+" : badge}
       </span>
@@ -173,6 +165,108 @@ const SidebarButton = memo(({ icon: Icon, label, collapsed, onClick, badge }: {
   </button>
 ));
 SidebarButton.displayName = "SidebarButton";
+
+/* ─────────── Profile Row ─────────── */
+
+const SidebarProfileRow = memo(({
+  collapsed, s, onOpenNotifications, profileId, logout,
+}: {
+  collapsed: boolean;
+  s: Record<string, string>;
+  onOpenNotifications: () => void;
+  profileId: string | null;
+  logout: () => void;
+}) => {
+  const { profileData: profile, loading } = useProfileData();
+  const { isPremium } = usePremium();
+  const { openSettings } = useSettingsStore();
+  const queryClient = useQueryClient();
+
+  const displayName = profile?.first_name || profile?.username || "—";
+  const subscriptionLabel = isPremium ? s.premium : s.free;
+  const isPremiumUser = isPremium
+    || profile?.subscription_status === 'pro'
+    || profile?.subscription_status === 'lifetime'
+    || !!profile?.premium_forever_purchased_at;
+
+  const handleLogout = useCallback(async () => {
+    try { queryClient.clear(); } catch (_) {}
+    logout();
+  }, [logout, queryClient]);
+
+  if (loading && !profile) {
+    return (
+      <div className={cn(
+        "flex items-center gap-2.5 px-2 py-2 rounded-xl",
+        collapsed ? "justify-center" : "",
+      )}>
+        <div className="w-8 h-8 rounded-full bg-white/[0.06] animate-pulse shrink-0" />
+        {!collapsed && <div className="flex-1 space-y-1.5">
+          <div className="h-2.5 w-20 rounded bg-white/[0.06] animate-pulse" />
+          <div className="h-2 w-12 rounded bg-white/[0.04] animate-pulse" />
+        </div>}
+      </div>
+    );
+  }
+
+  if (collapsed) {
+    return (
+      <button
+        onClick={() => openSettings("account")}
+        title={displayName}
+        className="group relative w-9 h-9 mx-auto flex items-center justify-center rounded-lg hover:bg-white/[0.06] transition-colors"
+      >
+        <UserAvatar profileId={profileId} size="sm" forcePremium={isPremiumUser} />
+        <span className="pointer-events-none absolute left-full ml-2 z-[60] whitespace-nowrap rounded-md bg-popover/95 backdrop-blur border border-border/60 px-2 py-1 text-[11px] font-medium text-popover-foreground shadow-lg opacity-0 translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-100">
+          {displayName}
+        </span>
+      </button>
+    );
+  }
+
+  return (
+    <div className="flex items-center gap-2 px-1 py-1 rounded-xl hover:bg-white/[0.04] transition-colors group">
+      {/* Avatar */}
+      <button
+        onClick={() => openSettings("account")}
+        className="shrink-0 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary/40 rounded-full"
+      >
+        <UserAvatar profileId={profileId} size="sm" forcePremium={isPremiumUser} />
+      </button>
+
+      {/* Name + status */}
+      <button
+        onClick={() => openSettings("account")}
+        className="flex-1 min-w-0 text-left focus-visible:outline-none"
+      >
+        <p className="text-[13px] font-semibold text-foreground truncate leading-tight">
+          {displayName}
+        </p>
+        <div className="flex items-center gap-1 mt-0.5">
+          {isPremiumUser && (
+            <Crown className="w-2.5 h-2.5 text-amber-400 shrink-0" strokeWidth={2} />
+          )}
+          <span className={cn(
+            "text-[10px] font-medium leading-tight truncate",
+            isPremiumUser ? "text-amber-400/80" : "text-muted-foreground/50",
+          )}>
+            {subscriptionLabel}
+          </span>
+        </div>
+      </button>
+
+      {/* Logout */}
+      <button
+        onClick={handleLogout}
+        title={s.logout}
+        className="shrink-0 w-7 h-7 flex items-center justify-center rounded-lg text-muted-foreground/30 hover:text-muted-foreground/70 hover:bg-white/[0.06] transition-colors opacity-0 group-hover:opacity-100"
+      >
+        <LogOut className="w-3.5 h-3.5" strokeWidth={1.8} />
+      </button>
+    </div>
+  );
+});
+SidebarProfileRow.displayName = "SidebarProfileRow";
 
 /* ═══════════════════ MAIN SIDEBAR ═══════════════ */
 
@@ -189,7 +283,7 @@ export const AppSidebar = memo(({
   onOpenAuth: () => void;
 }) => {
   const { pathname } = useLocation();
-  const { isAuthenticated } = useUserContext();
+  const { isAuthenticated, profileId, logout } = useUserContext();
   const { language } = useLanguage();
   const { sidebarCollapsed, toggleSidebarCollapsed, openSettings } = useSettingsStore();
   const { isAdmin } = useIsAdmin();
@@ -197,14 +291,12 @@ export const AppSidebar = memo(({
   const collapsed = sidebarCollapsed;
   const w = collapsed ? SIDEBAR_COLLAPSED_W : SIDEBAR_W;
 
-  const s = sidebarI18n[language] || sidebarI18n.en;
+  const s = i18n[language] ?? i18n.en;
 
   const handleToggle = useCallback(() => {
     triggerHaptic("light");
     toggleSidebarCollapsed();
   }, [toggleSidebarCollapsed]);
-
-  /* ── Nav items ──────────────────────── */
 
   const mainItems = useMemo<SidebarItem[]>(() => [
     { name: s.home, href: "/dashboard", icon: Home, matchPaths: ["/dashboard"] },
@@ -234,27 +326,23 @@ export const AppSidebar = memo(({
       )}
       style={{ width: w }}
     >
-      {/* ── Header: Logo + Divider + Context ─── */}
+      {/* ── Header: Logo + Context ── */}
       <div className={cn(
-        "flex items-center shrink-0 h-14 gap-0 overflow-visible",
+        "flex items-center shrink-0 h-14 overflow-visible",
         collapsed ? "justify-center px-1.5" : "px-3",
       )}>
-        <NavLink
-          to="/dashboard"
-          className="shrink-0 flex items-center rounded-lg focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary/40"
-        >
+        <NavLink to="/dashboard" className="shrink-0 flex items-center rounded-lg focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary/40">
           <LandingLogo variant="bold" showText={!collapsed} />
         </NavLink>
-
         {!collapsed && isAuthenticated && (
           <>
-            <div className="h-6 w-px bg-white/[0.08] mx-2 shrink-0" />
+            <div className="h-5 w-px bg-white/[0.08] mx-2 shrink-0" />
             <ContextSwitcher embedded className="shrink-0 shadow-none text-xs !px-1.5 !h-7" />
           </>
         )}
       </div>
 
-      {/* ── Main nav ─────────────────────── */}
+      {/* ── Nav ── */}
       <nav className="flex-1 overflow-y-auto overflow-x-hidden px-2 pt-1 pb-1 scrollbar-none">
         <div className="space-y-0.5">
           {mainItems.map((item) => (
@@ -282,7 +370,7 @@ export const AppSidebar = memo(({
         )}
       </nav>
 
-      {/* ── Wallet (compact, no overflow) ──── */}
+      {/* ── Wallet ── */}
       {isAuthenticated && !collapsed && (
         <div className="shrink-0 px-2.5 py-1.5 border-t border-white/[0.06] overflow-hidden">
           <div className="flex items-center gap-1 overflow-x-auto scrollbar-none">
@@ -291,42 +379,36 @@ export const AppSidebar = memo(({
         </div>
       )}
 
-      {/* ── Bottom bar ───────────────────── */}
+      {/* ── Bottom: utility buttons ── */}
       <div className={cn(
-        "shrink-0 border-t border-white/[0.06] px-2 py-2 space-y-0.5",
+        "shrink-0 border-t border-white/[0.06] px-2 pt-1.5 pb-1 space-y-0.5",
         collapsed && "flex flex-col items-center",
       )}>
         {isAuthenticated && (
-          <SidebarButton
-            icon={Bell}
-            label={s.help === "Ayuda" ? "Notificaciones" : language === "ru" ? "Уведомления" : "Notifications"}
-            collapsed={collapsed}
-            onClick={onOpenNotifications}
-            badge={unreadCount}
-          />
+          <SidebarButton icon={Bell} label={s.notifications} collapsed={collapsed} onClick={onOpenNotifications} badge={unreadCount} />
         )}
         <SidebarButton icon={HelpCircle} label={s.help} collapsed={collapsed} onClick={() => window.open("/help", "_self")} />
         <SidebarButton icon={Settings} label={s.settings} collapsed={collapsed} onClick={() => openSettings("general")} />
+      </div>
 
-        {/* Profile row */}
+      {/* ── Profile row ── */}
+      <div className={cn(
+        "shrink-0 border-t border-white/[0.06] px-2 py-2",
+        collapsed && "flex flex-col items-center",
+      )}>
         {isAuthenticated ? (
-          <div className={cn(
-            "pt-1.5 mt-0.5 border-t border-white/[0.06]",
-            collapsed ? "flex justify-center w-full" : "",
-          )}>
-            <Suspense fallback={null}>
-              <UserProfilePopover
-                notificationsApi={notificationsApi}
-                onOpenNotifications={onOpenNotifications}
-                compact={collapsed}
-              />
-            </Suspense>
-          </div>
+          <SidebarProfileRow
+            collapsed={collapsed}
+            s={s}
+            onOpenNotifications={onOpenNotifications}
+            profileId={profileId}
+            logout={logout}
+          />
         ) : (
           <button
             onClick={onOpenAuth}
             className={cn(
-              "flex items-center gap-3 rounded-lg h-9 text-[13px] font-semibold transition-all w-full mt-1",
+              "flex items-center gap-2.5 rounded-lg h-9 text-[13px] font-semibold transition-all w-full",
               "bg-primary/10 text-primary hover:bg-primary/15",
               collapsed ? "justify-center w-9 mx-auto" : "px-3",
             )}
@@ -337,17 +419,11 @@ export const AppSidebar = memo(({
         )}
       </div>
 
-      {/* ── Collapse toggle pill ─────────── */}
+      {/* ── Collapse toggle ── */}
       <button
         onClick={handleToggle}
-        className={cn(
-          "absolute z-[51] flex items-center justify-center rounded-full",
-          "w-5 h-5 bg-background border border-white/[0.1] shadow-sm",
-          "text-muted-foreground/40 hover:text-muted-foreground hover:border-white/[0.2] hover:bg-muted/60",
-          "transition-all duration-150",
-          "top-[23px] -right-[10px]",
-        )}
-        title={collapsed ? s.settings : s.settings}
+        className="absolute z-[51] flex items-center justify-center rounded-full w-5 h-5 bg-background border border-white/[0.1] shadow-sm text-muted-foreground/40 hover:text-muted-foreground hover:border-white/[0.2] hover:bg-muted/60 transition-all duration-150 top-[23px] -right-[10px]"
+        title={collapsed ? "Развернуть" : "Свернуть"}
       >
         {collapsed
           ? <ChevronsRight className="w-2.5 h-2.5" strokeWidth={2.5} />
