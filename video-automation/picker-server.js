@@ -269,7 +269,7 @@ function preprocessTTS(text, lang) {
       .replace(/\bm\/s\b/gi, lang === "es" ? "metros por segundo" : "метров в секунду")
       .replace(/\bm\/h\b/gi, lang === "es" ? "metros por hora" : "метров в час")
       .replace(/\bcc\b/gi,   lang === "es" ? "centímetros cúbicos" : "кубических сантиметров")
-      .replace(/\bDGT\b/g,   lang === "es" ? "D.G.T." : "Д-Ж-Т")
+      .replace(/\bDGT\b/g,   lang === "es" ? "D.G.T." : "Дэ Гэ Тэ")
       // Strip markdown bold/italic that ElevenLabs reads literally
       .replace(/\*\*/g, "")
       .replace(/\*/g, "")
@@ -280,6 +280,13 @@ function preprocessTTS(text, lang) {
   // Для русского языка: транслитерация испанских терминов + ударения
   if (lang === "ru") {
     text = text
+      // ── Бренд и аббревиатуры ──────────────────────────────────────────────────
+      .replace(/[Ss]kilyapp\.com\b/g,       "Скилиапп точка ком")
+      .replace(/[Ss]kilyapp\b/g,            "Скилиапп")
+      .replace(/\b[Ss]kily\b/g,             "Скили")
+      // ДГТ кириллицей (Gemini пишет именно так) — с точками и без
+      .replace(/Д\.Г\.Т\.?/g,              "Дэ Гэ Тэ")
+      .replace(/ДГТ/g,                      "Дэ Гэ Тэ")
       // ── Испанские дорожные термины → русская фонетика ──────────────────────
       // TTS не умеет читать испанский в русском тексте — заменяем заранее
       .replace(/\bautopistas?\b/gi,         "аутописта")
