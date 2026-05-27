@@ -528,17 +528,21 @@ async function generateTTSForQuestion(question) {
   }
 
   // Question — чуть быстрее, но разборчиво
+  // Для RU-видео используем question_ru если есть — голос должен совпадать с тем, что на экране
+  const qText = (lang === "ru" && question.question_ru) ? question.question_ru : question.question;
   const qPath = path.join(AUDIO_DIR, `${id}-${lang}-question.mp3`);
-  const { dur: qDur, words: qWords } = await synth(question.question, voiceId, qPath, "question", lang, 1.20);
+  const { dur: qDur, words: qWords } = await synth(qText, voiceId, qPath, "question", lang, 1.20);
   if (qDur !== null) {
     result.questionAudioFile        = `audio/${id}-${lang}-question.mp3`;
     result.questionAudioDurationSec = qDur;
   }
 
   // Answer options — чуть быстрее
+  // Для RU-видео используем text_ru если есть
   const answerFiles = [], answerDurs = [], answerWordsList = [];
   for (let i = 0; i < (question.answer_options || []).length; i++) {
-    const text  = prefixes[i] + question.answer_options[i].text;
+    const opt   = question.answer_options[i];
+    const text  = prefixes[i] + ((lang === "ru" && opt.text_ru) ? opt.text_ru : opt.text);
     const aPath = path.join(AUDIO_DIR, `${id}-${lang}-answer-${i}.mp3`);
     const { dur, words: aWords } = await synth(text, voiceId, aPath, `answer ${i+1}`, lang, 1.25);
     answerFiles.push(`audio/${id}-${lang}-answer-${i}.mp3`);
@@ -666,6 +670,7 @@ async function generateViralExplanation(dryText, lang, question = "", percent_co
 - Пассивный залог ("является", "осуществляется")
 - Эмодзи (TTS произнесёт их как текст)
 - Скобки и пояснения в скобках
+- Сравнения с правилами РФ или других стран — это контент про Испанию (DGT)
 
 ОБЯЗАТЕЛЬНО:
 - Говори на "ты" — лично, как друг
