@@ -327,6 +327,30 @@ const TestResults = () => {
         if (maxStreak > 0) {
           updates.push({ userId, category: 'streak_correct', delta: maxStreak, setAbsolute: true });
         }
+
+        // signs — correct answers on topic 3 (Сигналы / Señales)
+        const qMap = new Map(questions.map((q: QuestionData) => [q.id, q]));
+        const signCorrect = answers.filter(a => {
+          const q = qMap.get(a.questionId);
+          return a.isCorrect && (
+            q?.topics?.title_ru === 'Сигналы' ||
+            q?.topics?.title_es === 'Señales'
+          );
+        }).length;
+        if (signCorrect > 0) {
+          updates.push({ userId, category: 'signs', delta: signCorrect });
+        }
+
+        // mistakes_fixed — correct answers in challenge-bank (mistake review) mode
+        if (mode === 'challenge-bank' && correctCount > 0) {
+          updates.push({ userId, category: 'mistakes_fixed', delta: correctCount });
+        }
+
+        // marathon_mode — completed a marathon or mastery session
+        if (mode === 'marathon' || mode === 'mastery') {
+          updates.push({ userId, category: 'marathon_mode', delta: 1 });
+        }
+
         if (mode === 'exam' || mode === 'exam-russia') {
           updates.push({ userId, category: 'exams', delta: 1 });
           if (passed && hasNoErrors) {

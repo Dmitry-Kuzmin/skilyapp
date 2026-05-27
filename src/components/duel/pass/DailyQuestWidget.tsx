@@ -29,6 +29,16 @@ const QUEST_TRANSLATIONS: Record<string, Record<string, string>> = {
   two_exams:       { ru: "Пройди 2 экзамена за день",        es: "Completa 2 exámenes en un día",      en: "Complete 2 exams today" },
   exam_blitz:      { ru: "Пройди 3 экзамена за день",        es: "Supera 3 exámenes en un día",        en: "Pass 3 exams today" },
   perfect_exam:    { ru: "Сдай экзамен на 100%",             es: "Aprueba un examen con 100%",         en: "Pass an exam with 100%" },
+  // Signs
+  sign_reader:     { ru: "5 вопросов про знаки",             es: "5 preguntas de señales",             en: "5 sign questions correct" },
+  sign_hunter:     { ru: "15 правильных про знаки",          es: "15 aciertos de señales",             en: "15 sign questions correct" },
+  // Mistakes bank
+  mistake_slayer:  { ru: "Исправь 5 ошибок",                es: "Corrige 5 errores",                  en: "Fix 5 mistakes" },
+  error_cleaner:   { ru: "Исправь 15 ошибок",               es: "Corrige 15 errores",                 en: "Fix 15 mistakes" },
+  // Marathon
+  marathon_run:    { ru: "Пройди режим Марафон",             es: "Completa el modo Maratón",           en: "Complete a Marathon" },
+  // Streak
+  streak_warrior:  { ru: "3 дня подряд в приложении",        es: "3 días seguidos en la app",          en: "3 days in a row" },
 };
 
 const CLAIM_LABEL: Record<string, string> = {
